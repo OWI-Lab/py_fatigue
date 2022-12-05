@@ -12,7 +12,7 @@ homepage = "https://github.com/pietrodantuono/py_fatigue"
 documentation = "https://pietrodantuono.github.io/py_fatigue"
 
 [tool.poetry.urls]
-"Change Log" = "https://github.com/pietrodantuono/py_fatigue/CHANGELOG.md"
+"Change Log" = "https://github.com/pietrodantuono/py_fatigue/blob/main/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/pietrodantuono/py_fatigue/issues"
 "Organisation Homepage" = "https://www.owi-lab.be/"
 
