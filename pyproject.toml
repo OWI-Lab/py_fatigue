@@ -10,8 +10,6 @@ readme = "README.md"
 license = "GNU General Public License v3.0"
 homepage = "https://github.com/pietrodantuono/py_fatigue"
 documentation = "https://pietrodantuono.github.io/py_fatigue"
-download_url = "https://pypi.org/project/py-fatigue"
-source = "https://github.com/pietrodantuono/py_fatigue"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/pietrodantuono/py_fatigue/issues"
