@@ -10,7 +10,7 @@
 py-fatigue documentation
 ========================
 
-.. topic:: Release DEV
+.. topic:: Release STABLE
 
    Version |release|
 
