@@ -1,7 +1,9 @@
-name: Publish ${package_name} to PyPI / GitHub
+name: Publish Py-Fatigue to PyPI / GitHub
 
 on:
   push:
+    branches:    
+      - main
     tags:
       - "v*"
   workflow_dispatch:
