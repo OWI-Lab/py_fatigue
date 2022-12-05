@@ -1,3 +1,4 @@
+- Bumpversion 1.3.1
 - fix: usr: #1.4 Edited project PyPI page !cosmetic
 - new: usr: #1.3 Added HTML documentation !wip
 - new: dev: #1.2 Added github action 'publish.yml' !wip
