@@ -3,6 +3,7 @@ The :mod:`py_fatigue.utils` module collects all the utility functions
 and classes.
 """
 # Packages from the Python Standard Library
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import (
     Any,

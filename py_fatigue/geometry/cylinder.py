@@ -1,5 +1,5 @@
 # Packages from non-standard libraries
-from typing import Optional
+from typing import Dict, Optional
 
 import matplotlib
 import numba as nb
@@ -245,7 +245,7 @@ class Cylinder(AbstractCrackGeometry):
 )
 def f_hol_cyl_01(
     crack_depth: float,
-    crack_geometry: dict[str, float],
+    crack_geometry: Dict[str, float],
 ):
     """Calculate the crack geometry factor for a hollow cylinder with
     an external crack.

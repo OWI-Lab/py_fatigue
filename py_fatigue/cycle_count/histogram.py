@@ -7,6 +7,7 @@ package `[4]`_.
 """
 
 # standard imports
+from __future__ import annotations
 import itertools
 from typing import Callable, List, Optional, Sequence, Union, TypeVar
 

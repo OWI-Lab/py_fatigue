@@ -3,7 +3,7 @@ damage models related to the crack growth approach.
 """
 
 # Packages from the Python Standard Library
-from typing import Tuple, Type, TypeVar
+from typing import Dict, Tuple, Type, TypeVar
 
 # Packages from third party libraries
 from numba.experimental import jitclass
@@ -365,7 +365,7 @@ def get_sif(
     stress_: float,
     crack_depth_: float,
     crack_type: str,
-    crack_geometry: dict[list, float],
+    crack_geometry: Dict[list, float],
 ) -> Tuple[float, float]:
     """Get the SIF value given the stress and the crack size. The
     method calculates the SIF value according to the following

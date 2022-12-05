@@ -6,6 +6,7 @@ The main class is CycleCount.
 """
 
 # Standard imports
+from __future__ import annotations
 import copy
 import datetime as dt
 import itertools

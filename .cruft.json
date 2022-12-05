@@ -9,7 +9,7 @@
       "project_slug": "py_fatigue",
       "project_description": "py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting. The toolbox allows estimating (i) the fatigue life for given material properties under known load history through the linear damage accumulation rule, also known as Palmgren-Miner Rule, or (ii) derived parameters such as the damage equivalent stress range.",
       "project_version": "0.1.0",
-      "python_version": "3.9.7",
+      "python_version": "3",
       "start_port": "9000",
       "devops_platform": "Azure DevOps",
       "jupyter": "yes",
