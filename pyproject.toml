@@ -3,7 +3,7 @@ line-length = 79 # Code length, not docstrings
 
 [tool.poetry]
 name = "py_fatigue"
-version = "1.0.1"
+version = "1.0.2"
 description = "py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
 authors = ["Pietro D'Antuono <pietro.dantuono@vub.be>"]
 readme = "README.md"
@@ -28,7 +28,7 @@ pydantic = "^1.10.2"
 [tool.poetry.group.dev.dependencies]
 gitchangelog = "~3.0.4"
 keyring = "*"
-bump2version = "^1.0.1"
+bump2version = "^1.0.2"
 pytest = "^6.2.4"
 black = "*"
 flake8 = "^3.9"
