@@ -1,0 +1,6 @@
+- fix: usr: #1.4 Edited project PyPI page !cosmetic
+- new: usr: #1.3 Added HTML documentation !wip
+- new: dev: #1.2 Added github action 'publish.yml' !wip
+- fix: dev: #1.1 Refactor for python_version>=3.8 !refactor
+- new: dev: #1.0 First commit !wip
+- new: dev: #0.0 Initial commit !wip
