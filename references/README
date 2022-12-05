@@ -1,0 +1,4 @@
+Data dictionaries, manuals, and all other explanatory materials.
+
+-> Sphinx documentation (`docs/` folder) should be a first citizen for documentation
+so try to centralize most of the information there.

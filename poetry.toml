@@ -1,0 +1,3 @@
+cache-dir = "_build"
+virtualenvs.create = true
+virtualenvs.in-project = true

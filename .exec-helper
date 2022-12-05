@@ -1,0 +1,22 @@
+commands:
+    python: Let pyenv install the project python version
+    venv: Create the virtual python environment for this project
+
+
+python:
+    - command-line-command
+
+venv:
+    - command-line-command
+
+
+command-line-command:
+    python:
+        command-line: 
+           - a: [pyenv, update]
+           - b: [pyenv, install, --skip-existing, $(cat .python-version)]
+
+    venv:
+        command-line: 
+            - a: [poetry, install, --no-root]
+            - b: [poetry, shell]

@@ -1,0 +1,51 @@
+{% extends "!layout.html" %}
+
+{% block menu %}
+    {{ super() }}
+    <p class="caption">
+        <span class="caption-test">Search</span>
+    </p>
+    <ul>
+        <li class="toctree-l1">
+            <a class="reference internal" href="{{pathto('genindex.html', 1)}}">Index</a>
+        </li>
+        <li class="toctree-l1">
+            <a class="reference internal" href="{{pathto('py-modindex.html', 1)}}"">Python Module Index</a>
+        </li>
+    </ul>
+
+{% endblock %}
+
+{% block footer %} {{ super() }}
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
+        /* Sidebar header (and topbar for mobile) */
+        .wy-side-nav-search, .wy-nav-top {
+        background: #A9BCC8;
+        }
+        /* Sidebar */
+        .wy-nav-side {
+        background: #384263;
+        }
+        .toctree-l1:hover .wy-menu {
+            background: #3D66A1;
+        }
+        /* Main content */
+        .wy-nav-content {
+        background: #FFFFFF;
+        }
+        .wy-menu .wy-menu-vertical{
+            display: block;
+            top: -10px;
+            margin-right: -25%;
+        }
+        
+        .toctree-l1 li ul li:first-child a {
+            border-radius: 4px 4px 0 0;
+        }
+        .toctree-l1 li ul li:last-child a {
+            border-radius: 0 0 4px 4px;
+        }
+    </style>
+{% endblock %}

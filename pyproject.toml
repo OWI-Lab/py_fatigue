@@ -1,0 +1,66 @@
+[tool.black]
+line-length = 79 # Code length, not docstrings
+
+[tool.poetry]
+name = "py_fatigue"
+version = "1.3.0"
+description = "py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting. The toolbox allows estimating (i) the fatigue life for given material properties under known load history through the linear damage accumulation rule, also known as Palmgren-Miner Rule, or (ii) derived parameters such as the damage equivalent stress range."
+authors = ["Pietro D'Antuono <pietro.dantuono@vub.be>"]
+readme = "README.md"
+
+# (Azure Artifact) Source 
+[[tool.poetry.source]]
+name = "dw_feed"
+# Check the URL in ADO -> Connect to feed -> pip -> copy url
+url = "https://pkgs.dev.azure.com/OWI-Lab/DYNAwind/_packaging/dw_feed/pypi/"
+secondary = true
+
+[tool.poetry.dependencies]
+python = "~3.9"
+numpy = "^1.21"
+plotly = "^5.6"
+pandas = "^1.4"
+numba = "^0.56"
+matplotlib = "^3.5"
+pydantic = "^1.10.2"
+
+[tool.poetry.group.dev.dependencies]
+gitchangelog = "~3.0.4"
+keyring = "*"
+bump2version = "^1.0.1"
+pytest = "^6.2.4"
+black = "*"
+flake8 = "^3.9"
+pylint = "^2.8"
+mypy = "^0.910"
+pyinstrument = "^4.0"
+pytest-cov = "^2.12"
+invoke = "^1.5"
+hypothesis = "^6.14.0"
+cruft = "^2.9.0"
+artifacts-keyring = "^0.3.2"
+notebook = "^6.4"
+jupyter_contrib_nbextensions = "^0.5"
+nb-clean = "^2.1"
+nbdime = "^3.1"
+
+[tool.poetry.group.docs.dependencies]
+Sphinx = "^5.0"
+sphinxcontrib-napoleon = "^0.7"
+myst-parser = "^0.18"
+pydata-sphinx-theme = "^0.11.0"
+sphinx_design = "^0.3.0"
+autoclasstoc = "^1.5.2"
+
+[tool.pytest.ini_options]
+markers = [
+    "success",
+    "error"
+]
+testpaths = [
+    "tests"
+]
+
+[build-system]
+requires = ["poetry-core>=1.0"]
+build-backend = "poetry.core.masonry.api"
