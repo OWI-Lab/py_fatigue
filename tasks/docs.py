@@ -20,9 +20,9 @@ def build(c):
     system = get_current_system()
 
     if system == OperatingSystem.LINUX:
-        _command = f"poetry run sphinx-build -b  html -d {DOCS_BUILD_DIR}/doctrees ./rst_docs {DOCS_BUILD_DIR}/html -E -a"
+        _command = f"poetry run sphinx-build -b  html -d {DOCS_BUILD_DIR}/doctrees ./rst_docs {DOCS_BUILD_DIR} -E -a"
     elif system == OperatingSystem.WINDOWS:
-        _command = f"poetry run sphinx-build -b html -d {DOCS_BUILD_DIR}\\doctrees rst_docs {DOCS_BUILD_DIR}\\html -E -a"
+        _command = f"poetry run sphinx-build -b html -d {DOCS_BUILD_DIR}\\doctrees rst_docs {DOCS_BUILD_DIR} -E -a"
     else:
         raise ValueError(f'System {system} is not supported')
 
@@ -38,11 +38,11 @@ def start(c):
     if system == OperatingSystem.LINUX:
         _command = f"poetry run screen -d -S {DOC_SCREEN_NAME} \
             -m python -m http.server --bind localhost \
-            --directory {DOCS_BUILD_DIR}/html {SERVER_PORT}"
+            --directory {DOCS_BUILD_DIR} {SERVER_PORT}"
     elif system == OperatingSystem.WINDOWS:
         _command = f"poetry run wt -d . " \
                    f"python -m http.server --bind localhost " \
-                   f"--directory {DOCS_BUILD_DIR}\\html {SERVER_PORT} "
+                   f"--directory {DOCS_BUILD_DIR} {SERVER_PORT} "
     else:
         raise ValueError(f'System {system} is not supported')
 
