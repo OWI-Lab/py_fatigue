@@ -26,7 +26,7 @@ system = get_current_system()
 if system == OperatingSystem.LINUX:
     COV_SCREEN_NAME = "coverage"
     COV_DOC_BUILD_DIR = "_build/htmlcov"
-    DOCS_BUILD_DIR = "_build/docs"
+    DOCS_BUILD_DIR = "docs"
     DOC_SCREEN_NAME = "sphinx-docs"
 elif system == OperatingSystem.WINDOWS:
     COV_DOC_BUILD_DIR = r"_build\htmlcov"
