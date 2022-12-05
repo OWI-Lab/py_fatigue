@@ -8,6 +8,6 @@ It provides:
 - crack propagation analysis through the combination of the Paris' law and multiple crack geometries
 - and more...
 
-Py-Fatigue is heavily based on [``numba``](https://numba.pydata.org/), [numpy](https://numpy.org/) and [pandas](https://pandas.pydata.org/), for the analytical part, and [``matplotlib``](https://matplotlib.org/) for the plotting part.
+Py-Fatigue is heavily based on [``numba``](https://numba.pydata.org/), [``numpy``](https://numpy.org/) and [``pandas``](https://pandas.pydata.org/), for the analytical part, and [``matplotlib``](https://matplotlib.org/) for the plotting part.
 
 The package is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
