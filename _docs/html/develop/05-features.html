@@ -1,0 +1,934 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Project tools &#8212; py-fatigue Documentation (1.3.0)</title>
+  <script>
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1e1de1a1873e13ef5536" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1e1de1a1873e13ef5536" rel="stylesheet">
+
+  
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/6.1.2/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autoclasstoc.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1e1de1a1873e13ef5536">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'develop/05-features';</script>
+    <link rel="shortcut icon" href="../_static/owi-lab.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Azure DevOps services" href="../ado/01-index.html" />
+    <link rel="prev" title="Why a template?" href="04-template.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../_static/py-fatigue-logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../_static/py-fatigue-logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class=" navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="../user/01-absolute-noob.html">
+                        Beginners’ guide
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../user/02-user-guide.html">
+                        User’s guide
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../user/additional/01-index.html">
+                        Glossary and guidelines
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../api/01-index.html">
+                        API index
+                    </a>
+                </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                <li class="nav-item current active">
+                    <a class="nav-link" href="00-index.html">
+                        CI/CD Development
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../ado/01-index.html">
+                        Azure DevOps services
+                    </a>
+                </li>
+                
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://github.com/">Changelog<i class="fa-solid fa-up-right-from-square"></i></a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://pydata.org">PyData<i class="fa-solid fa-up-right-from-square"></i></a>
+            </li>
+                </div>
+            </div>
+            
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      <div class="navbar-end-item navbar-end__search-button-container">
+        
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" data-toggle="tooltip">
+    <a class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="fa-regular fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-brands fa-square-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.owi-lab.be" title="OWI-Lab" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/_img/owi-lab.png" class="icon-link-image" alt="OWI-Lab"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  <div class="search-button-container--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+  </div>
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="../user/01-absolute-noob.html">
+                        Beginners’ guide
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../user/02-user-guide.html">
+                        User’s guide
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../user/additional/01-index.html">
+                        Glossary and guidelines
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../api/01-index.html">
+                        API index
+                    </a>
+                </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                <li class="nav-item current active">
+                    <a class="nav-link" href="00-index.html">
+                        CI/CD Development
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../ado/01-index.html">
+                        Azure DevOps services
+                    </a>
+                </li>
+                
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://github.com/">Changelog<i class="fa-solid fa-up-right-from-square"></i></a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://pydata.org">PyData<i class="fa-solid fa-up-right-from-square"></i></a>
+            </li>
+                </div>
+            </div>
+            
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" data-toggle="tooltip">
+    <a class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="fa-regular fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-brands fa-square-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.owi-lab.be" title="OWI-Lab" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/_img/owi-lab.png" class="icon-link-image" alt="OWI-Lab"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
+    <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01-readme.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02-version-control.html">Setup version control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03-devops.html">DevOps platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04-template.html">Why a template?</a></li>
+
+
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Project tools</a></li>
+</ul>
+
+  </div>
+</nav>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+      </div>
+      <main class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <section id="project-tools">
+<h1>Project tools<a class="headerlink" href="#project-tools" title="Permalink to this heading">#</a></h1>
+<p>This page guides you through the different tools which are available in this project template.
+For each tool we limit the documentation to their main usage so you can start using them.
+When relevant, external links are provided to the original documentation of each tool. You are
+encouraged to read through it to get a deeper understanding.</p>
+<section id="pyenv">
+<h2>pyenv<a class="headerlink" href="#pyenv" title="Permalink to this heading">#</a></h2>
+<p>lets you easily <strong>switch between multiple versions of Python</strong>. It’s simple, unobtrusive,
+and follows the UNIX tradition of single-purpose tools that do one thing well.</p>
+<p>It’s the prerequisite for the template and should already be installed on your system. A good
+introduction can be found on <a class="reference external" href="https://realpython.com/intro-to-pyenv/">Real Python</a>.</p>
+<p>The most relevant command is <code class="docutils literal notranslate"><span class="pre">pyenv</span> <span class="pre">versions</span></code> which displays all currently installed
+Python versions on your system.</p>
+</section>
+<section id="screen">
+<h2>screen<a class="headerlink" href="#screen" title="Permalink to this heading">#</a></h2>
+<p>is a full-screen window manager that multiplexes a physical terminal between several
+processes (typically interactive shells). It’s used within this project to start local web servers
+in the background.</p>
+<p>An overview of the command line options can be found
+<a class="reference external" href="https://www.gnu.org/software/screen/manual/screen.html#Invoking-Screen">here</a>.
+Normally you will not directly need this tool but <code class="docutils literal notranslate"><span class="pre">screen</span> <span class="pre">-ls</span></code> is handy to check all
+running background tasks and <code class="docutils literal notranslate"><span class="pre">killall</span> <span class="pre">screen</span></code> when you need to close all at once.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In case a <strong>Permission denied</strong> error pops up you can fix it with running the next commands
+in a terminal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir ~/.screen <span class="o">&amp;&amp;</span> chmod <span class="m">700</span> ~/.screen
+<span class="nb">export</span> <span class="nv">SCREENDIR</span><span class="o">=</span><span class="nv">$HOME</span>/.screen
+</pre></div>
+</div>
+<p>Additionally you can put the last line into you <cite>~/.bashrc</cite> (or alternative shell like .zshrc)
+so that it will also take effect afterwards.</p>
+</div>
+</section>
+<section id="poetry">
+<h2>poetry<a class="headerlink" href="#poetry" title="Permalink to this heading">#</a></h2>
+<p>is a tool for <strong>dependency management and packaging</strong> in Python.
+It allows you to declare the libraries your project depends on and it will manage (install/update) them for you.</p>
+<p>Since you are reading this documentation this tool should already be installed with the <code class="docutils literal notranslate"><span class="pre">exec-helper</span> <span class="pre">create_environment</span></code>
+command. Be sure to read the <a class="reference external" href="https://python-poetry.org/docs/basic-usage/">basic usage</a> and
+<a class="reference external" href="https://python-poetry.org/docs/cli/">commands</a> documentation on the poetry website.</p>
+<p>Relevant <code class="docutils literal notranslate"><span class="pre">poetry</span> <span class="pre">&lt;command&gt;</span></code> you will need within the project:</p>
+<dl class="field-list">
+<dt class="field-odd">shell<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Spawns a shell within the virtual environment.
+If one doesn’t exist yet, it will be created.</p>
+</dd>
+<dt class="field-even">add<span class="colon">:</span></dt>
+<dd class="field-even"><p>Adds required packages to your <cite>pyproject.toml</cite> and installs them.</p>
+<dl class="option-list">
+<dt><kbd><span class="option">-D</span>, <span class="option">--dev</span></kbd></dt>
+<dd><p>Add package as development dependency.</p>
+</dd>
+<dt><kbd><span class="option">--path</span></kbd></dt>
+<dd><p>The path to a dependency.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">remove<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Removes a package from the current list of installed packages.</p>
+<dl class="option-list">
+<dt><kbd><span class="option">-D</span>, <span class="option">--dev</span></kbd></dt>
+<dd><p>Removes a package from the development dependencies.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">show<span class="colon">:</span></dt>
+<dd class="field-even"><p>List all of the available packages.</p>
+<dl class="option-list">
+<dt><kbd><span class="option">--no-dev</span></kbd></dt>
+<dd><p>Do not list the dev dependencies.</p>
+</dd>
+<dt><kbd><span class="option">--tree</span></kbd></dt>
+<dd><p>List the dependencies as a tree.</p>
+</dd>
+<dt><kbd><span class="option">-l</span>, <span class="option">--latest</span></kbd></dt>
+<dd><p>Show the latest version.</p>
+</dd>
+<dt><kbd><span class="option">-o</span>, <span class="option">--outdated</span></kbd></dt>
+<dd><p>Show the latest version but only for packages that are outdated.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">build<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Builds the source and wheels archives.</p>
+<dl class="option-list">
+<dt><kbd><span class="option">-F <var>format</var></span>, <span class="option">--format=<var>format</var></span></kbd></dt>
+<dd><p>Limit the format to either wheel or sdist.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">update<span class="colon">:</span></dt>
+<dd class="field-even"><p>In order to get the latest versions of the dependencies and to update the <cite>poetry.lock</cite> file.
+You should use this command to update all packages to the latest versions.</p>
+<dl class="option-list">
+<dt><kbd><span class="option">--no-dev</span></kbd></dt>
+<dd><p>Do not install dev dependencies.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>During initialization of the project when running the <code class="docutils literal notranslate"><span class="pre">exec-helper</span> <span class="pre">create_environment</span></code> command, <code class="docutils literal notranslate"><span class="pre">poetry</span> <span class="pre">install</span></code>
+was launched in the background. Since there was no <cite>poetry.lock</cite> file poetry resolved all dependencies in
+the <cite>pyproject.toml</cite> file and installed them.
+When Poetry has finished installing, it writes all of the packages and the exact versions of them that it
+downloaded to the <cite>poetry.lock</cite> file, locking the project to those specific versions.
+You should commit the <cite>poetry.lock</cite> file to your project repo so that all people working on the project
+are locked to the same versions of dependencies.</p>
+<p>Running install when a poetry.lock file is present resolves and installs all dependencies that you
+listed in <cite>pyproject.toml</cite>, but Poetry uses the exact versions listed in <cite>poetry.lock</cite> to ensure that the
+package versions are consistent for everyone working on your project. As a result you will have all dependencies
+requested by your <cite>pyproject.toml</cite> file, but they may not all be at the very latest available versions.
+This is by design, it ensures that your project does not break because of unexpected changes in dependencies.</p>
+<dl class="simple">
+<dt>To update to the latest versions, use the <code class="docutils literal notranslate"><span class="pre">update</span></code> command. This will fetch the latest matching versions</dt><dd><p>(according to your <cite>pyproject.toml</cite> file) and update the lock file with the new versions.</p>
+</dd>
+</dl>
+</section>
+<section id="black">
+<h2>black<a class="headerlink" href="#black" title="Permalink to this heading">#</a></h2>
+<p>is the uncompromising <strong>automated Python code formatter</strong>. Black gives you speed, determinism,
+and freedom from PyCodeStyle nagging about formatting. You will save time and mental
+energy for more important matters. In other words it auto-corrects common formatting mistakes
+and makes code reviews faster by producing the smallest diffs.
+See <a class="reference external" href="https://github.com/psf/black">black documentation</a> to learn more.</p>
+<p>It reformats entire files in place. It is not configurable. It doesn’t take previous formatting into account.
+It doesn’t reformat blocks that start with <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">fmt:</span> <span class="pre">off</span></code> and end with <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">fmt:</span> <span class="pre">on</span></code>.</p>
+</section>
+<section id="flake8">
+<h2>flake8<a class="headerlink" href="#flake8" title="Permalink to this heading">#</a></h2>
+<p>is a command-line utility for <strong>enforcing style consistency</strong> across Python projects. By default it includes
+lint checks provided by the PyFlakes project, PEP-0008 inspired style checks provided by the PyCodeStyle project,
+and McCabe complexity checking provided by the McCabe project.
+More information can be found on the flake8 <a class="reference external" href="https://flake8.pycqa.org/en/latest/index.html">docs</a>.</p>
+</section>
+<section id="pylint">
+<h2>pylint<a class="headerlink" href="#pylint" title="Permalink to this heading">#</a></h2>
+<p>is a tool that checks for errors in Python code, tries to enforce a coding standard and looks for code smells.
+It can also look for certain type errors, it can recommend suggestions about how particular blocks can be
+refactored and can offer you details about the code’s complexity.</p>
+<p>Within this template it’s setup to <strong>provide suggestions</strong>. Check out the <a class="reference external" href="http://pylint.pycqa.org/en/latest/">manual</a>
+if you want to learn more.</p>
+<p>If you can’t live with all the suggestion about you can limit the output by adding the option <code class="docutils literal notranslate"><span class="pre">--disable=R,C</span></code>
+to the pylint command.</p>
+</section>
+<section id="mypy">
+<h2>mypy<a class="headerlink" href="#mypy" title="Permalink to this heading">#</a></h2>
+<p>is an optional <strong>static type checker</strong> for Python that aims to combine the benefits of dynamic (or “duck”) typing
+and static typing. Mypy combines the expressive power and convenience of Python with a powerful type system
+and compile-time type checking.</p>
+<p>Using the Python 3 function annotation syntax (using the PEP 484 notation), you will be able to efficiently
+annotate your code and use mypy to check the code for common errors.
+Mypy has a powerful and easy-to-use type system with modern features such as type inference,
+generics, callable types, tuple types, union types, and structural sub-typing.</p>
+<p>Check out <a class="reference external" href="https://mypy.readthedocs.io/en/stable/">mypy docs</a> and the
+<a class="reference external" href="https://mypy.readthedocs.io/en/stable/getting_started.html">getting started guide</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Black, flake8, pylint and mypy are bundled under the <strong>quality assurance</strong> command. Run <code class="docutils literal notranslate"><span class="pre">eh</span> <span class="pre">qa</span></code> to run
+them all sequentially.</p>
+</div>
+</section>
+<section id="sphinx">
+<h2>sphinx<a class="headerlink" href="#sphinx" title="Permalink to this heading">#</a></h2>
+<p>is a tool that translates a set of reStructuredText source files into various output formats,
+automatically producing cross-references, indices, etc. If you have a directory containing a
+bunch of reST-formatted documents (and possibly subdirectories of docs in there as well),
+Sphinx can generate a nicely-organized arrangement of HTML files (in some other directory) for easy browsing
+and navigation. But from the same source, it can also generate a PDF file using LaTeX.</p>
+<p>Sphinx is used within this project to <strong>generate the documentation</strong> you are reading right now.
+Be sure to check the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html">reStructuredText guide</a>
+to understand the syntax. Compared to markdown it offers quite a bit more functionality and it’s
+not that much more difficult.
+Also check the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/quickstart.html#autodoc">Sphinx Getting Started</a> guide
+when you need to know more advanced use cases.</p>
+<p>When documenting Python code, it is common to put a lot of documentation in the source files, in documentation strings.
+Sphinx supports the inclusion of docstrings from your modules with autodoc whcih can be used to convert your source
+documentation in a nice looking API.</p>
+<p>This project uses the <a class="reference external" href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/">napoleon sphinx extension</a>
+which interprets every docstring that Sphinx <strong>autodoc</strong> can find, including docstrings on: modules, classes,
+attributes, methods, functions, and variables.
+Inside each docstring, specially formatted <cite>Sections</cite> are parsed and converted to reStructuredText.</p>
+<p>The napoleon extension supports two styles of docstrings: Google and NumPy.
+We think the google style is the cleanest, check the
+<a class="reference external" href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google">example</a> for
+yourself, so we used that one to generate the <cite>version module</cite> documentation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use PEP 484 type annotations!</p>
+<p>PEP 484 introduced a standard way to express types in Python code. This is an alternative
+to expressing types directly in docstrings. One benefit of expressing types according to
+PEP 484 is that type checkers and IDEs can take advantage of them for static code analysis.
+Since <strong>mypy</strong> is part of the project as well the benefit is twofold.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To check if all your external links are still valid references in your documentation you should
+run <code class="docutils literal notranslate"><span class="pre">eh</span> <span class="pre">linkcheck</span></code> from time to time.</p>
+</div>
+</section>
+<section id="pytest">
+<h2>pytest<a class="headerlink" href="#pytest" title="Permalink to this heading">#</a></h2>
+<p>The pytest framework makes it easy to <strong>write small tests, yet scales to support complex functional testing</strong> for applications and libraries.
+Within this project you can run pytest to look for tests in the <cite>tests/</cite> directory. You can run it directly with the <code class="docutils literal notranslate"><span class="pre">pytest</span></code> command or
+take advantage of the pre-defined task (<code class="docutils literal notranslate"><span class="pre">eh</span> <span class="pre">test</span></code>).</p>
+<p>The functionality of this test suite is extensive and there are a bunch of plugins written for it. Be sure to browse
+the documentation at <a class="reference external" href="https://docs.pytest.org/en/latest/contents.html#toc">https://docs.pytest.org/en/latest/contents.html#toc</a>.
+It’s also easy to extend it with your own custom functionality. In the <cite>tests/conftest.py</cite> there are some examples of this.</p>
+</section>
+<section id="bumpversion">
+<h2>bumpversion<a class="headerlink" href="#bumpversion" title="Permalink to this heading">#</a></h2>
+<p>Version-bump your software with a single command! A small command line tool to simplify releasing
+software by updating all version strings in your source code by the correct increment.</p>
+<p>Within this project this tool is used to keep the project version in sync between different files.</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">bumpversion</span> <span class="pre">major|minor|patch</span></code> command to update the required part of the semver version tag.</p>
+</section>
+<section id="gitchangelog">
+<h2>gitchangelog<a class="headerlink" href="#gitchangelog" title="Permalink to this heading">#</a></h2>
+<p>Use your commit log to make beautiful and configurable changelog file.
+See <a class="reference external" href="https://pypi.org/project/gitchangelog/">https://pypi.org/project/gitchangelog/</a> to learn more.</p>
+<p>In practice if you follow these basic commit message rules you can generate a nice
+changelog without any additional work. So why not be more disciplined when writing
+commit messages? The overhead is minimal, others and the future you will thank you!</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ACTION: <span class="o">[</span>AUDIENCE:<span class="o">]</span> COMMIT_MSG <span class="o">[</span>!TAG ...<span class="o">]</span>
+
+Description
+
+ACTION is one of <span class="s1">&#39;chg&#39;</span>, <span class="s1">&#39;fix&#39;</span>, <span class="s1">&#39;new&#39;</span>
+
+      Is WHAT the change is about.
+
+      <span class="s1">&#39;chg&#39;</span> is <span class="k">for</span> refactor, small improvement, cosmetic changes...
+      <span class="s1">&#39;fix&#39;</span> is <span class="k">for</span> bug fixes
+      <span class="s1">&#39;new&#39;</span> is <span class="k">for</span> new features, big improvement
+
+AUDIENCE is optional and one of <span class="s1">&#39;dev&#39;</span>, <span class="s1">&#39;usr&#39;</span>, <span class="s1">&#39;pkg&#39;</span>, <span class="s1">&#39;test&#39;</span>, <span class="s1">&#39;doc&#39;</span>
+
+      Is WHO is concerned by the change.
+
+      <span class="s1">&#39;dev&#39;</span>  is <span class="k">for</span> developpers <span class="o">(</span>API changes, refactors...<span class="o">)</span>
+      <span class="s1">&#39;usr&#39;</span>  is <span class="k">for</span> final users <span class="o">(</span>UI changes<span class="o">)</span>
+      <span class="s1">&#39;pkg&#39;</span>  is <span class="k">for</span> packagers   <span class="o">(</span>packaging changes<span class="o">)</span>
+      <span class="s1">&#39;test&#39;</span> is <span class="k">for</span> testers     <span class="o">(</span><span class="nb">test</span> only related changes<span class="o">)</span>
+      <span class="s1">&#39;doc&#39;</span>  is <span class="k">for</span> doc guys    <span class="o">(</span>doc only changes<span class="o">)</span>
+
+COMMIT_MSG is ... well ... the commit message itself.
+
+TAGs are additionnal adjective as <span class="s1">&#39;refactor&#39;</span> <span class="s1">&#39;minor&#39;</span> <span class="s1">&#39;cosmetic&#39;</span>
+
+      They are preceded with a <span class="s1">&#39;!&#39;</span> or a <span class="s1">&#39;@&#39;</span> <span class="o">(</span>prefer the former, as the
+      latter is wrongly interpreted <span class="k">in</span> github.<span class="o">)</span> Commonly used tags are:
+
+      <span class="s1">&#39;refactor&#39;</span> is obviously <span class="k">for</span> refactoring code only
+      <span class="s1">&#39;minor&#39;</span> is <span class="k">for</span> a very meaningless change <span class="o">(</span>a typo, adding a comment<span class="o">)</span>
+      <span class="s1">&#39;cosmetic&#39;</span> is <span class="k">for</span> cosmetic driven change <span class="o">(</span>re-indentation, <span class="m">80</span>-col...<span class="o">)</span>
+      <span class="s1">&#39;wip&#39;</span> is <span class="k">for</span> partial functionality but <span class="nb">complete</span> subfunctionality.
+
+Example:
+
+new: usr: support of bazaar implemented
+chg: re-indentend some lines !cosmetic
+new: dev: updated code to be compatible with last version of killer lib.
+fix: pkg: updated year of licence coverage.
+new: test: added a bunch of <span class="nb">test</span> around user usability of feature X.
+fix: typo <span class="k">in</span> spelling my name <span class="k">in</span> comment. !minor
+
+Please note that multi-line commit message are supported, and only the
+first line will be considered as the <span class="s2">&quot;summary&quot;</span> of the commit message. So
+tags, and other rules only applies to the summary.  The body of the commit
+message will be displayed <span class="k">in</span> the changelog without reformatting.
+</pre></div>
+</div>
+</section>
+<section id="jupyter-notebook">
+<h2>Jupyter notebook<a class="headerlink" href="#jupyter-notebook" title="Permalink to this heading">#</a></h2>
+<p>Jupyter Notebook is an open-source web application that allows you to create and share documents that contain live code, equations, visualizations and narrative text. Uses include: data cleaning and transformation, numerical simulation, statistical modeling, data visualization, machine learning, and much more.</p>
+<p>This project has built-in functionality to launch a jupyter notebook environment, linked to your Python environment. Its <cite>autoreload</cite> magic creates a live link between this project’s source folder and the running web notebook.</p>
+<p>To start your local jupyter notebook server run <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">nb.start</span></code> and open the <strong>`0.0-ddw-nb-development-guide.ipynb`</strong> notebook for a development guide on how to get started with this approach.</p>
+<p>The jupyter project is also enormous but dedicated documentation for the notebook can be found <a class="reference external" href="https://jupyter-notebook.readthedocs.io/en/stable/">in the official documentation</a>.</p>
+</section>
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="04-template.html" title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">Why a template?</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="../ado/01-index.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">Azure DevOps services</p>
+  </div>
+  <i class="fa-solid fa-angle-right"></i>
+  </a>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pyenv">
+   pyenv
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#screen">
+   screen
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#poetry">
+   poetry
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#black">
+   black
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#flake8">
+   flake8
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pylint">
+   pylint
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#mypy">
+   mypy
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#sphinx">
+   sphinx
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pytest">
+   pytest
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bumpversion">
+   bumpversion
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#gitchangelog">
+   gitchangelog
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#jupyter-notebook">
+   Jupyter notebook
+  </a>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../_sources/develop/05-features.rst.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1e1de1a1873e13ef5536"></script>
+ 
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
+        /* Sidebar header (and topbar for mobile) */
+        .wy-side-nav-search, .wy-nav-top {
+        background: #A9BCC8;
+        }
+        /* Sidebar */
+        .wy-nav-side {
+        background: #384263;
+        }
+        .toctree-l1:hover .wy-menu {
+            background: #3D66A1;
+        }
+        /* Main content */
+        .wy-nav-content {
+        background: #FFFFFF;
+        }
+        .wy-menu .wy-menu-vertical{
+            display: block;
+            top: -10px;
+            margin-right: -25%;
+        }
+        
+        .toctree-l1 li ul li:first-child a {
+            border-radius: 4px 4px 0 0;
+        }
+        .toctree-l1 li ul li:last-child a {
+            border-radius: 0 0 4px 4px;
+        }
+    </style>
+
+  </body>
+</html>
