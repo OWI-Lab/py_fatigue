@@ -681,10 +681,11 @@ class CycleCount:
         -------
         str
         """
+        strng = f"CC_{self.name}"
         if len(self.time_sequence) == 1:
             strng = "".join(
                 (
-                    f"CC_ {self.name} (",
+                    f"CC_{self.name} (",
                     f"{self.timestamp.strftime('%d %b %Y, %H:%M')} - ",
                     "",
                 )
@@ -1443,8 +1444,16 @@ def _multiplication_by_scalar(
 
     mul_range = other_ * self_.stress_range
     mul_mean = other_ * self_.mean_stress
-    mul_res_seq = other_ * np.array(self_.residuals_sequence)
-    mul_min_max = other_ * np.array(self_.min_max_sequence)
+    mul_res_seq = (
+        other_ * np.array(self_.residuals_sequence)
+        if self_.residuals_sequence is not None
+        else np.empty(0)
+    )
+    mul_min_max = (
+        other_ * np.array(self_.min_max_sequence)
+        if self_.min_max_sequence is not None
+        else np.empty(0)
+    )
     mul_mean_bin = (
         other_ * self_.mean_bin_lower_bound
         if self_.mean_bin_lower_bound is not None
