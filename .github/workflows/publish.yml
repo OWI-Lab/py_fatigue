@@ -65,7 +65,7 @@ jobs:
       shell: bash
       run: |
         WHL_NAME=$(ls py_fatigue-*.whl)
-        pip install ${WHL_NAME} pytest
+        pip install ${WHL_NAME} pytest hypothesis
     - name: Run tests
       shell: bash
       run: pytest
