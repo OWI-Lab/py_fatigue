@@ -1,8 +1,14 @@
+- Bumpversion 1.0.4
+- fix: usr: #3.0 fixed application of SCF when no residuals_sequence is available
+- fix: usr: #2.1 Updated publish.yml workflow to run tests for python 3.8, 3.9 and 3.10 and publish to PyPI if version is tagged
+- Bumpversion 1.0.3
 - fix: usr: #2.0 Updated publish.yml workflow
-- Bumpversion 1.0.0
 - fix: usr: #1.4 Edited project PyPI page !cosmetic
+- Bumpversion 1.0.2
 - new: usr: #1.3 Added HTML documentation !wip
+- Bumpversion 1.0.1
 - new: dev: #1.2 Added github action 'publish.yml' !wip
 - fix: dev: #1.1 Refactor for python_version>=3.8 !refactor
+- Bumpversion 1.0.0
 - new: dev: #1.0 First commit !wip
 - new: dev: #0.0 Initial commit !wip
