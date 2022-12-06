@@ -61,14 +61,14 @@ jobs:
       with:
         name: dist
     
-    - name: Install pura and pytest
+    - name: Install py_fatigue and pytest
       shell: bash
       run: |
-        WHL_NAME=$(ls pura-*.whl)
+        WHL_NAME=$(ls py_fatigue-*.whl)
         pip install ${WHL_NAME}[experiments,entmoot] pytest
     - name: Run tests
       shell: bash
-      run: pura-tests
+      run: py_fatigue-tests
 
   # Publish to pypi on version change
   # This is based on https://github.com/coveooss/pypi-publish-with-poetry
@@ -100,9 +100,9 @@ jobs:
     - name: Determine the version for this release from the build
       id: current
       run: |
-        BUILD_VER="$(ls dist/pura-*.tar.gz)"
+        BUILD_VER="$(ls dist/py_fatigue-*.tar.gz)"
         echo "Path: $BUILD_VER"
-        if [[ $BUILD_VER =~ (pura-)([^,][0-9.]{4}) ]]; then
+        if [[ $BUILD_VER =~ (py_fatigue-)([^,][0-9.]{4}) ]]; then
             echo "::set-output name=version::${BASH_REMATCH[2]}"
             echo "Version of build: ${BASH_REMATCH[2]}"
         else
@@ -112,7 +112,7 @@ jobs:
     - name: Get latest published version
       id: published
       run: |
-        PUB_VER="$(pypi current-version pura)"
+        PUB_VER="$(pypi current-version py_fatigue)"
         echo "::set-output name=version::$PUB_VER"
         echo "Latest published version: $PUB_VER"
     
