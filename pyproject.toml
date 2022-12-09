@@ -5,15 +5,18 @@ line-length = 79 # Code length, not docstrings
 name = "py_fatigue"
 version = "1.0.4"
 description = "py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
-authors = ["Pietro D'Antuono <pietro.dantuono@vub.be>"]
+authors = [
+    "Pietro D'Antuono <pietro.dantuono@vub.be>",
+    "Wout Weijtjens <wout.weijtjens@vub.be>"
+]
 readme = "README.md"
 license = "GNU General Public License v3.0"
-homepage = "https://github.com/pietrodantuono/py_fatigue"
-documentation = "https://pietrodantuono.github.io/py_fatigue"
+homepage = "https://github.com/owi-lab/py_fatigue"
+documentation = "https://owi-lab.github.io/py_fatigue"
 
 [tool.poetry.urls]
-"Change Log" = "https://github.com/pietrodantuono/py_fatigue/blob/main/CHANGELOG.md"
-"Bug Tracker" = "https://github.com/pietrodantuono/py_fatigue/issues"
+"Change Log" = "https://github.com/owi-lab/py_fatigue/blob/main/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/owi-lab/py_fatigue/issues"
 "Organisation Homepage" = "https://www.owi-lab.be/"
 
 [tool.poetry.dependencies]

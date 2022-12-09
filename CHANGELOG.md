@@ -1,3 +1,4 @@
+- Ownership transferred to OWI-Lab
 - Bumpversion 1.0.4
 - fix: usr: #3.0 fixed application of SCF when no residuals_sequence is available
 - fix: usr: #2.1 Updated publish.yml workflow to run tests for python 3.8, 3.9 and 3.10 and publish to PyPI if version is tagged
