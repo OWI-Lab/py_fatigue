@@ -1,3 +1,4 @@
+- Ownership transferred to OWI-Lab
 - fix: usr: #2.0 Updated publish.yml workflow
 - Bumpversion 1.0.0
 - fix: usr: #1.4 Edited project PyPI page !cosmetic
