@@ -22,7 +22,7 @@ If you use Py-Fatigue in your research, please cite the following paper:
 	publisher = {https://www.owi-lab.be/},
 	title = {{Py-Fatigue}},
 	year = {2022},
-	url = {https://pietrodantuono.github.io/py_fatigue},
+	url = {https://owi-lab.github.io/py_fatigue},
 }
 ```
 
@@ -36,7 +36,7 @@ If you use Py-Fatigue in your research, please cite the following paper:
 	publisher = {https://www.owi-lab.be/},
 	title = {Py-Fatigue},
 	type = {software},
-	url = {https://pietrodantuono.github.io/py_fatigue},
+	url = {https://owi-lab.github.io/py_fatigue},
 	version = {1.0.3},
 }
 ```
@@ -44,7 +44,7 @@ If you use Py-Fatigue in your research, please cite the following paper:
 ### APA 7-style
 
 ```
-D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software]. In Github (1.0.3). https://www.owi-lab.be/. https://pietrodantuono.github.io/py_fatigue
+D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software]. In Github (1.0.3). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 ```
 
 ## License
