@@ -1,3 +1,5 @@
+- Bumpversion 1.0.5
+- fix: dev: #4.0 Substituted pietrodantuono with OWI-Lab links
 - Ownership transferred to OWI-Lab
 - Bumpversion 1.0.4
 - fix: usr: #3.0 fixed application of SCF when no residuals_sequence is available
