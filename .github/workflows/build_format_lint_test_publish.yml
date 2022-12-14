@@ -12,6 +12,7 @@ on:
 
 jobs:
   # Build the package
+  # echo "::set-output name=version::$(cat .python-version)" >> $GITHUB_ENV
   build:
     name: Build py-fatigue
     runs-on: ubuntu-latest
@@ -23,7 +24,7 @@ jobs:
     - name: Get python version from .python-version
       id: python-version
       run: |
-        echo "::set-output name=version::$(cat .python-version)" >> $GITHUB_ENV
+        echo "version=$(cat .python-version)" >> $GITHUB_ENV
 
     - name: Install python ${{ steps.python-version.outputs.version }}
       uses: actions/setup-python@v2
@@ -56,7 +57,7 @@ jobs:
     - name: Get python version from .python-version
       id: python-version
       run: |
-        echo "::set-output name=version::$(cat .python-version)" >> $GITHUB_ENV
+        echo "version=$(cat .python-version)" >> $GITHUB_ENV
 
     - name: Install python ${{ steps.python-version.outputs.version }}
       uses: actions/setup-python@v2
@@ -83,7 +84,7 @@ jobs:
     - name: Get python version from .python-version
       id: python-version
       run: |
-        echo "::set-output name=version::$(cat .python-version)" >> $GITHUB_ENV
+        echo "version=$(cat .python-version)" >> $GITHUB_ENV
 
     - name: Install python ${{ steps.python-version.outputs.version }}
       uses: actions/setup-python@v2
@@ -110,7 +111,7 @@ jobs:
     - name: Get python version from .python-version
       id: python-version
       run: |
-        echo "::set-output name=version::$(cat .python-version)" >> $GITHUB_ENV
+        echo "version=$(cat .python-version)" >> $GITHUB_ENV
 
     - name: Install python ${{ steps.python-version.outputs.version }}
       uses: actions/setup-python@v2
@@ -160,6 +161,7 @@ jobs:
 
   # Publish to pypi on version change
   # This is based on https://github.com/coveooss/pypi-publish-with-poetry
+  # echo "::set-output name=version::${BASH_REMATCH[2]}"
   publish:
     name: Publish py-fatigue to pypi
     needs: [build, test, black, flake8_py3, mypy]
@@ -172,7 +174,7 @@ jobs:
     - name: Get python version from .python-version
       id: python-version
       run: |
-        echo "::set-output name=version::$(cat .python-version)" >> $GITHUB_ENV
+        echo "version=$(cat .python-version)" >> $GITHUB_ENV
 
     - name: Install python ${{ steps.python-version.outputs.version }}
       uses: actions/setup-python@v2
@@ -197,7 +199,7 @@ jobs:
         BUILD_VER="$(ls dist/py_fatigue-*.tar.gz)"
         echo "Path: $BUILD_VER"
         if [[ $BUILD_VER =~ (py_fatigue-)([^,][0-9.]{4}) ]]; then
-            echo "::set-output name=version::${BASH_REMATCH[2]}"
+            echo "version=${BASH_REMATCH[2]}" >> $GITHUB_ENV
             echo "Version of build: ${BASH_REMATCH[2]}"
         else
             echo "No version found found"
@@ -207,7 +209,7 @@ jobs:
       id: published
       run: |
         PUB_VER="$(pypi current-version py_fatigue)"
-        echo "::set-output name=version::$PUB_VER"
+        echo "version=$PUB_VER" >> $GITHUB_ENV
         echo "Latest published version: $PUB_VER"
     
 
@@ -228,7 +230,7 @@ jobs:
       if: (steps.current.outputs.version != steps.published.outputs.version)
       run: |
         TAG_NAME=${{ steps.current.outputs.version }}
-        echo "::set-output name=tag-name::$TAG_NAME"
+        echo "{tag-name}={$TAG_NAME}" >> $GITHUB_OUTPUT
         echo "This release will be tagged as $TAG_NAME"
         git config user.name "github-actions"
         git config user.email "actions@users.noreply.github.com"
