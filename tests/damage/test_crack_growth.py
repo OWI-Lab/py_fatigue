@@ -114,7 +114,7 @@ class TestCrackGrowth:
             assert all((cg_c_ex.final_cycles, cg_d_ex.final_cycles,
                         cg_c_no_ex.final_cycles, cg_d_no_ex.final_cycles)) \
                         < analytical
-            assert all((cg_c_ex.failure, cg_d_ex.failure, cg_c_no_ex.failure, \
+            assert all((cg_c_ex.failure, cg_d_ex.failure, cg_c_no_ex.failure,
                         cg_d_no_ex.failure)) is False
         # assert cg_d_ex.final_cycles == cg_d_no_ex.final_cycles \
         #        == cg_c_no_ex.final_cycles
@@ -169,11 +169,41 @@ class TestCrackGrowth:
             cc_clustered, paris_pure, geo, express_mode=True
         )
 
+        with pytest.raises(ValueError):
+            cc_clustered.unit = "error_unit"
+            damage.get_crack_growth(
+                cc_clustered, paris_pure, geo, express_mode=True
+            )
+
         # fmt: off
         if cg.failure:
             if analytical > 1E4:
                 assert cg.final_cycles >= cg_cr.final_cycles
             else:
                 assert abs(cg.final_cycles - analytical) < 1000
-        
+
         assert not cg_th.failure
+
+    @pytest.mark.parametrize("cc_clustered", [(CC_1A)])
+    def test_paris_law_inconsistent_units(
+        self,
+        cc_clustered: CycleCount,
+    ):
+        """Test the Paris' law for a constant load with threshold or critical
+        stress itensity factor when units are not consistent.
+        """
+        initial_depth, slope, intercept = (1.0, 3.1, 1.2e-14)
+        threshold = np.sqrt(np.pi * initial_depth)
+        paris_curve = ParisCurve(
+            slope=slope, intercept=intercept, threshold=1.01 * threshold,
+            unit_string="ksi * in^(-1/2)"
+        )
+
+        geo = geometry.InfiniteSurface(initial_depth=initial_depth)
+        # fmt: on
+
+        with pytest.raises(ValueError):
+            cc_clustered.unit = "error_unit"
+            damage.get_crack_growth(
+                cc_clustered, paris_curve, geo, express_mode=True
+            )

@@ -465,7 +465,12 @@ def get_crack_growth(
     # Handle the stress ranges and cycle counts as they might be clustered
     # in a matrix and we need to iterate over single or "little" cycles
     # within the same stress range block
-
+    if cycle_count.unit not in cg_curve.unit:
+        e_msg = (
+            f"Cycle count unit ({cycle_count.unit}) and crack growth "
+            f"curve unit ({cg_curve.unit}) are not compatible."
+        )
+        raise ValueError(e_msg)
     if np.max(cycle_count.count_cycle) > 1:
         if express_mode:
             splts = [

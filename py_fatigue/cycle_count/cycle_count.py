@@ -1291,6 +1291,7 @@ class CycleCount:
             "mean-range",
             "counts-range",
             "counts-range-cumsum",
+            "counts-range-2D",
         ]
         if plot_type not in plot_types:
             e_msg = f"Invalid plot type. Must be one of {plot_types}."
