@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>7. Damage calculation &#8212; py-fatigue Documentation (1.0.7)</title>
+    <title>7. Stress-Life damage calculation &#8212; py-fatigue Documentation (1.0.7)</title>
   <script>
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -431,7 +431,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04-cycle_counting.html">4. CycleCount definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-cycle_count_sum.html">5. CycleCount sum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="06-mean_stress.html">6. Mean stress effect</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">7. Damage calculation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">7. Stress-Life damage calculation</a></li>
 </ul>
 
   </div>
@@ -460,9 +460,10 @@
             
             <article class="bd-article" role="main">
               
-  <section id="damage-calculation">
-<span id="id1"></span><h1>7. Damage calculation<a class="headerlink" href="#damage-calculation" title="Permalink to this heading">#</a></h1>
-<p>This section contains some examples of damage calculations.</p>
+  <section id="stress-life-damage-calculation">
+<span id="id1"></span><h1>7. Stress-Life damage calculation<a class="headerlink" href="#stress-life-damage-calculation" title="Permalink to this heading">#</a></h1>
+<p>This section contains some examples of damage calculations using the
+stress-life approach.</p>
 <p>The module <a class="reference internal" href="../../api/damage/stress_life.html#module-py_fatigue.damage.stress_life" title="py_fatigue.damage.stress_life"><code class="xref py py-mod docutils literal notranslate"><span class="pre">py_fatigue.damage.stress_life</span></code></a> contains all the
 damage models related to the stress-life approach.</p>
 <p>The simplest and most common damage model is the
@@ -470,8 +471,8 @@ Palmgren-Miner (<a class="reference internal" href="../../api/damage/stress_life
 <a class="reference internal" href="../../api/damage/stress_life.html#py_fatigue.damage.stress_life.get_pm" title="py_fatigue.damage.stress_life.get_pm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">py_fatigue.damage.stress_life.get_pm</span></code></a>) model.</p>
 <div class="math notranslate nohighlight">
 \[D = \sum_{j=1}^{N_{\text{blocks}}} \frac{n_j}{N_j} \leq 1\]</div>
-<p>Besides it, <cite>py-fatigue</cite> also provides a series of nonlinear damage
-accumulation models callable through
+<p>Besides the linear damage accumulation rule, <cite>py-fatigue</cite> also
+provides a series of nonlinear damage accumulation models callable through
 <a class="reference internal" href="../../api/damage/stress_life.html#py_fatigue.damage.stress_life.calc_nonlinear_damage" title="py_fatigue.damage.stress_life.calc_nonlinear_damage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">py_fatigue.damage.stress_life.calc_nonlinear_damage</span></code></a> and
 <a class="reference internal" href="../../api/damage/stress_life.html#py_fatigue.damage.stress_life.get_nonlinear_damage" title="py_fatigue.damage.stress_life.get_nonlinear_damage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">py_fatigue.damage.stress_life.get_nonlinear_damage</span></code></a></p>
 <ul class="simple">
@@ -510,7 +511,7 @@ number of load blocks in the fatigue spectrum.</p>
 </pre></div>
 </div>
 </div>
-<p>In the specific, for the damage models currently implemented in <cite>py_fatigue</cite>,
+<p>Specifically, for the damage models currently implemented in <cite>py_fatigue</cite>,
 the exponents are:</p>
 <ul class="simple">
 <li><p>Manson and Halford:
@@ -527,8 +528,8 @@ is the ultimate stress, <span class="math notranslate nohighlight">\(\Delta \sig
 </ul>
 <section id="palmgren-miner">
 <h2>1. Palmgren-Miner<a class="headerlink" href="#palmgren-miner" title="Permalink to this heading">#</a></h2>
-<section id="a-constant-signal">
-<h3>a. Constant signal<a class="headerlink" href="#a-constant-signal" title="Permalink to this heading">#</a></h3>
+<section id="a-constant-fatigue-load-sinoid">
+<h3>a. Constant fatigue load (sinoid)<a class="headerlink" href="#a-constant-fatigue-load-sinoid" title="Permalink to this heading">#</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In this example we define a fatigue stress signal in the form
@@ -752,8 +753,8 @@ of a sinusoidal function and calculate the damage using the
   </a>
   <ul class="visible nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#a-constant-signal">
-     a. Constant signal
+    <a class="reference internal nav-link" href="#a-constant-fatigue-load-sinoid">
+     a. Constant fatigue load (sinoid)
     </a>
    </li>
   </ul>

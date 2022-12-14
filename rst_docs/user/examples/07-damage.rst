@@ -77,7 +77,7 @@ the exponents are:
 - Leve: :math:`e_{j, j+1} =\text{constant}`.
 
 1. Palmgren-Miner
-----------------
+-----------------
 
 a. Constant fatigue load (sinoid)
 +++++++++++++++++++++++++++++++++

@@ -131,7 +131,7 @@ Output:
 
 .. code-block:: bash
 
-        b1_c.slope: [3], b1_c.intercept: [12.436]
+    b1_c.slope: [3], b1_c.intercept: [12.436]
     type(b1_c.slope): <class 'numpy.ndarray'>, type(b1_c.intercept): <class 'numpy.ndarray'>
     c_c.slope: [3], c_c.intercept: [12.115]
     type(c_c.slope): <class 'numpy.ndarray'>, type(c_c.intercept): <class 'numpy.ndarray'>

@@ -429,7 +429,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04-cycle_counting.html">4. CycleCount definition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05-cycle_count_sum.html">5. CycleCount sum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="06-mean_stress.html">6. Mean stress effect</a></li>
-<li class="toctree-l1"><a class="reference internal" href="07-damage.html">7. Damage calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07-damage.html">7. Stress-Life damage calculation</a></li>
 </ul>
 
   </div>
@@ -493,20 +493,18 @@ following as cell #1:</p>
 </div>
 <p>Optionally, we can add some matplotlib tweaking:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">10.5</span><span class="o">/</span><span class="mf">2.514</span><span class="o">/</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">4.5</span><span class="o">/</span><span class="mf">2.514</span><span class="o">/</span><span class="mf">0.7</span><span class="p">)</span>
-<span class="linenos"> 2</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.family&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Times New Roman&quot;</span>  <span class="c1"># &quot;Roboto&quot;</span>
+<span class="linenos"> 2</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.family&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Serif&quot;</span>
 <span class="linenos"> 3</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10.5</span>
 <span class="linenos"> 4</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="linenos"> 5</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;grid.color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#CCCCCC&quot;</span>
+<span class="linenos"> 5</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;grid.color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#DDDDDD&quot;</span>
 <span class="linenos"> 6</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;grid.linestyle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
-<span class="linenos"> 7</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;grid.color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#DDDDDD&quot;</span>
-<span class="linenos"> 8</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;grid.linestyle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
-<span class="linenos"> 9</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.spines.right&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="linenos">10</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.spines.top&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="linenos">11</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markersize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="linenos">12</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.bottom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="linenos">13</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.labelbottom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="linenos">14</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.left&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="linenos">15</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.labelleft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos"> 7</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.spines.right&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="linenos"> 8</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.spines.top&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="linenos"> 9</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markersize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">10</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.bottom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="linenos">11</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.labelbottom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">12</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.left&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="linenos">13</span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.labelleft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
 </section>
