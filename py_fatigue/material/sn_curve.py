@@ -9,7 +9,6 @@ The main and only class is SNCurve.
 from typing import (
     Any,
     Callable,
-    Collection,
     Optional,
     Sized,
     Tuple,
@@ -415,15 +414,15 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_cycles(
         self,
-        check_knee: Optional[Collection] = None,
+        check_knee: Optional[Sized] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Calculate the knee cycles.
 
         Parameters
         ----------
-        check_knee : Collection, optional
-            Collection of knee stress values, by default None
+        check_knee : Sized, optional
+            Sized of knee stress values, by default None
         significant_digits : int, optional
             Number of significant digits, by default 2
 
@@ -436,7 +435,7 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_stress(
         self,
-        check_knee: Optional[Collection] = None,
+        check_knee: Optional[Sized] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Return stress at the knee(s).
@@ -646,12 +645,12 @@ class SNCurve(AbstractSNCurve):
 
     def get_knee_stress(
         self,
-        check_knee: Optional[Collection] = None,
+        check_knee: Optional[Sized] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         if check_knee is not None:
             # Assertion to make mypy pass on check_knee type
-            assert isinstance(check_knee, Collection)
+            assert isinstance(check_knee, Sized)
         if not self.linear:
             knee_stress = np.asarray(
                 [
@@ -689,12 +688,12 @@ class SNCurve(AbstractSNCurve):
 
     def get_knee_cycles(
         self,
-        check_knee: Optional[Collection] = None,
+        check_knee: Optional[Sized] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         if check_knee is not None:
             # Assertion to make mypy pass on check_knee type
-            assert isinstance(check_knee, Collection)
+            assert isinstance(check_knee, Sized)
         knee_stress = self.get_knee_stress()
         if len(knee_stress) > 0:
             knee = np.asarray(
@@ -705,8 +704,7 @@ class SNCurve(AbstractSNCurve):
             )
             if check_knee is not None:
                 try:
-                    # type: ignore
-                    iter(check_knee)
+                    len(check_knee)
                 except TypeError:
                     check_knee = np.asarray([check_knee])
                 else:
