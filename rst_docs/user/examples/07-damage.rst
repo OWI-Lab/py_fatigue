@@ -1,9 +1,10 @@
-.. _7. Damage calculation:
+.. _7. Stress-Life damage calculation:
 
-7. Damage calculation
-==============================
+7. Stress-Life damage calculation
+=================================
 
-This section contains some examples of damage calculations.
+This section contains some examples of damage calculations using the
+stress-life approach.
 
 The module :mod:`py_fatigue.damage.stress_life` contains all the
 damage models related to the stress-life approach.
@@ -16,8 +17,8 @@ Palmgren-Miner (:mod:`py_fatigue.damage.stress_life.calc_pm`,
 
   D = \sum_{j=1}^{N_{\text{blocks}}} \frac{n_j}{N_j} \leq 1
 
-Besides it, `py-fatigue` also provides a series of nonlinear damage
-accumulation models callable through
+Besides the linear damage accumulation rule, `py-fatigue` also
+provides a series of nonlinear damage accumulation models callable through
 :mod:`py_fatigue.damage.stress_life.calc_nonlinear_damage` and
 :mod:`py_fatigue.damage.stress_life.get_nonlinear_damage` 
 
@@ -60,7 +61,7 @@ The formula is conveniently rewritten as pseudocode:
     for j in range(1, M+1):
         D = (D + n_j / N_j) ^ e_{j, j+1}
 
-In the specific, for the damage models currently implemented in `py_fatigue`,
+Specifically, for the damage models currently implemented in `py_fatigue`,
 the exponents are:
 
 - Manson and Halford:
@@ -78,8 +79,8 @@ the exponents are:
 1. Palmgren-Miner
 ----------------
 
-a. Constant signal
-++++++++++++++++++
+a. Constant fatigue load (sinoid)
++++++++++++++++++++++++++++++++++
 
 .. note::
     In this example we define a fatigue stress signal in the form

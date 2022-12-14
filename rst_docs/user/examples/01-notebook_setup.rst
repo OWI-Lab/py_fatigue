@@ -45,11 +45,9 @@ Optionally, we can add some matplotlib tweaking:
     :linenos:
 
     plt.rcParams['figure.figsize'] = (10.5/2.514/0.7, 4.5/2.514/0.7)
-    plt.rcParams["font.family"] = "Times New Roman"  # "Roboto"
+    plt.rcParams["font.family"] = "Serif"
     plt.rcParams["font.size"] = 10.5
     plt.rcParams["axes.grid"] = True
-    plt.rcParams['grid.color'] = "#CCCCCC"
-    plt.rcParams['grid.linestyle'] = "-"
     plt.rcParams['grid.color'] = "#DDDDDD"
     plt.rcParams['grid.linestyle'] = "-"
     plt.rcParams['axes.spines.right'] = False
