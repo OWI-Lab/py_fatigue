@@ -1,8 +1,8 @@
-name: Flake, Mypy linting
+name: 2.Flake, Mypy linting
 
 on:
   workflow_run:
-    workflows: ["Build", "Black formatting"]
+    workflows: ["0.Build", "1.Black formatting"]
     types:
       - completed
   push:
@@ -17,7 +17,6 @@ on:
       # branches. Without this we would end up running this job twice for non
       # forked PRs, once for the push and then once for opening the PR.
     - 'main'
-  workflow_dispatch:
 
 jobs:
   flake8_py3:
