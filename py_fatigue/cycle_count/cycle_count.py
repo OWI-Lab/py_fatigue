@@ -563,6 +563,28 @@ class CycleCount:
         """
         return self.mean_stress + self.stress_amplitude
 
+    @property
+    def statistical_moments(self) -> tuple[float, float, float]:
+        """Calculate the spectral moments from the cycle-counting object.
+
+        Returns
+        -------
+        tuple[float, float, float]
+            Tuple containing the spectral moments.
+            - mean = tuple[0]
+            - coefficient of variance = tuple[1]
+            - skewness = tuple[2]
+        """
+        stress_range = np.hstack(
+            [self.half_cycles[:, 1], self.full_cycles[:, 1]]
+        )
+        m_1 = np.mean(stress_range)
+        std_dev = np.sqrt(np.mean((stress_range - np.mean(stress_range)) ** 2))
+        m_2 = std_dev / m_1
+        m_3 = np.mean((stress_range - np.mean(stress_range)) ** 3) / (m_1**3)
+
+        return m_1, m_2, m_3
+
     # ! Representations
     def as_dict(
         self,
