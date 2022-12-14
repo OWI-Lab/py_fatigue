@@ -7,10 +7,10 @@ on:
       - completed
   push:
     paths:
-      - "**.py"
+      - "py_fatigue/*.py"
   pull_request:
     paths:
-      - "**.py"
+      - "py_fatigue/*.py"
     branches:
       # Branches from forks have the form 'user:branch-name' so we only run
       # this job on pull_request events for branches that look like fork
@@ -27,4 +27,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: rickstaa/action-black@v1
         with:
-          black_args: "py_fatigue/ --check"
+          black_args: ". --check"
