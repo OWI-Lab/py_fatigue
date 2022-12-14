@@ -706,7 +706,7 @@ class SNCurve(AbstractSNCurve):
                     check_knee = np.asarray([check_knee])
                 else:
                     check_knee = np.asarray(check_knee)
-                if len(check_knee) != len(self.slope) - 1:
+                if len(check_knee) != len(self.slope) - 1:  # type: ignore
                     raise ValueError(
                         f"{len(self.slope) - 1} knee points expected"
                     )
@@ -714,7 +714,7 @@ class SNCurve(AbstractSNCurve):
                     np.testing.assert_approx_equal(  # type: ignore
                         c_k, k, significant=significant_digits
                     )
-                    for c_k, k in zip(check_knee, knee)
+                    for c_k, k in zip(check_knee, knee)  # type: ignore
                 ]
             return knee
         if check_knee is not None:

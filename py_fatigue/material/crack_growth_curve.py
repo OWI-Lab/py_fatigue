@@ -6,7 +6,8 @@ The main class is ParisCurve.
 """
 
 # Standard "from" imports
-from typing import Any, Optional, Sized, Tuple, Union
+from collections.abc import Collection
+from typing import Any, Optional, Tuple, Union
 
 # Standard imports
 import abc
@@ -234,7 +235,7 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_growth_rate(
         self,
-        check_knee: Optional[Sized] = None,
+        check_knee: Optional[Collection] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Calculates the crack growth rate at the knee, if the Paris'
@@ -242,7 +243,7 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-        check_knee : Sized, optional
+        check_knee : Collection, optional
             Iterable of SIF values to check for the knee, by default None
         significant_digits : int, optional
             Number of significant digits to round the knee to, by default 2
@@ -256,7 +257,7 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_sif(
         self,
-        check_knee: Optional[Sized] = None,
+        check_knee: Optional[Collection] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Calculates the SIF at the knee, if the Paris' law is more
@@ -499,7 +500,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
 
     def get_knee_growth_rate(
         self,
-        check_knee: Optional[Sized] = None,
+        check_knee: Optional[Collection] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Calculates the crack growth rate at the knee, if the Paris'
@@ -518,9 +519,6 @@ class ParisCurve(AbstractCrackGrowthCurve):
             knee crack growth rate
         """
         knee_growth_rate = np.empty(self.intercept.size - 1, dtype=np.float64)
-        if check_knee is not None:
-            # Assertion to make mypy pass on check_knee type
-            assert isinstance(check_knee, Sized)
         if not self.linear:
             for i in range(self.intercept.size - 1):
                 m_i = self.slope[i + 1] / (self.slope[i + 1] - self.slope[i])
@@ -530,12 +528,12 @@ class ParisCurve(AbstractCrackGrowthCurve):
                 )
             if check_knee is not None:
                 try:
-                    len(check_knee)
+                    iter(check_knee)
                 except TypeError:
                     check_knee = np.asarray([check_knee])
                 else:
                     check_knee = np.asarray(check_knee)
-                if len(check_knee) != len(self.slope) - 1:
+                if len(check_knee) != len(self.slope) - 1:  # type: ignore
                     raise ValueError(
                         f"{len(self.slope) - 1} knee points expected"
                     )
@@ -555,7 +553,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
 
     def get_knee_sif(
         self,
-        check_knee: Optional[Sized] = None,
+        check_knee: Optional[Collection] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Calculates the SIF at the knee, if the Paris' law is more
@@ -588,7 +586,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
                     check_knee = np.asarray([check_knee])
                 else:
                     check_knee = np.asarray(check_knee)
-                if len(check_knee) != len(self.slope) - 1:
+                if len(check_knee) != len(self.slope) - 1:  # type: ignore
                     raise ValueError(
                         f"{len(self.slope) - 1} knee points expected"
                     )
@@ -596,7 +594,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
                     np.testing.assert_approx_equal(  # type: ignore
                         c_k_s, k_s, significant=significant_digits
                     )
-                    for c_k_s, k_s in zip(check_knee, knee_sif)
+                    for c_k_s, k_s in zip(check_knee, knee_sif)  # type: ignore
                 ]
         else:
             if check_knee is not None:
