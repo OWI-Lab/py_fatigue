@@ -662,13 +662,13 @@ class SNCurve(AbstractSNCurve):
                 ]
             )
             if check_knee is not None:
-                assert isinstance(check_knee, Collection)
                 try:
                     iter(check_knee)  # type: ignore
                 except TypeError:
                     check_knee = np.asarray([check_knee])
                 else:
                     check_knee = np.asarray(check_knee)
+                assert isinstance(check_knee, Collection)
                 if len(check_knee) != len(self.slope) - 1:  # type: ignore
                     raise ValueError(
                         f"{len(self.slope) - 1} knee points expected"
@@ -699,13 +699,13 @@ class SNCurve(AbstractSNCurve):
                 ]
             )
             if check_knee is not None:
-                assert isinstance(check_knee, Collection)
                 try:
                     iter(check_knee)
                 except TypeError:
                     check_knee = np.asarray([check_knee])
                 else:
                     check_knee = np.asarray(check_knee)
+                assert isinstance(check_knee, Collection)
                 if len(check_knee) != len(self.slope) - 1:  # type: ignore
                     raise ValueError(
                         f"{len(self.slope) - 1} knee points expected"
