@@ -6,7 +6,7 @@ The main and only class is SNCurve.
 """
 
 # Standard "from" imports
-from typing import Any, Callable, Iterable, Optional, Sized, Tuple, Union
+from typing import Any, Callable, Iterable, Optional, Sequence, Sized, Tuple, Union
 
 # Standard imports
 import abc
@@ -638,7 +638,7 @@ class SNCurve(AbstractSNCurve):
 
     def get_knee_stress(
         self,
-        check_knee: Union[Iterable, None] = None,
+        check_knee: Optional[Iterable] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         if not self.linear:
@@ -653,32 +653,33 @@ class SNCurve(AbstractSNCurve):
                     )
                 ]
             )
-            if check_knee is not None:
-                try:
-                    iter(check_knee)  # type: ignore
-                except TypeError:
-                    check_knee = np.asarray([check_knee])
-                else:
-                    check_knee = np.asarray(check_knee)
-                if len(check_knee) != len(self.slope) - 1:
-                    raise ValueError(
-                        f"{len(self.slope) - 1} knee points expected"
-                    )
-                check_knee_stress = self.get_stress(check_knee)
-                _ = [
-                    np.testing.assert_approx_equal(  # type: ignore
-                        c_k_s, k_s, significant=significant_digits
-                    )
-                    for c_k_s, k_s in zip(check_knee_stress, knee_stress)
-                ]
+            if check_knee is None:
+                return knee_stress
+            try:
+                iter(check_knee)  # type: ignore
+            except TypeError:
+                check_knee = np.asarray([check_knee])
+            else:
+                check_knee = np.asarray(check_knee)
+            if len(check_knee) != len(self.slope) - 1:
+                raise ValueError(
+                    f"{len(self.slope) - 1} knee points expected"
+                )
+            check_knee_stress = self.get_stress(check_knee)
+            _ = [
+                np.testing.assert_approx_equal(  # type: ignore
+                    c_k_s, k_s, significant=significant_digits
+                )
+                for c_k_s, k_s in zip(check_knee_stress, knee_stress)
+            ]
             return knee_stress
-        if check_knee is not None:
-            raise ValueError("0 knee points expected")
-        return np.array([])
+        if check_knee is None:
+            return np.array([])
+        raise ValueError("0 knee points expected")
 
     def get_knee_cycles(
         self,
-        check_knee: Union[Iterable, None] = None,
+        check_knee: Optional[Iterable] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         knee_stress = self.get_knee_stress()

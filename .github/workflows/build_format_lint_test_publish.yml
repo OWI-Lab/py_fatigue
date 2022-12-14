@@ -127,6 +127,7 @@ jobs:
   # Publish to pypi on version change
   # This is based on https://github.com/coveooss/pypi-publish-with-poetry
   publish:
+    name: Publish to pypi
     needs: [build, test, black, flake8_py3, mypy]
     runs-on: ubuntu-latest
 
