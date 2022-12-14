@@ -361,7 +361,7 @@ def _findrfc5_astm(
     return c_nr1, c_nr2
 
 
-def findrfc_astm(tp: np.ndarray, t: np.ndarray = None) -> np.ndarray:
+def findrfc_astm(tp: np.ndarray, t: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Return rainflow counted cycles
 
@@ -414,9 +414,9 @@ def rainflow(
 
     Parameters
     ----------
-    data : np.ndarray
+    data : Union[np.ndarray, list]
         time series or residuals sequence
-    time : Optional[Union[np.ndarray, None]], optional
+    time : Optional[Union[np.ndarray, list]], optional
         sampled times, by default None
         extended_output : bool, optional
         if False it returns only the :term:`rainflow<Rainflow>`, if True

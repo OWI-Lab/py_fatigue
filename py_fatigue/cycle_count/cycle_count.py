@@ -1000,6 +1000,7 @@ class CycleCount:
         --------
         :meth:`solve_lffd`
         """
+        return self.solve_lffd()
 
     def mean_stress_correction(
         self,
