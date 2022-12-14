@@ -6,8 +6,8 @@
 The CycleCount class incorporates the main information about a 
 processed signal for fatigue analysis.
 
-a. Constant signal
-------------------
+a. Constant fatigue load
+------------------------
 
 .. note::
     In this example we define a fatigue stress signal in the form
