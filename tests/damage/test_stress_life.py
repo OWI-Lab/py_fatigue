@@ -169,6 +169,10 @@ class TestPalmgrenMiner:
             / sn_curve.get_cycles(np.mean(cc_obj.stress_range)),
             1e-12,
         )
+        with pytest.raises(ValueError):
+            cc_obj.unit = "m"
+            damage.get_pm(cc_obj, sn_curve)
+
 
     @pytest.mark.parametrize(
         "sn_curve", [(DNV_B1A), (DNV_B1A_END), (DNV_B1W), (DNV_B1C)]
@@ -315,6 +319,10 @@ class TestPalmgrenMiner:
         assert df_d["pm_damage"].sum() == pytest.approx(
             np.sum(damage.get_pm(cc_obj, sn_curve)), 1e-12
         )
+        with pytest.raises(ValueError):
+            cc_obj.unit = "m"
+            df = cc_obj.to_df()
+            df.miner.damage(sn_curve)
 
     @pytest.mark.parametrize(
         "sn_curve", [DNV_B1A, DNV_B1A_END, DNV_B1W, DNV_B1C]

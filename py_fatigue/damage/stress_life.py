@@ -420,6 +420,11 @@ def get_pm(cycle_count: CycleCount, sn_curve: SNCurve) -> np.ndarray:
     np.ndarray
         The damage according to the Palmgren-Miner rule.
     """
+    if cycle_count.unit != sn_curve.unit:
+        raise ValueError(
+            f"Units of cycle_count ({cycle_count.unit}) and "
+            f"sn_curve ({sn_curve.unit}) do not match."
+        )
     return calc_pm(cycle_count.stress_range, cycle_count.count_cycle, sn_curve)
 
 
@@ -760,6 +765,9 @@ def get_nonlinear_damage(
     float
         The cumulated damage.
     """
+    if cycle_count.unit != sn_curve.unit:
+        e_msg = "The units of the cycle count and SN curve must be the same."
+        raise ValueError(e_msg)
     return calc_nonlinear_damage(
         damage_rule,
         cycle_count.stress_range,

@@ -256,6 +256,7 @@ class CycleCount:
     stress_range: np.ndarray[Any, np.dtype[np.float32]]
     mean_stress: np.ndarray[Any, np.dtype[np.float64]]
     timestamp: Union[ADT, NDT] = ADT(dt.datetime.now(dt.timezone.utc))
+    unit: str = "MPa"
     range_bin_lower_bound: float = 0.2
     range_bin_width: float = 0.05
     _mean_bin_lower_bound: Optional[float] = None
@@ -667,8 +668,8 @@ class CycleCount:
         """
         df = pd.DataFrame()
         df["Cycle counting object"] = [
-            "largest full stress range, MPa",
-            "largest stress range, MPa",
+            f"largest full stress range, {self.unit}",
+            f"largest stress range, {self.unit}",
             "number of full cycles",
             "number of residuals",
             "number of small cycles",
@@ -1339,14 +1340,14 @@ class CycleCount:
             else "# of cycles(" + str(dens_func) + ")"
         )
         axes.set_xlabel(
-            "Min stress, MPa"
+            f"Min stress, {self.unit}"
             if plot_type == "min-max"
-            else "Mean stress, MPa"
+            else f"Mean stress, {self.unit}"
             if plot_type == "mean-range"
             else "# of cycles"
         )
         axes.set_ylabel(
-            "Max stress, MPa" if plot_type == "min-max" else "Range, MPa"
+            f"Max stress, {self.unit}" if plot_type == "min-max" else f"Range, {self.unit}"
         )
         cbar = plt.colorbar(im, ax=axes)
         cbar.set_label(cbar_label, rotation=270)
