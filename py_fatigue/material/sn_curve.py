@@ -9,7 +9,7 @@ The main and only class is SNCurve.
 from typing import (
     Any,
     Callable,
-    Iterable,
+    Collection,
     Optional,
     Sized,
     Tuple,
@@ -415,15 +415,15 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_cycles(
         self,
-        check_knee: Optional[Iterable] = None,
+        check_knee: Optional[Collection] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Calculate the knee cycles.
 
         Parameters
         ----------
-        check_knee : Iterable, optional
-            Iterable of knee stress values, by default None
+        check_knee : Collection, optional
+            Collection of knee stress values, by default None
         significant_digits : int, optional
             Number of significant digits, by default 2
 
@@ -436,7 +436,7 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_stress(
         self,
-        check_knee: Optional[Iterable] = None,
+        check_knee: Optional[Collection] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Return stress at the knee(s).
@@ -646,9 +646,12 @@ class SNCurve(AbstractSNCurve):
 
     def get_knee_stress(
         self,
-        check_knee: Optional[Iterable] = None,
+        check_knee: Optional[Collection] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
+        if check_knee is not None:
+            # Assertion to make mypy pass on check_knee type
+            assert isinstance(check_knee, Collection)
         if not self.linear:
             knee_stress = np.asarray(
                 [
@@ -661,33 +664,37 @@ class SNCurve(AbstractSNCurve):
                     )
                 ]
             )
-            if check_knee is None:
-                return knee_stress
-            try:
-                iter(check_knee)  # type: ignore
-            except TypeError:
-                check_knee = np.asarray([check_knee])
-            else:
-                check_knee = np.asarray(check_knee)
-            if len(check_knee) != len(self.slope) - 1:
-                raise ValueError(f"{len(self.slope) - 1} knee points expected")
-            check_knee_stress = self.get_stress(check_knee)
-            _ = [
-                np.testing.assert_approx_equal(  # type: ignore
-                    c_k_s, k_s, significant=significant_digits
-                )
-                for c_k_s, k_s in zip(check_knee_stress, knee_stress)
-            ]
+            if check_knee is not None:
+                try:
+                    iter(check_knee)  # type: ignore
+                except TypeError:
+                    check_knee = np.asarray([check_knee])
+                else:
+                    check_knee = np.asarray(check_knee)
+                if len(check_knee) != len(self.slope) - 1:
+                    raise ValueError(
+                        f"{len(self.slope) - 1} knee points expected"
+                    )
+                check_knee_stress = self.get_stress(check_knee)
+                _ = [
+                    np.testing.assert_approx_equal(  # type: ignore
+                        c_k_s, k_s, significant=significant_digits
+                    )
+                    for c_k_s, k_s in zip(check_knee_stress, knee_stress)
+                ]
             return knee_stress
-        if check_knee is None:
-            return np.array([])
-        raise ValueError("0 knee points expected")
+        if check_knee is not None:
+            raise ValueError("0 knee points expected")
+        return np.array([])
 
     def get_knee_cycles(
         self,
-        check_knee: Optional[Iterable] = None,
+        check_knee: Optional[Collection] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
+        if check_knee is not None:
+            # Assertion to make mypy pass on check_knee type
+            assert isinstance(check_knee, Collection)
         knee_stress = self.get_knee_stress()
         if len(knee_stress) > 0:
             knee = np.asarray(

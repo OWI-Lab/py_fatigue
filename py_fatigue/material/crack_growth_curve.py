@@ -518,6 +518,9 @@ class ParisCurve(AbstractCrackGrowthCurve):
             knee crack growth rate
         """
         knee_growth_rate = np.empty(self.intercept.size - 1, dtype=np.float64)
+        if check_knee is not None:
+            # Assertion to make mypy pass on check_knee type
+            assert isinstance(check_knee, Iterable)
         if not self.linear:
             for i in range(self.intercept.size - 1):
                 m_i = self.slope[i + 1] / (self.slope[i + 1] - self.slope[i])
