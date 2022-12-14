@@ -1,7 +1,7 @@
 name: Test and Publish
 on:
   workflow_run:
-    workflows: ["Flake, Mypy linting"]
+    workflows: ["Build", "Black formatting", "Flake, Mypy linting"]
     types:
       - completed
   push:
