@@ -1,6 +1,10 @@
 name: Black formatting
 
 on:
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
   push:
     paths:
       - "**.py"
@@ -23,4 +27,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: rickstaa/action-black@v1
         with:
-          black_args: ". --check"
+          black_args: "py_fatigue/ --check"

@@ -1,7 +1,7 @@
-name: Build, Test and Publish
+name: Test and Publish
 on:
   workflow_run:
-    workflows: ["Black formatting", "Flake, Mypy linting"]
+    workflows: ["Flake, Mypy linting"]
     types:
       - completed
   push:
@@ -15,35 +15,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Build the package
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Install python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
-
-    - name: Install poetry
-      uses: Gr1N/setup-poetry@v7
-
-    - name: Build package
-      run: poetry build
-
-    - name: Upload built package
-      uses: actions/upload-artifact@v3
-      with:
-        name: dist
-        path: dist/
-        retention-days: 1
-
   # Run pytest using built package
   test:
-    needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -77,7 +50,7 @@ jobs:
   # Publish to pypi on version change
   # This is based on https://github.com/coveooss/pypi-publish-with-poetry
   publish:
-    needs: [build, test]
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
