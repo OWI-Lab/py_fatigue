@@ -1,4 +1,4 @@
-name: 0.Build
+name: Build, Format, Lint, Test and Publish
 on:
   push:
   pull_request:
@@ -39,58 +39,57 @@ jobs:
 
   # Run black
   black:
-    name: runner / black formatter
+    name: Black formatter
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v2
-      - uses: rickstaa/action-black@v1
-        with:
-          black_args: "py_fatigue/ --check"
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.9'
+    - name: Install Dependencies
+      run: |
+        pip install black
+    - name: black
+      run: |
+        black py_fatigue/ --check
 
   # Run flake8
   flake8_py3:
+    name: Flake8 Linter
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Setup Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.9'
-          architecture: x64
-      - name: Checkout PyTorch
-        uses: actions/checkout@master
-      - name: Install flake8
-        run: pip install flake8
-      - name: Run flake8
-        uses: suo/flake8-github-action@releases/v1
-        with:
-          checkName: 'flake8_py3'  # NOTE: this needs to be the same as the job name
-          files: |
-            py_fatigue/*.py
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.9'
+    - name: Install Dependencies
+      run: |
+        pip install flake8
+    - name: flake8
+      run: |
+        flake8 py_fatigue/ --count --select=E9,F63,F7,F82 --show-source --statistics
 
   # Run mypy
   mypy:
+    name: Mypy Linter
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Setup Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.9'
-          architecture: x64
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Install mypy
-        run: pip install mypy
-      - name: Run mypy
-        uses: sasanquaneuf/mypy-github-action@releases/v1
-        with:
-          checkName: 'mypy'  # NOTE: this needs to be the same as the job name
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.9'
+    - name: Install Dependencies
+      run: |
+        pip install mypy
+    - name: mypy
+      run: |
+        mypy py_fatigue/
 
   # Run pytest using built package
   test:
