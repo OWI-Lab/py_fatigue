@@ -177,7 +177,7 @@ def color_setter(func: Callable):
 
 
 @color_setter
-def _set_color(color: str) -> tuple:
+def _set_color(color: Union[str, None]) -> tuple:
     """Sets the SN curve color.
 
     Parameters
@@ -251,11 +251,11 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
         slope: Union[int, float, list, np.ndarray],
         intercept: Union[int, float, list, np.ndarray],
         endurance: Union[int, float] = np.inf,
-        environment: str = None,
-        curve: str = None,
-        norm: str = None,
+        environment: Optional[str] = None,
+        curve: Optional[str] = None,
+        norm: Optional[str] = None,
         unit_string: str = "MPa",
-        color: Union[str, None] = None,
+        color: Optional[str] = None,
     ) -> None:
         """Define stress-life (SN) curve.
         See class docstring for more information.
@@ -300,6 +300,7 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
         """
         return self.name
 
+    @abc.abstractmethod
     def _repr_svg_(self) -> str:
         """SVG representation of the SN curve instance
 
@@ -406,7 +407,7 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_cycles(
         self,
-        check_knee: Iterable = None,
+        check_knee: Optional[Iterable] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Calculate the knee cycles.
@@ -427,7 +428,7 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_stress(
         self,
-        check_knee: Iterable = None,
+        check_knee: Optional[Iterable] = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Return stress at the knee(s).
@@ -813,9 +814,9 @@ class SNCurve(AbstractSNCurve):
 
     def plotly(
         self,
-        cycles: list = None,
-        stress_range: list = None,
-        dataset_name: str = None,
+        cycles: Optional[list] = None,
+        stress_range: Optional[list] = None,
+        dataset_name: Optional[str] = None,
         dataset_color: str = "#000",
     ) -> Tuple[list, dict]:
         """Use plotly to plot the SN curve and a stress-cycles history dataset.
@@ -908,9 +909,9 @@ class SNCurve(AbstractSNCurve):
 
     def plot(
         self,
-        cycles: list = None,
-        stress_range: list = None,
-        dataset_name: str = None,
+        cycles: Optional[list] = None,
+        stress_range: Optional[list] = None,
+        dataset_name: Optional[str] = None,
         dataset_color: str = "#000",
         fig: Optional[matplotlib.figure.Figure] = None,
         ax: Optional[matplotlib.collections.PathCollection] = None,
