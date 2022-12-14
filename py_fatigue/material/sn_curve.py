@@ -11,7 +11,6 @@ from typing import (
     Callable,
     Iterable,
     Optional,
-    Sequence,
     Sized,
     Tuple,
     Union,
