@@ -1406,9 +1406,7 @@ class CycleCount:
         fig: Optional[matplotlib.figure.Figure] = None,
         ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs,
-    ) -> Tuple[
-        matplotlib.figure.Figure, matplotlib.axes.Axes
-    ]:
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """A symlink to plot_residuals_sequence.
 
         Parameters

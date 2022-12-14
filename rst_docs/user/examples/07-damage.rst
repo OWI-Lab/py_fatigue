@@ -9,7 +9,7 @@ The module :mod:`py_fatigue.damage.stress_life` contains all the
 damage models related to the stress-life approach.
 
 The simplest and most common damage model is the
-Palmgen-Miner (:mod:`py_fatigue.damage.stress_life.calc_pm`,
+Palmgren-Miner (:mod:`py_fatigue.damage.stress_life.calc_pm`,
 :mod:`py_fatigue.damage.stress_life.get_pm`) model.
 
 .. math::
@@ -75,7 +75,7 @@ the exponents are:
   :math:`\alpha=0.75` (usually) is the exponent.
 - Leve: :math:`e_{j, j+1} =\text{constant}`.
 
-1. Palmgen-Miner
+1. Palmgren-Miner
 ----------------
 
 a. Constant signal

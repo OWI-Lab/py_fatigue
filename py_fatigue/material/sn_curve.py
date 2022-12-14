@@ -925,9 +925,7 @@ class SNCurve(AbstractSNCurve):
         fig: Optional[matplotlib.figure.Figure] = None,
         ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs: Any,
-    ) -> Tuple[
-        matplotlib.figure.Figure, matplotlib.axes.Axes
-    ]:
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
 
         """Use plotly to plot the SN curve and a stress-cycles history dataset.
 
