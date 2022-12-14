@@ -69,6 +69,12 @@ class PalmgrenMiner:
         DataFrame
             The DataFrame with the damage.
         """
+        if self._obj._metadata["unit"] != sn_curve.unit:
+            e_msg = (
+                f"Units of cycle_count ({self._obj._metadata['unit']}) and "
+                f"sn_curve ({sn_curve.unit}) do not match."
+            )
+            raise ValueError(e_msg)
         self._obj.sn_curve = sn_curve
         self.sn_curve = sn_curve
         self._obj["cycles_to_failure"] = sn_curve.get_cycles(

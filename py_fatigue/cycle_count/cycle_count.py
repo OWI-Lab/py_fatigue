@@ -750,6 +750,7 @@ class CycleCount:
             "stress_concentration_factor": self.stress_concentration_factor,
             "nr_small_cycles": self.nr_small_cycles,
             "lffd_solved": self.lffd_solved,
+            "unit": self.unit,
         }
 
         return df
@@ -1213,7 +1214,7 @@ class CycleCount:
         normed: bool = False,
         weights: Optional[np.ndarray] = None,  # np.histogram2d args
         fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.collections.PathCollection] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,
         dens_func: Optional[Callable] = None,
         **kwargs: dict,
     ) -> tuple:  # pragma: no cover
@@ -1279,7 +1280,7 @@ class CycleCount:
         -------
         figure, paths : (
             `~matplotlib.figure.Figure`,
-            `~matplotlib.collections.PathCollection`
+            `~matplotlib.axes.Axes`
         )
             The figure with scatter instance.
         """
@@ -1347,7 +1348,9 @@ class CycleCount:
             else "# of cycles"
         )
         axes.set_ylabel(
-            f"Max stress, {self.unit}" if plot_type == "min-max" else f"Range, {self.unit}"
+            f"Max stress, {self.unit}"
+            if plot_type == "min-max"
+            else f"Range, {self.unit}"
         )
         cbar = plt.colorbar(im, ax=axes)
         cbar.set_label(cbar_label, rotation=270)
@@ -1358,10 +1361,10 @@ class CycleCount:
     def plot_residuals_sequence(
         self,
         fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.collections.PathCollection] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs,
     ) -> Tuple[
-        matplotlib.figure.Figure, matplotlib.collections.PathCollection
+        matplotlib.figure.Figure, matplotlib.axes.Axes
     ]:  # pragma: no cover
         """Plot the residuals of the stress-strain curve.
 
@@ -1369,14 +1372,14 @@ class CycleCount:
         ----------
         fig : Optional[matplotlib.figure.Figure], optional
             a Figure instance to add axes into, by default None
-        ax : Optional[matplotlib.collections.PathCollection], optional
+        ax : Optional[matplotlib.axes.Axes], optional
             an Axes instance to add axes into, by default None
 
         Returns
         -------
         Tuple[
             matplotlib.figure.Figure,
-            matplotlib.collections.PathCollection
+            matplotlib.axes.Axes
         ]
             The figure with plot instance.
         """
@@ -1401,10 +1404,10 @@ class CycleCount:
     def plot_half_cycles_sequence(
         self,
         fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.collections.PathCollection] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs,
     ) -> Tuple[
-        matplotlib.figure.Figure, matplotlib.collections.PathCollection
+        matplotlib.figure.Figure, matplotlib.axes.Axes
     ]:
         """A symlink to plot_residuals_sequence.
 
@@ -1412,14 +1415,14 @@ class CycleCount:
         ----------
         fig : Optional[matplotlib.figure.Figure], optional
             a Figure instance to add axes into, by default None
-        ax : Optional[matplotlib.collections.PathCollection], optional
+        ax : Optional[matplotlib.axes.Axes], optional
             an Axes instance to add axes into, by default None
 
         Returns
         -------
         Tuple[
             matplotlib.figure.Figure,
-            matplotlib.collections.PathCollection
+            matplotlib.axes.Axes
         ]
             The figure with plot instance.
         """

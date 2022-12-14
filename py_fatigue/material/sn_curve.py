@@ -923,10 +923,10 @@ class SNCurve(AbstractSNCurve):
         dataset_name: Optional[str] = None,
         dataset_color: str = "#000",
         fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.collections.PathCollection] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs: Any,
     ) -> Tuple[
-        matplotlib.figure.Figure, matplotlib.collections.PathCollection
+        matplotlib.figure.Figure, matplotlib.axes.Axes
     ]:
 
         """Use plotly to plot the SN curve and a stress-cycles history dataset.
@@ -952,14 +952,14 @@ class SNCurve(AbstractSNCurve):
             history dataset color, by default "#000"
         fig : matplotlib.figure.Figure, optional
             figure object, by default None
-        ax : matplotlib.collections.PathCollection, optional
+        ax : matplotlib.axes.Axes, optional
             axis object, by default None
         **kwargs : Any, optional
             additional keyword arguments
 
         Returns
         -------
-        matplotlib.figure.Figure, matplotlib.collections.PathCollection
+        matplotlib.figure.Figure, matplotlib.axes.Axes
             The figure and axes.
         """
         fig, ax = make_axes(fig, ax)

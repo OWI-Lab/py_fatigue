@@ -69,32 +69,32 @@ def inplacify(method: Callable) -> Callable:
 
 
 def make_axes(
-    fig: Optional[matplotlib.figure.Figure] = None,
-    ax: Optional[matplotlib.collections.PathCollection] = None,
-) -> Tuple[matplotlib.figure.Figure, matplotlib.collections.PathCollection]:
+    fig: Optional[matplotlib.figure.Figure] = None,  # type: ignore
+    ax: Optional[matplotlib.axes.Axes] = None,  # type: ignore
+) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
     """Check if a figure and axes are provided, and if not, create them.
 
     Parameters
     ----------
     fig : Optional[matplotlib.figure.Figure], optional
         The figure instance, by default None
-    ax : Optional[matplotlib.collections.PathCollection], optional
+    ax : Optional[matplotlib.axes.Axes], optional
         The axes instance, by default None
 
     Returns
     -------
     tuple
-        _description_
+        The figure and axes instances
 
     Raises
     ------
     TypeError
-        _description_
+        If fig is not a matplotlib.figure.Figure instance
     """
     if fig is None:
         fig, axes = plt.subplots()
     else:
-        if not isinstance(fig, matplotlib.figure.Figure):
+        if not isinstance(fig, matplotlib.figure.Figure):  # type: ignore
             raise TypeError("fig must be a matplotlib.figure.Figure instance")
         if ax is None:
             axes = fig.gca()

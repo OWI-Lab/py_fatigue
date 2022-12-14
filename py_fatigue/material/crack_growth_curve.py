@@ -632,10 +632,10 @@ class ParisCurve(AbstractCrackGrowthCurve):
         dataset_name: Optional[str] = None,
         dataset_color: str = "#000",
         fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.collections.PathCollection] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,  # type: ignore
         **kwargs: Any,
     ) -> Tuple[
-        matplotlib.figure.Figure, matplotlib.collections.PathCollection
+        matplotlib.figure.Figure, matplotlib.axes.Axes  # type: ignore
     ]:
 
         """Use matplotlib to plot the Paris' law and a da/dN vs ΔK
@@ -662,21 +662,21 @@ class ParisCurve(AbstractCrackGrowthCurve):
             history dataset color, by default "#000"
         fig : matplotlib.figure.Figure, optional
             figure object, by default None
-        ax : matplotlib.collections.PathCollection, optional
+        ax : matplotlib.axes.Axes, optional
             axis object, by default None
         **kwargs : Any, optional
             additional keyword arguments
 
         Returns
         -------
-        matplotlib.figure.Figure, matplotlib.collections.PathCollection
+        matplotlib.figure.Figure, matplotlib.axes.Axes
             The figure and axes.
         """
         fig, ax = make_axes(fig, ax)
         sif_plot, growth_rate_plot = _paris_curve_data_points(self)
 
         # plt.figure(figsize=(6, 2.5))
-        ax.loglog(
+        ax.loglog(  # type: ignore
             sif_plot,
             growth_rate_plot,
             label=self.name,
@@ -685,7 +685,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
         )
         if sif is not None and growth_rate is not None:
             sif, growth_rate = _check_param_couple_types(sif, growth_rate)
-            ax.loglog(
+            ax.loglog(  # type: ignore
                 sif,
                 growth_rate,
                 label=dataset_name,
@@ -696,13 +696,13 @@ class ParisCurve(AbstractCrackGrowthCurve):
             )
 
         plt.grid(which="both", linestyle=":")
-        ax.set_xlabel(f"SIF range (ΔK), {self.unit}")
+        ax.set_xlabel(f"SIF range (ΔK), {self.unit}")  # type: ignore
         if "√" in self.unit:
             split_unit = self.unit.split("√")
             y_unit = "/".join((split_unit[1], "cycle"))
         else:
             y_unit = "[L][CYCLE]$^{-1}$"
-        ax.set_ylabel(f"Crack growth rate (da/dN), {y_unit}")
+        ax.set_ylabel(f"Crack growth rate (da/dN), {y_unit}")  # type: ignore
 
         return fig, ax
 

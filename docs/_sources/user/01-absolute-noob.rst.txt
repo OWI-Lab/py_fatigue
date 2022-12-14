@@ -3,7 +3,7 @@ Beginners' guide
 
 Welcome to the absolute beginner's guide to py-fatigue! If you have comments or
 suggestions, please don't hesitate to file an issue or make a pull request on
-our GitHub repo: https://www.example.com.
+our GitHub repo: **https://github.com/OWI-Lab/py_fatigue/**.
 
 Welcome to py-fatigue!
 ----------------------
@@ -25,11 +25,16 @@ The package bundles the main functionality for performing cyclic stress
 Installing py-fatigue
 ---------------------
 
-py-fatigue is available on Azure DevOps. To install the toolbox, simply run:
+py-fatigue is freely available on GitHub and gets maintained through CI/CD phylosophy. The package requires Python 3.7 or higher, and it requires a 64-bit version of Python.
+
+To install the toolbox, simply run:
     
 .. code-block:: bash
 
     pip install py-fatigue
+
+and you will get the latest stable version of the toolbox.
+
 
 
 How to import py-fatigue

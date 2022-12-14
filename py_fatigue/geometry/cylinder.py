@@ -111,7 +111,7 @@ class HollowCylinder(AbstractCrackGeometry):
     def plot(
         self,
         fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.collections.PathCollection] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs: dict,
     ) -> tuple:  # pragma: no cover
         """Plot the crack front on a hollow cylinder.
@@ -120,7 +120,7 @@ class HollowCylinder(AbstractCrackGeometry):
         ----------
         fig : matplotlib.figure.Figure, optional
             The figure to plot on.
-        ax : matplotlib.collections.PathCollection, optional
+        ax : matplotlib.axes.Axes, optional
             The axis to plot on.
         **kwargs : dict
             Keyword arguments to pass to the matplotlib plot function.
@@ -129,7 +129,7 @@ class HollowCylinder(AbstractCrackGeometry):
         -------
         fig : matplotlib.figure.Figure
             The figure that was plotted on.
-        ax : matplotlib.collections.PathCollection
+        ax : matplotlib.axes.Axes
         """
 
         if self.crack_position == "internal":
@@ -144,7 +144,7 @@ class HollowCylinder(AbstractCrackGeometry):
         self,
         depth: Optional[PositiveFloat] = None,
         fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.collections.PathCollection] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs: dict,
     ) -> tuple:
         """Plot the crack front when the crack is located on the external
@@ -154,7 +154,7 @@ class HollowCylinder(AbstractCrackGeometry):
         ----------
         fig : matplotlib.figure.Figure, optional
             The figure to plot on.
-        ax : matplotlib.collections.PathCollection, optional
+        ax : matplotlib.axes.Axes, optional
             The axis to plot on.
         **kwargs : dict
             Keyword arguments to pass to the matplotlib plot function.
@@ -163,7 +163,7 @@ class HollowCylinder(AbstractCrackGeometry):
         -------
         fig : matplotlib.figure.Figure
             The figure that was plotted on.
-        ax : matplotlib.collections.PathCollection
+        ax : matplotlib.axes.Axes
         """
         if depth is None:
             depth = self.initial_depth
