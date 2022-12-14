@@ -55,23 +55,23 @@ jobs:
       run: |
         black py_fatigue/ --check
 
-  # Run flake8
-  flake8_py3:
-    name: Flake8 Linter
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.9'
-    - name: Install Dependencies
-      run: |
-        pip install flake8
-    - name: flake8
-      run: |
-        flake8 py_fatigue/ --count --select=E9,F63,F7,F82 --show-source --statistics
+  # # Run flake8
+  # flake8_py3:
+  #   name: Flake8 Linter
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #   - name: Set up Python 3.9
+  #     uses: actions/setup-python@v1
+  #     with:
+  #       python-version: '3.9'
+  #   - name: Install Dependencies
+  #     run: |
+  #       pip install flake8
+  #   - name: flake8
+  #     run: |
+  #       flake8 py_fatigue/ --count --select=E9,F63,F7,F82 --show-source --statistics
 
   # Run mypy
   mypy:
@@ -89,7 +89,7 @@ jobs:
         pip install mypy
     - name: mypy
       run: |
-        mypy py_fatigue/
+        mypy --config-file=./mypy.ini py_fatigue/
 
   # Run pytest using built package
   test:
