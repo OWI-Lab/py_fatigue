@@ -22,7 +22,7 @@ jobs:
     - name: Install python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.9.14'
 
     - name: Install poetry
       uses: Gr1N/setup-poetry@v7
@@ -47,7 +47,7 @@ jobs:
     - name: Set up Python 3.9
       uses: actions/setup-python@v1
       with:
-        python-version: '3.9'
+        python-version: '3.9.14'
     - name: Install Dependencies
       run: |
         pip install black
@@ -65,7 +65,7 @@ jobs:
     - name: Set up Python 3.9
       uses: actions/setup-python@v1
       with:
-        python-version: '3.9'
+        python-version: '3.9.14'
     - name: Install Dependencies
       run: |
         pip install flake8
@@ -80,10 +80,10 @@ jobs:
     needs: build
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.9
+    - name: Set up Python 3.9.14
       uses: actions/setup-python@v1
       with:
-        python-version: '3.9'
+        python-version: '3.9.14'
     - name: Install Dependencies
       run: |
         pip install mypy
@@ -138,7 +138,7 @@ jobs:
     - name: Install python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.9.14'
 
     - name: Download built package
       uses: actions/download-artifact@v3

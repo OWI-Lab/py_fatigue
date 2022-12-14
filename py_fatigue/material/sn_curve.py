@@ -6,7 +6,16 @@ The main and only class is SNCurve.
 """
 
 # Standard "from" imports
-from typing import Any, Callable, Iterable, Optional, Sequence, Sized, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Optional,
+    Sequence,
+    Sized,
+    Tuple,
+    Union,
+)
 
 # Standard imports
 import abc
@@ -662,9 +671,7 @@ class SNCurve(AbstractSNCurve):
             else:
                 check_knee = np.asarray(check_knee)
             if len(check_knee) != len(self.slope) - 1:
-                raise ValueError(
-                    f"{len(self.slope) - 1} knee points expected"
-                )
+                raise ValueError(f"{len(self.slope) - 1} knee points expected")
             check_knee_stress = self.get_stress(check_knee)
             _ = [
                 np.testing.assert_approx_equal(  # type: ignore
