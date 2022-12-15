@@ -110,7 +110,7 @@ exclude_patterns = ["_build", "_templates", "_autosummary"]
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+pygments_style = "colorful"
 
 # A list of ignored prefixes for module index sorting.
 modindex_common_prefix = ["py_fatigue"]
@@ -139,7 +139,7 @@ json_url = "https://pydata-sphinx-theme.readthedocs.io/en/latest/_static/switche
 html_theme_options = {
     "external_links": [
         {
-            "url": "https://github.com/",
+            "url": "https://github.com/OWI-Lab/py_fatigue/blob/main/CHANGELOG.md",
             "name": "Changelog",
         },
         {
@@ -147,14 +147,20 @@ html_theme_options = {
             "name": "PyData",
         },
     ],
-    "github_url": "https://github.com/",
-    "twitter_url": "https://twitter.com/",
+    "github_url": "https://github.com/owi-lab/py_fatigue",
     "header_links_before_dropdown": 4,
     "icon_links": [
         {
             "name": "PyPI",
-            "url": "https://pypi.org/",
+            "url": "https://pypi.org/project/py-fatigue/",
             "icon": "fa-solid fa-box",
+        },
+        {
+            "name": "LinkedIn",
+            "url": "https://www.linkedin.com/company/owi-lab",
+            "icon": "_static/_img/linkedin.png",
+            "type": "local",
+            "attributes": {"target": "_blank"},
         },
         {
             "name": "OWI-Lab",

@@ -25,7 +25,7 @@ The package bundles the main functionality for performing cyclic stress
 Installing py-fatigue
 ---------------------
 
-py-fatigue is freely available on GitHub and gets maintained through CI/CD phylosophy. The package requires Python 3.7 or higher, and it requires a 64-bit version of Python.
+py-fatigue is freely available on GitHub and gets maintained through CI/CD phylosophy. The package requires Python 3.8 or higher, and it requires a 64-bit version of Python.
 
 To install the toolbox, simply run:
     
@@ -293,7 +293,7 @@ A crack growth simulation necessitates of three ingredients (objects):
 
 - Cycle-counted stress history
 - Crack growth curve (e.g. Paris' law)
-- Ccrack geometry
+- Crack geometry
 
 
 Paris' curve definition
