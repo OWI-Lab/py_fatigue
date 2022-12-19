@@ -128,6 +128,8 @@ def _build_input_data_from_json(  # noqa: C901
     the_hist = np.empty(0)
     range_bin_centers = np.empty(0)
     mean_bin_centers = np.empty(0)
+    if "hist" not in data:
+        data["hist"] = []
     if (
         len(data["hist"]) == 0
         and len(data["res"]) == 0
