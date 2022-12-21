@@ -17,7 +17,7 @@ Attributes:
 import re
 from typing import Optional, NamedTuple
 
-__version__: str = "1.0.7"
+__version__: str = "1.0.8"
 
 _REGEX = (
     r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)"
