@@ -165,6 +165,7 @@ jobs:
   publish:
     name: Publish py-fatigue to pypi
     needs: [build, test, black, flake8_py3, mypy]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/release') 
     runs-on: ubuntu-latest
 
     steps:
