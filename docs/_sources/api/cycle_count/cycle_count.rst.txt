@@ -3,24 +3,13 @@ cycle_count
 The cycle_count module contains the CycleCount class and all the
 funcitons strictly related to its correct functioning.
 
-CycleCount class
-****************
+The module :mod:`py_fatigue.cycle_count` contains all the
+fatigue damage models.
 
-.. autoclass:: py_fatigue.cycle_count.CycleCount
-    :members:
-    :private-members:
-    :special-members:
+.. toctree::
+   :caption: cycle_count
 
-    .. autoclasstoc::
-
-histogram
-*********
-
-.. automodule:: py_fatigue.cycle_count.histogram
-   :members:
-
-rainflow
-********
-
-.. automodule:: py_fatigue.cycle_count.rainflow
-   :members:
+   cycle_count_
+   histogram
+   rainflow
+   utils

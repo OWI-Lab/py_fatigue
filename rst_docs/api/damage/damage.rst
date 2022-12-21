@@ -1,5 +1,5 @@
 damage
-======
+******
 
 The module :mod:`py_fatigue.damage` contains all the
 fatigue damage models.

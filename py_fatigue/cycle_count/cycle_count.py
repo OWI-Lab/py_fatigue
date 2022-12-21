@@ -979,7 +979,7 @@ class CycleCount:
 
     def __rmul__(self, other):
         """Left multiplication of :class:`CycleCount` \
-        instance by a scalar stress multiplication factor .
+        instance by a scalar stress multiplication factor.
 
         Parameters
         ----------
@@ -1396,9 +1396,9 @@ class CycleCount:
         axes.plot(res_res_idx, res_res_seq, "#FF0080", **kwargs)
         axes.set_xlabel("Residuals sequence")
         axes.set_ylabel("Residuals")
-        axes.grid(b=True, which="major", color="#CCCCCC", linestyle="-")
+        axes.grid(visible=True, which="major", color="#CCCCCC", linestyle="-")
         axes.minorticks_on()
-        axes.grid(b=True, which="minor", color="#E7E6DD", linestyle=":")
+        axes.grid(visible=True, which="minor", color="#E7E6DD", linestyle=":")
         axes.xaxis.grid(False, which="minor")
         axes.spines["right"].set_visible(False)
         axes.spines["top"].set_visible(False)
