@@ -1,4 +1,4 @@
-name: Build, Format, Lint, Test and Publish
+name: Publish
 on:
   workflow_dispatch:
     branches:
