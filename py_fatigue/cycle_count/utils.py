@@ -4,10 +4,14 @@ from collections import ChainMap, defaultdict
 from typing import Any, DefaultDict, Union
 import time
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from py_fatigue import cycle_count, CycleCount
+from py_fatigue.cycle_count.cycle_count import CycleCount
+from py_fatigue.material.sn_curve import SNCurve
+from py_fatigue.cycle_count import cycle_count
+from py_fatigue.damage.stress_life import get_pm
 
 
 def solve_lffd(x: Any) -> Union[Any, CycleCount]:
@@ -83,7 +87,7 @@ def aggregate_cc(
         The dataframe to cluster
     aggr_by : str
         The time window to cluster the dataframe by. It must be a valid pandas
-        date offset frequency string.
+        date offset frequency string or 'all'.
         For all the frequency string aliases offered by pandas, see:
         `pandas-timeseries.html#dateoffset-objects <shorturl.at/dgrwW>`_.
 
@@ -119,7 +123,10 @@ def aggregate_cc(
 
     # Aggregate the dataframe by time window
     print(f"3. Aggregate \33[1mdf\33[22m by \33[1m'{aggr_by}'\33[22m.\33[0m")
-    df_agg = df.groupby([df.index.to_period(aggr_by)]).agg(agg_dict)
+    if aggr_by.lower() == "all":
+        df_agg = df.groupby(lambda _: True).agg(agg_dict)
+    else:
+        df_agg = df.groupby([df.index.to_period(aggr_by)]).agg(agg_dict)
 
     # Retrieving the low-frequency fatigue dynamics on the aggregated dataframe
     print("\33[36m4. Retrieving LFFD on aggregated \33[1mdf\33[22m.\33[0m")
@@ -146,7 +153,107 @@ def aggregate_cc(
             residuals_sequence[col]["res"].extend(res_res_seq.tolist())
     end = time.time()
     print(
-        f"\nElapsed time for \33[36m\33[1m'{aggr_by}'\33[0m aggregation",
-        f"is {np.round(end-start, 0)}, s.",
+        f"Elapsed time for \33[36m\33[1m'{aggr_by}'\33[0m aggregation",
+        f"is {np.round(end-start, 0)}, s.\n",
     )
     return df_agg_rr, residuals_sequence
+
+
+def plot_aggregated_residuals(
+    res_dct: dict[str, DefaultDict[str, DefaultDict[str, list[float]]]],
+    plt_prmtr: str,
+    minor_grid: bool = True,
+) -> tuple[plt.figure.Figure, plt.axes.Axes]:
+    """Plot the aggregated residuals sequences. T
+
+    Parameters
+    ----------
+    res_dct : dict[str, DefaultDict[str, DefaultDict[str, list[float]]]]
+        The residuals sequences of each aggregated CycleCount as returned by
+        :func:`aggregate_cc`.
+    plt_prmtr : str
+        The parameter to plot.
+    labels : Collection[str]
+        The labels of the aggregated CycleCounts.
+    minor_grid : bool, optional
+        Whether to plot the minor grid, by default True
+
+    Returns
+    -------
+    tuple[plt.figure.Figure, plt.axes.Axes]
+
+    """
+    fig, axes = plt.subplots()
+
+    for i, (label, res) in enumerate(res_dct.items()):
+        alpha = np.round((i + 1) / len(res_dct), 2)
+        axes.plot(
+            res[plt_prmtr]["idx"],
+            res[plt_prmtr]["res"],
+            lw=alpha,
+            label=label,
+            alpha=alpha,
+        )
+    if minor_grid:
+        axes.minorticks_on()
+        axes.grid(visible=True, which="minor", color="#E7E6DD", linestyle=":")
+    axes.set_xlabel("Residuals sequence")
+    axes.set_ylabel("Residuals")
+    axes.legend(
+        title="Aggregated by",
+        loc="lower center",
+        fancybox=True,
+        bbox_to_anchor=(0.5, -0.44),
+        ncol=3,
+        shadow=True,
+    )
+    plt.show()
+
+    return fig, axes
+
+
+def calc_aggregated_damage(
+    df: pd.DataFrame,
+    sn: Union[
+        dict[str, SNCurve], DefaultDict[str, SNCurve], list[SNCurve], SNCurve
+    ],
+) -> pd.DataFrame:
+    """Calculate the damage of each aggregated CycleCount. This function needs
+    the output of :func:`aggregate_cc`.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The aggregated CycleCount as returned by :func:`aggregate_cc`.
+    sn : DefaultDict[str, SNCurve]
+        The S-N curves of each aggregated CycleCount.
+
+    Returns
+    -------
+    pd.DataFrame
+        The damage of each aggregated CycleCount as a multi-indexed dataframe.
+    """
+    # Check the S-N curves
+    if not isinstance(sn, defaultdict) or not isinstance(sn, dict):
+        if isinstance(sn, SNCurve):
+            sn = {sn.name: sn}
+        elif isinstance(sn, list):
+            if all(isinstance(s, SNCurve) for s in sn):
+                sn = {s.name: s for s in sn}
+            else:
+                raise TypeError(
+                    "The S-N curves must be a dict, a list of SNCurve or a "
+                    "SNCurve."
+                )
+
+    cc_cols: list[str] = [col for col in df.columns if col.startswith("CC_")]
+    damages = pd.DataFrame()
+    for _, sn_curve in sn.items():
+        df_1 = df[cc_cols].applymap(
+            lambda x, sk=sn_curve: np.sum(get_pm(cycle_count=x, sn_curve=sk))
+        )
+        df_1["sn_curve"] = f"m={sn_curve.slope}"
+        damages = pd.concat([damages, df_1])
+        del df_1
+    dmg_mi = damages.set_index(["sn_curve", damages.index])  # type: ignore
+    return dmg_mi

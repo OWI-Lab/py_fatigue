@@ -407,7 +407,7 @@ def rainflow(
     data: Union[np.ndarray, list],
     time: Optional[Union[np.ndarray, list]] = None,
     extended_output: bool = True,
-):
+) -> Union[np.ndarray, tuple]:
     """
     Returns the cycle-count of the input data calculated through the
     :term:`rainflow<Rainflow>` method.
