@@ -166,7 +166,7 @@ jobs:
   # This is based on https://github.com/coveooss/pypi-publish-with-poetry
   publish:
     name: Publish py-fatigue to pypi
-    needs: [build, black, flake8_py3, mypy]
+    needs: [build, test, black, flake8_py3, mypy]
     runs-on: ubuntu-latest
 
     steps:
