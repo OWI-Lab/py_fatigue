@@ -1,6 +1,9 @@
 name: Build, Format, Lint, Test and Publish
 on:
   push:
+    branches:
+    - 'main'
+    - 'releases/*'
   pull_request:
     branches:
       # Branches from forks have the form 'user:branch-name' so we only run
@@ -161,12 +164,9 @@ jobs:
 
   # Publish to pypi on version change
   # This is based on https://github.com/coveooss/pypi-publish-with-poetry
-  # echo "::set-output name=version::${BASH_REMATCH[2]}"
   publish:
     name: Publish py-fatigue to pypi
-    needs: [build, test, black, flake8_py3, mypy]
-    if: contains(github.head_ref, 'main') || contains(github.head_ref, 'release')
-    # environment: production
+    needs: [build, black, flake8_py3, mypy]
     runs-on: ubuntu-latest
 
     steps:
@@ -176,8 +176,7 @@ jobs:
     - name: Get python version from .python-version
       id: python-version
       run: |
-        echo "version=$(cat .python-version)" >> $GITHUB_ENV
-
+        echo "::set-output name=version::$(cat .python-version)" >> $GITHUB_ENV
     - name: Install python ${{ steps.python-version.outputs.version }}
       uses: actions/setup-python@v2
       with:
@@ -201,7 +200,7 @@ jobs:
         BUILD_VER="$(ls dist/py_fatigue-*.tar.gz)"
         echo "Path: $BUILD_VER"
         if [[ $BUILD_VER =~ (py_fatigue-)([^,][0-9.]{4}) ]]; then
-            echo "version=${BASH_REMATCH[2]}" >> $GITHUB_ENV
+            echo "::set-output name=version::${BASH_REMATCH[2]}"
             echo "Version of build: ${BASH_REMATCH[2]}"
         else
             echo "No version found found"
@@ -211,7 +210,7 @@ jobs:
       id: published
       run: |
         PUB_VER="$(pypi current-version py_fatigue)"
-        echo "version=$PUB_VER" >> $GITHUB_ENV
+        echo "::set-output name=version::$PUB_VER"
         echo "Latest published version: $PUB_VER"
     
 
@@ -232,7 +231,7 @@ jobs:
       if: (steps.current.outputs.version != steps.published.outputs.version)
       run: |
         TAG_NAME=${{ steps.current.outputs.version }}
-        echo "{tag-name}={$TAG_NAME}" >> $GITHUB_OUTPUT
+        echo "::set-output name=tag-name::$TAG_NAME"
         echo "This release will be tagged as $TAG_NAME"
         git config user.name "github-actions"
         git config user.email "actions@users.noreply.github.com"
