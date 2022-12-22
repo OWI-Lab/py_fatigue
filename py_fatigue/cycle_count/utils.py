@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import ChainMap, defaultdict
-from typing import Any, DefaultDict, Union
+from typing import Any, DefaultDict, Iterable, Union
 import time
 
 import matplotlib.pyplot as plt
@@ -144,6 +144,10 @@ def aggregate_cc(
     ] = defaultdict(lambda: defaultdict(list))
     for col in cc_cols:
         for __, row in df_agg.iterrows():
+            if not isinstance(row[col], CycleCount):
+                continue
+            if not isinstance(row[col].residuals_sequence, Iterable):
+                continue
             _, res_res_seq, res_res_idx = cycle_count.calc_rainflow(
                 data=np.asarray(row[col].residuals_sequence),
                 extended_output=True,
