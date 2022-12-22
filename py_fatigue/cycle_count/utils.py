@@ -8,10 +8,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from py_fatigue.cycle_count.cycle_count import CycleCount
-from py_fatigue.material.sn_curve import SNCurve
-from py_fatigue.cycle_count import cycle_count
+
 from py_fatigue.damage.stress_life import get_pm
+from py_fatigue.material.sn_curve import SNCurve
+from py_fatigue.cycle_count.cycle_count import CycleCount
+from py_fatigue.cycle_count import cycle_count
 
 
 def solve_lffd(x: Any) -> Union[Any, CycleCount]:

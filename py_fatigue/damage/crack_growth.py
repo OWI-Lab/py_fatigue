@@ -12,9 +12,11 @@ import numpy as np
 import pandas as pd
 
 # Local packages
+from py_fatigue.cycle_count.cycle_count import CycleCount
+from py_fatigue.material.crack_growth_curve import ParisCurve
 from py_fatigue.utils import split, to_numba_dict
 from py_fatigue.geometry import AbstractCrackGeometry
-import py_fatigue as pf
+from py_fatigue.geometry.cylinder import f_hol_cyl_01
 
 
 try:
@@ -343,7 +345,7 @@ def get_geometry_factor(
     size. The default value is 1.0."""
     # Placeholder for future implementation
     if crack_type == "HOL_CYL_01":
-        return pf.geometry.f_hol_cyl_01(crack_depth, crack_geometry)
+        return f_hol_cyl_01(crack_depth, crack_geometry)
     if crack_type == "INF_SUR_00":
         return 1.0
 
@@ -396,8 +398,8 @@ def get_sif(
 
 
 def get_crack_growth(
-    cycle_count: pf.CycleCount,
-    cg_curve: pf.ParisCurve,
+    cycle_count: CycleCount,
+    cg_curve: ParisCurve,
     crack_geometry: Type[ACG],
     express_mode: bool = False,
 ) -> CalcCrackGrowth:
@@ -566,7 +568,7 @@ class CrackGrowth:
 
     def calc_growth(
         self,
-        cg_curve: pf.ParisCurve,
+        cg_curve: ParisCurve,
         crack_geometry: Type[ACG],
         express_mode: bool = False,
     ):
