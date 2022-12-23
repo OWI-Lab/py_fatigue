@@ -37,8 +37,11 @@ def solve_lffd(x: Any) -> Union[Any, CycleCount]:
 
 
 def aggregate_cc(
-    df: pd.DataFrame, aggr_by: str
-) -> tuple[pd.DataFrame, DefaultDict[str, DefaultDict[str, list[float]]]]:
+    df: pd.DataFrame, aggr_by: str, save_residuals: bool = False
+) -> Union[
+    pd.DataFrame,
+    tuple[pd.DataFrame, DefaultDict[str, DefaultDict[str, list[float]]]]
+]:
     """Aggregate a pandas dataframe by time window.
     The pandas dataframe must have a DatetimeIndex and at least one column
     whose name starts with 'CC\\_' containing :class:`~py_fatigue.CycleCount`
@@ -137,6 +140,13 @@ def aggregate_cc(
         col for col in df_agg_rr.columns if col.startswith("CC_")
     ]
 
+    if not save_residuals:
+        end = time.time()
+        print(
+            f"Elapsed time for \33[36m\33[1m'{aggr_by}'\33[0m aggregation",
+            f"is {np.round(end-start, 0)}, s.\n",
+        )
+        return df_agg_rr
     # Saving the residuals sequences
     print("\33[36m5. Saving the \33[1mresiduals sequences\33[22m.\33[0m")
     residuals_sequence: DefaultDict[
@@ -255,7 +265,11 @@ def calc_aggregated_damage(
     damages = pd.DataFrame()
     for _, sn_curve in sn.items():
         df_1 = df[cc_cols].applymap(
-            lambda x, sk=sn_curve: np.sum(get_pm(cycle_count=x, sn_curve=sk))
+            lambda x, sk=sn_curve: np.sum(
+                get_pm(cycle_count=x, sn_curve=sk)
+                if isinstance(x, CycleCount)
+                else 0
+            )
         )
         df_1["sn_curve"] = f"m={sn_curve.slope}"
         damages = pd.concat([damages, df_1])
