@@ -40,7 +40,7 @@ def aggregate_cc(
     df: pd.DataFrame, aggr_by: str, save_residuals: bool = False
 ) -> Union[
     pd.DataFrame,
-    tuple[pd.DataFrame, DefaultDict[str, DefaultDict[str, list[float]]]]
+    tuple[pd.DataFrame, DefaultDict[str, DefaultDict[str, list[float]]]],
 ]:
     """Aggregate a pandas dataframe by time window.
     The pandas dataframe must have a DatetimeIndex and at least one column
