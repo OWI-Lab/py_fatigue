@@ -66,4 +66,4 @@ branches:
     is-release-branch: false
 # ignore:
 # merge-message-formats: {}
-next-version: 1.0.11
+next-version: 1.0.12
