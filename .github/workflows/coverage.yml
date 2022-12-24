@@ -31,12 +31,14 @@ jobs:
         cache: 'pip'
         cache-dependency-path: "poetry.lock"
 
-    
     - name: Install poetry
       uses: Gr1N/setup-poetry@v7
 
     - name: Run package creation
       run: poetry build
+
+    - name: Install testing dependencies
+      run: poetry install pytest hypothesis coverage pytest-cov pytest-mock
 
     - name: Run Unit Tests and generate coverage report
       run: |
