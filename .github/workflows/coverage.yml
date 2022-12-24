@@ -38,7 +38,7 @@ jobs:
       run: poetry build
 
     - name: Install testing dependencies
-      run: pip install pytest hypothesis coverage
+      run: poetry install --no-root
 
     - name: Run Unit Tests and generate coverage report
       run: |
