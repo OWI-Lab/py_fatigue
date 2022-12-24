@@ -79,7 +79,7 @@ jobs:
       shell: bash
       run: |
         WHL_NAME=$(ls py_fatigue-*.whl)
-        pip install ${WHL_NAME} pytest hypothesis    
+        pip install ${WHL_NAME} pytest hypothesis coverage pytest-cov  
 
     - name: Run Unit Tests and generate coverage report
       run: |
