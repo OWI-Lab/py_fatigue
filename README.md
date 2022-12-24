@@ -1,3 +1,11 @@
+![version](https://img.shields.io/pypi/v/py_fatigue)
+![python versions](https://img.shields.io/pypi/pyversions/py_fatigue)
+![license](https://img.shields.io/github/license/owi-lab/py_fatigue)
+![pytest](https://img.shields.io/github/actions/workflow/status/owi-lab/py_fatigue/coverage.yml?label=pytest)
+![lint](https://img.shields.io/github/actions/workflow/status/owi-lab/py_fatigue/lint.yml?label=lint)
+![issues](https://img.shields.io/github/issues/owi-lab/py_fatigue)
+![downloads](https://img.shields.io/github/downloads/owi-lab/py_fatigue/total)
+![size](https://img.shields.io/github/repo-size/owi-lab/py_fatigue)
 It provides:
 
 - a powerful cycle-counting implementation based on the ASTM E1049-85 rainflow method that retrieves the main class of the package: ``CycleCount``
