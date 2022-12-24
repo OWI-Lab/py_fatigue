@@ -24,17 +24,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Get python version from .python-version
-      id: python-version
-      run: |
-        echo "version=$(cat .python-version)" >> $GITHUB_ENV
-
     - name: Install python ${{ matrix.python }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python }}
         cache: 'pip'
         cache-dependency-path: "poetry.lock"
+
+    - name: Install pytest
+      run: pip install pytest
 
     - name: Run Unit Tests and generate coverage report
       run: |
