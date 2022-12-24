@@ -124,20 +124,3 @@ jobs:
     - name: Run mypy
       run: |
         mypy --config-file=./mypy.ini py_fatigue/
-
-  # Run pytest
-  gist:
-    name: Gist badges
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-    - name: Create Awesome Badge
-      uses: schneegans/dynamic-badges-action@v1.6.0
-      with:
-        auth: ${{ secrets.GIST_SECRET }}
-        gistID: pd_gist
-        filename: py-fatigue.json
-        label: Hello
-        message: World
-        color: orange
