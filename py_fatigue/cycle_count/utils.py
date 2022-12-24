@@ -94,6 +94,9 @@ def aggregate_cc(
         date offset frequency string or 'all'.
         For all the frequency string aliases offered by pandas, see:
         `pandas-timeseries.html#dateoffset-objects <shorturl.at/dgrwW>`_.
+    save_residuals : bool, optional
+        If True, the residuals sequences of each aggregated CycleCount are
+        saved
 
     Returns
     -------
