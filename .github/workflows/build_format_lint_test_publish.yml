@@ -204,7 +204,7 @@ jobs:
             echo "::set-output name=version::${BASH_REMATCH[2]}"
             echo "Version of build: ${BASH_REMATCH[2]}"
         else
-            echo "No version found found"
+            echo "No version found in build path"
         fi
         
     - name: Get latest published version
@@ -220,11 +220,17 @@ jobs:
       shell: bash
       run: |
         poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-        if [[ '${{ github.ref_name }}' == 'main' ]]; then
-          poetry publish 
+        # Only publish if the version is different and if we are on the main
+        # branch
+        if [[ ${{ steps.current.outputs.version }} != ${{ steps.published.outputs.version }} ]]; then
+          if [[ '${{ github.ref_name }}' == 'main' ]]; then
+            poetry publish 
+          else
+            echo "Dry run of publishing the package"
+            poetry publish --dry-run
+          fi
         else
-          echo "Dry run of publishing the package"
-          poetry publish --dry-run
+          echo "\33[33mNo new version to publish. Skipping.\33[0m"
         fi
     - name: Tag repository
       shell: bash
