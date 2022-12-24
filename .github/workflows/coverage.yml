@@ -31,8 +31,12 @@ jobs:
         cache: 'pip'
         cache-dependency-path: "poetry.lock"
 
-    - name: Install pytest
-      run: pip install pytest
+    
+    - name: Install poetry
+      uses: Gr1N/setup-poetry@v7
+
+    - name: Run package creation
+      run: poetry build
 
     - name: Run Unit Tests and generate coverage report
       run: |
@@ -46,12 +50,6 @@ jobs:
       with:
         name: code-coverage-report
         path: htmlcov/
-
-    - name: Install poetry
-      uses: Gr1N/setup-poetry@v7
-
-    - name: Run package creation
-      run: poetry build
 
     - name: Archive package
       uses: actions/upload-artifact@v2
