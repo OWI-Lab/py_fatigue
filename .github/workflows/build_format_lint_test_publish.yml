@@ -1,4 +1,5 @@
 name: Build, Format, Lint, Test and Publish
+
 on:
   deployment:
     branches:

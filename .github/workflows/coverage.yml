@@ -1,5 +1,4 @@
-# GitHub CI build pipeline
-name: Py-Fatigue CI build
+name: Tests and Coverage
 
 on:
   push:
