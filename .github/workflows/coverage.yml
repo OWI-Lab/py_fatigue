@@ -1,0 +1,62 @@
+# GitHub CI build pipeline
+name: Py-Fatigue CI build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+
+jobs:
+  # Build the package
+  # echo "::set-output name=version::$(cat .python-version)" >> $GITHUB_ENV
+  build:
+    name: Build py-fatigue
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.8", "3.9", "3.10"]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Get python version from .python-version
+      id: python-version
+      run: |
+        echo "version=$(cat .python-version)" >> $GITHUB_ENV
+
+    - name: Install python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+        cache: 'pip'
+        cache-dependency-path: "poetry.lock"
+
+    - name: Run Unit Tests and generate coverage report
+      run: |
+        python -m pytest -v
+        coverage run -m pytest
+        coverage report
+        coverage html
+
+    - name: Archive code coverage html report
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: htmlcov/
+
+    - name: Install poetry
+      uses: Gr1N/setup-poetry@v7
+
+    - name: Run package creation
+      run: poetry build
+
+    - name: Archive package
+      uses: actions/upload-artifact@v2
+      with:
+        name: py-fatigue
+        path: dist/
