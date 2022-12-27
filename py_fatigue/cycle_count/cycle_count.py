@@ -355,7 +355,7 @@ class CycleCount:
             "mean_bin_width": mean_bin_width,
             "residuals_sequence": residuals_sequence,
             "name": name,
-            "unit": unit
+            "unit": unit,
         }
         return cls(**df)
 
