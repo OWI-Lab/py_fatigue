@@ -1569,6 +1569,15 @@ def _cycle_count_add_checks(
         warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
 
+    # ! 3) TypeError
+    # Trying to add-up different units.
+    if self_.unit != other_.unit:
+        raise TypeError(
+            "Trying to add-up CycleCounts having different units",
+            self_.unit,
+            other_.unit,
+        )
+
     # ! 4) UserWarning
     # Different bin widths
     _bin_widths_add_check(self_.range_bin_width, other_.range_bin_width)

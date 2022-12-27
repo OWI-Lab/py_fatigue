@@ -419,11 +419,15 @@ class TestCycleCount:
             cc_add.min_max_sequence,
             [min(res_sig), max(res_sig), min(res_sig), max(res_sig)],
         )
+        with pytest.raises(TypeError) as te:
+            cc_1.unit = "m"
+            _ = cc_1 + cc_2
+            assert "different units" in te.value.args[0]
 
     @pytest.mark.parametrize("cc", [(CC_TS_1)])
     @given(
-        scf_1=hy.integers(min_value=1, max_value=1e3),
-        scf_2=hy.integers(min_value=1, max_value=1e3),
+        scf_1=hy.integers(min_value=1, max_value=1000),
+        scf_2=hy.integers(min_value=1, max_value=1000),
     )
     def test__mul__(
         self,
