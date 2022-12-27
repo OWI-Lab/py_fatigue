@@ -292,6 +292,7 @@ class CycleCount:
         name: Optional[str] = None,
         mean_stress_corrected: str = "No",
         lffd_solved: bool = False,
+        unit: str = "MPa",
     ) -> "CycleCount":
         """Create a cycle-counting object from rainflow cycles.
         Parameters
@@ -313,7 +314,7 @@ class CycleCount:
             mean_stress_corrected,
             lffd_solved,
         )
-
+        df["unit"] = unit
         return cls(**df)
 
     @classmethod
@@ -327,6 +328,7 @@ class CycleCount:
         mean_bin_lower_bound: Optional[float] = None,
         mean_bin_width: float = 10,
         name: Optional[str] = None,
+        unit: str = "MPa",
     ) -> "CycleCount":
         """Generate a cycle-count from a timeseries.
 
@@ -353,6 +355,7 @@ class CycleCount:
             "mean_bin_width": mean_bin_width,
             "residuals_sequence": residuals_sequence,
             "name": name,
+            "unit": unit
         }
         return cls(**df)
 
