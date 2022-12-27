@@ -1,7 +1,8 @@
 name: Build, Format, Lint, Test and Publish
 
 on:
-  deployment:
+  release:
+    types: [published]
     branches:
       - 'main'
       - 'releases/*'
