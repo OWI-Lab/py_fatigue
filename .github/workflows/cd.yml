@@ -64,8 +64,8 @@ jobs:
       run: |
         echo "the secret \'TEST_PYPI_API_TOKEN\' has not been made"
         echo "Please go to \'settings \> secrets \> actions\' to create it"
-        exit 1
     - name: Publish distribution 📦 to Test PyPI
+      continue-on-error: true
       if: ${{ env.super_secret_test != '' }} and ${{ env.PUBLISH_TO_TEST_PYPI == 'true' }}
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
