@@ -4,9 +4,9 @@
 ![pytest](https://img.shields.io/github/actions/workflow/status/owi-lab/py_fatigue/coverage.yml?label=pytest)
 ![lint](https://img.shields.io/github/actions/workflow/status/owi-lab/py_fatigue/lint.yml?label=lint)
 ![issues](https://img.shields.io/github/issues/owi-lab/py_fatigue)
-![downloads](https://img.shields.io/github/downloads/owi-lab/py_fatigue/total)
 ![size](https://img.shields.io/github/repo-size/owi-lab/py_fatigue)
 [![CI/CD](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml/badge.svg)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml)
+[![documentation](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment)
 
 It provides:
 
