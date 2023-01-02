@@ -3,7 +3,7 @@ line-length = 79 # Code length, not docstrings
 
 [tool.poetry]
 name = "py_fatigue"
-version = "1.0.16"
+version = "1.0.17"
 description = "py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
 authors = [
     "Pietro D'Antuono <pietro.dantuono@vub.be>",
@@ -36,9 +36,10 @@ pytest = "^6.2.4"
 black = "*"
 flake8 = "^3.9"
 pylint = "^2.8"
-mypy = "^0.910"
+mypy = "^0.981"
 pyinstrument = "^4.0"
 pytest-cov = "^2.12"
+coverage = "^6.5"
 invoke = "^1.5"
 hypothesis = "^6.14.0"
 cruft = "^2.9.0"
