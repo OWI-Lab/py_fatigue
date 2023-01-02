@@ -12,18 +12,13 @@ import itertools
 import json
 import os
 import warnings
-from hypothesis import given
-import pytest
 import sys
 from typing import Union
 
-PROJECT_PATH = os.path.dirname(os.getcwd())
-if not PROJECT_PATH in sys.path:
-    sys.path.append(PROJECT_PATH)
 # Non-standard imports
-import matplotlib 
 import numpy as np
 from hypothesis import given, strategies as hy
+import pytest
 
 from py_fatigue.cycle_count.cycle_count import (
     _build_input_data_from_json,
@@ -35,6 +30,9 @@ from py_fatigue.mean_stress import MeanStress
 import py_fatigue.utils as pfu
 import py_fatigue.cycle_count.rainflow as rf
 
+PROJECT_PATH = os.path.dirname(os.getcwd())
+if not PROJECT_PATH in sys.path:
+    sys.path.append(PROJECT_PATH)
 
 # Input testing parameters
 TIMESTAMP_1 = dt.datetime(2019, 1, 1, tzinfo=dt.timezone.utc)
@@ -204,6 +202,7 @@ def test__assess_json_keys() -> None:
 
 
 def test_legacy_json_keys() -> None:
+    """Test the _assess_json_keys function for 1D data."""
     # fmt: off
     dct_1 = {"nr_small_cycles": 0, "range_bin_lower_bound": 0.5,
              "range_bin_width": 1, "hist": [3, 0, 1], "lg_c": [],
@@ -423,6 +422,7 @@ class TestCycleCount:
             cc_1.unit = "m"
             _ = cc_1 + cc_2
             assert "different units" in te.value.args[0]
+        cc_1.unit = "MPa"
 
     @pytest.mark.parametrize("cc", [(CC_TS_1)])
     @given(
