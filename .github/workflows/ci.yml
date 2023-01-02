@@ -1,0 +1,110 @@
+# Run this job on pushes to `main`, and for pull requests. If you don't specify
+# `branches: [main], then this actions runs _twice_ on pull requests, which is
+# annoying.
+
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+jobs:
+  ci:
+    strategy:
+      fail-fast: false
+      # Specify multiple python versions and operating systems to check against
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }} 
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Cache the installation of Poetry itself, e.g. the next step. This prevents the workflow
+      # from installing Poetry every time, which can be slow. Note the use of the Poetry version
+      # number in the cache key, and the "-0" suffix: this allows you to invalidate the cache
+      # manually if/when you want to upgrade Poetry, or if something goes wrong. This could be
+      # mildly cleaner by using an environment variable, but I don't really care.
+      - name: cache poetry install
+        uses: actions/cache@v2
+        with:
+          path: ~/.local
+          key: poetry-1.3.1-0
+
+      # Install Poetry. You could do this manually, or there are several actions that do this.
+      # `snok/install-poetry` seems to be minimal yet complete, and really just calls out to
+      # Poetry's default install script, which feels correct. I pin the Poetry version here
+      # because Poetry does occasionally change APIs between versions and I don't want my
+      # actions to break if it does.
+      #
+      # The key configuration value here is `virtualenvs-in-project: true`: this creates the
+      # venv as a `.venv` in your testing directory, which allows the next step to easily
+      # cache it.
+      - uses: snok/install-poetry@v1
+        with:
+          version: 1.3.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
+      # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
+      # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
+      - name: Cache dependencies
+        id: cache-deps
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: pydeps-${{ hashFiles('**/poetry.lock') }}-${{ matrix.python-version }}-${{ matrix.os }} 
+      
+      # Install dependencies. `--no-root` means "install all dependencies but not the project
+      # itself", which is what you want to avoid caching _your_ code. The `if` statement
+      # ensures this only runs on a cache miss.
+      - run: poetry install --no-interaction --no-root
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+
+      # Now install _your_ project. This isn't necessary for many types of projects -- particularly
+      # things like Django apps don't need this. But it's a good idea since it fully-exercises the
+      # pyproject.toml and makes that if you add things like console-scripts at some point that
+      # they'll be installed and working.
+      - run: poetry install --no-interaction
+
+      # And finally run tests. I'm using pytest and all my pytest config is in my `pyproject.toml`
+      # so this line is super-simple. But it could be as complex as you need.
+      - name: Run Pytest
+        run: echo "Running Pytest" && poetry run pytest --cov=./py_fatigue --cov-report=xml
+      - name: Run Black
+        run: echo "Running Black" && poetry run black py_fatigue
+      - name: Run Flake8
+        run: echo "Running Flake8" && poetry run flake8 py_fatigue
+      - name: Run Pylint
+        run: echo "Running Pylint" && poetry run pylint py_fatigue
+      - name: Run Mypy
+        run: echo "Running Mypy" && poetry run mypy py_fatigue
+
+      # And finally, if you want to upload coverage to codecov, you can do that too. This is
+      # a separate step because it's not necessary for the tests to pass, and it's a bit slow.
+      # You can also use other coverage tools, like coveralls, or just upload the coverage
+      # report to GitHub Actions.
+      - name: "check is CODECOV_TOKEN exists"
+        env: 
+          super_secret: ${{ secrets.CODECOV_TOKEN }}
+        if: ${{ env.super_secret == '' }}
+        run: |
+          echo "the secret \'CODECOV_TOKEN\' has not been made"
+          echo "Please go to \'settings \> secrets \> actions\' to create it"
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage/reports/
+          env_vars: OS,PYTHON
+          fail_ci_if_error: true
+          files: ./coverage.xml
+          flags: pytest
+          name: codecov-umbrella
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
+
+
