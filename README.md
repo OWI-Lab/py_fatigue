@@ -6,6 +6,7 @@
 ![issues](https://img.shields.io/github/issues/owi-lab/py_fatigue)
 ![downloads](https://img.shields.io/github/downloads/owi-lab/py_fatigue/total)
 ![size](https://img.shields.io/github/repo-size/owi-lab/py_fatigue)
+[![CI/CD](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml/badge.svg)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml)
 
 It provides:
 
