@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Project tools &#8212; py-fatigue Documentation (1.0.17)</title>
+    <title>Project tools &#8212; py-fatigue Documentation (1.0.18)</title>
   <script>
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -487,8 +487,8 @@ running background tasks and <code class="docutils literal notranslate"><span cl
 <p class="admonition-title">Note</p>
 <p>In case a <strong>Permission denied</strong> error pops up you can fix it with running the next commands
 in a terminal:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir ~/.screen <span class="o">&amp;&amp;</span> chmod <span class="m">700</span> ~/.screen
-<span class="nb">export</span> <span class="nv">SCREENDIR</span><span class="o">=</span><span class="nv">$HOME</span>/.screen
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>~/.screen<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>chmod<span class="w"> </span><span class="m">700</span><span class="w"> </span>~/.screen
+<span class="nb">export</span><span class="w"> </span><span class="nv">SCREENDIR</span><span class="o">=</span><span class="nv">$HOME</span>/.screen
 </pre></div>
 </div>
 <p>Additionally you can put the last line into you <cite>~/.bashrc</cite> (or alternative shell like .zshrc)
@@ -684,53 +684,53 @@ See <a class="reference external" href="https://pypi.org/project/gitchangelog/">
 <p>In practice if you follow these basic commit message rules you can generate a nice
 changelog without any additional work. So why not be more disciplined when writing
 commit messages? The overhead is minimal, others and the future you will thank you!</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ACTION: <span class="o">[</span>AUDIENCE:<span class="o">]</span> COMMIT_MSG <span class="o">[</span>!TAG ...<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ACTION:<span class="w"> </span><span class="o">[</span>AUDIENCE:<span class="o">]</span><span class="w"> </span>COMMIT_MSG<span class="w"> </span><span class="o">[</span>!TAG<span class="w"> </span>...<span class="o">]</span>
 
 Description
 
-ACTION is one of <span class="s1">&#39;chg&#39;</span>, <span class="s1">&#39;fix&#39;</span>, <span class="s1">&#39;new&#39;</span>
+ACTION<span class="w"> </span>is<span class="w"> </span>one<span class="w"> </span>of<span class="w"> </span><span class="s1">&#39;chg&#39;</span>,<span class="w"> </span><span class="s1">&#39;fix&#39;</span>,<span class="w"> </span><span class="s1">&#39;new&#39;</span>
 
-      Is WHAT the change is about.
+<span class="w">      </span>Is<span class="w"> </span>WHAT<span class="w"> </span>the<span class="w"> </span>change<span class="w"> </span>is<span class="w"> </span>about.
 
-      <span class="s1">&#39;chg&#39;</span> is <span class="k">for</span> refactor, small improvement, cosmetic changes...
-      <span class="s1">&#39;fix&#39;</span> is <span class="k">for</span> bug fixes
-      <span class="s1">&#39;new&#39;</span> is <span class="k">for</span> new features, big improvement
+<span class="w">      </span><span class="s1">&#39;chg&#39;</span><span class="w"> </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>refactor,<span class="w"> </span>small<span class="w"> </span>improvement,<span class="w"> </span>cosmetic<span class="w"> </span>changes...
+<span class="w">      </span><span class="s1">&#39;fix&#39;</span><span class="w"> </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>bug<span class="w"> </span>fixes
+<span class="w">      </span><span class="s1">&#39;new&#39;</span><span class="w"> </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>new<span class="w"> </span>features,<span class="w"> </span>big<span class="w"> </span>improvement
 
-AUDIENCE is optional and one of <span class="s1">&#39;dev&#39;</span>, <span class="s1">&#39;usr&#39;</span>, <span class="s1">&#39;pkg&#39;</span>, <span class="s1">&#39;test&#39;</span>, <span class="s1">&#39;doc&#39;</span>
+AUDIENCE<span class="w"> </span>is<span class="w"> </span>optional<span class="w"> </span>and<span class="w"> </span>one<span class="w"> </span>of<span class="w"> </span><span class="s1">&#39;dev&#39;</span>,<span class="w"> </span><span class="s1">&#39;usr&#39;</span>,<span class="w"> </span><span class="s1">&#39;pkg&#39;</span>,<span class="w"> </span><span class="s1">&#39;test&#39;</span>,<span class="w"> </span><span class="s1">&#39;doc&#39;</span>
 
-      Is WHO is concerned by the change.
+<span class="w">      </span>Is<span class="w"> </span>WHO<span class="w"> </span>is<span class="w"> </span>concerned<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>change.
 
-      <span class="s1">&#39;dev&#39;</span>  is <span class="k">for</span> developpers <span class="o">(</span>API changes, refactors...<span class="o">)</span>
-      <span class="s1">&#39;usr&#39;</span>  is <span class="k">for</span> final users <span class="o">(</span>UI changes<span class="o">)</span>
-      <span class="s1">&#39;pkg&#39;</span>  is <span class="k">for</span> packagers   <span class="o">(</span>packaging changes<span class="o">)</span>
-      <span class="s1">&#39;test&#39;</span> is <span class="k">for</span> testers     <span class="o">(</span><span class="nb">test</span> only related changes<span class="o">)</span>
-      <span class="s1">&#39;doc&#39;</span>  is <span class="k">for</span> doc guys    <span class="o">(</span>doc only changes<span class="o">)</span>
+<span class="w">      </span><span class="s1">&#39;dev&#39;</span><span class="w">  </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>developpers<span class="w"> </span><span class="o">(</span>API<span class="w"> </span>changes,<span class="w"> </span>refactors...<span class="o">)</span>
+<span class="w">      </span><span class="s1">&#39;usr&#39;</span><span class="w">  </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>final<span class="w"> </span>users<span class="w"> </span><span class="o">(</span>UI<span class="w"> </span>changes<span class="o">)</span>
+<span class="w">      </span><span class="s1">&#39;pkg&#39;</span><span class="w">  </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>packagers<span class="w">   </span><span class="o">(</span>packaging<span class="w"> </span>changes<span class="o">)</span>
+<span class="w">      </span><span class="s1">&#39;test&#39;</span><span class="w"> </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>testers<span class="w">     </span><span class="o">(</span><span class="nb">test</span><span class="w"> </span>only<span class="w"> </span>related<span class="w"> </span>changes<span class="o">)</span>
+<span class="w">      </span><span class="s1">&#39;doc&#39;</span><span class="w">  </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>doc<span class="w"> </span>guys<span class="w">    </span><span class="o">(</span>doc<span class="w"> </span>only<span class="w"> </span>changes<span class="o">)</span>
 
-COMMIT_MSG is ... well ... the commit message itself.
+COMMIT_MSG<span class="w"> </span>is<span class="w"> </span>...<span class="w"> </span>well<span class="w"> </span>...<span class="w"> </span>the<span class="w"> </span>commit<span class="w"> </span>message<span class="w"> </span>itself.
 
-TAGs are additionnal adjective as <span class="s1">&#39;refactor&#39;</span> <span class="s1">&#39;minor&#39;</span> <span class="s1">&#39;cosmetic&#39;</span>
+TAGs<span class="w"> </span>are<span class="w"> </span>additionnal<span class="w"> </span>adjective<span class="w"> </span>as<span class="w"> </span><span class="s1">&#39;refactor&#39;</span><span class="w"> </span><span class="s1">&#39;minor&#39;</span><span class="w"> </span><span class="s1">&#39;cosmetic&#39;</span>
 
-      They are preceded with a <span class="s1">&#39;!&#39;</span> or a <span class="s1">&#39;@&#39;</span> <span class="o">(</span>prefer the former, as the
-      latter is wrongly interpreted <span class="k">in</span> github.<span class="o">)</span> Commonly used tags are:
+<span class="w">      </span>They<span class="w"> </span>are<span class="w"> </span>preceded<span class="w"> </span>with<span class="w"> </span>a<span class="w"> </span><span class="s1">&#39;!&#39;</span><span class="w"> </span>or<span class="w"> </span>a<span class="w"> </span><span class="s1">&#39;@&#39;</span><span class="w"> </span><span class="o">(</span>prefer<span class="w"> </span>the<span class="w"> </span>former,<span class="w"> </span>as<span class="w"> </span>the
+<span class="w">      </span>latter<span class="w"> </span>is<span class="w"> </span>wrongly<span class="w"> </span>interpreted<span class="w"> </span><span class="k">in</span><span class="w"> </span>github.<span class="o">)</span><span class="w"> </span>Commonly<span class="w"> </span>used<span class="w"> </span>tags<span class="w"> </span>are:
 
-      <span class="s1">&#39;refactor&#39;</span> is obviously <span class="k">for</span> refactoring code only
-      <span class="s1">&#39;minor&#39;</span> is <span class="k">for</span> a very meaningless change <span class="o">(</span>a typo, adding a comment<span class="o">)</span>
-      <span class="s1">&#39;cosmetic&#39;</span> is <span class="k">for</span> cosmetic driven change <span class="o">(</span>re-indentation, <span class="m">80</span>-col...<span class="o">)</span>
-      <span class="s1">&#39;wip&#39;</span> is <span class="k">for</span> partial functionality but <span class="nb">complete</span> subfunctionality.
+<span class="w">      </span><span class="s1">&#39;refactor&#39;</span><span class="w"> </span>is<span class="w"> </span>obviously<span class="w"> </span><span class="k">for</span><span class="w"> </span>refactoring<span class="w"> </span>code<span class="w"> </span>only
+<span class="w">      </span><span class="s1">&#39;minor&#39;</span><span class="w"> </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>a<span class="w"> </span>very<span class="w"> </span>meaningless<span class="w"> </span>change<span class="w"> </span><span class="o">(</span>a<span class="w"> </span>typo,<span class="w"> </span>adding<span class="w"> </span>a<span class="w"> </span>comment<span class="o">)</span>
+<span class="w">      </span><span class="s1">&#39;cosmetic&#39;</span><span class="w"> </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>cosmetic<span class="w"> </span>driven<span class="w"> </span>change<span class="w"> </span><span class="o">(</span>re-indentation,<span class="w"> </span><span class="m">80</span>-col...<span class="o">)</span>
+<span class="w">      </span><span class="s1">&#39;wip&#39;</span><span class="w"> </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>partial<span class="w"> </span>functionality<span class="w"> </span>but<span class="w"> </span><span class="nb">complete</span><span class="w"> </span>subfunctionality.
 
 Example:
 
-new: usr: support of bazaar implemented
-chg: re-indentend some lines !cosmetic
-new: dev: updated code to be compatible with last version of killer lib.
-fix: pkg: updated year of licence coverage.
-new: test: added a bunch of <span class="nb">test</span> around user usability of feature X.
-fix: typo <span class="k">in</span> spelling my name <span class="k">in</span> comment. !minor
+new:<span class="w"> </span>usr:<span class="w"> </span>support<span class="w"> </span>of<span class="w"> </span>bazaar<span class="w"> </span>implemented
+chg:<span class="w"> </span>re-indentend<span class="w"> </span>some<span class="w"> </span>lines<span class="w"> </span>!cosmetic
+new:<span class="w"> </span>dev:<span class="w"> </span>updated<span class="w"> </span>code<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>compatible<span class="w"> </span>with<span class="w"> </span>last<span class="w"> </span>version<span class="w"> </span>of<span class="w"> </span>killer<span class="w"> </span>lib.
+fix:<span class="w"> </span>pkg:<span class="w"> </span>updated<span class="w"> </span>year<span class="w"> </span>of<span class="w"> </span>licence<span class="w"> </span>coverage.
+new:<span class="w"> </span>test:<span class="w"> </span>added<span class="w"> </span>a<span class="w"> </span>bunch<span class="w"> </span>of<span class="w"> </span><span class="nb">test</span><span class="w"> </span>around<span class="w"> </span>user<span class="w"> </span>usability<span class="w"> </span>of<span class="w"> </span>feature<span class="w"> </span>X.
+fix:<span class="w"> </span>typo<span class="w"> </span><span class="k">in</span><span class="w"> </span>spelling<span class="w"> </span>my<span class="w"> </span>name<span class="w"> </span><span class="k">in</span><span class="w"> </span>comment.<span class="w"> </span>!minor
 
-Please note that multi-line commit message are supported, and only the
-first line will be considered as the <span class="s2">&quot;summary&quot;</span> of the commit message. So
-tags, and other rules only applies to the summary.  The body of the commit
-message will be displayed <span class="k">in</span> the changelog without reformatting.
+Please<span class="w"> </span>note<span class="w"> </span>that<span class="w"> </span>multi-line<span class="w"> </span>commit<span class="w"> </span>message<span class="w"> </span>are<span class="w"> </span>supported,<span class="w"> </span>and<span class="w"> </span>only<span class="w"> </span>the
+first<span class="w"> </span>line<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>considered<span class="w"> </span>as<span class="w"> </span>the<span class="w"> </span><span class="s2">&quot;summary&quot;</span><span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>commit<span class="w"> </span>message.<span class="w"> </span>So
+tags,<span class="w"> </span>and<span class="w"> </span>other<span class="w"> </span>rules<span class="w"> </span>only<span class="w"> </span>applies<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>summary.<span class="w">  </span>The<span class="w"> </span>body<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>commit
+message<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>displayed<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>changelog<span class="w"> </span>without<span class="w"> </span>reformatting.
 </pre></div>
 </div>
 </section>

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Setup version control &#8212; py-fatigue Documentation (1.0.17)</title>
+    <title>Setup version control &#8212; py-fatigue Documentation (1.0.18)</title>
   <script>
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -472,14 +472,14 @@ Therefore the first thing we need to do is to initialize our git repository, cre
 <li><p>Push an existing repository (your local git repo created in step 1). You can do so with the following command: <cite>git remote add origin git&#64;ssh.dev.azure.com:v3/&lt;Your DevOps Org/&lt;DevOps Project&gt;/&lt;repository&gt;</cite>. The link is often given on the overview page. Your local repository now knows about the remote one and it is named <cite>origin</cite> by default.</p></li>
 <li><p>Add all current files and push to the <cite>main</cite> branch:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a local main branch</span>
-&gt; git checkout -b main
+&gt;<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>main
 
 <span class="c1"># Add everything &amp; commit</span>
-&gt; git add .
-&gt; git commit -m <span class="s1">&#39;New: Usr: Initialized repository [skip ci]&#39;</span>
+&gt;<span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>.
+&gt;<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;New: Usr: Initialized repository [skip ci]&#39;</span>
 
 <span class="c1"># Push to remote</span>
-&gt; git push --set-upstream origin main
+&gt;<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>--set-upstream<span class="w"> </span>origin<span class="w"> </span>main
 </pre></div>
 </div>
 </li>
@@ -560,7 +560,7 @@ feature branches. The difference is that the ci/cd pipeline will release and pub
 to embed in downstream projects or deploys to test and staging environments.</p>
 <ol class="arabic">
 <li><p>Create a <cite>releases/&lt;version&gt;</cite> branch from main and consider it as you new main branch on which you will work during this release. To do this run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git checkout -b releases/&lt;version&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>releases/&lt;version&gt;
 </pre></div>
 </div>
 <p>and set <cite>&lt;version&gt;</cite> as your new release version.</p>
@@ -569,7 +569,7 @@ to embed in downstream projects or deploys to test and staging environments.</p>
 <p>2. Bump the version to the new <cite>semver</cite> to keep the gitversion tool in control during PRs. You should use the <cite>bumpversion</cite> tool within this project. Please have a look at <cite>bumpversion –help</cite> for additional insights.
 TLDR, you need to run</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bumpversion --commit --new-version &lt;version&gt; minor
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bumpversion<span class="w"> </span>--commit<span class="w"> </span>--new-version<span class="w"> </span>&lt;version&gt;<span class="w"> </span>minor
 </pre></div>
 </div>
 <p>to set the version throughout the project.</p>
@@ -589,9 +589,9 @@ Be sure to delete the release branch.</p>
 <section id="development-branches">
 <h2>Development branches<a class="headerlink" href="#development-branches" title="Permalink to this heading">#</a></h2>
 <p>The template also supports a <cite>dev</cite> branch on which you could work before moving towards a release branch if you want. Everything will work the same as on the release branch but it will publish alpha packages. The version logic can be controlled with the following section in <cite>GitVersion.yml</cite>:</p>
-<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="nt">branches</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">develop</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">increment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Patch</span><span class="w"></span>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="nt">branches</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">develop</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">increment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Patch</span>
 </pre></div>
 </div>
 <p>where the increment determines how the next version should be handled on alpha releases. You could also use <cite>next-version=</cite> with the latter having precedence over all other rules (so be careful).

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Beginners’ guide &#8212; py-fatigue Documentation (1.0.17)</title>
+    <title>Beginners’ guide &#8212; py-fatigue Documentation (1.0.18)</title>
   <script>
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -463,7 +463,7 @@ from the project and now relies on the following PyPi packages only:</p>
 <h2>Installing py-fatigue<a class="headerlink" href="#installing-py-fatigue" title="Permalink to this heading">#</a></h2>
 <p>py-fatigue is freely available on GitHub and gets maintained through CI/CD phylosophy. The package requires Python 3.8 or higher, and it requires a 64-bit version of Python.</p>
 <p>To install the toolbox, simply run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install py-fatigue
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>py-fatigue
 </pre></div>
 </div>
 <p>and you will get the latest stable version of the toolbox.</p>
@@ -884,8 +884,8 @@ the pandas DataFrame accessors that <cite>py-fatigue</cite> implements.</p>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;damage from matrix: </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">damage_d</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>damage from signal: <span class="m">0</span>.0013318803351252439
-damage from matrix: <span class="m">0</span>.0013321255571107358
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>damage<span class="w"> </span>from<span class="w"> </span>signal:<span class="w"> </span><span class="m">0</span>.0013318803351252439
+damage<span class="w"> </span>from<span class="w"> </span>matrix:<span class="w"> </span><span class="m">0</span>.0013321255571107358
 </pre></div>
 </div>
 </section>
@@ -944,8 +944,8 @@ damage from matrix: <span class="m">0</span>.0013321255571107358
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cycles to end: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">cg</span><span class="o">.</span><span class="n">final_cycles</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Fatigue spectrum applied w/o failure. Stopping calculation
-Cycles to end: <span class="m">3328</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Fatigue<span class="w"> </span>spectrum<span class="w"> </span>applied<span class="w"> </span>w/o<span class="w"> </span>failure.<span class="w"> </span>Stopping<span class="w"> </span>calculation
+Cycles<span class="w"> </span>to<span class="w"> </span>end:<span class="w"> </span><span class="m">3328</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cg_d</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">crack_growth</span><span class="o">.</span><span class="n">get_crack_growth</span><span class="p">(</span>
@@ -954,8 +954,8 @@ Cycles to end: <span class="m">3328</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cycles to end: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">cg</span><span class="o">.</span><span class="n">final_cycles</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Fatigue spectrum applied w/o failure. Stopping calculation
-Cycles to end: <span class="m">3320</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Fatigue<span class="w"> </span>spectrum<span class="w"> </span>applied<span class="w"> </span>w/o<span class="w"> </span>failure.<span class="w"> </span>Stopping<span class="w"> </span>calculation
+Cycles<span class="w"> </span>to<span class="w"> </span>end:<span class="w"> </span><span class="m">3320</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">cg_d</span><span class="o">.</span><span class="n">count_cycle</span><span class="p">),</span> <span class="n">cg_d</span><span class="o">.</span><span class="n">crack_depth</span><span class="p">)</span>

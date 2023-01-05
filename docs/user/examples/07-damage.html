@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>7. Stress-Life damage calculation &#8212; py-fatigue Documentation (1.0.17)</title>
+    <title>7. Stress-Life damage calculation &#8212; py-fatigue Documentation (1.0.18)</title>
   <script>
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -609,7 +609,7 @@ of a sinusoidal function and calculate the damage using the
 <span class="linenos">2</span><span class="n">df</span><span class="o">.</span><span class="n">miner</span><span class="o">.</span><span class="n">damage</span><span class="p">(</span><span class="n">w3a</span><span class="p">)</span>
 <span class="linenos">3</span><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="linenos">4</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Damage from pandas df: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;pm_damage&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">5</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Damage from  function: </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">stress_life</span><span class="o">.</span><span class="n">get_pm</span><span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="n">w3a</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">5</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Damage from  function: </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">stress_life</span><span class="o">.</span><span class="n">get_pm</span><span class="p">(</span><span class="n">cc</span><span class="p">,</span><span class="w"> </span><span class="n">w3a</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Which outputs:</p>
