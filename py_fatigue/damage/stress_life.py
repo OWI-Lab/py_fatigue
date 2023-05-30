@@ -376,12 +376,13 @@ def calc_dem(
     inner radius, or :math:`S` the Section modulus. The Damage
     Equivalent Stress Range (DES) is calculated using
     :func:`calc_des`
+
     Parameters
     ----------
     outer_radius : float
-        The outer radius to calculate the DEM. Must be provided in mm
+        The outer radius to calculate the DEM. Must be provided in m
     inner_radius : float
-        The inner radius to calculate the DEM. Must be provided in mm
+        The inner radius to calculate the DEM. Must be provided in m
     stress_range : Union[float, pd.Series, np.ndarray]
         The stress range
     count_cycle : Union[float, pd.Series, np.ndarray]
@@ -479,12 +480,13 @@ def get_dem(
     inner radius, or :math:`S` the Section modulus. The Damage
     Equivalent Stress Range (DES) is calculated using
     :func:`calc_des`
+
     Parameters
     ----------
     outer_radius : float
-        The outer radius to calculate the DEM. Must be provided in mm
+        The outer radius to calculate the DEM. Must be provided in m
     inner_radius : float
-        The inner radius to calculate the DEM. Must be provided in mm
+        The inner radius to calculate the DEM. Must be provided in m
     stress_range : Union[pd.Series, np.ndarray]
         The stress range
     count_cycle : Union[pd.Series, np.ndarray]
