@@ -677,28 +677,26 @@ linear damage accumulation rule:</p>
 <p>with <span class="math notranslate nohighlight">\(I_c\)</span> the area moment of inertia and <span class="math notranslate nohighlight">\(r_i\)</span> the
 inner radius, or <span class="math notranslate nohighlight">\(S\)</span> the Section modulus. The Damage
 Equivalent Stress Range (DES) is calculated using
-<a class="reference internal" href="#py_fatigue.damage.stress_life.calc_des" title="py_fatigue.damage.stress_life.calc_des"><code class="xref py py-func docutils literal notranslate"><span class="pre">calc_des()</span></code></a>
-:param outer_radius: The outer radius to calculate the DEM. Must be provided in mm
-:type outer_radius: float
-:param inner_radius: The inner radius to calculate the DEM. Must be provided in mm
-:type inner_radius: float
-:param stress_range: The stress range
-:type stress_range: Union[float, pd.Series, np.ndarray]
-:param count_cycle: The number of cycles
-:type count_cycle: Union[float, pd.Series, np.ndarray]
-:param slope: The SN curve slope
-:type slope: float
-:param equivalent_cycles: The equivalent number of cycles, by default 1e7
-:type equivalent_cycles: float, optional</p>
+<a class="reference internal" href="#py_fatigue.damage.stress_life.calc_des" title="py_fatigue.damage.stress_life.calc_des"><code class="xref py py-func docutils literal notranslate"><span class="pre">calc_des()</span></code></a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.11)"><strong>ValueError</strong></a> – If the inner radius is larger than the outer radius.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outer_radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The outer radius to calculate the DEM. Must be provided in m</p></li>
+<li><p><strong>inner_radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The inner radius to calculate the DEM. Must be provided in m</p></li>
+<li><p><strong>stress_range</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>pd.Series</em><em>, </em><em>np.ndarray</em><em>]</em>) – The stress range</p></li>
+<li><p><strong>count_cycle</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>pd.Series</em><em>, </em><em>np.ndarray</em><em>]</em>) – The number of cycles</p></li>
+<li><p><strong>slope</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The SN curve slope</p></li>
+<li><p><strong>equivalent_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The equivalent number of cycles, by default 1e7</p></li>
+</ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The DEM in Nm.</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.11)"><strong>ValueError</strong></a> – If the inner radius is larger than the outer radius.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The DEM in Nm.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -753,25 +751,23 @@ Equivalent Stress Range (DES) is calculated using
 <p>with <span class="math notranslate nohighlight">\(I_c\)</span> the area moment of inertia and <span class="math notranslate nohighlight">\(r_i\)</span> the
 inner radius, or <span class="math notranslate nohighlight">\(S\)</span> the Section modulus. The Damage
 Equivalent Stress Range (DES) is calculated using
-<a class="reference internal" href="#py_fatigue.damage.stress_life.calc_des" title="py_fatigue.damage.stress_life.calc_des"><code class="xref py py-func docutils literal notranslate"><span class="pre">calc_des()</span></code></a>
-:param outer_radius: The outer radius to calculate the DEM. Must be provided in mm
-:type outer_radius: float
-:param inner_radius: The inner radius to calculate the DEM. Must be provided in mm
-:type inner_radius: float
-:param stress_range: The stress range
-:type stress_range: Union[pd.Series, np.ndarray]
-:param count_cycle: The number of cycles
-:type count_cycle: Union[pd.Series, np.ndarray]
-:param slope: The SN curve slope
-:type slope: float
-:param equivalent_cycles: The equivalent number of cycles, by default 1e7
-:type equivalent_cycles: float, optional</p>
+<a class="reference internal" href="#py_fatigue.damage.stress_life.calc_des" title="py_fatigue.damage.stress_life.calc_des"><code class="xref py py-func docutils literal notranslate"><span class="pre">calc_des()</span></code></a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The DEM in Nm.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outer_radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The outer radius to calculate the DEM. Must be provided in m</p></li>
+<li><p><strong>inner_radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The inner radius to calculate the DEM. Must be provided in m</p></li>
+<li><p><strong>stress_range</strong> (<em>Union</em><em>[</em><em>pd.Series</em><em>, </em><em>np.ndarray</em><em>]</em>) – The stress range</p></li>
+<li><p><strong>count_cycle</strong> (<em>Union</em><em>[</em><em>pd.Series</em><em>, </em><em>np.ndarray</em><em>]</em>) – The number of cycles</p></li>
+<li><p><strong>slope</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The SN curve slope</p></li>
+<li><p><strong>equivalent_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – The equivalent number of cycles, by default 1e7</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DEM in Nm.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
