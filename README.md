@@ -24,7 +24,7 @@ Therefore, it is highly recommended to have a look at the documentation of these
 
 ## Installation requirements
 
-Py-Fatigue requires Python 3.8 or higher. It is a 64-bit package and it is not compatible with 32-bit Python.
+Py-Fatigue requires Python [3.8, 3.9, 3.10]. It is a 64-bit package and it is not compatible with 32-bit Python.
 
 ## To cite Py-Fatigue
 
