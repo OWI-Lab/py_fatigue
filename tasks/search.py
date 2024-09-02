@@ -12,7 +12,7 @@ def search(c, pattern, extra_flags=None):
     if system == OperatingSystem.LINUX:
         cmd = f"""grep -nriI . -e "{pattern}" --color=auto"""
         cmd = cmd + " --exclude-dir={notebooks/,.venv/,static,_build,.mypy_cache,htmlcov,.jupyter,.vim,.git}"
-        cmd = cmd + " --exclude={poetry.lock,.pylintrc,.gitchangelog.rc,pylint_exit_handler.sh}"
+        cmd = cmd + " --exclude={.pylintrc,.gitchangelog.rc,pylint_exit_handler.sh}"
 
         if extra_flags:
             cmd = cmd + extra_flags

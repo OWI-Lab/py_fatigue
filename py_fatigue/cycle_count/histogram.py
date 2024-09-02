@@ -86,14 +86,25 @@ def make_histogram(
     if len(mean_stress) != len(stress_range):
         raise ValueError("Input arrays must be the same length")
 
-    hist, mean_e, range_e = np.histogram2d(
-        mean_stress,
-        stress_range,
-        bins=bins,
-        range=bin_range,
-        normed=normed,
-        weights=weights,
-    )
+    try:
+        hist, mean_e, range_e = np.histogram2d(
+            mean_stress,
+            stress_range,
+            bins=bins,
+            range=bin_range,
+            normed=normed,
+            weights=weights,
+        )
+    except TypeError as type_error:
+        if "normed" in str(type_error):
+            hist, mean_e, range_e = np.histogram2d(
+                mean_stress,
+                stress_range,
+                bins=bins,
+                range=bin_range,
+                weights=weights,
+                density=normed,
+            )
     hist_bin_edges = (mean_e, range_e)
     return hist, hist_bin_edges
 

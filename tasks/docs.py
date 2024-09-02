@@ -20,9 +20,9 @@ def build(c):
     system = get_current_system()
 
     if system == OperatingSystem.LINUX:
-        _command = f"poetry run sphinx-build -b  html -d {DOCS_BUILD_DIR}/doctrees ./rst_docs {DOCS_BUILD_DIR} -E -a"
+        _command = f"sphinx-build -b  html -d {DOCS_BUILD_DIR}/doctrees ./rst_docs {DOCS_BUILD_DIR} -E -a"
     elif system == OperatingSystem.WINDOWS:
-        _command = f"poetry run sphinx-build -b html -d {DOCS_BUILD_DIR}\\doctrees rst_docs {DOCS_BUILD_DIR} -E -a"
+        _command = f"sphinx-build -b html -d {DOCS_BUILD_DIR}\\doctrees rst_docs {DOCS_BUILD_DIR} -E -a"
     else:
         raise ValueError(f'System {system} is not supported')
 
@@ -36,11 +36,11 @@ def start(c):
     system = get_current_system()
 
     if system == OperatingSystem.LINUX:
-        _command = f"poetry run screen -d -S {DOC_SCREEN_NAME} \
+        _command = f"screen -d -S {DOC_SCREEN_NAME} \
             -m python -m http.server --bind localhost \
             --directory {DOCS_BUILD_DIR} {SERVER_PORT}"
     elif system == OperatingSystem.WINDOWS:
-        _command = f"poetry run wt -d . " \
+        _command = f"wt -d . " \
                    f"python -m http.server --bind localhost " \
                    f"--directory {DOCS_BUILD_DIR} {SERVER_PORT} "
     else:
@@ -81,10 +81,10 @@ def linkcheck(c):
     system = get_current_system()
 
     if system == OperatingSystem.LINUX:
-        _command = f"poetry run sphinx-build -b linkcheck -d {DOCS_BUILD_DIR}/doctrees " \
+        _command = f"sphinx-build -b linkcheck -d {DOCS_BUILD_DIR}/doctrees " \
                    f"./rst_docs {DOCS_BUILD_DIR}/linkcheck"
     elif system == OperatingSystem.WINDOWS:
-        _command = f"poetry run sphinx-build -b linkcheck -d {DOCS_BUILD_DIR}\\doctrees " \
+        _command = f"sphinx-build -b linkcheck -d {DOCS_BUILD_DIR}\\doctrees " \
                    f"rst_docs {DOCS_BUILD_DIR}\\linkcheck"
     else:
         raise ValueError(f'System {system} is not supported')

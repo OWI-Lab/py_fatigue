@@ -146,7 +146,7 @@ class HollowCylinder(AbstractCrackGeometry):
         fig: Optional[matplotlib.figure.Figure] = None,
         ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs: dict,
-    ) -> tuple:
+    ) -> tuple:  # pragma: no cover
         """Plot the crack front when the crack is located on the external
         surface of the hollow cylinder.
 

@@ -1,34 +1,51 @@
+"""Quality assessment tasks. Run all quality checks with `inv qa`.
+The quality checks are:
+- black
+- flake8
+- pylint
+- mypy
+
+"""
+
 from invoke import task
-from .colors import colorize
+from .colors import colorize, Color
+
+from .system import PTY
+
 
 @task
-def black(c):
+def black(c_r):
     """Run code formatter: black."""
-    print(colorize("-> Running black..."))
-    c.run(f"poetry run black {c.project_slug}", pty=True)
+    tmp_str = colorize("\nRunning black...\n", color=Color.HEADER, bold=True)
+    print(f"{tmp_str}")
+    c_r.run(f"black {c_r.project_slug}", pty=PTY)
 
 
 @task
-def flake(c):
+def flake(c_r):
     """Run style guide enforcement: flake8."""
-    print(colorize("-> Running flake8..."))
-    c.run(f"poetry run flake8 {c.project_slug}", warn=True, pty=True)
+    tmp_str = colorize("\nRunning flake8...\n", color=Color.HEADER, bold=True)
+    print(f"{tmp_str}")
+    c_r.run(f"flake8 {c_r.project_slug}", warn=True, pty=PTY)
 
 
 @task
-def pylint(c):
+def pylint(c_r):
     """Run code analysis: pylint."""
-    print(colorize("-> Running pylint..."))
-    c.run(f"poetry run pylint {c.project_slug}", warn=True, pty=True)
+    tmp_str = colorize("\nRunning pylint...\n", color=Color.HEADER, bold=True)
+    print(f"{tmp_str}")
+    c_r.run(f"pylint {c_r.project_slug}", warn=True, pty=PTY)
 
 
 @task
-def mypy(c):
+def mypy(c_r):
     """Run static type checking: mypy."""
-    print(colorize("-> Running mypy..."))
-    c.run(f"poetry run mypy {c.project_slug}", warn=True, pty=True)
+    tmp_str = colorize("Running mypy...\n", color=Color.HEADER, bold=True)
+    print(f"{tmp_str}")
+    c_r.run(f"mypy {c_r.project_slug}", warn=True, pty=PTY)
 
 
-@task(post=[black, flake, pylint, mypy], default=True)
-def all(c):
+# @task(post=[black, flake, pylint, mypy], default=True)
+@task(post=[flake, pylint, mypy], default=True)
+def all(c_r):  # pylint: disable=W0622,W0613 # noqa: F811
     """Run all quality checks."""

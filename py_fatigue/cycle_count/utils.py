@@ -181,7 +181,7 @@ def plot_aggregated_residuals(
     res_dct: dict[str, DefaultDict[str, DefaultDict[str, list[float]]]],
     plt_prmtr: str,
     minor_grid: bool = True,
-) -> tuple[plt.figure.Figure, plt.axes.Axes]:
+) -> tuple[plt.figure.Figure, plt.axes.Axes]:  # pragma: no cover
     """Plot the aggregated residuals sequences. T
 
     Parameters

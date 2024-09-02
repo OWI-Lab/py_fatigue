@@ -96,47 +96,41 @@ on four buinding blocks:
          To the CI/CD guide
 
 
-Documentation index
--------------------
-
 .. toctree::
    :caption: Beginner's guide
-   :maxdepth: 4
+   :hidden:
 
    user/01-absolute-noob
 
 .. toctree::
    :caption: User's guide
-   :maxdepth: 4
+   :hidden:
 
    user/02-user-guide
 
 .. toctree::
    :caption: Glossary and guidelines
+   :hidden:
 
    user/additional/01-index
 
 .. toctree::
    :caption: API Reference
-   :maxdepth: 4
+   :hidden:
 
    api/01-index
 
 .. toctree::
    :caption: CI/CD Development
-   :maxdepth: 3
+   :hidden:
 
    develop/00-index
 
 .. toctree::
    :caption: Azure DevOps
-   :maxdepth: 2
+   :hidden:
 
    ado/01-index
-
-This section explains how to take advantage of the structure, functionality
-and tools within the template `py_fatigue` is based on to develop qualitative,
-tested and documented code.
 
 Miscellaneous Pages
 +++++++++++++++++++

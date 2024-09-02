@@ -1,56 +1,106 @@
 import glob
 from invoke import task
-from .colors import Color, colorize
+from .colors import colorize, Color
+from .system import (
+    OperatingSystem,
+    get_current_system,
+)
 
-NB_PORT = 9000
-SCREEN_NAME = 'notebook'
-
-@task()
-def run(c):
-    """Start notebook server on foreground."""
-
-    with c.cd("./notebooks/"):
-        with c.prefix("export JUPYTER_CONFIG_DIR=../.jupyter"):
-            c.run(f"poetry run jupyter notebook --port={NB_PORT} --no-browser")
+SCREEN_NAME = "notebook"
+SYSTEM = get_current_system()
 
 
 @task
-def stop(c):
+def run(c_r):
+    """Start notebook server on foreground."""
+    with c_r.cd("./jupyter-notebooks"):
+        # check current directory
+        with c_r.prefix("export JUPYTER_CONFIG_DIR=../.jupyter"):
+            _command = f"jupyter notebook --port={c_r.start_port} --no-browser"
+            c_r.run(_command)
+
+
+@task
+def stop(c_r):
     """Stop notebook server in background."""
-    result = c.run(f'screen -ls {SCREEN_NAME}', warn=True, hide='both')
-    if 'No Sockets' in result.stdout:
+    result = c_r.run(f"screen -ls {SCREEN_NAME}", warn=True, hide="both")
+    if "No Sockets" in result.stdout:
         return
-    screens = result.stdout.splitlines()[1:-1]
-    for s in screens:
-        name = s.split('\t')[1]
-        c.run(f"screen -S {name} -X quit")
+    if SYSTEM in [OperatingSystem.LINUX, OperatingSystem.MAC]:
+        tmp_str = colorize(
+            "Stopping notebook server...",
+            color=Color.HEADER,
+            bold=True
+        )
+        print(f"{tmp_str}")
+        _command = f"kill $(lsof -ti:{c_r.start_port})"
+        print(f">>> {colorize(_command, color=Color.OKBLUE)}\n")
+        c_r.run(_command)
+    elif SYSTEM == OperatingSystem.WINDOWS:
+        print(
+            "Stopping notebook server is not supported on Windows. "
+            "Please stop the server manually."
+        )
+    else:
+        raise ValueError(f"System {SYSTEM} is not supported")
 
 
 @task(pre=[stop], default=True)
-def start(c):
+def start(c_r):
     """Start notebook server in background."""
 
-    with c.cd("./notebooks/"):
-        with c.prefix("export JUPYTER_CONFIG_DIR=../.jupyter"):
-            c.run(f"poetry run screen -d -S {SCREEN_NAME} -m jupyter notebook  --port={NB_PORT} --no-browser")
+    tmp_str = colorize(
+        "Starting notebook server...",
+        color=Color.HEADER,
+        bold=True
+    )
+    with c_r.cd("./jupyter-notebooks"):
+        if SYSTEM in [OperatingSystem.LINUX, OperatingSystem.MAC]:
+            with c_r.prefix("export JUPYTER_CONFIG_DIR=../.jupyter"):
+                _command = (
+                    f"screen -d -S {SCREEN_NAME} -m "
+                    f"jupyter notebook --port={c_r.start_port} --no-browser"
+                )
+                print(f"{tmp_str}")
+                c_r.run(_command)
+                print(f">>> {colorize(_command, color=Color.OKBLUE)}\n")
+        elif SYSTEM == OperatingSystem.WINDOWS:
+            with c_r.cd("./jupyter-notebooks"):
+                _command = (
+                    "wt -d . jupyter notebook "
+                    f"--port={c_r.start_port}"
+                )
+                print(
+                    colorize(
+                        "Notebook server is not attached to this terminal "
+                        " process. Close windows terminal instance instead.",
+                        color=Color.WARNING,
+                    )
+                )
 
-    url = f'http://localhost:{NB_PORT}'
+            print(f"{tmp_str}")
+            c_r.run(_command)
+            print(f">>> {colorize(_command, color=Color.OKBLUE)}\n")
+        else:
+            raise ValueError(f"System {SYSTEM} is not supported")
 
-    print(f"Jupyter hosted in background:\n")
-    print(f"-> {colorize(url, underline=True)}\n")
+    url = f'http://localhost:{c_r.start_port}'
+
+    print("Jupyter hosted in background:\n")
+    print(f"--> {colorize(url, underline=True)}\n")
     print(f"Stop server: {colorize('inv nb.stop')}\n")
 
 
 @task
-def clean(c, check=False):
-    """Clean all notebooks in folder."""
-    notebook_files = glob.glob("./notebooks/*.ipynb")
+def clean(c_r, check=False):
+    """Clean all tutorials in folder."""
+    notebook_files = glob.glob("./jupyter-notebooks/*.ipynb")
     command = ("clean", "Cleaning")
     if check:
         command = ("check", "Checking")
 
-    for f in notebook_files:
-        print(f"{command[1]} {f}")
-        CMD = f'nb-clean {command[0]} -e {f}'
-        print(f"-> {CMD}")
-        c.run(CMD)
+    for nb_file in notebook_files:
+        print(f"{command[1]} {nb_file}")
+        _command = f"nb-clean {command[0]} -e {nb_file}"
+        print(f"--> {_command}")
+        c_r.run(_command)

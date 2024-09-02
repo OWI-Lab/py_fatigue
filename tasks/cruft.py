@@ -15,7 +15,7 @@ def update(c):
 
     if system == OperatingSystem.LINUX:
         print_conf = "cat .cruft.json"
-        update= "poetry run cruft update"
+        update= "cruft update"
         cmd = print_conf + " && " + update
         c.run(cmd, pty=True, echo=True)
     else:

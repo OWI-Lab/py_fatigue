@@ -21,7 +21,7 @@ from typing import (
 import copy
 
 # Packages from non-standard libraries
-from pydantic.fields import ModelField
+# from pydantic.fields import ModelField
 import matplotlib
 import matplotlib.pyplot as plt
 import numba as nb
@@ -71,7 +71,7 @@ def inplacify(method: Callable) -> Callable:
 def make_axes(
     fig: Optional[matplotlib.figure.Figure] = None,  # type: ignore
     ax: Optional[matplotlib.axes.Axes] = None,  # type: ignore
-) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore  # pragma: no cover
     """Check if a figure and axes are provided, and if not, create them.
 
     Parameters
@@ -521,7 +521,7 @@ class TypedArray(np.ndarray, Generic[DType]):
         yield cls.validate
 
     @classmethod
-    def validate(cls, val, field: ModelField):
+    def validate(cls, val, field):
         """Validate the value of the field."""
         dtype_field = field.sub_fields[0]  # type: ignore
         actual_dtype = dtype_field.type_.__args__[0]

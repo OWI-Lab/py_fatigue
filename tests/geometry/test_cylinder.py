@@ -94,6 +94,15 @@ class TestCylinder:
                 height=height,
                 crack_position=crack_position,
             )
+        ini_depth_thick = initial_depth * 0.5
+        with pytest.raises(ValidationError):
+            geometry.HollowCylinder(
+                outer_diameter=outer_diameter,
+                thickness=ini_depth_thick,
+                initial_depth=initial_depth,
+                height=height,
+                crack_position=crack_position,
+            )
 
         with pytest.raises(ValidationError):
             geometry.HollowCylinder(

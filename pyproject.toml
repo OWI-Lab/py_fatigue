@@ -1,61 +1,64 @@
 [tool.black]
 line-length = 79 # Code length, not docstrings
 
-[tool.poetry]
+[project]
 name = "py_fatigue"
 version = "1.0.20"
 description = "py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
 authors = [
-    "Pietro D'Antuono <pietro.dantuono@vub.be>",
-    "Wout Weijtjens <wout.weijtjens@vub.be>"
+    {name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be"},
+    {name = "Wout Weijtjens", email = "wout.weijtjens@vub.be"}
 ]
 readme = "README.md"
-license = "GNU General Public License v3.0"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+
+dependencies = [
+    "numpy",
+    "plotly",
+    "pandas",
+    "numba<0.57",
+    "matplotlib",
+    "pydantic"
+]
+
+[project.optional-dependencies]
+dev = [
+    "gitchangelog~=3.0.4",
+    "keyring",
+    "bump2version>=1.0.1",
+    "pytest>=6.2.4",
+    "black",
+    "flake8~=3.9.0",
+    "pylint~=2.11.0",
+    "mypy==0.981",
+    "pyinstrument>=4.0",
+    "pytest-cov>=2.12",
+    "coverage>=6.5",
+    "invoke>=1.5",
+    "hypothesis>=6.14.0",
+    "cruft>=2.9.0",
+    "artifacts-keyring>=0.3.2",
+    "notebook>=6.4",
+    "jupyter_contrib_nbextensions>=0.5",
+    "nb-clean>=2.1",
+    "nbdime>=3.1"
+]
+docs = [
+    "Sphinx>=5.0",
+    "sphinxcontrib-napoleon>=0.7",
+    "myst-parser>=0.18",
+    "pydata-sphinx-theme>=0.11.0",
+    "sphinx_design>=0.3.0",
+    "autoclasstoc>=1.5.2"
+]
+
+[project.urls]
 homepage = "https://github.com/owi-lab/py_fatigue"
 documentation = "https://owi-lab.github.io/py_fatigue"
-
-[tool.poetry.urls]
 "Change Log" = "https://github.com/owi-lab/py_fatigue/blob/main/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/owi-lab/py_fatigue/issues"
 "Organisation Homepage" = "https://www.owi-lab.be/"
-
-[tool.poetry.dependencies]
-python = "^3.8"
-numpy = "^1.21"
-plotly = "^5.6"
-pandas = "^1.4"
-numba = "^0.56"
-matplotlib = "^3.5"
-pydantic = "^1.10.2"
-
-[tool.poetry.group.dev.dependencies]
-gitchangelog = "~3.0.4"
-keyring = "*"
-bump2version = "^1.0.1"
-pytest = "^6.2.4"
-black = "*"
-flake8 = "~3.9.0"
-pylint = "~2.11.0"
-mypy = "0.981"
-pyinstrument = "^4.0"
-pytest-cov = "^2.12"
-coverage = "^6.5"
-invoke = "^1.5"
-hypothesis = "^6.14.0"
-cruft = "^2.9.0"
-artifacts-keyring = "^0.3.2"
-notebook = "^6.4"
-jupyter_contrib_nbextensions = "^0.5"
-nb-clean = "^2.1"
-nbdime = "^3.1"
-
-[tool.poetry.group.docs.dependencies]
-Sphinx = "^5.0"
-sphinxcontrib-napoleon = "^0.7"
-myst-parser = "^0.18"
-pydata-sphinx-theme = "^0.11.0"
-sphinx_design = "^0.3.0"
-autoclasstoc = "^1.5.2"
 
 [tool.pytest.ini_options]
 markers = [
@@ -67,5 +70,5 @@ testpaths = [
 ]
 
 [build-system]
-requires = ["poetry-core>=1.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["flit_core>=3.2"]
+build-backend = "flit_core.buildapi"

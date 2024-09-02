@@ -113,7 +113,7 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
         """
         return self.name
 
-    def _repr_svg_(self):
+    def _repr_svg_(self):  # pragma: no cover
         """SVG representation of the crack growth curve instance
 
         Returns:
@@ -369,7 +369,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
 
     """
 
-    def _repr_svg_(self) -> str:
+    def _repr_svg_(self) -> str:  # pragma: no cover
         fig, ax = self.plot()
         # fig.dpi = 100
         fig.set_figheight(5)
