@@ -121,9 +121,11 @@ def aggregate_cc(
     # Build the aggregation dictionary
     print("\33[36m2. Building the aggregation \33[1mdict\33[22m.")
     agg_list: list[dict[float | str, Any]] = [
-        {col: cycle_count.pbar_sum}
-        if isinstance(col, str) and col.startswith("CC_")
-        else {col: np.nanmean}
+        (
+            {col: cycle_count.pbar_sum}
+            if isinstance(col, str) and col.startswith("CC_")
+            else {col: np.nanmean}
+        )
         for col in df
     ]
     agg_dict = dict(ChainMap(*agg_list))
@@ -152,9 +154,9 @@ def aggregate_cc(
         return df_agg_rr
     # Saving the residuals sequences
     print("\33[36m5. Saving the \33[1mresiduals sequences\33[22m.\33[0m")
-    residuals_sequence: DefaultDict[
-        str, DefaultDict[str, list[float]]
-    ] = defaultdict(lambda: defaultdict(list))
+    residuals_sequence: DefaultDict[str, DefaultDict[str, list[float]]] = (
+        defaultdict(lambda: defaultdict(list))
+    )
     for col in cc_cols:
         for __, row in df_agg.iterrows():
             if not isinstance(row[col], CycleCount):
@@ -181,7 +183,7 @@ def plot_aggregated_residuals(
     res_dct: dict[str, DefaultDict[str, DefaultDict[str, list[float]]]],
     plt_prmtr: str,
     minor_grid: bool = True,
-) -> tuple[plt.figure.Figure, plt.axes.Axes]:  # pragma: no cover
+) -> tuple:  # pragma: no cover
     """Plot the aggregated residuals sequences. T
 
     Parameters

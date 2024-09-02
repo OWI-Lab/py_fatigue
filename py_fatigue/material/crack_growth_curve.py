@@ -635,7 +635,6 @@ class ParisCurve(AbstractCrackGrowthCurve):
         ax: Optional[matplotlib.axes.Axes] = None,  # type: ignore
         **kwargs: Any,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
-
         """Use matplotlib to plot the Paris' law and a da/dN vs ΔK
         history dataset.
 

@@ -185,9 +185,11 @@ class PalmgrenMiner:
             self._obj.stress_range,
             # edgecolors="#CCC",
             # linewidths=0.5,
-            c=dens_func(self._obj.pm_damage)
-            if dens_func is not None
-            else self._obj.pm_damage,
+            c=(
+                dens_func(self._obj.pm_damage)
+                if dens_func is not None
+                else self._obj.pm_damage
+            ),
             **kwargs,
         )
         cbar_label = (

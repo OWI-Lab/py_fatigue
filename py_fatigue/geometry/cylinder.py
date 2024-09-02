@@ -63,9 +63,9 @@ class HollowCylinder(AbstractCrackGeometry):
     width_to_depth_ratio: PositiveFloat = 2.0
 
     _id = property(
-        lambda self: "HOL_CYL_00"
-        if self.crack_position == "internal"
-        else "HOL_CYL_01"
+        lambda self: (
+            "HOL_CYL_00" if self.crack_position == "internal" else "HOL_CYL_01"
+        )
     )
 
     @validator("thickness")
@@ -138,7 +138,7 @@ class HollowCylinder(AbstractCrackGeometry):
             )
 
         # case crack_position external
-        return self._plot_external_crack(fig, ax, **kwargs)
+        return self._plot_external_crack(depth=None, fig=fig, ax=ax, **kwargs)
 
     def _plot_external_crack(
         self,

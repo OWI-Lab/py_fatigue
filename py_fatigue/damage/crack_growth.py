@@ -206,7 +206,6 @@ class CalcCrackGrowth:
     def calc_growth_rate(
         self, stress_, crack_depth_
     ) -> Tuple[float, float, float]:
-
         """Calculate the crack growth rate given the stress and the
         crack size using the Paris' law:
 

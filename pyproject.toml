@@ -3,7 +3,7 @@ line-length = 79 # Code length, not docstrings
 
 [project]
 name = "py_fatigue"
-version = "1.0.20"
+version = "1.1.0"
 description = "py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
 authors = [
     {name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be"},
@@ -31,7 +31,7 @@ dev = [
     "black",
     "flake8~=3.9.0",
     "pylint~=2.11.0",
-    "mypy==0.981",
+    "mypy==1.11.2",
     "pyinstrument>=4.0",
     "pytest-cov>=2.12",
     "coverage>=6.5",

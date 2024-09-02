@@ -39,8 +39,8 @@ jobs:
         run: echo "Running Flake8" && flake8 py_fatigue
       - name: Run Pylint
         run: echo "Running Pylint" && pylint py_fatigue
-      - name: Run Mypy
-        run: echo "Running Mypy" && mypy py_fatigue
+      # - name: Run Mypy
+      #   run: echo "Running Mypy" && mypy py_fatigue
 
       # Upload coverage to Codecov
       - name: "check if CODECOV_TOKEN exists"

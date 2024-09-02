@@ -40,7 +40,6 @@ __all__ = ["rainflow", "findextrema", "findtp", "findrfc_astm", "findcross"]
 
 
 def findtp(x: np.ndarray) -> np.ndarray:
-
     """
     Return indices to turning points (tp) of ASTM rainflow filtered data.
 

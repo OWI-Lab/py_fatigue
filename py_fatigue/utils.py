@@ -2,6 +2,7 @@
 The :mod:`py_fatigue.utils` module collects all the utility functions
 and classes.
 """
+
 # Packages from the Python Standard Library
 from __future__ import annotations
 from dataclasses import dataclass
@@ -71,7 +72,7 @@ def inplacify(method: Callable) -> Callable:
 def make_axes(
     fig: Optional[matplotlib.figure.Figure] = None,  # type: ignore
     ax: Optional[matplotlib.axes.Axes] = None,  # type: ignore
-) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore  # pragma: no cover
+) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore  # pragma: no cover  # pylint: disable=C0301  # noqa: E501
     """Check if a figure and axes are provided, and if not, create them.
 
     Parameters

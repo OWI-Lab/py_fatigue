@@ -161,7 +161,7 @@ def _build_input_data_from_json(  # noqa: C901
     # Adding large cycles
     if len(data["lg_c"]) > 0 and not isinstance(
         data["res"][0],
-        Iterable  # isinstance(
+        Iterable,  # isinstance(
         # data["lg_c"][0], (float, int, np.int16, np.int32)
     ):
         the_hist = np.hstack([the_hist, np.ones(len(data["lg_c"]))])
@@ -213,18 +213,22 @@ def _build_input_data_from_json(  # noqa: C901
 
     df = {
         "count_cycle": the_hist,
-        "mean_stress": mean_bin_centers
-        if "mean_bin_width" in data
-        else np.zeros(len(range_bin_centers)),
+        "mean_stress": (
+            mean_bin_centers
+            if "mean_bin_width" in data
+            else np.zeros(len(range_bin_centers))
+        ),
         "stress_range": range_bin_centers,
         "range_bin_lower_bound": data["range_bin_lower_bound"],
         "range_bin_width": data["range_bin_width"],
-        "_mean_bin_lower_bound": data["mean_bin_lower_bound"]
-        if "mean_bin_lower_bound" in data
-        else None,
-        "mean_bin_width": data["mean_bin_width"]
-        if "mean_bin_width" in data
-        else 10,
+        "_mean_bin_lower_bound": (
+            data["mean_bin_lower_bound"]
+            if "mean_bin_lower_bound" in data
+            else None
+        ),
+        "mean_bin_width": (
+            data["mean_bin_width"] if "mean_bin_width" in data else 10
+        ),
         "nr_small_cycles": data["nr_small_cycles"],
         "residuals_sequence": data["res_sig"],
         "timestamp": timestamp,
@@ -684,17 +688,21 @@ class CycleCount:
         ]
 
         df[self.name] = [
-            max(self.full_cycles[:, 1])
-            if max(self.count_cycle) > 0.5
-            and max(self.full_cycles[:, 1]) > self.range_bin_lower_bound
-            else None,
+            (
+                max(self.full_cycles[:, 1])
+                if max(self.count_cycle) > 0.5
+                and max(self.full_cycles[:, 1]) > self.range_bin_lower_bound
+                else None
+            ),
             max(self.stress_range),
             int(sum(self.count_cycle) - int(len(self.residuals[:, 1])) / 2),
             int(len(self.residuals[:, 1])),
             int(self.nr_small_cycles),
-            "N/A"
-            if self.stress_concentration_factor == 1
-            else self.stress_concentration_factor,
+            (
+                "N/A"
+                if self.stress_concentration_factor == 1
+                else self.stress_concentration_factor
+            ),
             bool(self.lffd_solved),
             self.mean_stress_corrected,
         ]
@@ -1349,9 +1357,11 @@ class CycleCount:
         axes.set_xlabel(
             f"Min stress, {self.unit}"
             if plot_type == "min-max"
-            else f"Mean stress, {self.unit}"
-            if plot_type == "mean-range"
-            else "# of cycles"
+            else (
+                f"Mean stress, {self.unit}"
+                if plot_type == "mean-range"
+                else "# of cycles"
+            )
         )
         axes.set_ylabel(
             f"Max stress, {self.unit}"
@@ -1730,9 +1740,11 @@ def _solve_lffd(
         range_bin_width=self_.range_bin_width,
         nr_small_cycles=self_.nr_small_cycles,
         residuals_sequence=res_res_seq,
-        _min_max_sequence=self_.min_max_sequence
-        if "residuals" in solve_mode.lower()
-        else np.asarray([min(res_res_seq), max(res_res_seq)]),
+        _min_max_sequence=(
+            self_.min_max_sequence
+            if "residuals" in solve_mode.lower()
+            else np.asarray([min(res_res_seq), max(res_res_seq)])
+        ),
         lffd_solved=True,
         mean_stress_corrected=self_.mean_stress_corrected,
         name=self_.name,
