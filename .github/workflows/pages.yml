@@ -11,12 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        with:
+          python-version: 3.10
       - name: Install dependencies
         run: |
           pip install '.[docs]'
       - name: Sphinx build
         run: |
-          sphinx-build rst_docs/ docs/_build
+          sphinx-build -b  html -d rst_docs/doctrees ./rst_docs docs/_build -E -a
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}

@@ -12,11 +12,12 @@ py-fatigue was originally part of the DYNAwind suite of tools for wind
 turbine structural health monitoring and analysis. The tool has been detached
 from the project and now relies on the following PyPi packages only:
 
+- **Python** ([3.8, 3.9, 3.10], 64-bit)
 - `numpy`
 - `plotly`
 - `pandas`
-- `numba` vers. ^0.56
-- `matplotlib` vers. ^3.5
+- `numba` vers. <0.57 (next year we will update to the latest version, but for now, we are stuck with this one, as it is the last one compatible with Python 3.8)
+- `matplotlib`
 - `pydantic`
 
 The package bundles the main functionality for performing cyclic stress
