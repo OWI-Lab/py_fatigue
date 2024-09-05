@@ -26,7 +26,7 @@ license = {file = "LICENSE"}
 requires-python = ">=3.8"
 
 dependencies = [
-    "numpy>=1.18,s<1.24",
+    "numpy>=1.18,<1.24",
     "plotly",
     "pandas",
     "numba>=0.56,<0.57",
