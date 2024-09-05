@@ -3,7 +3,7 @@ line-length = 79 # Code length, not docstrings
 
 [project]
 name = "py_fatigue"
-version = "1.1.1"
+version = "1.1.2"
 description = "py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
 authors = [
     {name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be"},
@@ -26,10 +26,10 @@ license = {file = "LICENSE"}
 requires-python = ">=3.8"
 
 dependencies = [
-    "numpy",
+    "numpy>=1.18,s<1.24",
     "plotly",
     "pandas",
-    "numba<0.57",
+    "numba>=0.56,<0.57",
     "matplotlib",
     "pydantic"
 ]
