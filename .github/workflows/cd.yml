@@ -69,6 +69,8 @@ jobs:
       env:
         UV_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
         UV_PUBLISH_INDEX_URL: https://test.pypi.org/legacy/
+      permissions:
+        id-token: write # This is required for requesting the JWT
       if: ${{ env.UV_PUBLISH_TOKEN == '' }}
       run: |
         echo "the secret \'TEST_PYPI_API_TOKEN\' has not been made"
