@@ -10,15 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.8'
-      - name: Install dependencies
-        run: |
-          pip install '.[docs]'
+          python-version: 3.10
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install
+      - name: Install the project
+        run: uv sync --group docs
       - name: Sphinx build
         run: |
-          sphinx-build -b  html -d rst_docs/doctrees ./rst_docs docs/_build -E -a
+          uv run sphinx-build -b  html -d rst_docs/doctrees ./rst_docs docs/_build -E -a
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
