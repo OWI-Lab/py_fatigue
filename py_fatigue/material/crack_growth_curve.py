@@ -7,7 +7,7 @@ The main class is ParisCurve.
 
 # Standard "from" imports
 from collections.abc import Collection
-from typing import Any, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 # Standard imports
 import abc
@@ -31,7 +31,7 @@ import numpy as np
 # import plotly.io as pio
 
 # py_fatigue imports
-from py_fatigue.utils import make_axes
+from py_fatigue.utils import make_axes, calc_slope_intercept
 from py_fatigue.material.sn_curve import (
     _set_color,
     _get_name,
@@ -105,6 +105,23 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
         self.__critical = critical
         self.__unit = unit_string
 
+    @classmethod
+    @abc.abstractmethod
+    def from_knee_points(
+        cls,
+        knee_sif: Union[np.ndarray, List[float]],
+        knee_growth_rate: Union[np.ndarray, List[float]],
+        environment: Optional[str] = None,
+        curve: Optional[str] = None,
+        norm: Optional[str] = None,
+        unit_string: str = "MPa √mm",
+        color: Union[str, None] = None,
+    ) -> "AbstractCrackGrowthCurve":
+        """Create a Paris curve from a set of knee points, i.e. build slopes
+        and intercepts from pairs of SIF and crack growth rate. The first
+        and last knee points are used to set the threshold and critical
+        SIF values."""
+
     def __str__(self) -> str:
         """Crack growth curve __str__ method
 
@@ -112,19 +129,6 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
             str: Crack growth curve string description
         """
         return self.name
-
-    def _repr_svg_(self):  # pragma: no cover
-        """SVG representation of the crack growth curve instance
-
-        Returns:
-            str: the SVG object
-        """
-        # def _repr_png_(self) -> None:
-        # """PNG representation of the crack growth curve instance
-
-        # Returns:
-        #     None
-        # """
 
     def __eq__(self, other: object) -> bool:
         """Compare different crack growth curves and assert that they
@@ -369,6 +373,62 @@ class ParisCurve(AbstractCrackGrowthCurve):
 
     """
 
+    @classmethod
+    def from_knee_points(
+        cls,
+        knee_sif: Union[np.ndarray, List[float]],
+        knee_growth_rate: Union[np.ndarray, List[float]],
+        environment: Optional[str] = None,
+        curve: Optional[str] = None,
+        norm: Optional[str] = None,
+        unit_string: str = "MPa √mm",
+        color: Union[str, None] = None,
+    ) -> "ParisCurve":
+        """Create a Paris curve from a set of knee points, i.e. build slopes
+        and intercepts from pairs of SIF and crack growth rate. The first
+        and last knee points are used to set the threshold and critical
+        SIF values.
+
+        Parameters
+        ----------
+        knee_sif : Union[np.ndarray, List[float]]
+            SIF values at the knee
+        knee_growth_rate : Union[np.ndarray, List[float]]
+            crack growth rate at the knee
+        environment : str, optional
+            Paris' law environment, by default None
+        curve : str, optional
+            Paris' law category, by default None
+        norm : str, optional
+            Paris' law norm, by default None
+        unit_string : str, optional
+            units, by default "MPa"
+        color : str, optional
+            RGBS or HEX string for color, by default None
+
+        Returns
+        -------
+        ParisCurve
+            Paris curve instance
+        """
+        # We first need to prepend the threshold (x,y) and append the critical
+        # (x, y) pairs
+        _s, _i = calc_slope_intercept(
+            np.log(knee_sif), np.log(knee_growth_rate)
+        )
+
+        return cls(
+            slope=_s,
+            intercept=np.exp(_i),
+            threshold=np.min(knee_sif),
+            critical=np.max(knee_sif),
+            environment=environment,
+            curve=curve,
+            norm=norm,
+            unit_string=unit_string,
+            color=color,
+        )
+
     def _repr_svg_(self) -> str:  # pragma: no cover
         fig, ax = self.plot()
         # fig.dpi = 100
@@ -381,10 +441,13 @@ class ParisCurve(AbstractCrackGrowthCurve):
             split_unit = self.unit.split("√")
             cg_unit = "/".join((split_unit[1], "cycle"))
 
-        ann_1 = f"{self.name},\nSlope: {self.slope},\nIntercept:"
-        ann_2 = f"{self.intercept},\nThreshold: {self.threshold:.2f},"
-        ann_3 = f"{cg_unit},\nCritical: {self.critical:.2f}, {self.unit}"
-        annotation = " ".join((ann_1, ann_2, ann_3))
+        ann_1 = f"{self.name},\nSlope: {[round(s, 2) for s in self.slope]}"
+        ann_2 = f"Intercept: {[f'{i:.2E}' for i in self.intercept]}".replace(
+            "'", ""
+        )
+        ann_3 = f"Threshold: {self.threshold:.2f} {cg_unit}"
+        ann_4 = f"Critical: {self.critical:.2f}, {self.unit}"
+        annotation = "\n".join((ann_1, ann_2, ann_3, ann_4))
         ax.text(
             1.5 * max_x,
             max_y,

@@ -46,6 +46,6 @@ def mypy(c_r):
 
 
 # @task(post=[black, flake, pylint, mypy], default=True)
-@task(post=[black, flake, pylint], default=True)
+@task(post=[black, flake, pylint, mypy], default=True)
 def all(c_r):  # pylint: disable=W0622,W0613 # noqa: F811
     """Run all quality checks."""

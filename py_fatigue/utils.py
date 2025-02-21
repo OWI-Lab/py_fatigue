@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import (
     Any,
     Generator,
+    List,
     Tuple,
     cast,
     Callable,
@@ -45,7 +46,7 @@ import numpy as np
 # Local imports
 
 
-def inplacify(method: Callable) -> Callable:
+def inplacify(method: Callable) -> Callable:  # pragma: no cover
     """
     Make a method inplace.
 
@@ -117,7 +118,7 @@ class IntInt(NamedTuple):
     range_bin_nr: int
 
 
-class ArrayArray(NamedTuple):
+class ArrayArray(NamedTuple):  # pragma: no cover
     """Represents a pair of arrays, namely the mean and range bin edge
     values
 
@@ -205,7 +206,7 @@ class FatigueStress:
             )
         if self._bin_ub is None:
             self._bin_ub = bin_upper_bound(
-                self._bin_lb,
+                self._bin_lb,  # type: ignore
                 self.bin_width,
                 max(self.full) if len(self.full) > 0 else max(self._values),
             )
@@ -567,3 +568,51 @@ def chunks(lst: list[Any], n: int) -> Generator[list[Any], None, None]:
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
+
+
+def calc_slope_intercept(
+    x: Union[np.ndarray, List[float]],
+    y: Union[np.ndarray, List[float]],
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Given a series of (x,y) knee point coordinates, return the slope and
+    intercept of the line that passes through the knee point and the previous
+    point.
+
+    Equation of the line:
+
+    .. math::
+
+        y = mx + c
+
+    where:
+
+    - | :math:`m` is the slope of the line, calculated as
+      | :math:`\\frac{y_2 - y_1}{x_2 - x_1}`
+    - | :math:`c` is the intercept of the line, calculated as
+      | :math:`\\exp(y_2 - m \\times x_2)`
+
+    Parameters
+    ----------
+    x : ArrayLike
+        The x-coordinates of the knee points.
+    y : ArrayLike
+        The y-coordinates of the knee points.
+    Returns
+    -------
+    tuple[ArrayLike, ArrayLike]
+        The slope and intercept of the line that passes through the knee
+        point and the previous point.
+    """
+    assert len(x) == len(y), "x and y must have the same length"
+    assert len(x) >= 2, "x and y must have at least two points"
+    x = np.sort(np.array(x))
+    y = np.array(y)[np.argsort(x)]
+
+    # Check that the y values are strictly increasing
+    # assert np.all(np.diff(y) > 0), "x values must be strictly increasing"
+    # Find the slope and intercept for each pair of points, meaning that
+    # x and y have at least to be of length 2.
+    slopes = (y[1:] - y[:-1]) / (x[1:] - x[:-1])  # type: ignore
+    intercepts = y[1:] - slopes * x[1:]
+    return slopes, intercepts

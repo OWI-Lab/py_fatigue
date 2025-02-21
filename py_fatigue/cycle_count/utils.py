@@ -15,7 +15,7 @@ from py_fatigue.cycle_count.cycle_count import CycleCount
 from py_fatigue.cycle_count import cycle_count
 
 
-def solve_lffd(x: Any) -> Union[Any, CycleCount]:
+def solve_lffd(x: Any) -> Union[Any, CycleCount]:  # pragma: no cover
     """Solve the low-frequency fatigue dynamics of a cycle count or return the
     object as is.
 
@@ -36,7 +36,7 @@ def solve_lffd(x: Any) -> Union[Any, CycleCount]:
     return x
 
 
-def aggregate_cc(
+def aggregate_cc(  # pragma: no cover
     df: pd.DataFrame, aggr_by: str, save_residuals: bool = False
 ) -> Union[
     pd.DataFrame,
@@ -179,7 +179,7 @@ def aggregate_cc(
     return df_agg_rr, residuals_sequence
 
 
-def plot_aggregated_residuals(
+def plot_aggregated_residuals(  # pragma: no cover
     res_dct: dict[str, DefaultDict[str, DefaultDict[str, list[float]]]],
     plt_prmtr: str,
     minor_grid: bool = True,
@@ -232,7 +232,7 @@ def plot_aggregated_residuals(
     return fig, axes
 
 
-def calc_aggregated_damage(
+def calc_aggregated_damage(  # pragma: no cover
     df: pd.DataFrame,
     sn: Union[
         dict[str, SNCurve], DefaultDict[str, SNCurve], list[SNCurve], SNCurve

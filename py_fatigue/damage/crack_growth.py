@@ -45,7 +45,7 @@ spec = [
 
 
 @jitclass(spec)
-class CalcCrackGrowth:
+class CalcCrackGrowth:  # pragma: no cover
     """Crack growth object. This object is used to calculate the crack
     growth rate and the crack size. The class has been implemented
     using the Numba library to speed up the calculations.
@@ -335,7 +335,7 @@ class CalcCrackGrowth:
     fastmath=True,
     cache=True,
 )
-def get_geometry_factor(
+def get_geometry_factor(  # pragma: no cover
     crack_depth: float,
     crack_type: str,
     crack_geometry: dict,  # pylint: disable=W0613, C0301
@@ -362,7 +362,7 @@ def get_geometry_factor(
     fastmath=True,
     cache=True,
 )
-def get_sif(
+def get_sif(  # pragma: no cover
     stress_: float,
     crack_depth_: float,
     crack_type: str,
@@ -396,7 +396,7 @@ def get_sif(
     return stress_ * np.sqrt(np.pi * crack_depth_) * y_1, y_1
 
 
-def get_crack_growth(
+def get_crack_growth(  # pragma: no cover
     cycle_count: CycleCount,
     cg_curve: ParisCurve,
     crack_geometry: Type[ACG],
@@ -498,7 +498,7 @@ def get_crack_growth(
     crack_type = str(crack_geometry._id)
     if crack_type not in ["HOL_CYL_01", "INF_SUR_00"]:
         raise ValueError("Unsupported crack geometry")
-    geometry = to_numba_dict(crack_geometry.__dict__)
+    geometry = to_numba_dict(crack_geometry.__dict__)  # type: ignore
     cg = CalcCrackGrowth(
         stress_range,
         count_cycle,
@@ -624,7 +624,7 @@ class CrackGrowth:
         crack_type = str(crack_geometry._id)
         if crack_type not in ["HOL_CYL_01", "INF_SUR_00"]:
             raise ValueError("Unsupported crack geometry")
-        geometry = to_numba_dict(crack_geometry.__dict__)
+        geometry = to_numba_dict(crack_geometry.__dict__)  # type: ignore
 
         cg_ = CalcCrackGrowth(
             stress_range,

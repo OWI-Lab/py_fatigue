@@ -11,6 +11,7 @@ import pytest
 import warnings
 
 # Non-standard imports
+from numpy.typing import ArrayLike
 import numpy as np
 
 os.environ["NUMBA_DISABLE_JIT"] = "1"
@@ -251,3 +252,32 @@ class TestFatigueStress(unittest.TestCase):
                 "No data provided",
                 str(ve.exception)
             )
+
+
+@pytest.mark.parametrize(
+    "x, y, expected_slopes, expected_intercepts",
+    [
+        (
+            [1, 2, 3],
+            [2, 4, 8],
+            np.array([2.0, 4.0]),
+            np.array([0.0, -4.0]),
+        ),
+        (
+            [1, 10, 100],
+            [10, 100, 1000],
+            np.array([10.0, 10.0]),
+            np.array([0.0, 0.0]),
+        ),
+    ],
+)
+def test_calc_slope_intercept(
+    x: ArrayLike,
+    y: ArrayLike,
+    expected_slopes: ArrayLike,
+    expected_intercepts: ArrayLike,
+) -> None:
+    """Test calc_slope_intercept function"""
+    calculated_slopes, calculated_intercepts = pu.calc_slope_intercept(x, y)
+    assert np.allclose(calculated_slopes, expected_slopes)
+    assert np.allclose(calculated_intercepts, expected_intercepts)

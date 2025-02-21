@@ -23,7 +23,7 @@ classifiers=["Development Status :: 5 - Production/Stable",
              "Topic :: Database"]
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.8"
+requires-python = ">=3.8,<3.11"
 
 dependencies = [
     "numpy>=1.18,<1.24",
@@ -31,10 +31,10 @@ dependencies = [
     "pandas",
     "numba>=0.56,<0.57",
     "matplotlib",
-    "pydantic"
+    "pydantic<3.0.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "gitchangelog~=3.0.4",
     "keyring",

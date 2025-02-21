@@ -95,3 +95,9 @@ export/wheels/*
 
 # Do not track environment variables
 scripts/set_env_vars.sh
+
+
+uv.lock
+
+
+**data/
