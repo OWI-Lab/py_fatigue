@@ -45,7 +45,7 @@ jobs:
     - name: Bump version
       run: |
         uv run bumpversion.py ${{ github.event.inputs.bumptype }}
-        NEW_VERSION=$(grep -Po '(?<=__version__: str = ")[^"]+' $(Build.SourcesDirectory)/api_24sea/version.py)
+        NEW_VERSION=$(grep -Po '(?<=__version__: str = ")[^"]+' ${{ github.workspace }}/py_fatigue/version.py)
         git config --local user.email github.actions@vub.be
         git config --local user.name "GitHub Actions Pipeline"
         git checkout -b release/v$NEW_VERSION
