@@ -7,6 +7,7 @@
 [![issues](https://img.shields.io/github/issues/owi-lab/py_fatigue)](https://github.com/OWI-Lab/py_fatigue/issues)
 [![CI/CD](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml/badge.svg)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml)
 [![documentation](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment/badge.svg?label=docs)](https://owi-lab.github.io/py_fatigue/)
+[![Binder Tutorials](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD)
 
 It provides:
 
