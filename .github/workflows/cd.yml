@@ -75,10 +75,10 @@ jobs:
       if: ${{ env.super_secret_test != '' }} and ${{ env.PUBLISH_TO_TEST_PYPI == 'true' }}
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        packages-dir: dist-3.10
+        packages_dir: dist-3.10
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
-        skip-existing: true
+        skip_existing: true
 
     - name: "check if PYPI_API_TOKEN exists"
       env:
