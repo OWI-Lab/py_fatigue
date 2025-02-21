@@ -33,7 +33,7 @@ jobs:
 
   bump:
     name: bump
-    needs: [ci]
+    # needs: [ci]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -44,7 +44,7 @@ jobs:
       run: uv python install
     - name: Bump version
       run: |
-        uv bumpversion.py ${{ github.event.inputs.bumptype }}
+        uv run bumpversion.py ${{ github.event.inputs.bumptype }}
         NEW_VERSION=$(grep -Po '(?<=__version__: str = ")[^"]+' $(Build.SourcesDirectory)/api_24sea/version.py)
         git config --local user.email github.actions@vub.be
         git config --local user.name "GitHub Actions Pipeline"
