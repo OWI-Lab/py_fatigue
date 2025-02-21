@@ -64,14 +64,14 @@ jobs:
         path: dist-3.10
     - name: Install uv
       uses: astral-sh/setup-uv@v5
-
-    - name: "check if PYPI_TEST_API_TOKEN  exists"
       env:
         UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TEST_API_TOKEN }}
         UV_INDEX_URL: https://test.pypi.org/legacy/
+    - name: "Check if Test.PyPI Token exists"
       if: ${{ env.UV_PUBLISH_TOKEN == '' }}
       run: |
         echo "the secret \'PYPI_TEST_API_TOKEN\' has not been made"
         echo "Please go to \'settings \> secrets \> actions\' to create it"
+        exit 1
     - name: Publish distribution 📦 to Test PyPI
       run: uv publish --publish-url $UV_INDEX_URL dist-3.10/* -t $UV_PUBLISH_TOKEN
