@@ -40,10 +40,12 @@ jobs:
     - name: "check if CODECOV_TOKEN exists"
       env: 
         super_secret: ${{ secrets.CODECOV_TOKEN }}
-      if: ${{ env.super_secret == '' }}
+      if: ${{ env.super_secret == '' }} 
       run: |
         echo "the secret 'CODECOV_TOKEN' has not been made"
         echo "Please go to 'settings > secrets > actions' to create it"
+      if: ${{ env.super_secret != '' }} 
+      run: echo "Codecov Token found"
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
