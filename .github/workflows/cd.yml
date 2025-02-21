@@ -24,7 +24,7 @@ on:
         default: true
 
 env:
-  PUBLISH_TO_TEST_PYPI: ${}
+  PUBLISH_TO_TEST_PYPI: ${{ github.event.inputs.publish_to_test_pypi }}
   PUBLISH_TO_PYPI: ${{ github.event.inputs.publish_to_pypi }}
 
 jobs:
