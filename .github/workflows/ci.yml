@@ -12,33 +12,35 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
         os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }} 
+    runs-on: ${{ matrix.os }}
+    env:
+      UV_PROJECT_ENVIRONMENT: "/usr/local/"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       # Cache pip dependencies
       - name: Cache pip dependencies
         uses: actions/cache@v2
         with:
           path: ~/.cache/pip
           key: pip-${{ hashFiles('**/requirements.txt') }}-${{ matrix.python-version }}-${{ matrix.os }}
-      
+
       # Install dependencies
       - run: pip install --upgrade pip
-      - run: pip install '.[dev, docs]'
-      
+      - run: pip install uv
+      - run: uv sync --group dev
       # Run tests
       - name: Run Pytest
-        run: echo "Running Pytest" && pytest --cov=./py_fatigue --cov-report=xml
+        run: echo "Running Pytest" && uv run pytest --cov=./py_fatigue --cov-report=xml
       - name: Run Black
-        run: echo "Running Black" && black py_fatigue
+        run: echo "Running Black" && uv run black py_fatigue
       - name: Run Flake8
-        run: echo "Running Flake8" && flake8 py_fatigue
+        run: echo "Running Flake8" && uv run flake8 py_fatigue
       - name: Run Pylint
-        run: echo "Running Pylint" && pylint py_fatigue
+        run: echo "Running Pylint" && uv run pylint py_fatigue
       # - name: Run Mypy
       #   run: echo "Running Mypy" && mypy py_fatigue
 
