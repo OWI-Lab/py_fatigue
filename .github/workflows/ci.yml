@@ -26,7 +26,7 @@ jobs:
       run: uv sync --group dev
     # Run tests
     - name: Run Pytest
-      run: echo "Running Pytest" && uv run pytest --cov=./py_fatigue --cov-report=xml
+      run: echo "Running Pytest" && uv run pytest --cov=./py_fatigue --cov-report=xml:./coverage/reports/coverage.xml --cov-report=term-missing
     - name: Run Black
       run: echo "Running Black" && uv run black py_fatigue
     - name: Run Flake8
