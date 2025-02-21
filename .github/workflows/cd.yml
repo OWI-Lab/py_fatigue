@@ -38,6 +38,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        ssh-key: ${{ secrets.DEPLOY_KEY }}
     - name: Install uv
       uses: astral-sh/setup-uv@v5
     - name: Set up Python
@@ -46,8 +48,8 @@ jobs:
       run: |
         uv run bumpversion.py ${{ github.event.inputs.bumptype }}
         NEW_VERSION=$(grep -Po '(?<=__version__: str = ")[^"]+' ${{ github.workspace }}/py_fatigue/version.py)
-        git config --local user.email github.actions@vub.be
-        git config --local user.name "GitHub Actions Pipeline"
+        git config --local user.email pietro.dantuono@vub.be
+        git config --local user.name "Pitro D'Antuono"
         git checkout -b release/v$NEW_VERSION
         git commit -am "bump(${{ github.event.inputs.bumptype }}): Bump version to $NEW_VERSION [skip ci]"
         if [ $(git tag -l "v$NEW_VERSION") ]; then
