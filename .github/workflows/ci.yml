@@ -14,7 +14,7 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     env:
-      UV_PROJECT_ENVIRONMENT: "/usr/local/"
+      UV_PROJECT_ENVIRONMENT: "/usr/bin/"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -23,7 +23,7 @@ jobs:
 
       # Cache pip dependencies
       - name: Install uv systemwide
-        run: wget -qO- https://astral.sh/uv/install.sh | sh
+        run: curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/bin/" sh
       - name: Install dependencies
         run: uv sync --group dev
       # Run tests
