@@ -41,6 +41,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "autoclasstoc",
     "sphinx_design",
+    "sphinx_copybutton",
 ]
 
 # enable autosummary

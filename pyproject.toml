@@ -62,7 +62,8 @@ docs = [
     "myst-parser>=0.18",
     "pydata-sphinx-theme>=0.11.0",
     "sphinx_design>=0.3.0",
-    "autoclasstoc>=1.5.2"
+    "autoclasstoc>=1.5.2",
+    "sphinx-copybutton>=0.5.2",
 ]
 
 [project.urls]

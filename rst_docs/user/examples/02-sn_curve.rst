@@ -262,3 +262,90 @@ Output:
 .. code-block:: bash
     
     inf
+
+c. SN curve interpolation
+-------------------------
+
+.. note::
+    This function has been added from version 1.2.0.
+
+It is now possible to build a piecewise py-fatigue SN curve from a set of
+"knee points". The class method :meth:`pyfatigue.sn.SNCurve.from_knee_points`
+ will pass through all the knee points.
+
+.. warning::
+    The function does not perform a curve fit, rather it interpolates the
+    points through the following piecewise linear (in log space) function:
+
+    .. math::
+
+        \log(N) = \log(\bar{a}) - m \cdot \log(\Delta \sigma)
+
+    Solving by :math:`\log(\Delta \sigma)`:
+
+    .. math::
+
+        \log(\Delta \sigma) = \left( - \frac{1}{m} \right) \cdot \log(N) + 
+                              \left(   \frac{1}{m} \right) \cdot \log(\bar{a})
+
+    retrievs the well-known interpolation formula:
+
+    .. math::
+
+        Y = M \cdot X + Q
+
+    where :math:`M = - \frac{1}{m}` and :math:`Q = \frac{1}{m} \cdot \log(\bar{a})`.
+
+Input:
+
+.. code-block:: python
+    :linenos:
+
+    knee_points = """
+                 10, 320
+              1_000, 308
+              5_039, 303
+             11_771, 299
+             23_357, 275
+             39_967, 250
+             73_176, 213
+            119_377, 182
+            207_880, 150
+            350_376, 119
+            553_241, 101
+            963_397,  86
+          1_733_270,  74
+          3_221_789,  65
+          7_525_202,  56
+         15_937_828,  50
+         32_671_572,  45
+         73_861_998,  41
+        172_521_054,  37
+        430_133_471,  34
+      1_182_699_719,  32
+      2_673_778_988,  30
+      5_850_681_784,  28
+     13_665_563_053,  26
+     28_013_567_611,  25
+     53_798_384_034,  24
+    121_624_268_965,  23
+    """
+    
+    # Convert the string data to a list of lists
+    knee_points_list = [list(map(float, line.split(',')))
+                        for line in knee_points.strip().split('\n')]
+    knee_points_list = np.array(knee_points_list)
+    
+    curve_fkp = pf.SNCurve.from_knee_points(
+        knee_stress=knee_points_list[:,1],
+        knee_cycles=knee_points_list[:,0],
+        endurance=1E11,
+        norm="Custom",
+        curve="From Knee Points",
+        environment="Interpolated",
+    )
+    curve_fkp.plot()
+
+Output:
+
+.. image:: ../../_static/_img/sn_curve_3.png

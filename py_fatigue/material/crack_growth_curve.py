@@ -41,7 +41,8 @@ from py_fatigue.material.sn_curve import (
 
 
 class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
-    """Abstract Paris curve.
+    """Abstract Paris curve. It also implements mean stress effect according
+    to Walker's model.
     Concrete subclasses should define methods:
 
         _ `_repr_svg_`
@@ -62,6 +63,8 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
         intercept: Union[int, float, list, np.ndarray],
         threshold: Union[int, float] = 0,
         critical: Union[int, float] = np.inf,
+        load_ratio: Union[int, float] = 0,
+        walker_exponent: Union[int, float] = 0,
         environment: Optional[str] = None,
         curve: Optional[str] = None,
         norm: Optional[str] = None,
@@ -81,6 +84,10 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
             propagation threshold, below which crack growth rate is null
         critical : Union[int, float]
             critical propagation stress intensity factor, imminent failure
+        load_ratio : Union[int, float]
+            load ratio. Used for mean stress-corrected Paris' law
+        walker_exponent : Union[int, float]
+            Walker's exponent. Used for mean stress-corrected Paris' law
         environment : str, optional
             Paris' law envirnoment, by default None
         curve : str, optional
@@ -103,6 +110,8 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
         self.__linear = len(self.slope) == 1
         self.__threshold = threshold
         self.__critical = critical
+        self.__load_ratio = load_ratio
+        self.__walker_exponent = walker_exponent
         self.__unit = unit_string
 
     @classmethod
@@ -191,6 +200,40 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
             Union[int, float]: Critical SIF
         """
         return self.__critical
+
+    @property
+    def load_ratio(self) -> Union[int, float]:
+        """Preventing attribute modification outside of constructor
+
+        Returns:
+            Union[int, float]: Load ratio
+        """
+        return self.__load_ratio
+
+    @property
+    def walker_exponent(self) -> Union[int, float]:
+        """Preventing attribute modification outside of constructor
+
+        Returns:
+            Union[int, float]: Walker's exponent
+        """
+        return self.__walker_exponent
+
+    @property
+    def w_intcpt(self) -> np.ndarray:
+        """Walker-corrected intercept.
+
+        .. math::
+            a_w = \\frac{a}{(1 - R)^{\\frac{m}{1 - \\gamma}}}
+
+        Preventing attribute modification outside of constructor
+
+        Returns:
+            np.ndarray: Corrected intercept
+        """
+        return self.__intercept * (1 - self.__load_ratio) ** (
+            self.__slope * (self.__walker_exponent - 1)
+        )
 
     @property
     def unit(self) -> str:
@@ -352,6 +395,11 @@ class ParisCurve(AbstractCrackGrowthCurve):
     endurance value `(Ne)` are the parameters necessary to fully describe this
     trilinear Paris' law. If the endurance is not set, it defaults to Inf.
 
+    .. note::
+        The curve can account for mean stress effect according to Walker's
+        model. The walker_exponent is set to 0 by default, meaning no
+        correction is applied, i.e. the base curve is valid for R=0.
+
     Example
     -------
 
@@ -442,7 +490,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
             cg_unit = "/".join((split_unit[1], "cycle"))
 
         ann_1 = f"{self.name},\nSlope: {[round(s, 2) for s in self.slope]}"
-        ann_2 = f"Intercept: {[f'{i:.2E}' for i in self.intercept]}".replace(
+        ann_2 = f"Intercept: {[f'{i:.2E}' for i in self.w_intcpt]}".replace(
             "'", ""
         )
         ann_3 = f"Threshold: {self.threshold:.2f} {cg_unit}"
@@ -581,13 +629,13 @@ class ParisCurve(AbstractCrackGrowthCurve):
         np.ndarray
             knee crack growth rate
         """
-        knee_growth_rate = np.empty(self.intercept.size - 1, dtype=np.float64)
+        knee_growth_rate = np.empty(self.w_intcpt.size - 1, dtype=np.float64)
         if not self.linear:
-            for i in range(self.intercept.size - 1):
+            for i in range(self.w_intcpt.size - 1):
                 m_i = self.slope[i + 1] / (self.slope[i + 1] - self.slope[i])
                 m_i_p_1 = self.slope[i] / (self.slope[i + 1] - self.slope[i])
                 knee_growth_rate[i] = (
-                    self.intercept[i] ** m_i / self.intercept[i + 1] ** m_i_p_1
+                    self.w_intcpt[i] ** m_i / self.w_intcpt[i + 1] ** m_i_p_1
                 )
             if check_knee is not None:
                 try:
@@ -635,12 +683,12 @@ class ParisCurve(AbstractCrackGrowthCurve):
         np.ndarray
             knee SIF
         """
-        knee_sif = np.empty(self.intercept.size - 1, dtype=np.float64)
+        knee_sif = np.empty(self.w_intcpt.size - 1, dtype=np.float64)
         if not self.linear:
-            if self.intercept.size > 1:
-                for i in range(self.intercept.size - 1):
+            if self.w_intcpt.size > 1:
+                for i in range(self.w_intcpt.size - 1):
                     knee_sif[i] = (
-                        self.intercept[i] / self.intercept[i + 1]
+                        self.w_intcpt[i] / self.w_intcpt[i + 1]
                     ) ** (1 / (self.slope[i + 1] - self.slope[i]))
             if check_knee is not None:
                 try:
@@ -671,7 +719,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
         return _calc_growth_rate(
             sif_range,
             self.slope,
-            self.intercept,
+            self.w_intcpt,
             self.threshold,
             self.critical,
         )
@@ -683,7 +731,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
         return _calc_sif(
             growth_rate,
             self.slope,
-            self.intercept,
+            self.w_intcpt,
             self.threshold,
             self.critical,
         )

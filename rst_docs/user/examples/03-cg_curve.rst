@@ -158,6 +158,12 @@ a. Definition of multiple Paris' laws
 
 .. image:: ../../_static/_img/paris-curves.png
 
+b. Mean stress effect on Paris' law
+-----------------------------------
+
+.. note::
+    This function has been added from version 1.2.0.
+
 In the following years there have been many attempts to generalize Paris'
 law, mainly to account for mean stress effect, crack closure and near
 threshold/near failure modelling. The simplest model of Paris' law for mean 
@@ -169,3 +175,138 @@ stress effect has been proposed in 1970 by Walker:
 
 With :math:`\gamma` being Walker exponent, :math:`R` the load ratio, and
 :math:`C_0` being the intercept at :math:`R=0`.
+
+Input:
+
+.. code-block:: python
+    :linenos:
+
+    # Paris's law with Walker correction constants
+    SLOPE = 4.
+    INTERCEPT = 1.21E-16
+    WALKER_EXPONENT = 0.5
+    LOAD_RATIOS = [0, 0.1, 0.5, 0.7]
+    THRESHOLDS = 75. * (1 - np.array(LOAD_RATIOS)) ** (1 - WALKER_EXPONENT)
+    CRITICAL = 2000. * (1 - np.array(LOAD_RATIOS)) ** (1 - WALKER_EXPONENT)
+
+    # Walker's curve definition
+
+    walker_curves = [pf.ParisCurve(slope=SLOPE, intercept=INTERCEPT,
+                                   walker_exponent=WALKER_EXPONENT,
+                                   threshold=t, critical=c, load_ratio=l, 
+                                   norm="The norm", environment="Environment",
+                                   curve=f"load_ratio={l}")
+                    for l, t, c in zip(LOAD_RATIOS, THRESHOLDS, CRITICAL)]
+
+    # Plotting
+    fig, ax = plt.subplots(1,1, figsize=(6, 4))
+    for pc in walker_curves:
+        pc.plot(fig=fig, ax=ax)
+    ax.legend()
+    plt.show()
+
+corr_inter = intercept / (1 - load_ratio) ** (slope / (1 - walker_exponent))
+
+Output:
+
+.. image:: ../../_static/_img/paris-curves_2.png
+
+
+c. Paris' law curve interpolation
+---------------------------------
+
+.. note::
+    This function has been added from version 1.2.0.
+
+It is now possible to build a piecewise Paris' law curve by interpolating
+between a set of "knee points". The class method
+:py:meth:`pyfatigue.crack.ParisCurve.from_knee_points` will enforce the
+piecewise curve to pass through the given points.
+
+.. warning::
+    The function does not perform a curve fit, but rather enforces the curve to
+    pass through the given points. Therefore, the number of knee points should
+    be at least equal to the number of segments plus one.
+
+    .. math::
+
+        \frac{da}{dN} = C \left( \Delta K \right)^m
+
+    in log-coordinate system, the equation becomes
+
+    .. math::
+
+        \log \left( \frac{da}{dN} \right) = \log C + m \log \Delta K
+
+    directly retrieving the well-known linear equation
+    :math:`Y = M \cdot X + Q`, where :math:`M=m` and :math:`Q=\log C`.
+
+Input:
+
+.. code-block::
+    :linenos:
+
+    knee_points = """
+       29, 6.93e-14
+       30, 8.64e-13
+       35, 4.98e-12
+       50, 2.50e-11
+       72, 1.44e-10
+      800, 1.18e-6
+    1_200, 1.87e-5
+    1_300, 3.10e-4
+    """
+    # Convert the string data to a list of lists
+    knee_points_list = [list(map(float, line.split(',')))
+                        for line in knee_points.strip().split('\n')]
+    knee_points_list = np.array(knee_points_list)
+    
+    c_fkp = pf.ParisCurve.from_knee_points(knee_sif=knee_points_list[:,0],
+                                           knee_growth_rate=knee_points_list[:,1],
+                                           norm="Simil-NASGRO",
+                                           environment="N/A", curve="Interpolated")
+    # Plotting
+    fig, ax = plt.subplots(1,1)
+    c_fkp.plot(fig=fig, ax=ax)
+    ax.legend(prop={'size': 8})
+    plt.show()
+
+Output:
+
+.. image:: ../../_static/_img/paris-curves_3.png
+
+Applying the Walker correction to the interpolated curve:
+
+.. code-block::
+    :linenos:
+
+    # SLOPE = 4.
+    # INTERCEPT = 1.21E-16
+    SLOPES = c_fkp.slope
+    INTERCEPTS = c_fkp.intercept
+    THRESHOLD = c_fkp.threshold
+    CRITICAL = c_fkp.critical
+    WALKER_EXPONENT = 0.5
+    LOAD_RATIOS = [0, 0.1, 0.5, 0.7]
+    THRESHOLDS = THRESHOLD * (1 - np.array(LOAD_RATIOS)) ** (1 - WALKER_EXPONENT)
+    CRITICALS = CRITICAL * (1 - np.array(LOAD_RATIOS)) ** (1 - WALKER_EXPONENT)
+    
+    # Walker's curve definition
+    
+    walker_curves = [pf.ParisCurve(slope=SLOPES, intercept=INTERCEPTS,
+                                    walker_exponent=WALKER_EXPONENT,
+                                    threshold=t, critical=c, load_ratio=l, 
+                                    norm="The norm", environment="Environment",
+                                    curve=f"load_ratio={l}")
+                     for l, t, c in zip(LOAD_RATIOS, THRESHOLDS, CRITICALS)]
+    
+    # Plotting
+    fig, ax = plt.subplots(1,1)
+    for pc in walker_curves:
+        pc.plot(fig=fig, ax=ax)
+    ax.legend(prop={'size': 8})
+    plt.show()
+
+Output:
+
+.. image:: ../../_static/_img/paris-curves_4.png
