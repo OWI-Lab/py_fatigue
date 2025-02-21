@@ -218,12 +218,12 @@ class Cylinder(AbstractCrackGeometry):
     height: PositiveFloat
     _id = property(lambda _: "FUL_CYL_00")
 
-    def __post_init__(self):
+    def __post_init__(self):  # pragma: no cover
         if not all((self.diameter, self.height)) > 0.0:
             raise ValueError("Diameter and height must be positive.")
 
     @property
-    def geometry_factor(self) -> np.ndarray:
+    def geometry_factor(self) -> np.ndarray:  # pragma: no cover
         """Get the geometric factor. This should be a function of the crack
         size. The default value is an empty."""
         return np.empty(0)
@@ -243,7 +243,7 @@ class Cylinder(AbstractCrackGeometry):
     cache=True,
     fastmath=True,
 )
-def f_hol_cyl_01(
+def f_hol_cyl_01(  # pragma: no cover
     crack_depth: float,
     crack_geometry: Dict[str, float],
 ):

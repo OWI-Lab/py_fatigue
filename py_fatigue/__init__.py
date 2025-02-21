@@ -5,6 +5,7 @@ from .material.sn_curve import SNCurve
 from .material.crack_growth_curve import ParisCurve
 from .version import __version__
 from . import cycle_count, geometry, material, damage, styling, testing
+
 __all__ = [
     "CycleCount",
     "SNCurve",
