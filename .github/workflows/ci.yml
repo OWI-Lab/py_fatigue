@@ -22,16 +22,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       # Cache pip dependencies
-      - name: Cache pip dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('**/requirements.txt') }}-${{ matrix.python-version }}-${{ matrix.os }}
-
-      # Install dependencies
-      - run: pip install --upgrade pip
-      - run: pip install uv
-      - run: uv sync --group dev
+      - name: Install uv systemwide
+        run: wget -qO- https://astral.sh/uv/install.sh | sh
+      - name: Install dependencies
+        run: uv sync --group dev
       # Run tests
       - name: Run Pytest
         run: echo "Running Pytest" && uv run pytest --cov=./py_fatigue --cov-report=xml
