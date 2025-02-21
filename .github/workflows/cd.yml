@@ -33,7 +33,7 @@ jobs:
 
   bump-and-build:
     name: bump-and-build
-    # needs: [ci]
+    needs: [ci]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
