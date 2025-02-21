@@ -65,39 +65,15 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v5
 
-    - name: "check if TEST_PYPI_API_TOKEN exists"
+    - name: "check if PYPI_TEST_API_TOKEN  exists"
       env:
-        UV_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        UV_PUBLISH_INDEX_URL: https://test.pypi.org/legacy/
+        UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TEST_API_TOKEN }}
+        UV_INDEX_URL: https://test.pypi.org/legacy/
       permissions:
         id-token: write # This is required for requesting the JWT
       if: ${{ env.UV_PUBLISH_TOKEN == '' }}
       run: |
-        echo "the secret \'TEST_PYPI_API_TOKEN\' has not been made"
+        echo "the secret \'PYPI_TEST_API_TOKEN\' has not been made"
         echo "Please go to \'settings \> secrets \> actions\' to create it"
     - name: Publish distribution 📦 to Test PyPI
-      run: uv publish dist-3.10/*
-      # continue-on-error: true
-      # if: ${{ env.super_secret_test != '' }} and ${{ env.PUBLISH_TO_TEST_PYPI == 'true' }}
-      # uses: pypa/gh-action-pypi-publish@release/v1
-      # with:
-      #   password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      #   repository_url: https://test.pypi.org/legacy/
-      #   packages_dir: dist-3.10
-      #   skip_existing: true
-
-    - name: "check if PYPI_API_TOKEN exists"
-      env:
-        super_secret: ${{ secrets.PYPI_API_TOKEN }}
-      if: ${{ env.super_secret == '' }}
-      run: |
-        echo "the secret \'PYPI_API_TOKEN\' has not been made"
-        echo "Please go to \'settings \> secrets \> actions\' to create it"
-        exit 1
-    - name: Publish distribution 📦 to PyPI
-      if: ${{ env.super_secret != '' }} and ${{ env.PUBLISH_TO_PYPI == 'true' }} and startsWith(github.ref, 'refs/tags')
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
-        packages_dir: dist-3.10
-        skip_existing: true
+      run: uv publish --publish-url $UV_INDEX_URL dist-3.10/* -t $UV_PUBLISH_TOKEN
