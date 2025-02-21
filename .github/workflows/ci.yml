@@ -14,43 +14,43 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          enable-cache: true
-      - name: Set up Python
-        run: uv python install
-      - name: Install the project
-        run: uv sync --group dev
-      # Run tests
-      - name: Run Pytest
-        run: echo "Running Pytest" && uv run pytest --cov=./py_fatigue --cov-report=xml
-      - name: Run Black
-        run: echo "Running Black" && uv run black py_fatigue
-      - name: Run Flake8
-        run: echo "Running Flake8" && uv run flake8 py_fatigue
-      - name: Run Pylint
-        run: echo "Running Pylint" && uv run pylint py_fatigue
-      # - name: Run Mypy
-      #   run: echo "Running Mypy" && mypy py_fatigue
+    - uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        enable-cache: true
+    - name: Set up Python
+      run: uv python install
+    - name: Install the project
+      run: uv sync --group dev
+    # Run tests
+    - name: Run Pytest
+      run: echo "Running Pytest" && uv run pytest --cov=./py_fatigue --cov-report=xml
+    - name: Run Black
+      run: echo "Running Black" && uv run black py_fatigue
+    - name: Run Flake8
+      run: echo "Running Flake8" && uv run flake8 py_fatigue
+    - name: Run Pylint
+      run: echo "Running Pylint" && uv run pylint py_fatigue
+    # - name: Run Mypy
+    #   run: echo "Running Mypy" && mypy py_fatigue
 
-      # Upload coverage to Codecov
-      - name: "check if CODECOV_TOKEN exists"
-        env: 
-          super_secret: ${{ secrets.CODECOV_TOKEN }}
-        if: ${{ env.super_secret == '' }}
-        run: |
-          echo "the secret 'CODECOV_TOKEN' has not been made"
-          echo "Please go to 'settings > secrets > actions' to create it"
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: false # optional (default = false)
-          directory: ./coverage/reports/
-          flags: unittests # optional
-          name: codecov-umbrella # optional
-          verbose: true # optional (default = false)
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    # Upload coverage to Codecov
+    - name: "check if CODECOV_TOKEN exists"
+      env: 
+        super_secret: ${{ secrets.CODECOV_TOKEN }}
+      if: ${{ env.super_secret == '' }}
+      run: |
+        echo "the secret 'CODECOV_TOKEN' has not been made"
+        echo "Please go to 'settings > secrets > actions' to create it"
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        fail_ci_if_error: false # optional (default = false)
+        directory: ./coverage/reports/
+        flags: unittests # optional
+        name: codecov-umbrella # optional
+        verbose: true # optional (default = false)
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
