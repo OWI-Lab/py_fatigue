@@ -28,81 +28,24 @@ env:
   PUBLISH_TO_PYPI: ${{ github.event.inputs.publish_to_pypi }}
 
 jobs:
-  ci:
-    uses: ./.github/workflows/ci.yml  # use the callable tests job to run tests
 
-  bump:
-    name: bump
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  bump-and-build:
     # needs: [ci]
+    uses: ./.github/workflows/bump-and-build.yml
+
+  cd:
+    name: cd
+    needs: [bump-and-build]
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         ssh-key: ${{ secrets.DEPLOY_KEY }}
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-    - name: Set up Python
-      run: uv python install
-    - name: Bump version
-      run: |
-        uv run bumpversion.py ${{ github.event.inputs.bumptype }}
-        NEW_VERSION=$(grep -Po '(?<=__version__: str = ")[^"]+' ${{ github.workspace }}/py_fatigue/version.py)
-        git config --local user.email pietro.dantuono@vub.be
-        git config --local user.name "Pitro D'Antuono"
-        git checkout -b release/v$NEW_VERSION
-        git commit -am "bump(${{ github.event.inputs.bumptype }}): Bump version to $NEW_VERSION [skip ci]"
-        if [ $(git tag -l "v$NEW_VERSION") ]; then
-            echo yes
-        else
-            git tag v$NEW_VERSION
-            git push origin release/v$NEW_VERSION --tags
-        fi
-        # Merge changes to 'refs/heads/main'
-        git fetch origin main
-        git checkout main
-        git merge --no-ff release/v$NEW_VERSION -m "ci(pipeline): Merge release/v$NEW_VERSION to main [skip ci]"
-        git push origin main
-
-  build:
-    name: build
-    needs: [bump]
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8", "3.9", "3.10"]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        enable-cache: true
-    - name: Set up Python
-      run: uv python install
-    - name: Install the project
-      run: uv sync
-
-    - name: Build package
-      run: uv build --out-dir dist-${{ matrix.python-version }}
-
-    - name: Upload built package
-      uses: actions/upload-artifact@v4
-      with:
-        name: dist-${{ matrix.python-version }}
-        path: dist-${{ matrix.python-version }}/
-        retention-days: 1
-  cd:
-    name: cd
-    needs: [build]
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
     - name: Download built package
       uses: actions/download-artifact@v4
       with:
