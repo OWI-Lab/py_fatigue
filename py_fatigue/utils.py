@@ -30,22 +30,6 @@ import numba as nb
 import numpy as np
 
 
-# __all__ = [
-#     "inplacify",
-#     "calc_full_cycles",
-#     "calc_half_cycles",
-#     "split_full_cycles_and_residuals",
-#     "FatigueStress",
-#     "make_axes",
-#     "calc_bin_edges",
-#     "bin_upper_bound",
-#     "chunks",
-
-# ]
-
-# Local imports
-
-
 def inplacify(method: Callable) -> Callable:  # pragma: no cover
     """
     Make a method inplace.

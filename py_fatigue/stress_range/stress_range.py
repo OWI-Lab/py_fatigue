@@ -6,7 +6,7 @@ from typing import ClassVar
 
 import numpy as np
 
-from py_fatigue.utils import FatigueStress
+from ..utils import FatigueStress
 
 __all__ = ["StressRange"]
 

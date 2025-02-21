@@ -14,11 +14,11 @@ import numpy as np
 import pandas as pd
 
 # py-fatigue imports
-from py_fatigue.cycle_count.cycle_count import CycleCount
-from py_fatigue.material.sn_curve import SNCurve
-from py_fatigue.utils import make_axes
-from py_fatigue.styling import py_fatigue_formatwarning
-from py_fatigue.material.sn_curve import _check_param_couple_types
+from ..cycle_count.cycle_count import CycleCount
+from ..material.sn_curve import SNCurve
+from ..utils import make_axes
+from ..styling import py_fatigue_formatwarning
+from ..material.sn_curve import _check_param_couple_types
 
 try:
     # delete the accessor to avoid warning

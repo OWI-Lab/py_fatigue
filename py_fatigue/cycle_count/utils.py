@@ -9,10 +9,11 @@ import numpy as np
 import pandas as pd
 
 
-from py_fatigue.damage.stress_life import get_pm
-from py_fatigue.material.sn_curve import SNCurve
-from py_fatigue.cycle_count.cycle_count import CycleCount
-from py_fatigue.cycle_count import cycle_count
+from ..damage.stress_life import get_pm
+from ..material.sn_curve import SNCurve
+from ..cycle_count.cycle_count import CycleCount
+from .cycle_count import pbar_sum
+from .rainflow import rainflow as calc_rainflow
 
 
 def solve_lffd(x: Any) -> Union[Any, CycleCount]:  # pragma: no cover
@@ -122,7 +123,7 @@ def aggregate_cc(  # pragma: no cover
     print("\33[36m2. Building the aggregation \33[1mdict\33[22m.")
     agg_list: list[dict[float | str, Any]] = [
         (
-            {col: cycle_count.pbar_sum}
+            {col: pbar_sum}
             if isinstance(col, str) and col.startswith("CC_")
             else {col: np.nanmean}
         )
@@ -163,7 +164,7 @@ def aggregate_cc(  # pragma: no cover
                 continue
             if not isinstance(row[col].residuals_sequence, Iterable):
                 continue
-            _, res_res_seq, res_res_idx = cycle_count.calc_rainflow(
+            _, res_res_seq, res_res_idx = calc_rainflow(
                 data=np.asarray(row[col].residuals_sequence),
                 extended_output=True,
             )

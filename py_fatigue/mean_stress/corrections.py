@@ -9,7 +9,7 @@ from typing import Union
 import matplotlib.pyplot as plt
 import numpy as np
 
-import py_fatigue.cycle_count.histogram as ht
+from ..utils import make_axes
 
 
 def dnvgl_mean_stress_correction(
@@ -96,7 +96,7 @@ def dnvgl_mean_stress_correction(
     # NOTE: next plot has been included for testing purposes
     if plot:  # pragma: no cover
         # from matplotlib.ticker import MaxNLocator
-        _, axes = ht.make_axes()
+        _, axes = make_axes()
         xp, yp = zip(*sorted(zip(min_stress / max_stress, f_m)))
         axes.plot(
             xp,
@@ -169,7 +169,7 @@ def walker_mean_stress_correction(
     # NOTE: next plot has been included for testing purposes
     if plot:  # pragma: no cover
         # from matplotlib.ticker import MaxNLocator
-        _, axes = ht.make_axes()
+        _, axes = make_axes()
         xp, yp = zip(*sorted(zip(2 * stress_amplitude, stress_range_corr)))
         axes.plot(
             xp,

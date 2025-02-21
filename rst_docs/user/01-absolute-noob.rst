@@ -344,7 +344,7 @@ Crack growth analysis
 
 .. code-block:: python
 
-  cg = pf.crack_growth.get_crack_growth(
+  cg = pf.damage.crack_growth.get_crack_growth(
     cycle_count, pc, geo, express_mode=True
   )
   print(f"Cycles to end: {int(cg.final_cycles)}")
@@ -356,7 +356,7 @@ Crack growth analysis
 
 .. code-block:: python
 
-  cg_d = pf.crack_growth.get_crack_growth(
+  cg_d = pf.damage.crack_growth.get_crack_growth(
     cycle_count_d, pc, geo, express_mode=True
   )
   print(f"Cycles to end: {int(cg.final_cycles)}")

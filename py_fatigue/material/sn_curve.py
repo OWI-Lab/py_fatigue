@@ -37,7 +37,7 @@ import plotly.graph_objs as go
 import plotly.io as pio
 
 # py_fatigue imports
-from py_fatigue.utils import make_axes, calc_slope_intercept
+from ..utils import make_axes, calc_slope_intercept
 
 COLOR_LIST = px_colors.qualitative.Alphabet
 PLOTLY_FONT_FAMILY = "Roboto"

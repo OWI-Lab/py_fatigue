@@ -16,10 +16,10 @@ import matplotlib
 import numpy as np
 import numpy.typing as npt
 
-from py_fatigue.cycle_count import calc_rainflow
-from py_fatigue.utils import make_axes
-from py_fatigue.mean_stress import MeanStress
-from py_fatigue.stress_range import StressRange
+from .rainflow import rainflow as calc_rainflow
+from ..utils import make_axes
+from ..mean_stress import MeanStress
+from ..stress_range import StressRange
 
 __all__ = [
     "make_axes",

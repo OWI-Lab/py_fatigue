@@ -1,3 +1,3 @@
-from py_fatigue.stress_range.stress_range import StressRange
+from .stress_range import StressRange
 
 __all__ = ["StressRange"]

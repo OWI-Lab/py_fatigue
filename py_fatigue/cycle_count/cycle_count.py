@@ -35,14 +35,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from py_fatigue.cycle_count import calc_rainflow
-import py_fatigue.cycle_count.histogram as ht
-import py_fatigue.utils as pfu
-import py_fatigue.mean_stress.corrections as msc
-from py_fatigue.mean_stress import MeanStress
-from py_fatigue.stress_range import StressRange
+from .rainflow import rainflow as calc_rainflow
+from . import histogram as ht
+from .. import utils as pfu
+from ..mean_stress import corrections as msc
+from ..mean_stress import MeanStress
+from ..stress_range import StressRange
 
-from py_fatigue.styling import TermColors, py_fatigue_formatwarning
+from ..styling import TermColors, py_fatigue_formatwarning
 
 __all__ = ["CycleCount"]
 

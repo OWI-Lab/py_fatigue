@@ -1,4 +1,4 @@
-from py_fatigue.damage.stress_life import (
+from .stress_life import (
     calc_dem,
     calc_des,
     calc_pm,
@@ -9,7 +9,7 @@ from py_fatigue.damage.stress_life import (
     get_nonlinear_damage,
 )
 
-from py_fatigue.damage.crack_growth import get_crack_growth, CalcCrackGrowth
+from .crack_growth import get_crack_growth, CalcCrackGrowth
 
 __all__ = [
     "calc_dem",

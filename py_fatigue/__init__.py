@@ -1,23 +1,19 @@
-from py_fatigue.cycle_count.cycle_count import CycleCount
-
-from py_fatigue.material.sn_curve import SNCurve
-from py_fatigue.material.crack_growth_curve import ParisCurve
-from py_fatigue.damage import stress_life, crack_growth
-from py_fatigue.version import __version__
-from py_fatigue.cycle_count import rainflow, histogram
-from py_fatigue import styling, testing, utils, geometry
-
+# -*- coding: utf-8 -*-
+"""Py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."""  # noqa: E501  # pylint: disable=C0301
+from .cycle_count.cycle_count import CycleCount
+from .material.sn_curve import SNCurve
+from .material.crack_growth_curve import ParisCurve
+from .version import __version__
+from . import cycle_count, geometry, material, damage, styling, testing
 __all__ = [
     "CycleCount",
     "SNCurve",
     "ParisCurve",
-    "stress_life",
-    "crack_growth",
-    "rainflow",
-    "histogram",
+    "cycle_count",
+    "damage",
     "geometry",
+    "material",
     "styling",
     "testing",
-    "utils",
     "__version__",
 ]

@@ -8,8 +8,8 @@ from pydantic import PositiveFloat, validator
 from pydantic.dataclasses import dataclass
 
 # Local imports
-import py_fatigue.utils as pfu
-from py_fatigue.geometry import AbstractCrackGeometry
+from .. import utils as pfu
+from .generic import AbstractCrackGeometry
 
 
 @dataclass(repr=False)

@@ -154,7 +154,7 @@ There are two main ways of calculating the damage from `cc`.
     df.miner.damage(w3a)
     print(df)
     print(f"Damage from pandas df: {df['pm_damage'].sum()}")
-    print(f"Damage from  function: {pf.stress_life.get_pm(cc, w3a)}")
+    print(f"Damage from  function: {pf.damage.stress_life.get_pm(cc, w3a)}")
 
 Which outputs:
 

@@ -4,7 +4,7 @@ the main mean stress-related utilities.
 
 from typing import ClassVar
 
-from py_fatigue.utils import FatigueStress
+from ..utils import FatigueStress
 
 
 class MeanStress(FatigueStress):

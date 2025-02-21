@@ -31,8 +31,8 @@ import numpy as np
 # import plotly.io as pio
 
 # py_fatigue imports
-from py_fatigue.utils import make_axes, calc_slope_intercept
-from py_fatigue.material.sn_curve import (
+from ..utils import make_axes, calc_slope_intercept
+from ..material.sn_curve import (
     _set_color,
     _get_name,
     _check_param_couple_types,

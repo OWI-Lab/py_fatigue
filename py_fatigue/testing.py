@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 import numpy.typing as npt
 
-from py_fatigue.styling import py_fatigue_formatwarning
+from .styling import py_fatigue_formatwarning
 
 
 def get_sampled_time(

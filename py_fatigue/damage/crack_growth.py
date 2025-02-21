@@ -12,11 +12,11 @@ import numpy as np
 import pandas as pd
 
 # Local packages
-from py_fatigue.cycle_count.cycle_count import CycleCount
-from py_fatigue.material.crack_growth_curve import ParisCurve
-from py_fatigue.utils import split, to_numba_dict
-from py_fatigue.geometry import AbstractCrackGeometry
-from py_fatigue.geometry.cylinder import f_hol_cyl_01
+from ..cycle_count.cycle_count import CycleCount
+from ..material.crack_growth_curve import ParisCurve
+from ..utils import split, to_numba_dict
+from ..geometry.generic import AbstractCrackGeometry
+from ..geometry.cylinder import f_hol_cyl_01
 
 
 try:
