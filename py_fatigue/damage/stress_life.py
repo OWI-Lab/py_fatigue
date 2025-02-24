@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
 """The module :mod:`py_fatigue.damage.stress_life` contains all the
 damage models related to the stress-life approach.
 """
 
 # Packages from standard library
+
+from __future__ import annotations
 from types import SimpleNamespace
 from typing import Callable, Optional, Tuple, Union
+import logging
 import warnings
 
 # Packages from external libraries
@@ -544,6 +548,7 @@ def calc_pavlou_exponents(
     stress_range: np.ndarray,
     ultimate_stress: float = 900,
     exponent: float = -0.75,
+    use_dca: bool = False,
 ) -> np.ndarray:
     """Calculate the Pavlou exponents :math:`q(\\sigma_j)=e_{j, j+1}`.
 
@@ -572,6 +577,8 @@ def calc_pavlou_exponents(
         The Pavlou exponents.
     """
     q_exp = (stress_range / 2 / ultimate_stress) ** exponent
+    if use_dca:
+        return q_exp
     return np.hstack([q_exp[1:] / q_exp[:-1], [1]])
 
 
@@ -599,6 +606,193 @@ def calc_si_jian_exponents(
     """
     return np.hstack([stress_range[1:] / stress_range[:-1], [1]])
 
+
+def calc_nonlinear_damage_with_dca(
+    damage_rule: str,
+    stress_range: np.ndarray,
+    count_cycle: np.ndarray,
+    sn_curve: SNCurve,
+    damage_bands: np.ndarray = np.ndarray([0, 0.025, 0.05, 0.1, 0.2, 0.3,
+                                           0.4, 0.5, 0.6, 0.7, 0.8, 1]),
+    limit_damage: float = 1,
+    logger: logging.Logger | None = None,
+    **kwargs,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Calculate the fatigue damage using a nonlinear damage rule
+    among the allowed ones:
+
+    - 'Pavlou': Pavlou damage rule
+    - 'Manson-Halford': Mannson-Halford damage rule
+    - 'Si-Jian': Si-Jian et al damage rule
+    - 'Leve': Leve damage rule
+
+    The generic form of a nonlinear damage rule is:
+
+    .. math::
+
+        D = \\left(
+            \\left( \\dots
+                \\left(
+                    \\left(
+                        \\left(\\frac{n_1}{N_1}\\right)^{e_{1, 2}} +
+                        \\frac{n_2}{N_2}
+                    \\right)^{e_{2, 3}} +
+                    \\frac{n_3}{N_3}
+                \\right)^{e_{3, 4}} + \\dots + \\frac{n_{M-1}}{N_{M-1}}
+            \\right)^{e_{M-1, M}} + \\dots + \\frac{n_M}{N_M}
+        \\right)^{e_M}
+
+    where :math:`n_j` is the number of cycles in the fatigue histogram
+    at the :math:`j`-th cycle, :math:`N_j` is the number of cycles to
+    failure at the :math:`j`-th cycle, :math:`e_{j, j+1}` is the exponent
+    for the :math:`j`-th and :math:`j+1`-th cycles, :math:`M` is the
+    number of load blocks in the fatigue spectrum.
+
+    The formula is conveniently rewritten as pseudocode:
+
+    .. code-block:: python
+        :caption: pseudocode for the nonlinear damage rule
+
+        # retrieve N_j using the fatigue histogram and SN curve
+        # retrieve the exponents e_{j, j+1}
+        #  calculate the damage
+        D = 0
+        for j in range(1, M+1):
+            D = (D + n_j / N_j) ^ e_{j, j+1}
+
+    Parameters
+    ----------
+    damage_rule : str
+        The damage rule to use. Must be one of the following:
+        'Pavlou', 'Manson-Halford', 'Si-Jian', 'Leve'.
+    stress_range : np.ndarray
+        The stress range.
+    count_cycle : np.ndarray
+        The number of cycles.
+    sn_curve : SNCurve
+        The SN curve.
+    kwargs : dict
+        The keyword arguments for the damage rule. The following
+        keyword arguments are allowed:
+
+        - 'base_exponent': The exponent for the damage rule.
+        - 'ultimate_stress': The ultimate stress.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        The cycle-to-cycle damage and the cumulated damage.
+    """
+    stress_range = np.asarray(stress_range, dtype=np.float64)
+    count_cycle = np.asarray(count_cycle, dtype=np.float64)
+    damage_bands = np.asarray(damage_bands, dtype=np.float64)
+    pm_damage = calc_pm(
+        stress_range,
+        count_cycle,
+        sn_curve,
+    )
+
+    allowed_rules = [
+        "pavlou",
+        "manson",
+        "manson and halford",
+        "manson halford",
+        "leve",
+        "si jian",
+        "si jian et al",
+    ]
+    if damage_rule not in allowed_rules:
+        e_msg = f"damage_rule must be one of {allowed_rules}"
+        raise ValueError(e_msg)
+
+    ns = SimpleNamespace(**kwargs)
+    if damage_rule.lower() == "pavlou":
+        if "base_exponent" not in kwargs:
+            w_msg = [
+                "Pavlou damage rule requires 'base_exponent' ",
+                "to be assigned.\nUsing preset value of -0.75.",
+            ]
+            warnings.formatwarning = py_fatigue_formatwarning
+            warnings.warn("".join(w_msg), UserWarning)
+            ns.base_exponent = -0.75
+        if "ultimate_stress" not in kwargs:
+            w_msg = [
+                "Pavlou damage rule requires 'ultimate_stress' ",
+                "to be assigned.\nUsing preset value of 900 MPa.",
+            ]
+            warnings.formatwarning = py_fatigue_formatwarning
+            warnings.warn("".join(w_msg), UserWarning)
+            ns.ultimate_stress = 900
+        damage_exp = calc_pavlou_exponents(
+            stress_range, ns.ultimate_stress, ns.base_exponent
+        )
+    elif "manson" in damage_rule.lower():
+        if "base_exponent" not in kwargs:
+            w_msg = [
+                "Manson & Halford damage rule requires ",
+                "'base_exponent' to be assigned.\n",
+                "Using preset value of 0.4.",
+            ]
+            warnings.formatwarning = py_fatigue_formatwarning
+            warnings.warn("".join(w_msg), UserWarning)
+            ns.base_exponent = 0.4
+        damage_exp = calc_manson_halford_exponents(
+            sn_curve.get_cycles(stress_range), ns.base_exponent
+        )
+    elif damage_rule.lower() == "leve":
+        if "base_exponent" not in kwargs:
+            w_msg = [
+                "Leve damage rule requires ",
+                "'base_exponent' to be assigned.\n",
+                "Using preset value of 2.",
+            ]
+            warnings.formatwarning = py_fatigue_formatwarning
+            warnings.warn("".join(w_msg), UserWarning)
+            ns.base_exponent = 2
+        damage_exp = ns.base_exponent * np.ones(len(pm_damage))
+    elif "si jian" in damage_rule.lower():
+        damage_exp = calc_si_jian_exponents(stress_range)
+    else:
+        raise ValueError(f"Unknown damage rule: {damage_rule}")
+
+    damage_array = np.empty(len(pm_damage))
+
+    nl_damage = pm_damage.copy()
+    cumsum_nl_dmg = np.zeros_like(nl_damage)
+    for i in range(len(pm_damage)):  # pylint: disable=C0200
+        prev_dmg_band = cur_dmg_band if i >= 1 else 0
+        # fmt: off
+        if i >= 1 and limit_damage > cumsum_nl_dmg[i-1] > cumsum_nl_dmg[i] \
+                  and logger is not None:
+            logger.warning(f"Damage value exceeds {limit_damage} at index {i}")
+            cur_dmg_band = np.digitize(cumsum_nl_dmg[i-1], damage_bands,
+                                       right=False) if i >= 1 else 0
+        cur_dmg_band = min(cur_dmg_band, len(damage_bands) - 1)
+        if cur_dmg_band != prev_dmg_band and len(damage_bands) < 20 \
+                                         and logger is not None:
+            if cur_dmg_band == 1:
+                logger.info("Damage band change")     
+            logger.info(f"‣ at cycle {i}:\n"
+                        f"                • from {prev_dmg_band} to "
+                        f"{cur_dmg_band} ({damage_bands[cur_dmg_band - 1]}"
+                        f" < D ≤ {damage_bands[cur_dmg_band]})\n"
+                        f"                • current damage value: "
+                        f"{cumsum_nl_dmg[i-1]}\033[0m")
+
+        cur_dmg_band = np.digitize(cumsum_nl_dmg[i-1], damage_bands,
+                                   right=False) if i >= 1 else 0
+        # Damage weight for the current cycle
+        w_ij: float = (damage_bands[cur_dmg_band] -
+                       damage_bands[cur_dmg_band - 1]) / \
+                      ((damage_bands[cur_dmg_band] ** (1 / damage_exp[i])) -
+                       (damage_bands[cur_dmg_band - 1] ** (1 / damage_exp[i])))
+        # Update the damage value for the current cycle
+        nl_damage[i] = w_ij * pm_damage[i] if i >= 1 else pm_damage[0]
+        cumsum_nl_dmg[i] = nl_damage[i] + cumsum_nl_dmg[i - 1] \
+                               if i >= 1 else nl_damage[0]
+        # fmt: on
+
+    return damage_array[-1]
 
 def calc_nonlinear_damage(
     damage_rule: str,
@@ -745,7 +939,6 @@ def calc_nonlinear_damage(
         damage_array[i] = total_damage
 
     return damage_array[-1]
-
 
 def get_nonlinear_damage(
     damage_rule: str,
