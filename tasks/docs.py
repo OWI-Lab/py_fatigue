@@ -33,7 +33,7 @@ def autobuild(c_r):
     else:
         raise ValueError(f'System {SYSTEM} is not supported')
     tmp_str = colorize(
-        "Starting documentation server with hot reload...\n",
+        "\nStarting documentation server with hot reload...\n",
         color=Color.HEADER,
         bold=True
     )

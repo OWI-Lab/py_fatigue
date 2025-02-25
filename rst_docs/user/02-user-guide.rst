@@ -1,11 +1,11 @@
-User's guide
+User guide
 =============
 
-The scope of this user's guide is guiding the user towards a comprehensive
+The scope of this user guide is guiding the user towards a comprehensive
 understanding of py-fatigue through as many usage examples as possible.
 
 .. toctree::
-   :caption: User's guide
+   :caption: User guide
    :maxdepth: 3
 
    examples/01-notebook_setup

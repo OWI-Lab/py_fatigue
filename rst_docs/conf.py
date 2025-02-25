@@ -138,13 +138,14 @@ json_url = "https://pydata-sphinx-theme.readthedocs.io/en/latest/_static/switche
 # version_match = os.environ.get("READTHEDOCS_VERSION")
 
 html_theme_options = {
-    "navbar_align": "right",
-    "external_links": [
-        {
-            "url": "https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD",
-            "name": "Interactive Examples",
-        },
-    ],
+    "navbar_align": "left",
+    # "external_links": [
+    #     {
+    #         "url": "https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD",
+    #         "name": "Tutorials",
+    #         "attributes": {"target": "_blank"},
+    #     },
+    # ],
     "github_url": "https://github.com/owi-lab/py_fatigue",
     "header_links_before_dropdown": 6,
     "icon_links": [
@@ -158,6 +159,12 @@ html_theme_options = {
             "name": "LinkedIn",
             "url": "https://www.linkedin.com/company/owi-lab",
             "icon": "fa-brands fa-linkedin-in  fa-lg",
+            "attributes": {"target": "_blank"},
+        },
+        {
+            "url": "https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD",
+            "name": "Launch Interactive environment",
+            "icon": "fa-solid fa-rocket fa-lg fa-beat",
             "attributes": {"target": "_blank"},
         },
         {
@@ -288,12 +295,12 @@ html_static_path = ["_static"]
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = os.path.join(html_static_path[0], "_img", "py-fatigue-logo.png")
+html_logo = os.path.join(html_static_path[0], "_img", "py-fatigue-logo-with-name.png")
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-html_favicon = os.path.join(html_static_path[0], "_img", "owi-lab.png")
+html_favicon = os.path.join(html_static_path[0], "_img", "py-fatigue-logo.png")
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.

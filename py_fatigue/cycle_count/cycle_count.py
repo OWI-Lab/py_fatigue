@@ -299,12 +299,14 @@ class CycleCount:
         unit: str = "MPa",
     ) -> "CycleCount":
         """Create a cycle-counting object from rainflow cycles.
+
         Parameters
         ----------
         *args
             Positional arguments passed to `py_fatigue.rainflow.rainflow`.
         **kwargs
             Keyword arguments passed to `py_fatigue.rainflow.rainflow`.
+
         Returns
         -------
         CycleCount

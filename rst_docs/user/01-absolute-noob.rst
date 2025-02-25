@@ -1,4 +1,4 @@
-Beginners' guide
+Getting started
 ================
 
 Welcome to the absolute beginner's guide to py-fatigue! If you have comments or

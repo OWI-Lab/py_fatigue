@@ -32,55 +32,29 @@ on four buinding blocks:
    :gutter: 3 3 4 5
 
    .. grid-item-card::
-      :octicon:`rocket` |_| |_| |_| |_| New to `py-fatigue`? Start here!
 
-      New to `py-fatigue`? Check out the Absolute Beginner's Guide. It contains
-      an introduction to `py-fatigue`'s main concepts and links to additional
-      tutorials.
+     .. raw:: html
 
-      +++
+        <html><i class="fa-solid fa-gamepad fa-lg"></i>&nbsp;&nbsp;&nbsp;&nbsp<b>Getting Started</b></html>
 
-      .. button-ref:: user/01-absolute-noob
-         :expand:
-         :color: primary
-         :click-parent:
+     New to `py-fatigue`? Stert here! The Absolute Beginner's Guide contains
+     all the introductiory material to familiarize with `py-fatigue` main
+     concepts and start playing with the examples.
 
-         To the absolute beginner's guide
+     +++
 
-   .. grid-item-card::
-      :octicon:`repo` |_| |_| |_| |_| User's Guide
+     .. button-ref:: user/01-absolute-noob
+        :expand:
+        :color: primary
+        :click-parent:
 
-      The user guide provides in-depth information on the key concepts of 
-      `py-fatigue` with useful background information and explanation.
-
-      +++
-
-      .. button-ref:: user/02-user-guide
-         :expand:
-         :color: primary
-         :click-parent:
-
-         To the user guide
+        To the absolute beginner's guide
 
    .. grid-item-card::
-      :octicon:`code` |_| |_| |_| |_| API Reference
 
-      The reference guide contains a detailed description of the functions,
-      modules, and objects included in `py-fatigue`. The reference describes
-      how the methods work and which parameters can be used. It assumes that
-      you have an understanding of the key concepts.
+      .. raw:: html
 
-      +++
-
-      .. button-ref:: api/01-index
-         :expand:
-         :color: primary
-         :click-parent:
-
-         To the reference guide
-
-   .. grid-item-card::
-      :octicon:`link` |_| |_| |_| |_| Interactive Examples
+         <html><i class="fa-solid fa-rocket fa-lg fa-beat"></i>&nbsp;&nbsp;&nbsp;&nbsp<b>Interactive Examples</b></html>
 
       The Binder Environment allows you to run the examples directly in your
       browser without installing anything on your local machine. The examples
@@ -95,6 +69,43 @@ on four buinding blocks:
 
          To the Binder environment
 
+   .. grid-item-card::
+
+     .. raw:: html
+
+        <html><i class="fa-solid fa-book fa-lg"></i>&nbsp;&nbsp;&nbsp;&nbsp<b>User Guide</b></html>
+
+     The user guide provides in-depth information on the key concepts of 
+     `py-fatigue` with useful background information and explanation.
+
+     +++
+
+     .. button-ref:: user/02-user-guide
+        :expand:
+        :color: primary
+        :click-parent:
+
+        To the user guide
+
+   .. grid-item-card::
+
+     .. raw:: html
+
+        <html><i class="fa-solid fa-code fa-lg"></i>&nbsp;&nbsp;&nbsp;&nbsp<b>API Reference</b></html>
+
+     The API reference provides detailed information on the methods
+     and classes available in `py-fatigue`. The reference describes
+     how tools work and which parameters can be used. It assumes that
+     you have an understanding of the key concepts.
+
+     +++
+
+     .. button-ref:: api/01-index
+        :expand:
+        :color: primary
+        :click-parent:
+
+        To the reference guide
 
 .. toctree::
    :caption: Beginner's guide
@@ -103,7 +114,7 @@ on four buinding blocks:
    user/01-absolute-noob
 
 .. toctree::
-   :caption: User's guide
+   :caption: User guide
    :hidden:
 
    user/02-user-guide

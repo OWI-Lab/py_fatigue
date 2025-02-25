@@ -13,7 +13,7 @@ SYSTEM = get_current_system()
 @task
 def run(c_r):
     """Start notebook server on foreground."""
-    with c_r.cd("./jupyter-notebooks"):
+    with c_r.cd("./notebooks"):
         # check current directory
         with c_r.prefix("export JUPYTER_CONFIG_DIR=../.jupyter"):
             _command = f"jupyter notebook --port={c_r.start_port} --no-browser"
@@ -54,7 +54,7 @@ def start(c_r):
         color=Color.HEADER,
         bold=True
     )
-    with c_r.cd("./jupyter-notebooks"):
+    with c_r.cd("./notebooks"):
         if SYSTEM in [OperatingSystem.LINUX, OperatingSystem.MAC]:
             with c_r.prefix("export JUPYTER_CONFIG_DIR=../.jupyter"):
                 _command = (
@@ -65,7 +65,7 @@ def start(c_r):
                 c_r.run(_command)
                 print(f">>> {colorize(_command, color=Color.OKBLUE)}\n")
         elif SYSTEM == OperatingSystem.WINDOWS:
-            with c_r.cd("./jupyter-notebooks"):
+            with c_r.cd("./notebooks"):
                 _command = (
                     "wt -d . jupyter notebook "
                     f"--port={c_r.start_port}"
@@ -94,7 +94,7 @@ def start(c_r):
 @task
 def clean(c_r, check=False):
     """Clean all tutorials in folder."""
-    notebook_files = glob.glob("./jupyter-notebooks/*.ipynb")
+    notebook_files = glob.glob("./notebooks/*.ipynb")
     command = ("clean", "Cleaning")
     if check:
         command = ("check", "Checking")

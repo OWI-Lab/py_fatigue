@@ -922,7 +922,9 @@ def calc_nonlinear_damage_with_dca(
     While for Theil's method, the weights can be directly
     approximated as:
 
-    w_j = 1 + \\frac{\\Delta\\sigma_j}{N_{f,j}}
+    .. math::
+
+        w_j = 1 + \\frac{\\Delta\\sigma_j}{N_{f,j}}
 
     .. warning::
         If you want to use Theil's method in a production
@@ -948,7 +950,7 @@ def calc_nonlinear_damage_with_dca(
                            ((DB[DB_j] ** (1 / e_i)) -
                             (DB[DB_j - 1] ** (1 / e_i)))
                 elif damage_rule == 'Theil':
-                    w_ij = stress_range_i / N_i
+                    w_ij = stress_range_i / N_i + 1
                 D += w_ij * n_i / N_i
 
     Parameters
@@ -1134,64 +1136,8 @@ def get_nonlinear_damage_with_dca(
     - 'Pavlou': Pavlou damage rule
     - 'Theil': Theil damage rule
 
-    The DCA discreties the damage curve in multiple Damage bands
-    :math:`\\Delta D_j` and calculates the damage for each band, depending
-    on the damage value at the previous cycle. The damage is calculated
-    as:
-
-    .. math::
-
-        D = \\sum_{j=1}^{n_b} \\Delta D_j
-
-    where :math:`n_b` is the number of damage bands. In each damage band,
-    the damage follows a weighted Palmgren-Miner sum, i.e.:
-
-    .. math::
-
-        \\Delta D_j = \\sum_{i=1}^{n_j} w_{i, j} \\frac{n_i}{N_i}
-
-    where :math:`n_j` is the number of cycles in the fatigue histogram
-    at the :math:`j`-th cycle, :math:`N_j` is the number of cycles to
-    failure at the :math:`j`-th cycle, :math:`w_{i, j}` is the weight
-    for the :math:`i`-th cycle in the :math:`j`-th damage band.
-
-    Using the generic nonlinear damage accumulation formula:
-
-    .. math::
-
-        D(\\sigma) = \\left(\\frac{n}{N(\\sigma)}\\right)^{e(\\sigma)}
-
-    and substituting it inside the weighted Palmgren-Miner sum, the
-    equation of the weights can be extracted as:
-
-    .. math::
-
-        w_{i, j} = \\frac{D_j - D_{j-1}}{
-            D_{j}^{1/e_{i, i}} - D_{j-1}^{1/e_{i, i}}
-        }
-
-
-    The formula is conveniently rewritten as pseudocode:
-
-    .. code-block:: python
-        :caption: pseudocode for the nonlinear damage rule
-
-        # retrieve n_i, N_i using the fatigue histogram and SN curve
-        # retrieve the exponents e_{j, j+1}
-        # define the damage bands DB
-        # calculate the damage
-        D = 0
-        for j in range(1,
-                       M+1):
-            DB_j = np.digitize(D, DB, right=False)
-            for i in range(1, n_j+1):
-                if damage_rule == 'Pavlou':
-                    w_ij = (DB[DB_j] - DB[DB_j - 1]) /
-                           ((DB[DB_j] ** (1 / e_i)) -
-                            (DB[DB_j - 1] ** (1 / e_i)))
-                elif damage_rule == 'Theil':
-                    w_ij = stress_range_i / N_i
-                D += w_ij * n_i / N_i
+    Refer to :func:`calc_nonlinear_damage_with_dca` for the
+    complete documentation with mathematical details.
 
     Parameters
     ----------
