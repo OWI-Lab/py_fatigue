@@ -615,7 +615,25 @@ def calc_theil_weights(
     stress_range: np.ndarray,
     sn_curve: SNCurve,
 ) -> np.ndarray:
-    """Calculate the Theil weights for the Damage Curve Approach (DCA)."""
+    """Calculate the Theil weights for the Damage Curve Approach
+    (DCA).
+
+    .. math::
+
+        w_j = \\frac{\\Delta\\sigma_j}{N_{f,j}}
+
+    Parameters
+    ----------
+    stress_range : np.ndarray
+        The stress range.
+    sn_curve : SNCurve
+        The py-fatigue SN Curve
+
+    Returns
+    -------
+    np.ndarray
+        Theil's model weights
+    """
     return np.divide(stress_range, sn_curve.get_cycles(stress_range))
 
 
@@ -894,6 +912,24 @@ def calc_nonlinear_damage_with_dca(
             D_{j}^{1/e_{i, i}} - D_{j-1}^{1/e_{i, i}}
         }
 
+    In the case of Pavlou's model, the exponents are:
+
+    .. math::
+
+        e_{j, j} = \\left(\\frac{\\Delta \\sigma_j / 2}
+                                {\\sigma_U}\\right)^{exponent}
+
+    While for Theil's method, the weights can be directly
+    approximated as:
+
+    w_j = 1 + \\frac{\\Delta\\sigma_j}{N_{f,j}}
+
+    .. warning::
+        If you want to use Theil's method in a production
+        environment, it is recommended to use the
+        :func:`calc_theil_cycles_to_failure` function, as it adheres
+        to the original SN Cuve-based method.
+
     The formula is conveniently rewritten as pseudocode:
 
     .. code-block:: python
@@ -919,7 +955,7 @@ def calc_nonlinear_damage_with_dca(
     ----------
     damage_rule : str
         The damage rule to use. Must be one of the following:
-        'Pavlou', 'Manson-Halford', 'Si-Jian', 'Leve'.
+        'Pavlou', 'Theil'.
     stress_range : np.ndarray
         The stress range.
     count_cycle : np.ndarray
