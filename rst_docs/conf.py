@@ -61,7 +61,7 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
 templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = [".rst", ".md"]
+source_suffix = {".md": "markdown", ".rst": "restructuredtext"}
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
@@ -141,16 +141,12 @@ html_theme_options = {
     "navbar_align": "right",
     "external_links": [
         {
-            "url": "https://github.com/OWI-Lab/py_fatigue/blob/main/CHANGELOG.md",
-            "name": "Changelog",
-        },
-        {
-            "url": "https://pydata.org",
-            "name": "PyData",
+            "url": "https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD",
+            "name": "Interactive Examples",
         },
     ],
     "github_url": "https://github.com/owi-lab/py_fatigue",
-    "header_links_before_dropdown": 4,
+    "header_links_before_dropdown": 6,
     "icon_links": [
         {
             "name": "PyPI",
@@ -172,7 +168,7 @@ html_theme_options = {
             "attributes": {"target": "_blank"},
         },
     ],
-    "show_toc_level": 4,
+    "show_toc_level": 5,
     # "navbar_center": ["version-switcher", "navbar-nav"],
     # "announcement": "https://raw.githubusercontent.com/pydata/pydata-sphinx-theme/main/docs/_templates/custom-template.html",
     # "show_nav_level": 2,
@@ -188,6 +184,23 @@ html_theme_options = {
     # },
     # "search_bar_position": "navbar",  # TODO: Deprecated - remove in future version
 }
+
+myst_enable_extensions = [
+    "amsmath",
+    "attrs_inline",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "linkify",
+    "replacements",
+    "smartquotes",
+    "strikethrough",
+    "substitution",
+    "tasklist",
+]
 
 # html_theme_options = {
 #     "analytics_id": "G-XXXXXXXXXX",  #  Provided by Google in your dashboard

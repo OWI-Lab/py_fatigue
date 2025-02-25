@@ -4,7 +4,7 @@ import platform
 from enum import Enum
 
 COV_SCREEN_NAME = "coverage"
-DOC_SCREEN_NAME = "sphinx-docs"
+DOC_SCREEN_NAME = "sphinx"
 
 
 class OperatingSystem(Enum):

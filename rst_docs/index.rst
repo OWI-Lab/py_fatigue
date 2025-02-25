@@ -93,7 +93,7 @@ on four buinding blocks:
          :color: primary
          :click-parent:
 
-         To the Binder Environment
+         To the Binder environment
 
 
 .. toctree::
@@ -121,16 +121,12 @@ on four buinding blocks:
    api/01-index
 
 .. toctree::
-   :caption: CI/CD Development
+   :caption: Change log
    :hidden:
 
-   develop/00-index
+   changelog
 
-.. toctree::
-   :caption: Azure DevOps
-   :hidden:
-
-   ado/01-index
+   
 
 Miscellaneous Pages
 +++++++++++++++++++
