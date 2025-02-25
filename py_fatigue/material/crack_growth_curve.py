@@ -852,7 +852,7 @@ def _calc_growth_rate(sif, slope, intercept, threshold, critical):  #pragma: no 
         if sif[i] < threshold:  # below threshold
             the_growth_rate[i] = 0
             continue
-        if sif[i] > critical:  # above threshold
+        if sif[i] > critical or sif[i] == np.inf:
             the_growth_rate[i] = np.inf
             continue
         the_growth_rate[i] = intercept[idx[i]] * sif[i] ** slope[idx[i]]

@@ -22,7 +22,8 @@ def test_pure_paris_curve():
     assert paris_pure.walker_exponent == 0
     assert paris_pure.load_ratio == 0
     assert paris_pure.threshold_growth_rate == paris_pure.get_growth_rate(paris_pure.threshold)
-    assert paris_pure.critical_growth_rate == paris_pure.get_growth_rate(paris_pure.critical)
+    assert np.isinf(paris_pure.critical_growth_rate)
+    assert np.isinf(paris_pure.get_growth_rate(paris_pure.critical))
     assert len(paris_pure.get_knee_growth_rate()) == 0
     with pytest.raises(ValueError):
         paris_pure.get_knee_growth_rate(check_knee=True)
