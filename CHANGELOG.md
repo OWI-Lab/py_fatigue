@@ -2,10 +2,10 @@
 - bump(patch): Bump version to 1.3.3 [skip ci]
 - ci(pipeline): Merge release/v1.3.3 to main [skip ci]
 - chore(change-log): Update change log
+- ci(pages): Embed pages in CI/CD pipeline  
 
 ## 1.3.2
 - bump(patch): Bump version to 1.3.2 [skip ci]
-- ci(pages): Embed pages in CI/CD pipeline  
 - ci(pipeline): Merge release/v1.3.2 to main [skip ci]  
 - test(material): Increase coverage  
 - test(nonlinear): Add few tests on Theil and Pavlou (DCA) stress-life methods  
