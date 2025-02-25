@@ -20,9 +20,9 @@ def build(c):
     system = get_current_system()
 
     if system == OperatingSystem.LINUX:
-        _command = f"sphinx-build -b  html -d {DOCS_BUILD_DIR}/doctrees ./rst_docs {DOCS_BUILD_DIR} -E -a"
+        _command = f"sphinx-autobuild  -b  html -d {DOCS_BUILD_DIR}/doctrees ./rst_docs {DOCS_BUILD_DIR} -E -a"
     elif system == OperatingSystem.WINDOWS:
-        _command = f"sphinx-build -b html -d {DOCS_BUILD_DIR}\\doctrees rst_docs {DOCS_BUILD_DIR} -E -a"
+        _command = f"sphinx-autobuild -b html -d {DOCS_BUILD_DIR}\\doctrees rst_docs {DOCS_BUILD_DIR} -E -a"
     else:
         raise ValueError(f'System {system} is not supported')
 

@@ -159,6 +159,7 @@ class TestCrackGrowth:
         geo = geometry.InfiniteSurface(initial_depth=initial_depth)
         # fmt: on
 
+        assert paris_threshold != paris_critical != paris_pure
         cg_th = damage.get_crack_growth(
             cc_clustered, paris_threshold, geo, express_mode=True
         )

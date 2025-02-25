@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""Utilities for the cycle count module."""
+# pragma: no cover
+
 from __future__ import annotations
 
 from collections import ChainMap, defaultdict

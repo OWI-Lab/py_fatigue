@@ -13,23 +13,31 @@ from .system import (
 SYSTEM = get_current_system()
 
 
-@task(help={"verbose": "Run tests verbose."})
-def run(c_r, verbose=False):
+@task(help={
+    "verbose": "Run tests verbose.", "test": "Specify a single test to run."
+    }
+)
+def run(c_r, verbose=False, test=None):
     """Run test suite."""
+    test_command = ""
+    if test:
+        test_command = f" {test}"
+
     if verbose:
         c_r.run(
             f"pytest -v -W ignore::UserWarning "
             f"--cov={c_r.project_slug} --cov-report=term:skip-covered "
-            f"--cov-report=html --cov-report=html:{COV_DOC_BUILD_DIR}",
+            f"--cov-report=html --cov-report=html:{COV_DOC_BUILD_DIR} {test_command}",
             pty=PTY,
         )
     else:
         c_r.run(
             f"pytest -W ignore::UserWarning "
             f"--cov={c_r.project_slug} --cov-report=term:skip-covered "
-            f"--cov-report=html --cov-report=html:{COV_DOC_BUILD_DIR}",
+            f"--cov-report=html --cov-report=html:{COV_DOC_BUILD_DIR} {test_command}",
             pty=PTY,
         )
+
 
 
 @task
@@ -100,6 +108,12 @@ def stop(c_r):
         raise ValueError(f"System {SYSTEM} is not supported")
 
 
-@task(post=[stop, run, coverage], default=True)
-def all(c_r):  # pylint: disable=W0622,W0613 # noqa: F811
+@task(default=True,
+      help={"verbose": "Run tests verbose.",
+            "test": "Specify a single test to run."}
+)
+def all(c_r, verbose=False, test=None):
     """Run all tests and start coverage report webserver."""
+    stop(c_r)
+    run(c_r, verbose=verbose, test=test)
+    coverage(c_r)

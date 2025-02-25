@@ -373,6 +373,7 @@ def test_format_name():
         environment="Free corrosion",
         curve="C",
     )
+    assert sn.__str__() == sn.name
     assert "\n" in sn.name
     sn.format_name(html_format=True)
     assert "<br>" in sn.name
@@ -405,5 +406,60 @@ def test_plot():
     assert 60 in other_stress
     assert ax.xaxis.get_label()._text == "Number of cycles"
     assert EXOTIC.unit in ax.yaxis.get_label()._text
+
+def test__repr_svg_():
+    """Asserting that curve naming behaves as expected."""
+    sn = SNCurve(
+        3,
+        12.115,
+        norm="DNVGL-RP-C203",
+        environment="Free corrosion",
+        curve="C",
+    )
+    assert isinstance(sn._repr_svg_(), str)
+
+    with pytest.raises(ValueError) as ve:
+        _ = SNCurve([3, 5, 8], [10.970, 13.617, 14.3], endurance=1e9)
+    assert "Endurance" in ve.value.args[0]
+    sn_non_linear = SNCurve(
+        [3, 5, 8], [10.970, 13.617, 14.3], endurance=3e13, curve="exotic"
+    )
+    assert isinstance(sn_non_linear._repr_svg_(), str)
+
+
+def test_from_knee_points():
+    for sn in  [DNV_B1A, DNV_B1A_END, DNV_B1C, DNV_C_C, DNV_E_C, DNV_W3C]:
+        print(sn.norm, sn.curve, sn.environment)
+        knees_cycles= sn.get_knee_cycles()
+        knees_cycles = np.hstack([knees_cycles, 1E9])
+        knees_cycles = np.hstack([1E4, knees_cycles])
+        knees_stress = sn.get_knee_stress()
+        knees_stress = np.hstack([knees_stress, sn.get_stress(1E9)])
+        knees_stress = np.hstack([sn.get_stress(1E4), knees_stress])
+        sn_knee = SNCurve.from_knee_points(
+            knees_stress,
+            knees_cycles,
+            sn.endurance,
+            sn.environment,
+            sn.curve,
+            sn.norm,
+            sn.unit,
+            sn.color,
+        )
+        fig, ax = sn.plot()
+        sn_knee.plot(fig=fig, ax=ax)
+        ax.legend()
+        assert sn_knee.id != sn.id
+        assert sn != sn_knee   
+        assert np.allclose(sn_knee.slope, sn.slope, rtol=1e-3)
+        assert np.allclose(sn_knee.intercept, sn.intercept, rtol=1e-3)
+        assert sn_knee.endurance == sn.endurance
+        assert sn_knee.environment == sn.environment
+        assert sn_knee.curve == sn.curve
+        assert sn_knee.norm == sn.norm
+        assert sn_knee.unit == sn.unit
+        assert sn_knee.color == sn.color
+        assert sn_knee.name == sn.name
+
 
 nb.config.DISABLE_JIT = False

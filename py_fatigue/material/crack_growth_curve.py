@@ -736,7 +736,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
             self.critical,
         )
 
-    def plot(
+    def plot(  # pragma: no cover
         self,
         sif: Optional[list] = None,
         growth_rate: Optional[list] = None,
@@ -820,7 +820,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
     fastmath=False,
     parallel=True,
 )
-def _calc_growth_rate(sif, slope, intercept, threshold, critical):
+def _calc_growth_rate(sif, slope, intercept, threshold, critical):  #pragma: no cover  # noqa: E501  # pylint: disable=C0301
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
     assert np.min(sif) >= 0
@@ -865,7 +865,7 @@ def _calc_growth_rate(sif, slope, intercept, threshold, critical):
     fastmath=False,
     parallel=True,
 )
-def _calc_sif(growth_rate, slope, intercept, threshold, critical):
+def _calc_sif(growth_rate, slope, intercept, threshold, critical):  #pragma: no cover  # noqa: E501  # pylint: disable=C0301
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
     assert np.min(growth_rate) >= 0
@@ -882,9 +882,9 @@ def _calc_sif(growth_rate, slope, intercept, threshold, critical):
 
     knees_growth_rate = np.hstack(
         (
-            np.array([intercept[0] * (0.9999999999 * threshold) ** slope[0]]),
+            np.array([intercept[0] * (0.9999999999999999 * threshold) ** slope[0]]),
             knees_growth_rate,
-            np.array([intercept[-1] * (critical / 0.9999999999) ** slope[-1]]),
+            np.array([intercept[-1] * (critical / 0.9999999999999999) ** slope[-1]]),
         )
     )
     e_msg = (
@@ -901,7 +901,7 @@ def _calc_sif(growth_rate, slope, intercept, threshold, critical):
         if idx[i] <= 0:  # below threshold
             the_sif[i] = threshold
             continue
-        if idx[i] >= nr_knees:  # above threshold
+        if idx[i] > nr_knees:  # above threshold
             the_sif[i] = critical
             continue
         the_sif[i] = (growth_rate[i] / intercept[idx[i]]) ** (

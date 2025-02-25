@@ -1028,7 +1028,7 @@ class SNCurve(AbstractSNCurve):
     fastmath=False,
     parallel=True,
 )
-def _calc_cycles(stress, slope, intercept, endurance):
+def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
     assert np.min(stress) >= 0
@@ -1052,7 +1052,7 @@ def _calc_cycles(stress, slope, intercept, endurance):
     fastmath=False,
     parallel=True,
 )
-def _calc_cycles_2(stress, slope, intercept, endurance):
+def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
     """
     Calculate the number of cycles to failure for given stress levels.
 
@@ -1106,7 +1106,7 @@ def _calc_cycles_2(stress, slope, intercept, endurance):
     fastmath=False,
     parallel=True,
 )
-def _calc_stress(cycles, slope, intercept, endurance):
+def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
     assert np.min(cycles) > 0
@@ -1134,7 +1134,7 @@ def _calc_stress(cycles, slope, intercept, endurance):
     parallel=True,
     cache=True,
 )
-def _calc_stress_2(cycles, slope, intercept, endurance):
+def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
     """
     Calculate the number of cycles to failure for given stress levels.
 
@@ -1220,7 +1220,7 @@ def _sn_curve_data_points(sn: SNCurve) -> tuple:
     fastmath=True,
     cache=True,
 )
-def sn_curve_residuals(
+def sn_curve_residuals(  # pragma: no cover
     cycles, slope, intercept, endurance, weight, res_stress
 ):
     """Calculate the residual stress range available to the SN curve, provided

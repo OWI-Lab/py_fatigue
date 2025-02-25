@@ -53,11 +53,12 @@ dev = [
     "nbdime>=3.1"
 ]
 docs = [
-    "Sphinx>=5.0",
+    "Sphinx>=7.0",
     "myst-parser>=0.18",
     "pydata-sphinx-theme>=0.11.0",
     "sphinx_design>=0.3.0",
     "autoclasstoc>=1.5.2",
+    "sphinx-autobuild<=2024.02.04",
     "sphinx-copybutton>=0.5.2",
 ]
 
