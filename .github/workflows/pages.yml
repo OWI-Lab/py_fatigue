@@ -1,6 +1,6 @@
 name: publish to GitHub Pages
 
-on: [push, pull_request, workflow_dispatch]
+on: [push, pull_request, workflow_dispatch, workflow_call]
 
 permissions:
   contents: write
@@ -8,6 +8,7 @@ permissions:
 jobs:
   docs:
     runs-on: ubuntu-latest
+    # if: contains(github.event.head_commit.message, '[publish pages]')
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -21,12 +22,12 @@ jobs:
         run: uv sync --group docs
       - name: Sphinx build
         run: |
-          uv run sphinx-build -b  html -d rst_docs/doctrees ./rst_docs docs/_build -E -a
+          uv run sphinx-build -b  html -d rst_docs/doctrees ./rst_docs _build/docs -E -a
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build
+          publish_dir: _build/docs
           force_orphan: true

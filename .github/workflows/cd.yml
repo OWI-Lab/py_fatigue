@@ -61,7 +61,7 @@ jobs:
         # Merge changes to 'refs/heads/main'
         git fetch origin main
         git checkout main
-        git merge --no-ff release/v$NEW_VERSION -m "ci(pipeline): Merge release/v$NEW_VERSION to main [skip ci]"
+        git merge --no-ff release/v$NEW_VERSION -m "ci(pipeline): Merge release/v$NEW_VERSION to main [skip ci] [publish pages]"
         git push origin main
         uv build --out-dir dist-3.10
     - name: Upload built package
@@ -70,6 +70,9 @@ jobs:
         name: dist-3.10
         path: dist-3.10/
         retention-days: 1
+  pages:
+    needs: [bump-and-build]
+    uses: ./.github/workflows/pages.yml
 
   cd:
     name: cd
