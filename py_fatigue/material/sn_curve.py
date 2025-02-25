@@ -1132,6 +1132,7 @@ def _calc_stress(cycles, slope, intercept, endurance):
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
     parallel=True,
+    cache=True,
 )
 def _calc_stress_2(cycles, slope, intercept, endurance):
     """
@@ -1212,3 +1213,25 @@ def _sn_curve_data_points(sn: SNCurve) -> tuple:
         n_plot = np.sort(np.append(n_plot, np.array(sn.get_knee_cycles())))
     sigma_plot = sn.get_stress(n_plot)
     return n_plot, sigma_plot
+
+
+@nb.njit(
+    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
+    fastmath=True,
+    cache=True,
+)
+def sn_curve_residuals(
+    cycles, slope, intercept, endurance, weight, res_stress
+):
+    """Calculate the residual stress range available to the SN curve, provided
+    its material properties (slopes, intercepts, and endurance), the data
+    points, the nonlinearity weights (must be one-to-one with the data points)
+    and the residual stress range.
+    """
+    if not weight:
+        weight = 1
+    if not res_stress:
+        res_stress = 0
+    fail = _calc_stress_2(np.array([cycles]), slope, intercept, endurance)[0]
+    # fmt: on
+    return fail - weight * cycles - res_stress

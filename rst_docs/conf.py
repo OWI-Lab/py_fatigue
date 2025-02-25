@@ -138,6 +138,7 @@ json_url = "https://pydata-sphinx-theme.readthedocs.io/en/latest/_static/switche
 # version_match = os.environ.get("READTHEDOCS_VERSION")
 
 html_theme_options = {
+    "navbar_align": "right",
     "external_links": [
         {
             "url": "https://github.com/OWI-Lab/py_fatigue/blob/main/CHANGELOG.md",
@@ -154,13 +155,13 @@ html_theme_options = {
         {
             "name": "PyPI",
             "url": "https://pypi.org/project/py-fatigue/",
-            "icon": "fa-solid fa-box",
+            "icon": "fa-brands fa-python fa-lg",
+            "attributes": {"target": "_blank"},
         },
         {
             "name": "LinkedIn",
             "url": "https://www.linkedin.com/company/owi-lab",
-            "icon": "_static/_img/linkedin.png",
-            "type": "local",
+            "icon": "fa-brands fa-linkedin-in  fa-lg",
             "attributes": {"target": "_blank"},
         },
         {
@@ -172,7 +173,6 @@ html_theme_options = {
         },
     ],
     "show_toc_level": 4,
-    "navbar_align": "left",  # [left, content, right] For testing that the navbar items align properly
     # "navbar_center": ["version-switcher", "navbar-nav"],
     # "announcement": "https://raw.githubusercontent.com/pydata/pydata-sphinx-theme/main/docs/_templates/custom-template.html",
     # "show_nav_level": 2,

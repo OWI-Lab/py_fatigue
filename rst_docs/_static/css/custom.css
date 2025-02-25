@@ -1,24 +1,14 @@
 /* Change code blocks font and bump up font size slightly (normally 12px)*/
-.rst-content pre.literal-block,
-.rst-content div[class^="highlight"] pre,
-.rst-content .linenodiv pre {
-	font-family: 'JetBrains Mono', monospace !important;
-	font-style: normal;
-	font-size: 14px !important;
-	white-space: pre-wrap;
-}
-
-/* Change code descriptions and literal blocks (inline code via ``) to match the normal font size being used in the sphinx_RTD_theme text  (normally 14px)*/
-.rst-content dl:not(.docutils) tt.descname,
-.rst-content dl:not(.docutils) tt.descclassname,
-.rst-content dl:not(.docutils) tt.descname,
-.rst-content dl:not(.docutils) code.descname,
-.rst-content dl:not(.docutils) tt.descclassname,
-.rst-content dl:not(.docutils) code.descclassname,
-code.docutils {
-	font-family: 'JetBrains Mono', monospace !important;
-	font-style: normal;
-	font-size: 12px !important;
+@import url('https://fonts.cdnfonts.com/css/fantasque-sans-mono');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
+:root {
+	--pst-font-family-monospace-system: 'Fantasque Sans Mono', monospace;
+	--pst-font-family-base-system: 'Barlow', 'Roboto', 'Helvetica', sans-serif;
+	--bs-body-font-weight: 400;
+	--bs-body-font-size: 1.1em;
+	--bs-body-line-height: 1.15;
 }
 
 /* Change default max width from 800px to better suit max 150 line width in */
@@ -26,22 +16,31 @@ code.docutils {
 	max-width: 1000px !important;
 }
 
-body {
-	font-family: 'Roboto', 'Helvetica', sans-serif;
+.bd-docs-nav.bd-links {
+	font-family: 'Roboto Slab', serif;
 }
 
-.rst-content h1,
-.rst-content h2,
-.rst-content h3,
-.rst-content h4,
-.rst-content h5,
-.rst-content h6 {
-	font-family: 'Alegreya', serif;
+pre {
+	font-size: 1em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: 'Roboto Slab', serif;
+}
+
+.caption-text {
+	font-family: 'Roboto Slab', serif;
+	font-size: 0.85em;
 }
 
 /* Change caption color to be more legible */
 .wy-menu>.caption>span.caption-text {
 	/* color: #ffcccc; */
 	font-size: 14px;
-	font-family: 'Alegreya', serif;
+	font-family: 'Roboto Slab', serif;
 }

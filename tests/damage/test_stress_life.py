@@ -589,11 +589,11 @@ def test_leve_damage_rule(load: list, sn_curve: SNCurve, base_exponent: float):
     )
     d_l = np.sum(damage.get_pm(cc, sn_curve))
     if base_exponent == 1:
-        assert d_nl == pytest.approx(d_l, 1e-14)
+        assert d_nl[-1] == pytest.approx(d_l, 1e-14)
     if base_exponent < 1:
-        assert d_nl > d_l
+        assert d_nl[-1] > d_l
     if base_exponent > 1:
-        assert d_nl < d_l
+        assert d_nl[-1] < d_l
 
 @pytest.mark.parametrize("sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C, DNV_B1A])
 @pytest.mark.parametrize("rule", ["pavlou", "manson", "si jian"])
@@ -640,5 +640,96 @@ def test_nonlinear_damage_rules(rule: str, sn_curve: SNCurve):
     d_l_hl = np.sum(damage.get_pm(cc_hl, sn_curve))
 
     assert d_l_hl == pytest.approx(d_l_lh, 1e-14)
-    assert isinstance(d_nl_lh, float)
-    assert isinstance(d_nl_hl, float)
+    assert isinstance(d_nl_lh[-1], float)
+    assert isinstance(d_nl_hl[-1], float)
+
+
+class TestDamageExponents:
+    @pytest.mark.parametrize(
+        "damage_rule", ["pavlou", "manson", "leve", "si jian"]
+    )
+    def test_calc_damage_exponents_no_kwargs(self, damage_rule):
+        """Test the _calc_damage_exponents function with no kwargs."""
+        stress_range = np.array([100., 200., 300.])
+        if "manson" in damage_rule:
+            with pytest.raises(ValueError, match="sn_curve must be provided"):
+                damage.stress_life._calc_damage_exponents(damage_rule, stress_range)
+        else:
+            if damage_rule == "pavlou":
+                with pytest.warns(UserWarning, match="base_exponent"):
+                    with pytest.warns(UserWarning, match="ultimate_stress"):
+                        exponents = damage.stress_life._calc_damage_exponents(
+                            damage_rule, stress_range
+                        )
+                        assert isinstance(exponents, np.ndarray)
+            if damage_rule == "leve":
+                with pytest.warns(UserWarning, match="base_exponent"):
+                    exponents = damage.stress_life._calc_damage_exponents(
+                        damage_rule, stress_range
+                    )
+                    assert isinstance(exponents, np.ndarray)
+            if damage_rule == "si jian":
+                exponents = damage.stress_life._calc_damage_exponents(
+                    damage_rule, stress_range
+                )
+                assert isinstance(exponents, np.ndarray)
+
+    def test_calc_damage_exponents_pavlou(self):
+        """Test the _calc_damage_exponents function with pavlou rule."""
+        stress_range = np.array([100, 200, 300])
+        base_exponent = -0.5
+        ultimate_stress = 800
+        exponents = damage.stress_life._calc_damage_exponents(
+            "pavlou",
+            stress_range,
+            base_exponent=base_exponent,
+            ultimate_stress=ultimate_stress,
+        )
+        assert isinstance(exponents, np.ndarray)
+        assert np.allclose(
+            exponents,
+            damage.stress_life.calc_pavlou_exponents(
+                stress_range, ultimate_stress, base_exponent
+            ),
+        )
+
+    def test_calc_damage_exponents_manson(self):
+        """Test the _calc_damage_exponents function with manson rule."""
+        stress_range = np.array([100, 200, 300])
+        base_exponent = 0.5
+        sn_curve = SNCurve([3, 5, 7], [10.970, 13.617, 16])
+        exponents = damage.stress_life._calc_damage_exponents(
+            "manson", stress_range, sn_curve=sn_curve, base_exponent=base_exponent
+        )
+        assert isinstance(exponents, np.ndarray)
+        assert np.allclose(
+            exponents,
+            damage.stress_life.calc_manson_halford_exponents(
+                sn_curve.get_cycles(stress_range), base_exponent
+            ),
+        )
+
+    def test_calc_damage_exponents_leve(self):
+        """Test the _calc_damage_exponents function with leve rule."""
+        stress_range = np.array([100, 200, 300])
+        base_exponent = 3
+        exponents = damage.stress_life._calc_damage_exponents(
+            "leve", stress_range, base_exponent=base_exponent
+        )
+        assert isinstance(exponents, np.ndarray)
+        assert np.allclose(exponents, base_exponent * np.ones(len(stress_range)))
+
+    def test_calc_damage_exponents_si_jian(self):
+        """Test the _calc_damage_exponents function with si jian rule."""
+        stress_range = np.array([100, 200, 300])
+        exponents = damage.stress_life._calc_damage_exponents("si jian", stress_range)
+        assert isinstance(exponents, np.ndarray)
+        assert np.allclose(exponents, damage.stress_life.calc_si_jian_exponents(stress_range))
+
+    def test_calc_damage_exponents_unknown_rule(self):
+        """Test the _calc_damage_exponents function with unknown rule."""
+        stress_range = np.array([100, 200, 300])
+        with pytest.raises(ValueError, match="Unknown damage rule: unknown"):
+            damage.stress_life._calc_damage_exponents("unknown", stress_range)
+
+

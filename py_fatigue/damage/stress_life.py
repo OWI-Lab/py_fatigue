@@ -1,30 +1,38 @@
+# -*- coding: utf-8 -*-
 """The module :mod:`py_fatigue.damage.stress_life` contains all the
 damage models related to the stress-life approach.
 """
 
 # Packages from standard library
+
+from __future__ import annotations
 from types import SimpleNamespace
 from typing import Callable, Optional, Tuple, Union
+import logging
 import warnings
 
 # Packages from external libraries
 import matplotlib
 import matplotlib.pyplot as plt
+import numba as nb
 import numpy as np
 import pandas as pd
 
 # py-fatigue imports
 from ..cycle_count.cycle_count import CycleCount
 from ..material.sn_curve import SNCurve
-from ..utils import make_axes
+from ..utils import make_axes, numba_bisect, _plot_damage_accumulation
 from ..styling import py_fatigue_formatwarning
-from ..material.sn_curve import _check_param_couple_types
+from ..material.sn_curve import _check_param_couple_types, sn_curve_residuals
 
 try:
     # delete the accessor to avoid warning
     del pd.DataFrame.miner  # type: ignore
 except AttributeError:
     pass
+
+
+warnings.formatwarning = py_fatigue_formatwarning
 
 
 @pd.api.extensions.register_dataframe_accessor("miner")
@@ -544,6 +552,7 @@ def calc_pavlou_exponents(
     stress_range: np.ndarray,
     ultimate_stress: float = 900,
     exponent: float = -0.75,
+    use_dca: bool = False,
 ) -> np.ndarray:
     """Calculate the Pavlou exponents :math:`q(\\sigma_j)=e_{j, j+1}`.
 
@@ -572,6 +581,8 @@ def calc_pavlou_exponents(
         The Pavlou exponents.
     """
     q_exp = (stress_range / 2 / ultimate_stress) ** exponent
+    if use_dca:
+        return q_exp
     return np.hstack([q_exp[1:] / q_exp[:-1], [1]])
 
 
@@ -600,6 +611,131 @@ def calc_si_jian_exponents(
     return np.hstack([stress_range[1:] / stress_range[:-1], [1]])
 
 
+def calc_theil_weights(
+    stress_range: np.ndarray,
+    sn_curve: SNCurve,
+) -> np.ndarray:
+    """Calculate the Theil weights for the Damage Curve Approach (DCA)."""
+    return np.divide(stress_range, sn_curve.get_cycles(stress_range))
+
+
+def _calc_damage_exponents(
+    damage_rule: str,
+    stress_range: np.ndarray,
+    sn_curve: Optional[SNCurve] = None,
+    **kwargs: dict,
+):
+    """Calculate damage exponents based on the specified damage rule.
+    Parameters
+    ----------
+    damage_rule : str
+        The name of the damage rule to use. Supported rules are:
+        'pavlou', 'manson', 'leve', and 'si jian'.
+    stress_range : array_like
+        An array-like object containing the stress ranges.
+    sn_curve : SNCurve, optional
+        An object representing the S-N curve.  It must have a `get_cycles`
+        method that accepts a stress range and returns the number of cycles
+        to failure. This is only used for the 'manson' damage rule.
+    **kwargs : dict, optional
+        Additional keyword arguments required by specific damage rules.
+        - For 'pavlou':
+            - 'base_exponent' (float): The base exponent for the Pavlou
+              damage rule. If not provided, a default value of -0.75 is
+              used.
+            - 'ultimate_stress' (float): The ultimate stress for the Pavlou
+              damage rule. If not provided, a default value of 900 MPa is
+              used.
+        - For 'manson':
+            - 'base_exponent' (float): The base exponent for the
+              Manson-Halford damage rule. If not provided, a default value
+              of 0.4 is used.
+        - For 'leve':
+            - 'base_exponent' (float): The base exponent for the Leve
+              damage rule. If not provided, a default value of 2 is used.
+    Returns
+    -------
+    numpy.ndarray
+        An array of damage exponents calculated based on the specified
+        damage rule.
+    Raises
+    ------
+    ValueError
+        If an unknown damage rule is specified.
+    UserWarning
+        If required keyword arguments are missing for a specific damage
+        rule, a warning is issued and a default value is used.
+        The warnings are formatted using `py_fatigue_formatwarning`.
+    Notes
+    -----
+    The 'pavlou' damage rule requires 'base_exponent' and 'ultimate_stress'
+    to be specified in kwargs. If not specified, default values are used
+    and a warning is issued.
+    The 'manson' damage rule requires 'base_exponent' to be specified in
+    kwargs. If not specified, a default value is used and a warning is
+    issued. The S-N curve object must have a `get_cycles` method.
+    The 'leve' damage rule requires 'base_exponent' to be specified in
+    kwargs. If not specified, a default value is used and a warning is
+    issued.
+    The 'si jian' damage rule does not require any additional keyword
+    arguments.
+    """
+    ns = SimpleNamespace(**kwargs)
+    if damage_rule.lower() == "pavlou":
+        if "base_exponent" not in kwargs:
+            w_msg = [
+                "Pavlou damage rule requires 'base_exponent' ",
+                "to be assigned.\nUsing preset value of -0.75.",
+            ]
+            warnings.warn("".join(w_msg), UserWarning)
+            ns.base_exponent = -0.75
+        if "ultimate_stress" not in kwargs:
+            w_msg = [
+                "Pavlou damage rule requires 'ultimate_stress' ",
+                "to be assigned.\nUsing preset value of 900 MPa.",
+            ]
+            warnings.warn("".join(w_msg), UserWarning)
+            ns.ultimate_stress = 900
+        if "use_dca" not in kwargs:
+            w_msg = [
+                "Pavlou damage rule requires 'use_dca' (Damage Curve Approach)"
+                "to be assigned.\nUsing preset value of true.",
+            ]
+            warnings.warn(" ".join(w_msg), UserWarning)
+            ns.use_dca = False
+        return calc_pavlou_exponents(
+            stress_range, ns.ultimate_stress, ns.base_exponent, ns.use_dca
+        )
+    if "manson" in damage_rule.lower():
+        if "base_exponent" not in kwargs:
+            w_msg = [
+                "Manson & Halford damage rule requires ",
+                "'base_exponent' to be assigned.\n",
+                "Using preset value of 0.4.",
+            ]
+            warnings.warn("".join(w_msg), UserWarning)
+            ns.base_exponent = 0.4
+            if not sn_curve:
+                raise ValueError("sn_curve must be provided for 'manson'")
+        return calc_manson_halford_exponents(
+            sn_curve.get_cycles(stress_range), ns.base_exponent  # type: ignore
+        )
+    if damage_rule.lower() == "leve":
+        if "base_exponent" not in kwargs:
+            w_msg = [
+                "Leve damage rule requires ",
+                "'base_exponent' to be assigned.\n",
+                "Using preset value of 2.",
+            ]
+            warnings.warn("".join(w_msg), UserWarning)
+            ns.base_exponent = 2
+        return ns.base_exponent * np.ones(len(stress_range))
+    if "si jian" in damage_rule.lower():
+        return calc_si_jian_exponents(stress_range)
+
+    raise ValueError(f"Unknown damage rule: {damage_rule}")
+
+
 def calc_nonlinear_damage(
     damage_rule: str,
     stress_range: np.ndarray,
@@ -614,6 +750,12 @@ def calc_nonlinear_damage(
     - 'Manson-Halford': Mannson-Halford damage rule
     - 'Si-Jian': Si-Jian et al damage rule
     - 'Leve': Leve damage rule
+
+    .. warning::
+        This function is not suited for variable amplitude loading.
+        For variable amplitude loading, use
+        :func:`calc_nonlinear_damage_with_dca`, as the fluctiations of the
+        nonlinear damage exponent are controlled by the Damage Curve.
 
     The generic form of a nonlinear damage rule is:
 
@@ -669,7 +811,7 @@ def calc_nonlinear_damage(
 
     Returns
     -------
-    float
+    np.ndarray
         The cumulated damage.
     """
     damage_per_cycle = calc_pm(
@@ -677,66 +819,11 @@ def calc_nonlinear_damage(
         count_cycle,
         sn_curve,
     )
-    allowed_rules = [
-        "pavlou",
-        "manson",
-        "manson and halford",
-        "manson halford",
-        "leve",
-        "si jian",
-        "si jian et al",
-    ]
-    if damage_rule not in allowed_rules:
-        e_msg = f"damage_rule must be one of {allowed_rules}"
-        raise ValueError(e_msg)
 
-    ns = SimpleNamespace(**kwargs)
-    if damage_rule.lower() == "pavlou":
-        if "base_exponent" not in kwargs:
-            w_msg = [
-                "Pavlou damage rule requires 'base_exponent' ",
-                "to be assigned.\nUsing preset value of -0.75.",
-            ]
-            warnings.formatwarning = py_fatigue_formatwarning
-            warnings.warn("".join(w_msg), UserWarning)
-            ns.base_exponent = -0.75
-        if "ultimate_stress" not in kwargs:
-            w_msg = [
-                "Pavlou damage rule requires 'ultimate_stress' ",
-                "to be assigned.\nUsing preset value of 900 MPa.",
-            ]
-            warnings.formatwarning = py_fatigue_formatwarning
-            warnings.warn("".join(w_msg), UserWarning)
-            ns.ultimate_stress = 900
-        damage_exp = calc_pavlou_exponents(
-            stress_range, ns.ultimate_stress, ns.base_exponent
-        )
-    if "manson" in damage_rule.lower():
-        if "base_exponent" not in kwargs:
-            w_msg = [
-                "Manson & Halford damage rule requires ",
-                "'base_exponent' to be assigned.\n",
-                "Using preset value of 0.4.",
-            ]
-            warnings.formatwarning = py_fatigue_formatwarning
-            warnings.warn("".join(w_msg), UserWarning)
-            ns.base_exponent = 0.4
-        damage_exp = calc_manson_halford_exponents(
-            sn_curve.get_cycles(stress_range), ns.base_exponent
-        )
-    if damage_rule.lower() == "leve":
-        if "base_exponent" not in kwargs:
-            w_msg = [
-                "Leve damage rule requires ",
-                "'base_exponent' to be assigned.\n",
-                "Using preset value of 2.",
-            ]
-            warnings.formatwarning = py_fatigue_formatwarning
-            warnings.warn("".join(w_msg), UserWarning)
-            ns.base_exponent = 2
-        damage_exp = ns.base_exponent * np.ones(len(damage_per_cycle))
-    if "si jian" in damage_rule.lower():
-        damage_exp = calc_si_jian_exponents(stress_range)
+    kwargs["use_dca"] = False
+    damage_exp = _calc_damage_exponents(
+        damage_rule, stress_range, sn_curve, **kwargs
+    )
 
     total_damage = 0
     damage_array = np.empty(len(damage_per_cycle))
@@ -744,7 +831,208 @@ def calc_nonlinear_damage(
         total_damage = (total_damage + d_i) ** e_i
         damage_array[i] = total_damage
 
-    return damage_array[-1]
+    return damage_array  # type: ignore
+
+
+def calc_nonlinear_damage_with_dca(
+    damage_rule: str,
+    stress_range: np.ndarray,
+    count_cycle: np.ndarray,
+    sn_curve: SNCurve,
+    damage_bands: np.ndarray = np.array(
+        [0, 0.025, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1]
+    ),
+    limit_damage: Union[float, int] = 1,
+    logger: logging.Logger | None = None,
+    plot: bool = False,
+    **kwargs,
+) -> tuple[
+    np.ndarray,
+    np.ndarray,
+    matplotlib.figure.Figure | None,
+    matplotlib.axes.Axes | None,
+]:
+    """Calculate the fatigue damage using a nonlinear damage rule based on the
+    Damage Curve Approach (DCA) among the allowed ones:
+
+    - 'Pavlou': Pavlou damage rule
+    - 'Theil': Theil damage rule
+
+    The DCA discreties the damage curve in multiple Damage bands
+    :math:`\\Delta D_j` and calculates the damage for each band, depending
+    on the damage value at the previous cycle. The damage is calculated
+    as:
+
+    .. math::
+
+        D = \\sum_{j=1}^{n_b} \\Delta D_j
+
+    where :math:`n_b` is the number of damage bands. In each damage band,
+    the damage follows a weighted Palmgren-Miner sum, i.e.:
+
+    .. math::
+
+        \\Delta D_j = \\sum_{i=1}^{n_j} w_{i, j} \\frac{n_i}{N_i}
+
+    where :math:`n_j` is the number of cycles in the fatigue histogram
+    at the :math:`j`-th cycle, :math:`N_j` is the number of cycles to
+    failure at the :math:`j`-th cycle, :math:`w_{i, j}` is the weight
+    for the :math:`i`-th cycle in the :math:`j`-th damage band.
+
+    Using the generic nonlinear damage accumulation formula:
+
+    .. math::
+
+        D(\\sigma) = \\left(\\frac{n}{N(\\sigma)}\\right)^{e(\\sigma)}
+
+    and substituting it inside the weighted Palmgren-Miner sum, the
+    equation of the weights can be extracted as:
+
+    .. math::
+
+        w_{i, j} = \\frac{D_j - D_{j-1}}{
+            D_{j}^{1/e_{i, i}} - D_{j-1}^{1/e_{i, i}}
+        }
+
+    The formula is conveniently rewritten as pseudocode:
+
+    .. code-block:: python
+        :caption: pseudocode for the nonlinear damage rule
+
+        # retrieve n_i, N_i using the fatigue histogram and SN curve
+        # retrieve the exponents e_{j, j+1}
+        # define the damage bands DB
+        # calculate the damage
+        D = 0
+        for j in range(1, M+1):
+            DB_j = np.digitize(D, DB, right=False)
+            for i in range(1, n_j+1):
+                if damage_rule == 'Pavlou':
+                    w_ij = (DB[DB_j] - DB[DB_j - 1]) / \
+                           ((DB[DB_j] ** (1 / e_i)) -
+                            (DB[DB_j - 1] ** (1 / e_i)))
+                elif damage_rule == 'Theil':
+                    w_ij = stress_range_i / N_i
+                D += w_ij * n_i / N_i
+
+    Parameters
+    ----------
+    damage_rule : str
+        The damage rule to use. Must be one of the following:
+        'Pavlou', 'Manson-Halford', 'Si-Jian', 'Leve'.
+    stress_range : np.ndarray
+        The stress range.
+    count_cycle : np.ndarray
+        The number of cycles.
+    sn_curve : SNCurve
+        The SN curve.
+    damage_bands : np.ndarray
+        Damage bands for the Pavlou damage calculation, by default
+        [0, 0.025, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1]
+    limit_damage : float, optional
+        Limit damage value, by default 1
+    logger: logging.Logger, optional
+        If a logger is defined, attach output to it
+    plot: bool, by default False
+        Whether to plot or not the cumulated damage
+    kwargs : dict
+        The keyword arguments for the damage rule. The following
+        keyword arguments are allowed:
+
+        - 'base_exponent': The exponent for the damage rule.
+        - 'ultimate_stress': The ultimate stress.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray, mpl.Figure | None, mpl.Axes | None]
+        The cycle-to-cycle damage and the cumulated damage.
+    """
+
+    allowed_damage_rules = ["pavlou", "theil"]
+    if damage_rule.lower() not in allowed_damage_rules:
+        raise ValueError(
+            f"Unknown damage rule: {damage_rule}. "
+            f"Allowed damage rules are: {allowed_damage_rules}"
+        )
+    stress_range = np.asarray(stress_range, dtype=np.float64)
+    count_cycle = np.asarray(count_cycle, dtype=np.float64)
+    damage_bands = np.asarray(damage_bands, dtype=np.float64)
+    pm_damage = calc_pm(
+        stress_range,
+        count_cycle,
+        sn_curve,
+    )
+
+    if damage_rule.lower() == "theil":
+        weights = calc_theil_weights(stress_range, sn_curve)
+        nl_damage = (1 + weights) * pm_damage
+        if not plot:
+            return nl_damage, np.cumsum(nl_damage), None, None
+        fig, ax = _plot_damage_accumulation(
+            np.cumsum(nl_damage), np.cumsum(pm_damage), limit_damage
+        )
+        return nl_damage, np.cumsum(nl_damage), fig, ax
+
+    kwargs["use_dca"] = True
+    dmg_exp = _calc_damage_exponents(
+        damage_rule, stress_range, sn_curve, **kwargs
+    )
+
+    nl_damage = pm_damage.copy()
+    cumsum_nl_dmg = np.zeros_like(nl_damage)
+    cur_dmg_band = 0
+    for i in range(len(pm_damage)):  # pylint: disable=C0200
+        prev_dmg_band = cur_dmg_band if i >= 1 else 0
+        # fmt: off
+        cur_dmg_band = np.digitize(cumsum_nl_dmg[i - 1], damage_bands,
+                                   right=False) if i >= 1 else 0
+        # cur_dmg_band = min(cur_dmg_band, len(damage_bands) - 1)
+        if cur_dmg_band >= len(damage_bands) - 1:
+            cur_dmg_band = len(damage_bands) - 1
+        if (
+            cur_dmg_band != prev_dmg_band
+            and len(damage_bands) < 20
+            and logger is not None
+        ):
+            if cur_dmg_band == 1:
+                logger.info("Damage band change")
+            logger.info(f"‣ at cycle {i}:\n"
+                        f"                • from {prev_dmg_band} to "
+                        f"{cur_dmg_band} ({damage_bands[cur_dmg_band - 1]}"
+                        f" < D ≤ {damage_bands[cur_dmg_band]})\n"
+                        f"                • current damage value: "
+                        f"{cumsum_nl_dmg[i-1]}\033[0m")
+
+        # print(f"cur_dmg_band: {cur_dmg_band}")
+        # Damage weight for the current cycle
+        w_ij: float = (
+            (damage_bands[cur_dmg_band] - damage_bands[cur_dmg_band - 1])
+            / ((damage_bands[cur_dmg_band] ** (1 / dmg_exp[i]))
+                - (damage_bands[cur_dmg_band - 1] ** (1 / dmg_exp[i])))
+        )
+        # Update the damage value for the current cycle
+        nl_damage[i] = w_ij * pm_damage[i] if i >= 1 else pm_damage[0]
+        cumsum_nl_dmg[i] = (
+            nl_damage[i] + cumsum_nl_dmg[i - 1] if i >= 1 else nl_damage[0]
+        )
+        if i >= 1 and cumsum_nl_dmg[i] > limit_damage:
+            w_msg = f"Damage value exceeds {limit_damage} at index {i}"
+            warnings.warn(w_msg, UserWarning)
+            break
+        # fmt: on
+
+    # Edit nl_damage and cumsum_nl_dmg so that all the valus of nldamage[i+1:]
+    # are 0 and all the value of cumsum_nl_dmg[i+1:] = cumsum_nl_dmg[i]
+    nl_damage[i + 1 :] = 0
+    cumsum_nl_dmg[i + 1 :] = cumsum_nl_dmg[i]
+    if not plot:
+        return nl_damage, cumsum_nl_dmg, None, None
+    fig, ax = make_axes()
+    cumsum_pm_dmg = np.cumsum(pm_damage)
+    fig, ax = _plot_damage_accumulation(
+        cumsum_nl_dmg, cumsum_pm_dmg, limit_damage, fig, ax
+    )
+    return nl_damage, cumsum_nl_dmg, fig, ax
 
 
 def get_nonlinear_damage(
@@ -779,6 +1067,7 @@ def get_nonlinear_damage(
     if cycle_count.unit != sn_curve.unit:
         e_msg = "The units of the cycle count and SN curve must be the same."
         raise ValueError(e_msg)
+    kwargs["use_dca"] = False
     return calc_nonlinear_damage(
         damage_rule,
         cycle_count.stress_range,
@@ -786,3 +1075,404 @@ def get_nonlinear_damage(
         sn_curve,
         **kwargs,
     )
+
+
+def get_nonlinear_damage_with_dca(
+    damage_rule: str,
+    cycle_count: CycleCount,
+    sn_curve: SNCurve,
+    damage_bands: np.ndarray,
+    limit_damage: Union[float, int] = 1,
+    logger: logging.Logger | None = None,
+    plot: bool = False,
+    **kwargs,
+) -> tuple[
+    np.ndarray,
+    np.ndarray,
+    matplotlib.figure.Figure | None,
+    matplotlib.axes.Axes | None,
+]:
+    """Calculate the fatigue damage using a nonlinear damage rule based on the
+    Damage Curve Approach (DCA) among the allowed ones:
+
+    - 'Pavlou': Pavlou damage rule
+    - 'Theil': Theil damage rule
+
+    The DCA discreties the damage curve in multiple Damage bands
+    :math:`\\Delta D_j` and calculates the damage for each band, depending
+    on the damage value at the previous cycle. The damage is calculated
+    as:
+
+    .. math::
+
+        D = \\sum_{j=1}^{n_b} \\Delta D_j
+
+    where :math:`n_b` is the number of damage bands. In each damage band,
+    the damage follows a weighted Palmgren-Miner sum, i.e.:
+
+    .. math::
+
+        \\Delta D_j = \\sum_{i=1}^{n_j} w_{i, j} \\frac{n_i}{N_i}
+
+    where :math:`n_j` is the number of cycles in the fatigue histogram
+    at the :math:`j`-th cycle, :math:`N_j` is the number of cycles to
+    failure at the :math:`j`-th cycle, :math:`w_{i, j}` is the weight
+    for the :math:`i`-th cycle in the :math:`j`-th damage band.
+
+    Using the generic nonlinear damage accumulation formula:
+
+    .. math::
+
+        D(\\sigma) = \\left(\\frac{n}{N(\\sigma)}\\right)^{e(\\sigma)}
+
+    and substituting it inside the weighted Palmgren-Miner sum, the
+    equation of the weights can be extracted as:
+
+    .. math::
+
+        w_{i, j} = \\frac{D_j - D_{j-1}}{
+            D_{j}^{1/e_{i, i}} - D_{j-1}^{1/e_{i, i}}
+        }
+
+
+    The formula is conveniently rewritten as pseudocode:
+
+    .. code-block:: python
+        :caption: pseudocode for the nonlinear damage rule
+
+        # retrieve n_i, N_i using the fatigue histogram and SN curve
+        # retrieve the exponents e_{j, j+1}
+        # define the damage bands DB
+        # calculate the damage
+        D = 0
+        for j in range(1,
+                       M+1):
+            DB_j = np.digitize(D, DB, right=False)
+            for i in range(1, n_j+1):
+                if damage_rule == 'Pavlou':
+                    w_ij = (DB[DB_j] - DB[DB_j - 1]) /
+                           ((DB[DB_j] ** (1 / e_i)) -
+                            (DB[DB_j - 1] ** (1 / e_i)))
+                elif damage_rule == 'Theil':
+                    w_ij = stress_range_i / N_i
+                D += w_ij * n_i / N_i
+
+    Parameters
+    ----------
+    damage_rule : str
+        The damage rule to use. Must be one of the following:
+        'Pavlou', 'Theil'.
+    cycle_count : CycleCount
+        The cycle count object.
+    sn_curve : SNCurve
+        The SN curve object.
+    damage_bands : np.ndarray
+        The damage bands.
+    limit_damage : Union[float, int], optional
+        The limit damage, by default 1
+    logger : logging.Logger, optional
+        The logger object, by default None
+    kwargs : dict
+        The keyword arguments for the damage rule. The following
+        keyword arguments are allowed:
+
+        - 'base_exponent': The exponent for the damage rule.
+        - 'ultimate_stress': The ultimate stress.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        The cycle-to-cycle damage and the cumulated damage.
+    """
+    if cycle_count.unit != sn_curve.unit:
+        e_msg = "The units of the cycle count and SN curve must be the same."
+        raise ValueError(e_msg)
+    kwargs["use_dca"] = True
+    return calc_nonlinear_damage_with_dca(
+        damage_rule,
+        cycle_count.stress_range,
+        cycle_count.count_cycle,
+        sn_curve,
+        damage_bands,
+        limit_damage,
+        logger,
+        plot=plot,
+        **kwargs,
+    )
+
+
+def find_sn_curve_intersection(
+    intercept: float,
+    slope: float,
+    endurance: float,
+    weight: float,
+    res_stress: float,
+    n_min: float = 1e0,
+    n_max: float = 1e9,
+    tol=1e-6,
+):
+    """
+    Solve the following nonlinear equation:
+
+    .. math::
+
+        \\left(\\frac{a}{N}\\right)^{\\frac{1}{m}} = w \\cdot N + b
+
+    where:
+
+    - a is the intercept of the S-N curve,
+    - m is the slope of the S-N curve,
+    - w is the weight for the stress range,
+    - b is the residual stress range,
+    - N is the number of cycles to failure,
+
+    for N in the range [:math:`n_{min}`, :math:`n_{max}`].
+    The equation is linked to the S-N curve definition, therefore it can be
+    as complex as the S-N curve itself, i.e. log-linear, log-bilinear, etc.
+
+    Parameters
+    ----------
+    intercept : float
+        The intercept of the S-N curve.
+    slope : float
+        The slope of the S-N curve.
+    endurance : float
+        The endurance limit.
+    weight : float
+        The weight for the stress range.
+    res_stress : float
+        The residual stress range.
+    n_min : float, optional
+        The minimum number of cycles to failure, by default 1e0.
+    n_max : float, optional
+        The maximum number of cycles to failure, by default 1e10.
+    tol : float, optional
+        The tolerance for the bisection method, by default 1e-6.
+
+    Returns
+    -------
+    float
+        The number of cycles to failure.
+
+    Raises
+    ------
+    ValueError
+        If the bisection method fails to find a solution.
+    """
+    bisect_sn_curve_residuals = numba_bisect(
+        sn_curve_residuals,
+        slope=slope,
+        intercept=intercept,
+        endurance=endurance,
+        weight=weight,
+        res_stress=res_stress,
+    )
+    return bisect_sn_curve_residuals(n_min, n_max, tol=tol)
+
+
+@nb.njit(
+    fastmath=True,
+    cache=True,
+)
+def _calc_theil_cycles_to_failure(
+    stress_range, count_cycle, cycles_to_failure
+):
+    """
+    Calculate the cycles to failure using the Theil's method for variable
+    amplitude loading.
+    Perform a fatigue life prediction under a sequence of stress range blocks,
+    taking into account the interaction between different stress levels. It
+    uses Theil's method to determine the effective stress range and accumulated
+    damage, and an S-N curve to predict the number of cycles to failure.
+
+    Mathematically, the method can be described as follows. Provided a sequence
+    of stress range blocks :math:`\\Delta\\sigma_i` and the corresponding
+    number of cycles :math:`n_i`, after initializing all the cumulative
+    variables to zero, the effective stress range is calculated as:
+
+    .. math::
+
+        N_i & = \\text{SN Curve}\\left(\\Delta\\sigma_i \\right) \\\\
+        w_i & = \\frac{\\Delta\\sigma_i}{N_i} \\\\
+        \\Delta\\sigma_{eff,i} & = \\Delta\\sigma_{cumsum,i-1}
+                                 - w_i \\cdot n_{cumsum, i-1} \\\\
+        n_{cumsum,i} & = n_{cumsum,i-1} + n_i \\\\
+        \\Delta\\sigma_{cumsum,i} & = w_i \\cdot n_{cumsum,i}
+                                    + \\Delta\\sigma_{eff,i}
+
+    where:
+
+    - :math:`\\Delta\\sigma_{eff}` is the effective stress range,
+    - :math:`\\Delta\\sigma_{cumsum}` is the cumulative stress range,
+    - :math:`w` is the damage weight for the current cycle,
+    - :math:`n_{cumsum}` is the cumulative number of cycles,
+    - :math:`n` is the number of cycles for the current block.
+
+    The method is applied to each block in the sequence, and the cumulative
+    number of cycles is updated at the end of each block. The process continues
+    until the number of cycles to failure is determined. If failure does not
+    occur until the end of the sequence, the number of cycles to failure is
+    estimated by "extrapolating" the last block, i.e., by calculating the
+    intersection of the S-N curve with the effective stress range of the last
+    block through the bisection method.
+
+    Parameters
+    ----------
+    stress_range : np.ndarray
+        A numpy array containing the stress range for each block (MPa).
+    count_cycle : np.ndarray
+        A numpy array containing the number of cycles for each block.
+    sn_curve : SNCurve
+        An object representing the S-N curve of the material.
+        It must have attributes `intercept` (float) and `slope` (float).
+    plot : bool, optional
+        If True, a plot of the damage accumulation is generated. Defaults to
+        False.
+    Returns
+    -------
+    tuple
+        A tuple containing:
+
+        - n_to_failure (float): The number of cycles to failure. If failure
+          occurs within a block, the cumulative number of cycles at the end
+          of that block is returned.
+        - history (list): A list of tuples, where each tuple contains:
+
+          - n_segment (np.ndarray): An array of cycle numbers for the
+            segment.
+          - stress_range_segment (np.ndarray): An array of corresponding
+            stress ranges for the segment.
+          - label (str): A label for the segment, indicating the block
+            number and stress range.
+
+    Raises
+    ------
+    ValueError
+        If the fatigue life solver fails to find a solution within a block,
+        indicating that failure has occurred within that block.
+    Notes
+    -----
+    - The function assumes that the stress range and count cycle arrays have
+      the same length.
+    - The Theil's method is used to calculate the effective stress range, which
+      takes into account the sequence of stress levels.
+    - The S-N curve is used to relate the stress range to the number of cycles
+      to failure.
+    """
+
+    history = []
+
+    # Start at 0 cycles and 0 stress range
+    n_cumsum = 0.0
+    stress_range_cumsum = 0.0  # effective stress range at the block end
+
+    # Process predetermined blocks (blocks 1 to L-1)
+    w_ij = np.divide(stress_range, cycles_to_failure)
+    for i in nb.prange(stress_range.size):  # pylint: disable=E1133
+        current_stress_range = stress_range_cumsum - w_ij[i] * n_cumsum
+        num_points = int(np.ceil(count_cycle[i]))
+        n_end = n_cumsum + count_cycle[i]
+        n_segment = np.logspace(
+            np.log10(n_cumsum + 1), np.log10(n_end), num_points
+        )
+        stress_range_segment = w_ij[i] * n_segment + current_stress_range
+        # label = f"Block {i+1} (r={stress_range[i]} MPa)"
+        history.append((n_segment, stress_range_segment))
+        n_cumsum = n_end
+        stress_range_cumsum = w_ij[i] * n_cumsum + current_stress_range
+
+    return history
+
+
+def calc_theil_cycles_to_failure(stress_range, count_cycle, sn_curve: SNCurve):
+    """
+    Calculate the cycles to failure using the Theil's method for variable
+    amplitude loading.
+    Perform a fatigue life prediction under a sequence of stress range blocks,
+    taking into account the interaction between different stress levels. It
+    uses Theil's method to determine the effective stress range and accumulated
+    damage, and an S-N curve to predict the number of cycles to failure.
+
+    Mathematically, the method can be described as follows. Provided a sequence
+    of stress range blocks :math:`\\Delta\\sigma_i` and the corresponding
+    number of cycles :math:`n_i`, after initializing all the cumulative
+    variables to zero, the effective stress range is calculated as:
+
+    .. math::
+
+        N_i & = \\text{SN Curve}\\left(\\Delta\\sigma_i \\right) \\\\
+        w_i & = \\frac{\\Delta\\sigma_i}{N_i} \\\\
+        \\Delta\\sigma_{eff,i} & = \\Delta\\sigma_{cumsum,i-1}
+                                 - w_i \\cdot n_{cumsum, i-1} \\\\
+        n_{cumsum,i} & = n_{cumsum,i-1} + n_i \\\\
+        \\Delta\\sigma_{cumsum,i} & = w_i \\cdot n_{cumsum,i}
+                                    + \\Delta\\sigma_{eff,i}
+
+    where:
+
+    - :math:`\\Delta\\sigma_{eff}` is the effective stress range,
+    - :math:`\\Delta\\sigma_{cumsum}` is the cumulative stress range,
+    - :math:`w` is the damage weight for the current cycle,
+    - :math:`n_{cumsum}` is the cumulative number of cycles,
+    - :math:`n` is the number of cycles for the current block.
+
+    The method is applied to each block in the sequence, and the cumulative
+    number of cycles is updated at the end of each block. The process continues
+    until the number of cycles to failure is determined. If failure does not
+    occur until the end of the sequence, the number of cycles to failure is
+    estimated by "extrapolating" the last block, i.e., by calculating the
+    intersection of the S-N curve with the effective stress range of the last
+    block through the bisection method.
+
+    Parameters
+    ----------
+    stress_range : np.ndarray
+        A numpy array containing the stress range for each block (MPa).
+    count_cycle : np.ndarray
+        A numpy array containing the number of cycles for each block.
+    sn_curve : SNCurve
+        An object representing the S-N curve of the material.
+        It must have attributes `intercept` (float) and `slope` (float).
+    Returns
+    -------
+    tuple
+        A tuple containing:
+
+        - n_to_failure (float): The number of cycles to failure. If failure
+          occurs within a block, the cumulative number of cycles at the end
+          of that block is returned.
+        - history (list): A list of tuples, where each tuple contains:
+
+          - n_segment (np.ndarray): An array of cycle numbers for the
+            segment.
+          - stress_range_segment (np.ndarray): An array of corresponding
+            stress ranges for the segment.
+          - label (str): A label for the segment, indicating the block
+            number and stress range.
+
+    Raises
+    ------
+    ValueError
+        If the fatigue life solver fails to find a solution within a block,
+        indicating that failure has occurred within that block.
+    Notes
+    -----
+    - The function assumes that the stress range and count cycle arrays have
+      the same length.
+    - The Theil's method is used to calculate the effective stress range, which
+      takes into account the sequence of stress levels.
+    - The S-N curve is used to relate the stress range to the number of cycles
+      to failure.
+    """
+    history = _calc_theil_cycles_to_failure(
+        count_cycle=count_cycle,
+        stress_range=stress_range,
+        cycles_to_failure=sn_curve.get_cycles(stress_range),
+    )
+
+    # fmt: off
+    labels = [f"Block {i+1} (r={stress_range[i]} MPa)"
+              for i in range(len(stress_range))]
+    # fmt: on
+
+    return [(*tup, label) for tup, label in zip(history, labels)]

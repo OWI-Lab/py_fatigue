@@ -271,7 +271,7 @@ c. SN curve interpolation
 
 It is now possible to build a piecewise py-fatigue SN curve from a set of
 "knee points". The class method :meth:`pyfatigue.sn.SNCurve.from_knee_points`
- will pass through all the knee points.
+will pass through all the knee points.
 
 .. warning::
     The function does not perform a curve fit, rather it interpolates the

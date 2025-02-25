@@ -1,9 +1,9 @@
 MathJax.Hub.Config({
     "HTML-CSS": {
       availableFonts: [],
-      preferredFonts: "TeX",
+      preferredFonts: "'Neo euler', TeX",
       webFont:"",
       imageFont:"",
-      undefinedFamily:"'Roboto', 'Neo Euler', serif"
+      undefinedFamily:"'Roboto Slab', 'Neo Euler', serif"
     }
   });

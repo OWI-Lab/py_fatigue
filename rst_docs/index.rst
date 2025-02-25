@@ -32,7 +32,7 @@ on four buinding blocks:
    :gutter: 3 3 4 5
 
    .. grid-item-card::
-      :octicon:`person-fill` |_| |_| |_| |_| New to `py-fatigue`? Start here!
+      :octicon:`rocket` |_| |_| |_| |_| New to `py-fatigue`? Start here!
 
       New to `py-fatigue`? Check out the Absolute Beginner's Guide. It contains
       an introduction to `py-fatigue`'s main concepts and links to additional
@@ -48,7 +48,7 @@ on four buinding blocks:
          To the absolute beginner's guide
 
    .. grid-item-card::
-      :octicon:`book` |_| |_| |_| |_| User's Guide
+      :octicon:`repo` |_| |_| |_| |_| User's Guide
 
       The user guide provides in-depth information on the key concepts of 
       `py-fatigue` with useful background information and explanation.
@@ -80,20 +80,20 @@ on four buinding blocks:
          To the reference guide
 
    .. grid-item-card::
-      :octicon:`package` |_| |_| |_| |_| CI/CD Package Development Guide
+      :octicon:`link` |_| |_| |_| |_| Interactive Examples
 
-      The CI/CD pipeline guide describes the process of building and
-      deploying `py-fatigue`. It is intended for developers who want to
-      contribute to the project.
+      The Binder Environment allows you to run the examples directly in your
+      browser without installing anything on your local machine. The examples
+      are based on Jupyter notebooks and can be modified and extended as needed.
 
       +++
 
-      .. button-ref:: develop/00-index
+      .. button-link:: https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD
          :expand:
          :color: primary
          :click-parent:
 
-         To the CI/CD guide
+         To the Binder Environment
 
 
 .. toctree::
