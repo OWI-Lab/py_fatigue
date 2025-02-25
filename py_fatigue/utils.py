@@ -600,3 +600,95 @@ def calc_slope_intercept(
     slopes = (y[1:] - y[:-1]) / (x[1:] - x[:-1])  # type: ignore
     intercepts = y[1:] - slopes * x[1:]
     return slopes, intercepts
+
+
+def numba_bisect(fun, slope, intercept, endurance, weight, res_stress):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
+    """
+    Returns a numba-compiled bisection implementation for ``f``.
+    """
+
+    def python_bisect(a, b, tol=1e-6, mxiter=1000):
+        """
+        Bisection method for root finding implemented in Python
+        Parameters
+        ----------
+        a : scalar(int)
+            An initial guess
+        b : scalar(int)
+            An initial guess
+        tol : scalar(float)
+            The convergence tolerance
+        mxiter : scalar(int)
+            Max number of iterations to allow
+        Note: f(a) should be less than 0 and f(b) should be greater than 0.
+              I removed the checks to simplify code.
+        """
+        assert 0 < a < b, "a must be positive and less than b"
+        assert tol > 0, "tolerance must be positive"
+        assert mxiter > 0, "max iterations must be positive"
+        its = 0
+        fa = fun(a, slope, intercept, endurance, weight, res_stress)
+        fb = fun(b, slope, intercept, endurance, weight, res_stress)
+        if np.abs(fa) < tol:
+            return a
+        if np.abs(fb) < tol:
+            return b
+        c = (a + b) / 2
+        fc = fun(c, slope, intercept, endurance, weight, res_stress)
+        while np.abs(fc) > tol and its < mxiter:
+
+            its += 1
+
+            if fa * fc < 0:
+                b = c
+                fb = fc
+            else:
+                a = c
+                fa = fc
+
+            c = (a + b) / 2
+            fc = fun(c, slope, intercept, endurance, weight, res_stress)
+        if its == mxiter:
+            raise ValueError("No zeros found in the interval provided")
+        return c
+
+    return nb.njit(cache=True)(python_bisect)
+
+
+def _plot_damage_accumulation(  # pragma: no cover
+    cumsum_nl_dmg: np.ndarray,
+    cumsum_pm_dmg: np.ndarray,
+    limit_damage: float,
+    fig: Optional[matplotlib.figure.Figure] = None,  # type: ignore
+    ax: Optional[matplotlib.axes.Axes] = None,  # type: ignore
+):
+    """Plot the damage accumulation."""
+    fig, ax = make_axes(fig, ax)
+    # fmt: off
+    ax.plot(cumsum_nl_dmg[cumsum_nl_dmg <= limit_damage],
+            label="Non-linear Damage", lw=1)
+    ax.plot(cumsum_pm_dmg[cumsum_pm_dmg < limit_damage],
+            label="Palmgren-Miner Damage", lw=1)
+    ax.set_xlabel("Cycles")
+    ax.set_ylabel("Cumulative Damage")
+    ax.set_title("Non-linear VS Palmgren-Miner Damage Accumulation")
+    ax.legend(loc="upper left", ncol=4)
+    ax.set_ylim(top=min(1, max(cumsum_nl_dmg)))
+    # Add a vertical line where the damage exceeds 1
+    if np.any(cumsum_nl_dmg > limit_damage):
+        ax.axvline(
+            np.argmax(cumsum_nl_dmg > limit_damage),
+            color='firebrick',
+            linestyle='--',
+            label='Non-linear damage Exceeds Limit'
+        )
+    if np.any(cumsum_pm_dmg > limit_damage):
+        ax.axvline(
+            np.argmax(cumsum_pm_dmg > limit_damage),
+            color='crimson',
+            linestyle='--',
+            label='Palmgren-Mineramage Exceeds Limit'
+        )
+    # fmt: on
+    plt.show()
+    return fig, ax

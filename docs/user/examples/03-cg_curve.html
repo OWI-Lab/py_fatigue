@@ -1,0 +1,980 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3. Crack growth curve &#8212; py-fatigue Documentation (1.2.2)</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autoclasstoc.css?v=08871587" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=b51e384d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=df067bb1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=36754332"></script>
+    <script>window.MathJax = {"chtml": {"mtextInheritFont": "true"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/examples/03-cg_curve';</script>
+    <link rel="icon" href="../../_static/owi-lab.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="4. CycleCount definition" href="04-cycle_counting.html" />
+    <link rel="prev" title="2. SN curve" href="02-sn_curve.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/py-fatigue-logo.png" class="logo__image only-light" alt="py-fatigue Documentation (1.2.2) - Home"/>
+    <script>document.write(`<img src="../../_static/py-fatigue-logo.png" class="logo__image only-dark" alt="py-fatigue Documentation (1.2.2) - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="ms-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../01-absolute-noob.html">
+                        Beginners’ guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../02-user-guide.html">
+                        User’s guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../additional/01-index.html">
+                        Glossary and guidelines
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../api/01-index.html">
+                        API index
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link dropdown-item nav-internal" href="../../develop/00-index.html">
+                        CI/CD Development
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link dropdown-item nav-internal" href="../../ado/01-index.html">
+                        Azure DevOps services
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://github.com/OWI-Lab/py_fatigue/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://pydata.org">
+                    PyData
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/owi-lab/py_fatigue" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/py-fatigue/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/owi-lab" title="LinkedIn" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-linkedin-in  fa-lg fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.owi-lab.be" title="OWI-Lab" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/_img/owi-lab.png" class="icon-link-image" alt="OWI-Lab"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../01-absolute-noob.html">
+                        Beginners’ guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../02-user-guide.html">
+                        User’s guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../additional/01-index.html">
+                        Glossary and guidelines
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../api/01-index.html">
+                        API index
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links-2">
+                    More
+                </button>
+                <ul id="pst-nav-more-links-2" class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link dropdown-item nav-internal" href="../../develop/00-index.html">
+                        CI/CD Development
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link dropdown-item nav-internal" href="../../ado/01-index.html">
+                        Azure DevOps services
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://github.com/OWI-Lab/py_fatigue/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://pydata.org">
+                    PyData
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/owi-lab/py_fatigue" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/py-fatigue/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/owi-lab" title="LinkedIn" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-linkedin-in  fa-lg fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.owi-lab.be" title="OWI-Lab" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/_img/owi-lab.png" class="icon-link-image" alt="OWI-Lab"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01-notebook_setup.html">1. Set up a notebook running <em>py-fatigue</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="02-sn_curve.html">2. SN curve</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Crack growth curve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04-cycle_counting.html">4. CycleCount definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05-cycle_count_sum.html">5. CycleCount sum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06-mean_stress.html">6. Mean stress effect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07-damage.html">7. Stress-Life damage calculation</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../02-user-guide.html" class="nav-link">User’s guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">3. Crack...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="crack-growth-curve">
+<span id="id1"></span><h1>3. Crack growth curve<a class="headerlink" href="#crack-growth-curve" title="Permalink to this heading">#</a></h1>
+<p>Crack growth curve equations have been extensively studied since the ’50s of
+the last century, almost in conjunction with the first catastrophic accident of
+the first jet transportation aircraft, the De Havilland Comet 1 (1954), where
+the propagation of fatigue cracks in the upper fuselage panels, starting from
+the sharp corner of the top rectangular</p>
+<p>windows brought 35 deaths. As Frost and Dugdale already pointed out in 1958,
+the cylindrical specimens were the protagonists of the first half of the 20th
+century in the panorama of fatigue, and this typology of specimens makes really
+complex the study of crack growth, meaning that no special attention up to that
+moment was given to crack growth testing of sheet specimens. Secondly, Frost
+and Dugdale observed that “In aircraft structures the ‘fail-safe’ design
+philosophy requires the structure to be constructed in such a way that fatigue
+cracks do not cause catastrophic failure before corrective measures can be
+taken”. The first scientist that emphasized the necessity to have polished
+surfaces to minimize the hotspots from where a crack can propagate is Griffith
+who extended the theorem of minimum potential energy to the phenomena of
+rupture of elastic solids. Griffith’s work was motivated by Inglis’ linear
+elastic solution for the stress around an elliptical hole asymptotically loaded
+in tension, from which he predicted that the stress would go to infinite as the
+ratio between the minor and major axis goes to zero. Griffith’s theory provides
+correct predictions as long as brittle materials, such as glass or ceramics,
+are considered. Starting from the pioneering work of Griffith, Berto and
+Lazzarin provided an exhaustive overview of local approaches for the
+description of brittle and quasi-brittle fracture of engineering materials.
+Anyway, since in structural materials there is almost always some inelastic
+deformations around the crack faces, Griffith’s hypothesis of linear elastic
+medium in structural metals application becomes highly unrealistic. For this
+reason, the first crack growth equation relating the stress with the crack
+growth rate (i.e. the crack length increment per cycle) did not make use of
+the elastic energy approach. The formulation dates 1953 and has been proposed
+by Head; it is based on Inglis’ solution and the final simplified form of the
+crack growth equation is</p>
+<div class="math notranslate nohighlight">
+\[\frac{da}{dN} = \phi \left( \Delta \sigma, \sigma_{Y} , \sigma'_{f} \right)
+    \cdot a^{\frac{3}{2}} \cdot t_{p}^{\frac{3}{2}}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(N\)</span> is the number of cycles, <span class="math notranslate nohighlight">\(\phi(\sigma)\)</span> is
+(asymptotically) a linear function of the stress, yielding, and strength,
+<span class="math notranslate nohighlight">\(a\)</span> is the half crack size, and <span class="math notranslate nohighlight">\(t_p\)</span> is the thickness of the
+plastic zone ahead of the crack tip. Frost and Dugdale argued that <span class="math notranslate nohighlight">\(t_p\)</span>
+is not a constant independent of crack length and derived the exponential model
+for crack propagation, seldom used up to nowadays</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\begin{cases}
+\frac{da}{dN} &amp;= k_{FD} \left( (\Delta \sigma)^3 \right) \cdot a \\
+\ln\left(\frac{a}{a_i}\right) &amp;= k_{FD} \left( (\Delta \sigma)^3 \right) \cdot N \\
+\end{cases}
+\end{align}\end{split}\]</div>
+<p>In which ai is the initial size of the crack and kFD is an experimental
+quantity depending on the cubic power of the remote stress range
+<span class="math notranslate nohighlight">\(\Delta \sigma\)</span>. During WWII, a group of researchers of the U.S. Naval
+Research Labs headed by George Rankine Irwin realized that plasticity plays an
+important role in in fracture mechanics. On this purpose, Griffith’s energy
+formulation was modified in order to make it account for plasticity, too, i.e.
+the energy release was redefined by adding a plastic dissipation term. Another
+major achievement of Irwin’s work is certainly the relation between the energy
+release rate <span class="math notranslate nohighlight">\(\hat{G}\)</span> and the stress intensity factor in opening mode
+<span class="math notranslate nohighlight">\(K_I\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\hat{G} = K_I^2 / E^{\star}\]</div>
+<p>where <span class="math notranslate nohighlight">\(E^{\star}=E\)</span> for plain stress or <span class="math notranslate nohighlight">\(E/(1-\nu^2)\)</span> for plane
+strain. The critical stress intensity factor is the value of <span class="math notranslate nohighlight">\(K\)</span> beyond
+which a crack starts to propagate and is addressed as fracture toughness
+<span class="math notranslate nohighlight">\(K_C\)</span>. Namely, the toughness is the resistance to fracture of a material,
+it is a material property and is defined as the stress intensity factor
+required for a crack to advance from length a to a C. The fracture toughness
+values have been grouped by material family by Ashby and are shown here below.</p>
+<img alt="../../_images/toughness-yielding.png" src="../../_images/toughness-yielding.png" />
+<p>Few years later, in 1963, Paris and Erdogan published a work substantiated by
+many experimental tests where they postulated, differently from Head or Frost
+and Dugdale, that the crack growth is described by a power law of the stress
+intensity factor, viz.</p>
+<div class="math notranslate nohighlight">
+\[\frac{da}{dN} = C \left( \Delta K \right)^m\]</div>
+<p>At the time of publication, the authors were uncertain on the value of the
+exponent m, in fact there is a famous statement in their paper saying: <em>“The
+authors are hesitant but cannot resist the temptation to draw the straight line
+slope 1/4 through the data…”</em>. Therefore, the so-called Paris’ law, or
+Paris-Erdogan law, has been formulated in principle with fixed m=4. Indeed,
+as evident from the figure here below (from Ashby’s book), the majority of
+engineering alloys is concentrated in the neighborhood of m=4, and this may
+have tricked the authors.</p>
+<img alt="../../_images/paris-slope-ashby.png" src="../../_images/paris-slope-ashby.png" />
+<p>Paris’ law is considered valid within the range
+<span class="math notranslate nohighlight">\(\Delta K_{th} &lt; \Delta K &lt; \Delta K_{cr}\)</span>, where <span class="math notranslate nohighlight">\(\Delta K_{cr}\)</span>
+is the critical stress intensity factor range which depends on the toughness
+as <span class="math notranslate nohighlight">\(\Delta K_{cr} = (1-R)K_{Ic}\)</span>, with R load ratio, and
+<span class="math notranslate nohighlight">\(\Delta K_{th}\)</span> is the threshold value below which the crack should not
+propagate.</p>
+<section id="a-definition-of-multiple-paris-laws">
+<h2>a. Definition of multiple Paris’ laws<a class="headerlink" href="#a-definition-of-multiple-paris-laws" title="Permalink to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this example we define four SN curves for free corrosion as per
+<a class="reference external" href="shorturl.at/ipBKL">DNVGL-RP-C203</a> and plot them using
+<a class="reference external" href="https://matplotlib.org">matplotlib</a> and <a class="reference external" href="https://plotly.com">plotly</a>.
+We additionally define a random gaussian stress range-cycles history to
+plot against the SN curves defined.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># Paris&#39; laws constants</span>
+<span class="linenos"> 2</span><span class="n">SIF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2500</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+<span class="linenos"> 3</span><span class="n">SLOPE_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.88</span><span class="p">,</span> <span class="mf">8.16</span><span class="p">])</span>
+<span class="linenos"> 4</span><span class="n">INTERCEPT_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.21E-16</span><span class="p">,</span> <span class="mf">3.98E-29</span><span class="p">])</span>
+<span class="linenos"> 5</span><span class="n">SLOPE_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">8.16</span><span class="p">,</span> <span class="mf">2.88</span><span class="p">])</span>
+<span class="linenos"> 6</span><span class="n">INTERCEPT_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.21E-26</span><span class="p">,</span> <span class="mf">3.98E-13</span><span class="p">])</span>
+<span class="linenos"> 7</span><span class="n">SLOPE_3</span> <span class="o">=</span> <span class="mf">8.16</span>
+<span class="linenos"> 8</span><span class="n">INTERCEPT_3</span> <span class="o">=</span> <span class="mf">1.21E-26</span>
+<span class="linenos"> 9</span><span class="n">THRESHOLD</span> <span class="o">=</span> <span class="mf">75.</span>
+<span class="linenos">10</span><span class="n">CRITICAL</span> <span class="o">=</span> <span class="mf">2000.</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1"># Paris&#39; curves definition</span>
+<span class="linenos">13</span><span class="n">pc_1</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE_1</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT_1</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;The norm&quot;</span><span class="p">,</span>
+<span class="linenos">14</span>                    <span class="n">environment</span><span class="o">=</span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">&quot;nr. 1&quot;</span><span class="p">)</span>
+<span class="linenos">15</span><span class="n">pc_2</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE_1</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT_1</span><span class="p">,</span><span class="n">threshold</span><span class="o">=</span><span class="n">THRESHOLD</span><span class="p">,</span>
+<span class="linenos">16</span>                    <span class="n">critical</span><span class="o">=</span><span class="n">CRITICAL</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;The norm&quot;</span><span class="p">,</span>
+<span class="linenos">17</span>                    <span class="n">environment</span><span class="o">=</span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">&quot;nr. 2&quot;</span><span class="p">)</span>
+<span class="linenos">18</span><span class="n">pc_3</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE_3</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT_3</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;The norm&quot;</span><span class="p">,</span>
+<span class="linenos">19</span>                 <span class="n">environment</span><span class="o">=</span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">&quot;nr. 3&quot;</span><span class="p">)</span>
+<span class="linenos">20</span><span class="n">pc_4</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE_2</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT_2</span><span class="p">,</span><span class="n">threshold</span><span class="o">=</span><span class="n">THRESHOLD</span><span class="p">,</span>
+<span class="linenos">21</span>                    <span class="n">critical</span><span class="o">=</span><span class="n">CRITICAL</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;The norm&quot;</span><span class="p">,</span>
+<span class="linenos">22</span>                    <span class="n">environment</span><span class="o">=</span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">&quot;nr. 4&quot;</span><span class="p">)</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span><span class="c1"># Plotting</span>
+<span class="linenos">25</span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="linenos">26</span><span class="n">pc_1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span>
+<span class="linenos">27</span><span class="n">pc_3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span>
+<span class="linenos">28</span><span class="n">pc_2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span>
+<span class="linenos">29</span><span class="n">pc_4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span>
+<span class="linenos">30</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="linenos">31</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="linenos">32</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../_images/paris-curves.png" src="../../_images/paris-curves.png" />
+</section>
+<section id="b-mean-stress-effect-on-paris-law">
+<h2>b. Mean stress effect on Paris’ law<a class="headerlink" href="#b-mean-stress-effect-on-paris-law" title="Permalink to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function has been added from version 1.2.0.</p>
+</div>
+<p>In the following years there have been many attempts to generalize Paris’
+law, mainly to account for mean stress effect, crack closure and near
+threshold/near failure modelling. The simplest model of Paris’ law for mean
+stress effect has been proposed in 1970 by Walker:</p>
+<div class="math notranslate nohighlight">
+\[\frac{da}{dN} = C_0 \left( \frac{\Delta K}{(1-R)^{1-\gamma}}\right)^m\]</div>
+<p>With <span class="math notranslate nohighlight">\(\gamma\)</span> being Walker exponent, <span class="math notranslate nohighlight">\(R\)</span> the load ratio, and
+<span class="math notranslate nohighlight">\(C_0\)</span> being the intercept at <span class="math notranslate nohighlight">\(R=0\)</span>.</p>
+<p>Input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># Paris&#39;s law with Walker correction constants</span>
+<span class="linenos"> 2</span><span class="n">SLOPE</span> <span class="o">=</span> <span class="mf">4.</span>
+<span class="linenos"> 3</span><span class="n">INTERCEPT</span> <span class="o">=</span> <span class="mf">1.21E-16</span>
+<span class="linenos"> 4</span><span class="n">WALKER_EXPONENT</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="linenos"> 5</span><span class="n">LOAD_RATIOS</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
+<span class="linenos"> 6</span><span class="n">THRESHOLDS</span> <span class="o">=</span> <span class="mf">75.</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">WALKER_EXPONENT</span><span class="p">)</span>
+<span class="linenos"> 7</span><span class="n">CRITICAL</span> <span class="o">=</span> <span class="mf">2000.</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">WALKER_EXPONENT</span><span class="p">)</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="c1"># Walker&#39;s curve definition</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="n">walker_curves</span> <span class="o">=</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT</span><span class="p">,</span>
+<span class="linenos">12</span>                               <span class="n">walker_exponent</span><span class="o">=</span><span class="n">WALKER_EXPONENT</span><span class="p">,</span>
+<span class="linenos">13</span>                               <span class="n">threshold</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">critical</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">load_ratio</span><span class="o">=</span><span class="n">l</span><span class="p">,</span>
+<span class="linenos">14</span>                               <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;The norm&quot;</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span>
+<span class="linenos">15</span>                               <span class="n">curve</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;load_ratio=</span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">16</span>                <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">,</span> <span class="n">THRESHOLDS</span><span class="p">,</span> <span class="n">CRITICAL</span><span class="p">)]</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="c1"># Plotting</span>
+<span class="linenos">19</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="linenos">20</span><span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">walker_curves</span><span class="p">:</span>
+<span class="linenos">21</span>    <span class="n">pc</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="linenos">22</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="linenos">23</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>corr_inter = intercept / (1 - load_ratio) ** (slope / (1 - walker_exponent))</p>
+<p>Output:</p>
+<img alt="../../_images/paris-curves_2.png" src="../../_images/paris-curves_2.png" />
+</section>
+<section id="c-paris-law-curve-interpolation">
+<h2>c. Paris’ law curve interpolation<a class="headerlink" href="#c-paris-law-curve-interpolation" title="Permalink to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function has been added from version 1.2.0.</p>
+</div>
+<p>It is now possible to build a piecewise Paris’ law curve by interpolating
+between a set of “knee points”. The class method
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">pyfatigue.crack.ParisCurve.from_knee_points()</span></code> will enforce the
+piecewise curve to pass through the given points.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The function does not perform a curve fit, but rather enforces the curve to
+pass through the given points. Therefore, the number of knee points should
+be at least equal to the number of segments plus one.</p>
+<div class="math notranslate nohighlight">
+\[\frac{da}{dN} = C \left( \Delta K \right)^m\]</div>
+<p>in log-coordinate system, the equation becomes</p>
+<div class="math notranslate nohighlight">
+\[\log \left( \frac{da}{dN} \right) = \log C + m \log \Delta K\]</div>
+<p>directly retrieving the well-known linear equation
+<span class="math notranslate nohighlight">\(Y = M \cdot X + Q\)</span>, where <span class="math notranslate nohighlight">\(M=m\)</span> and <span class="math notranslate nohighlight">\(Q=\log C\)</span>.</p>
+</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">knee_points</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="s2">   29, 6.93e-14</span>
+<span class="linenos"> 3</span><span class="s2">   30, 8.64e-13</span>
+<span class="linenos"> 4</span><span class="s2">   35, 4.98e-12</span>
+<span class="linenos"> 5</span><span class="s2">   50, 2.50e-11</span>
+<span class="linenos"> 6</span><span class="s2">   72, 1.44e-10</span>
+<span class="linenos"> 7</span><span class="s2">  800, 1.18e-6</span>
+<span class="linenos"> 8</span><span class="s2">1_200, 1.87e-5</span>
+<span class="linenos"> 9</span><span class="s2">1_300, 3.10e-4</span>
+<span class="linenos">10</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">11</span><span class="c1"># Convert the string data to a list of lists</span>
+<span class="linenos">12</span><span class="n">knee_points_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+<span class="linenos">13</span>                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">knee_points</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+<span class="linenos">14</span><span class="n">knee_points_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">knee_points_list</span><span class="p">)</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="n">c_fkp</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="o">.</span><span class="n">from_knee_points</span><span class="p">(</span><span class="n">knee_sif</span><span class="o">=</span><span class="n">knee_points_list</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span>
+<span class="linenos">17</span>                                       <span class="n">knee_growth_rate</span><span class="o">=</span><span class="n">knee_points_list</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span>
+<span class="linenos">18</span>                                       <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;Simil-NASGRO&quot;</span><span class="p">,</span>
+<span class="linenos">19</span>                                       <span class="n">environment</span><span class="o">=</span><span class="s2">&quot;N/A&quot;</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">&quot;Interpolated&quot;</span><span class="p">)</span>
+<span class="linenos">20</span><span class="c1"># Plotting</span>
+<span class="linenos">21</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">22</span><span class="n">c_fkp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="linenos">23</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">})</span>
+<span class="linenos">24</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<img alt="../../_images/paris-curves_3.png" src="../../_images/paris-curves_3.png" />
+<p>Applying the Walker correction to the interpolated curve:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># SLOPE = 4.</span>
+<span class="linenos"> 2</span><span class="c1"># INTERCEPT = 1.21E-16</span>
+<span class="linenos"> 3</span><span class="n">SLOPES</span> <span class="o">=</span> <span class="n">c_fkp</span><span class="o">.</span><span class="n">slope</span>
+<span class="linenos"> 4</span><span class="n">INTERCEPTS</span> <span class="o">=</span> <span class="n">c_fkp</span><span class="o">.</span><span class="n">intercept</span>
+<span class="linenos"> 5</span><span class="n">THRESHOLD</span> <span class="o">=</span> <span class="n">c_fkp</span><span class="o">.</span><span class="n">threshold</span>
+<span class="linenos"> 6</span><span class="n">CRITICAL</span> <span class="o">=</span> <span class="n">c_fkp</span><span class="o">.</span><span class="n">critical</span>
+<span class="linenos"> 7</span><span class="n">WALKER_EXPONENT</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="linenos"> 8</span><span class="n">LOAD_RATIOS</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
+<span class="linenos"> 9</span><span class="n">THRESHOLDS</span> <span class="o">=</span> <span class="n">THRESHOLD</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">WALKER_EXPONENT</span><span class="p">)</span>
+<span class="linenos">10</span><span class="n">CRITICALS</span> <span class="o">=</span> <span class="n">CRITICAL</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">WALKER_EXPONENT</span><span class="p">)</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1"># Walker&#39;s curve definition</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="n">walker_curves</span> <span class="o">=</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPES</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPTS</span><span class="p">,</span>
+<span class="linenos">15</span>                                <span class="n">walker_exponent</span><span class="o">=</span><span class="n">WALKER_EXPONENT</span><span class="p">,</span>
+<span class="linenos">16</span>                                <span class="n">threshold</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">critical</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">load_ratio</span><span class="o">=</span><span class="n">l</span><span class="p">,</span>
+<span class="linenos">17</span>                                <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;The norm&quot;</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span>
+<span class="linenos">18</span>                                <span class="n">curve</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;load_ratio=</span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">19</span>                 <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">,</span> <span class="n">THRESHOLDS</span><span class="p">,</span> <span class="n">CRITICALS</span><span class="p">)]</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="c1"># Plotting</span>
+<span class="linenos">22</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">23</span><span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">walker_curves</span><span class="p">:</span>
+<span class="linenos">24</span>    <span class="n">pc</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="linenos">25</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">})</span>
+<span class="linenos">26</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<img alt="../../_images/paris-curves_4.png" src="../../_images/paris-curves_4.png" />
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="02-sn_curve.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">2. SN curve</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="04-cycle_counting.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">4. CycleCount definition</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-definition-of-multiple-paris-laws">a. Definition of multiple Paris’ laws</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#b-mean-stress-effect-on-paris-law">b. Mean stress effect on Paris’ law</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#c-paris-law-curve-interpolation">c. Paris’ law curve interpolation</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/user/examples/03-cg_curve.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+ 
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
+        /* Sidebar header (and topbar for mobile) */
+        .wy-side-nav-search, .wy-nav-top {
+        background: #A9BCC8;
+        }
+        /* Sidebar */
+        .wy-nav-side {
+        background: #384263;
+        }
+        .toctree-l1:hover .wy-menu {
+            background: #3D66A1;
+        }
+        /* Main content */
+        .wy-nav-content {
+        background: #FFFFFF;
+        }
+        .wy-menu .wy-menu-vertical{
+            display: block;
+            top: -10px;
+            margin-right: -25%;
+        }
+        
+        .toctree-l1 li ul li:first-child a {
+            border-radius: 4px 4px 0 0;
+        }
+        .toctree-l1 li ul li:last-child a {
+            border-radius: 0 0 4px 4px;
+        }
+    </style>
+
+  </body>
+</html>
