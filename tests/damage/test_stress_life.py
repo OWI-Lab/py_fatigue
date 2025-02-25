@@ -732,4 +732,69 @@ class TestDamageExponents:
         with pytest.raises(ValueError, match="Unknown damage rule: unknown"):
             damage.stress_life._calc_damage_exponents("unknown", stress_range)
 
+@pytest.mark.parametrize("sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C, DNV_B1A])
+@pytest.mark.parametrize("load", [
+    [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3],
+    [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1]
+])
+@pytest.mark.parametrize("damage_bands", [
+    [0, 0.2, 0.4, 0.6, 0.8, 1],
+    [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1]
+])
+def test_nonlinear_damage_dca(
+    load: list, sn_curve: SNCurve, damage_bands: list
+):
+    """Test the nonlinear damage calculation with DCA.
+
+    Parameters
+    ----------
+    load : list
+        The stress history to use.
+    sn_curve : SNCurve
+        The SNCurve object to use.
+    damage_bands : list
+        The damage bands to use.
+    """
+    cc = CycleCount.from_timeseries(
+        np.asarray(load),
+        timestamp=TIMESTAMP_1,
+        range_bin_lower_bound=0.1,
+        range_bin_width=0.1,
+        mean_bin_lower_bound=-4,
+        mean_bin_width=0.1,
+        name="Test_CC",
+    )
+    d_nl, _, _, _ = damage.stress_life.get_nonlinear_damage_with_dca(
+        'pavlou', cc, sn_curve, np.asarray(damage_bands)
+    )
+    assert isinstance(d_nl, np.ndarray)
+
+@pytest.mark.parametrize("sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C, DNV_B1A])
+@pytest.mark.parametrize("load", [
+    [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3],
+    [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1]
+])
+def test_theil_damage_rule(load: list, sn_curve: SNCurve):
+    """Test the nonlinear damage calculation with Theil's method.
+
+    Parameters
+    ----------
+    load : list
+        The stress history to use.
+    sn_curve : SNCurve
+        The SNCurve object to use.
+    """
+    cc = CycleCount.from_timeseries(
+        np.asarray(load),
+        timestamp=TIMESTAMP_1,
+        range_bin_lower_bound=0.1,
+        range_bin_width=0.1,
+        mean_bin_lower_bound=-4,
+        mean_bin_width=0.1,
+        name="Test_CC",
+    )
+    d_nl, _, _, _ = damage.stress_life.get_nonlinear_damage_with_dca(
+        'theil', cc, sn_curve, damage_bands=np.array([0, 0.2, 0.4, 0.6, 0.8, 1])
+    )
+    assert isinstance(d_nl, np.ndarray)
 
