@@ -1312,8 +1312,9 @@ class CycleCount:
             e_msg = f"Invalid plot type. Must be one of {plot_types}."
             raise ValueError(e_msg)
         if plot_type == "min-max":
-            x = x - y / 2
+            __tmp_x = x - y / 2
             y = x + y / 2
+            x = __tmp_x
             bins = bins if bins is not None else 50
         if "counts-range" in plot_type:
             sor = sorted(
