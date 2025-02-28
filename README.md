@@ -9,7 +9,12 @@
 [![documentation](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment/badge.svg?label=docs)](https://owi-lab.github.io/py_fatigue/)
 [![Binder Tutorials](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD)
 
-It provides:
+<!-- Insert the py-fatigue logo here -->
+<p align="center">
+  <img src="https://owi-lab.github.io/py_fatigue/_static/py-fatigue-logo-with-name.png" alt="py-fatigue logo" width="height"/>
+</p>
+
+Py-Fatigue is a Python package for cycle-conuting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel.
 
 - a powerful cycle-counting implementation based on the ASTM E1049-85 rainflow method that retrieves the main class of the package: ``CycleCount``
 - capability of storing the ``CycleCount`` results in a sparse format for storage and memory efficiency
