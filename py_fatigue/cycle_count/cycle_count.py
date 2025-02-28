@@ -10,7 +10,7 @@ from __future__ import annotations
 import copy
 import datetime as dt
 import itertools
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from time import sleep
 from types import SimpleNamespace
 from typing import (
@@ -269,8 +269,12 @@ class CycleCount:
     _mean_bin_lower_bound: Optional[float] = None
     mean_bin_width: float = 10
     nr_small_cycles: float = 0
-    residuals_sequence: np.ndarray[Any, Any] = np.empty(0)
-    _min_max_sequence: np.ndarray[Any, Any] = np.empty(0)
+    residuals_sequence: np.ndarray[Any, Any] = field(
+        default_factory=lambda: np.empty(0)
+    )
+    _min_max_sequence: np.ndarray[Any, Any] = field(
+        default_factory=lambda: np.empty(0)
+    )
     lffd_solved: bool = False
     mean_stress_corrected: str = "No"
     stress_concentration_factor: float = 1.0
@@ -1979,7 +1983,7 @@ def pbar_sum(cc_list: Sequence[CycleCount]) -> CycleCount:
         pbar += TermColors.CBLUE2 + "|" + "".join(["█"] * blocks)
         pbar += "".join(["_"] * underscores) + "|" + TermColors.CEND
         # try:
-        pbar += f" -> { min(int(k / l_c * 100), 100)}% completed... "
+        pbar += f" -> {min(int(k / l_c * 100), 100)}% completed... "
         # except ZeroDivisionError:
         #     pbar += f" -> { min(int(k / l_c * 100), 100)}% completed... "
         print(pbar, end="\r")

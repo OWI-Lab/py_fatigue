@@ -154,7 +154,7 @@ def aggregate_cc(  # pragma: no cover
         end = time.time()
         print(
             f"Elapsed time for \33[36m\33[1m'{aggr_by}'\33[0m aggregation",
-            f"is {np.round(end-start, 0)}, s.\n",
+            f"is {np.round(end - start, 0)}, s.\n",
         )
         return df_agg_rr
     # Saving the residuals sequences
@@ -179,7 +179,7 @@ def aggregate_cc(  # pragma: no cover
     end = time.time()
     print(
         f"Elapsed time for \33[36m\33[1m'{aggr_by}'\33[0m aggregation",
-        f"is {np.round(end-start, 0)}, s.\n",
+        f"is {np.round(end - start, 0)}, s.\n",
     )
     return df_agg_rr, residuals_sequence
 

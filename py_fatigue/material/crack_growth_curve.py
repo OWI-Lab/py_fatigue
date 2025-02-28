@@ -516,7 +516,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
             knee_zip = zip(self.get_knee_sif(), self.get_knee_growth_rate())
             for j, (knee_sif, knee_gr) in enumerate(knee_zip):
                 annotation = (
-                    f"Knee {j +1}: ({round(knee_sif, 2)}, {knee_gr:.2E})"
+                    f"Knee {j + 1}: ({round(knee_sif, 2)}, {knee_gr:.2E})"
                 )
                 ax.plot(knee_sif, knee_gr, "o", color="#C40000")
                 for item in (
@@ -818,14 +818,14 @@ class ParisCurve(AbstractCrackGrowthCurve):
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
-    parallel=True,
+    # parallel=True,
 )
 def _calc_growth_rate(
     sif, slope, intercept, threshold, critical
 ):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
-    assert np.min(sif) >= 0
+    assert np.nanmin(sif) >= 0
     assert 0 <= threshold < critical <= np.inf
 
     knees_sif = np.empty(intercept.size - 1, dtype=np.float64)
@@ -865,14 +865,14 @@ def _calc_growth_rate(
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
-    parallel=True,
+    # parallel=True,
 )
 def _calc_sif(
     growth_rate, slope, intercept, threshold, critical
 ):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
-    assert np.min(growth_rate) >= 0
+    assert np.nanmin(growth_rate) >= 0
     assert 0 <= threshold < critical <= np.inf
 
     knees_growth_rate = np.empty(intercept.size - 1, dtype=np.float64)

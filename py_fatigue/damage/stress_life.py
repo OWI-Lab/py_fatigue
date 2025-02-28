@@ -1043,7 +1043,7 @@ def calc_nonlinear_damage_with_dca(
                         f"{cur_dmg_band} ({damage_bands[cur_dmg_band - 1]}"
                         f" < D ≤ {damage_bands[cur_dmg_band]})\n"
                         f"                • current damage value: "
-                        f"{cumsum_nl_dmg[i-1]}\033[0m")
+                        f"{cumsum_nl_dmg[i - 1]}\033[0m")
 
         # Damage weight for the current cycle
         w_ij: float = (
@@ -1468,7 +1468,7 @@ def calc_theil_sn_damage(
     )
 
     labels = [
-        f"Block {i+1} (r={stress_range[i]} MPa)"
+        f"Block {i + 1} (r={stress_range[i]} MPa)"
         for i in range(len(stress_range))
     ]
     # tuple([(label, *tup) for tup, label in zip(history, labels)])
