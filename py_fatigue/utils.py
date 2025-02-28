@@ -227,9 +227,7 @@ class ArrayInt(NamedTuple):
     range_bin_edges: int
 
 
-UnionOfIntArray = Union[
-    int, np.ndarray, IntInt, ArrayArray, IntArray, ArrayInt
-]
+UnionOfIntArray = Union[int, np.ndarray, IntInt, ArrayArray, IntArray, ArrayInt]
 
 
 @dataclass(repr=False)
@@ -883,13 +881,7 @@ class CustomFormatter(logging.Formatter):
         logging.INFO: blue + "ℹ️ " + level + italic + message + reset,
         logging.WARNING: yellow + "⚠️ " + level + italic + message + reset,
         logging.ERROR: red + "⛔ " + level + italic + message + reset,
-        logging.CRITICAL: red
-        + "🆘 "
-        + level
-        + bold
-        + italic
-        + message
-        + reset,
+        logging.CRITICAL: red + "🆘 " + level + bold + italic + message + reset,
     }
 
     def format(self, record):

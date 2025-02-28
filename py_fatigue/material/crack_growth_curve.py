@@ -151,9 +151,7 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
             """Return whether two dicts of arrays are exactly equal"""
             if first.keys() != second.keys():
                 return False
-            return all(
-                np.array_equal(first[key], second[key]) for key in first
-            )
+            return all(np.array_equal(first[key], second[key]) for key in first)
 
         return compare_exact(self.__dict__, other.__dict__)
 
@@ -688,9 +686,9 @@ class ParisCurve(AbstractCrackGrowthCurve):
         if not self.linear:
             if self.w_intcpt.size > 1:
                 for i in range(self.w_intcpt.size - 1):
-                    knee_sif[i] = (
-                        self.w_intcpt[i] / self.w_intcpt[i + 1]
-                    ) ** (1 / (self.slope[i + 1] - self.slope[i]))
+                    knee_sif[i] = (self.w_intcpt[i] / self.w_intcpt[i + 1]) ** (
+                        1 / (self.slope[i + 1] - self.slope[i])
+                    )
             if check_knee is not None:
                 try:
                     len(check_knee)
@@ -913,9 +911,7 @@ def _calc_sif(
         if idx[i] > nr_knees:  # above threshold
             the_sif[i] = critical
             continue
-        the_sif[i] = (growth_rate[i] / intercept[idx[i]]) ** (
-            1 / slope[idx[i]]
-        )
+        the_sif[i] = (growth_rate[i] / intercept[idx[i]]) ** (1 / slope[idx[i]])
 
     return the_sif
 

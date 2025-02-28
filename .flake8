@@ -1,5 +1,5 @@
 [flake8]
-max-line-length = 79
+max-line-length = 80
 exclude = **/__pycache__
 max-complexity = 20
 ignore = E127, E128, E203, W503

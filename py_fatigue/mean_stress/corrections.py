@@ -266,11 +266,11 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
             \\frac{(1 + \\text{r}_{\\text{in}}) \\cdot \\text{amp}_{\\text{in}}}
             {(1 - \\text{r}_{\\text{in}}) \\cdot \\text{ult}_\\text{s}}
             \\right)^{\\text{n}}}{\\text{amp}_{\\text{in}}}
-            + \\text{amp}_{\\text{out}}^{\\text{n-1}} \\cdot \\left( 
+            + \\text{amp}_{\\text{out}}^{\\text{n-1}} \\cdot \\left(
             \\frac{(1 + \\text{r}_{\\text{out}})}{(1 - \\text{r}_{\\text{out}})
             \\cdot \\text{ult}_\\text{s}} \\right)^{\\text{n}} \\right)^{-1}
 
-    where r\\ :sub:`in`\\  = min / max = (mean - amp) / (mean + amp) is the 
+    where r\\ :sub:`in`\\  = min / max = (mean - amp) / (mean + amp) is the
     input stress ratio, r\\ :sub:`out`\\  is the output stress ratio,
     amp\\ :sub:`in`\\  is the input amplitude, amp\\ :sub:`out`\\  is the output
     amplitude, ult\\ :sub:`s`\\  is the ultimate strength of the material, and

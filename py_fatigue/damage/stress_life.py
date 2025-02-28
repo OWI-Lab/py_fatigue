@@ -64,9 +64,7 @@ class PalmgrenMiner:
         if not {"count_cycle", "mean_stress", "stress_range"}.issubset(
             obj.columns
         ):
-            e_msg = (
-                "Must have 'count_cycle', 'mean_stress' and 'stress_range'."
-            )
+            e_msg = "Must have 'count_cycle', 'mean_stress' and 'stress_range'."
             raise AttributeError(e_msg)
 
     def damage(self, sn_curve: SNCurve):
@@ -245,9 +243,7 @@ class Gassner:
         if not {"count_cycle", "mean_stress", "stress_range"}.issubset(
             obj.columns
         ):
-            e_msg = (
-                "Must have 'count_cycle', 'mean_stress' and 'stress_range'."
-            )
+            e_msg = "Must have 'count_cycle', 'mean_stress' and 'stress_range'."
             raise AttributeError(e_msg)
 
     def g(self, sn_curve: SNCurve):

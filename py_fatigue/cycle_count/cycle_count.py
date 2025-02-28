@@ -173,16 +173,13 @@ def _build_input_data_from_json(  # noqa: C901
         range_bin_centers = np.hstack([range_bin_centers, data["res"]])
     # B) Case with mean stress
     if len(data["hist"]) > 0 and isinstance(data["hist"][0], Iterable):
-        the_hist = np.asarray(
-            list(itertools.chain.from_iterable(data["hist"]))
-        )
+        the_hist = np.asarray(list(itertools.chain.from_iterable(data["hist"])))
         zero_hist_counts = np.where(the_hist == 0)[0]
         for idx in range(len(data["hist"])):
             len_mean_bin = len(data["hist"][idx])
             new_ranges = np.around(
                 np.linspace(
-                    data["range_bin_lower_bound"]
-                    + data["range_bin_width"] / 2,
+                    data["range_bin_lower_bound"] + data["range_bin_width"] / 2,
                     data["range_bin_lower_bound"]
                     + data["range_bin_width"] / 2
                     + data["range_bin_width"] * (len_mean_bin - 1),
@@ -1678,10 +1675,7 @@ def _cycle_count_add_checks(
     # Trying to add-up different parameters.
     if self_.name != other_.name:
         w_msg = "".join(
-            (
-                "Summing different parameters. "
-                f"({self_.name} + {other_.name})"
-            )
+            ("Summing different parameters. " f"({self_.name} + {other_.name})")
         )
         warnings.warn(w_msg, UserWarning)
 
@@ -1804,9 +1798,7 @@ def _handling_different_bins_in_sum(
     )
 
 
-def _solve_lffd(
-    self_: CycleCount, solve_mode: str = "Residuals"
-) -> CycleCount:
+def _solve_lffd(self_: CycleCount, solve_mode: str = "Residuals") -> CycleCount:
     """Retrieve the LFFD for the cycle count instance.
 
     Parameters

@@ -252,9 +252,7 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
             """Return whether two dicts of arrays are exactly equal"""
             if first.keys() != second.keys():
                 return False
-            return all(
-                np.array_equal(first[key], second[key]) for key in first
-            )
+            return all(np.array_equal(first[key], second[key]) for key in first)
 
         return compare_exact(self.__dict__, other.__dict__)
 
@@ -524,9 +522,7 @@ class SNCurve(AbstractSNCurve):
                 + f"({np.round(self.endurance, 0):.2E}, "
                 + f"{np.round(self.endurance_stress, 2)})"
             )
-            ax.plot(
-                self.endurance, self.endurance_stress, "d", color="#435580"
-            )
+            ax.plot(self.endurance, self.endurance_stress, "d", color="#435580")
             ax.text(
                 x_reduced,
                 self.endurance_stress,
@@ -1152,8 +1148,8 @@ def __sn_curve_residuals(  # pragma: no cover
     #     weight = 1.
     # if not res_stress:
     #     res_stress = 0.
-    # print(f"np.array([cycles]) = {cycles}, type = {type(cycles)}") 
-    
+    # print(f"np.array([cycles]) = {cycles}, type = {type(cycles)}")
+
     fail = _calc_stress_2(np.array([cycles]), slope, intercept, endurance)[0]
     return fail - weight * cycles - res_stress
 

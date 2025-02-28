@@ -182,9 +182,7 @@ class CalcCrackGrowth:  # pragma: no cover
             cg_crv_size - 1, dtype=np.float64
         )  # pylint: disable=E1133, C0301
         if cg_crv_size > 1:  # pylint: disable=E1133, C0301
-            for i in nb.prange(  # pylint: disable=E1133, C0301
-                cg_crv_size - 1
-            ):
+            for i in nb.prange(cg_crv_size - 1):  # pylint: disable=E1133, C0301
                 knees_sif[i] = (self.intercept[i] / self.intercept[i + 1]) ** (
                     1 / (self.slope[i + 1] - self.slope[i])
                 )
@@ -236,9 +234,7 @@ class CalcCrackGrowth:  # pragma: no cover
             the_growth_rate = np.inf
         else:
             idx = np.digitize(np.asarray([sif]), knees, right=True) - 1
-            the_growth_rate = (
-                self.intercept[idx][0] * sif ** self.slope[idx][0]
-            )
+            the_growth_rate = self.intercept[idx][0] * sif ** self.slope[idx][0]
 
         return the_growth_rate, sif, g_factor
 
@@ -560,9 +556,7 @@ class CrackGrowth:
         if not {"count_cycle", "mean_stress", "stress_range"}.issubset(
             obj.columns
         ):
-            e_msg = (
-                "Must have 'count_cycle', 'mean_stress' and 'stress_range'."
-            )
+            e_msg = "Must have 'count_cycle', 'mean_stress' and 'stress_range'."
             raise AttributeError(e_msg)
 
     def calc_growth(
@@ -613,9 +607,7 @@ class CrackGrowth:
             count_cycle = np.asarray(
                 [float(item) for sublist in splt_cyc for item in sublist]
             )
-            stress_range = np.repeat(
-                self._obj["stress_range"].values, splt_len
-            )
+            stress_range = np.repeat(self._obj["stress_range"].values, splt_len)
         else:
             stress_range = self._obj["stress_range"].values
             count_cycle = self._obj["count_cycle"].values
