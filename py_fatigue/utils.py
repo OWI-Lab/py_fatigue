@@ -844,14 +844,14 @@ def _plot_damage_accumulation(  # pragma: no cover
     # Add a vertical line where the damage exceeds 1
     if np.any(cumsum_nl_dmg > limit_damage):
         ax.axvline(
-            np.argmax(cumsum_nl_dmg > limit_damage),
+            float(np.argmax(cumsum_nl_dmg > limit_damage)),
             color='firebrick',
             linestyle='--',
             label='Non-linear damage Exceeds Limit'
         )
     if np.any(cumsum_pm_dmg > limit_damage):
         ax.axvline(
-            np.argmax(cumsum_pm_dmg > limit_damage),
+            float(np.argmax(cumsum_pm_dmg > limit_damage)),
             color='crimson',
             linestyle='--',
             label='Palmgren-Mineramage Exceeds Limit'

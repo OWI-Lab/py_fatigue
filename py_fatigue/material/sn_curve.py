@@ -7,11 +7,10 @@ The main and only class is SNCurve.
 
 # Standard "from" imports
 from __future__ import annotations
-from collections.abc import Collection
+from collections.abc import Collection, Sized
 from typing import (
     Any,
     Callable,
-    Sized,
     Tuple,
 )
 
@@ -832,7 +831,7 @@ class SNCurve(AbstractSNCurve):
                 x=n_plot,
                 y=sigma_plot,
                 name=self.name,
-                line=dict(color=self.color, width=1),
+                line={"color": self.color, "width": 1},
             )
         ]
 
@@ -847,25 +846,29 @@ class SNCurve(AbstractSNCurve):
                     y=stress_range,
                     name=dataset_name,
                     mode="lines+markers",
-                    line=dict(color=dataset_color, width=1),
-                    marker=dict(color=dataset_color, size=4),
+                    line={"color": dataset_color, "width": 1},
+                    marker={"color": dataset_color, "size": 4},
                 )
             )
         layout = go.Layout(
-            xaxis=dict(
-                title="Number of cycles",
-                linecolor="#000",
-                type="log",
-                tickformat=".0f",
-            ),
-            yaxis=dict(
-                title="Stress range, " + self.unit,
-                linecolor="#000",
-                type="log",
-                tickformat=".0f",
-            ),
-            font=dict(family="Roboto", size=14, color="#000"),
-            legend=dict(font=dict(family="Roboto", size=12, color="#000")),
+            xaxis={
+                "title": "Number of cycles",
+                "type": "log",
+                "tickformat": ".0f",
+            },
+            yaxis={
+                "title": "Stress range, " + self.unit,
+                "type": "log",
+                "tickformat": ".0f",
+            },
+            font={"family": PLOTLY_FONT_FAMILY, "size": 14, "color": "#000"},
+            legend={
+                "font": {
+                    "family": PLOTLY_FONT_FAMILY,
+                    "size": 12,
+                    "color": "#000",
+                }
+            },
         )
 
         return data, layout
@@ -958,8 +961,7 @@ def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
         max_i = intercept[0] * log10 - slope[0] * log_stress
         for j in range(1, len(intercept)):
             value = intercept[j] * log10 - slope[j] * log_stress
-            if value > max_i:
-                max_i = value
+            max_i = max(max_i, value)
         the_cycles[i] = np.exp(max_i)
     if endurance < np.inf:
         the_cycles[the_cycles > endurance] = np.inf
@@ -1036,8 +1038,7 @@ def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
         max_i = (intercept[0] * log10 - log_cycles) / slope[0]
         for j in range(1, len(intercept)):
             value = (intercept[j] * log10 - log_cycles) / slope[j]
-            if value > max_i:
-                max_i = value
+            max_i = max(max_i, value)
         the_stress[i] = np.exp(max_i)
     if endurance < np.inf:
         endurance_stress = np.exp(

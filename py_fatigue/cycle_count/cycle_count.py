@@ -257,6 +257,7 @@ class CycleCount:
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-public-methods
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
     # 16 is reasonable in this case.
 
     count_cycle: np.ndarray[Any, np.dtype[np.float64]]
@@ -1415,6 +1416,7 @@ class CycleCount:
         if plot_type not in plot_types:
             e_msg = f"Invalid plot type. Must be one of {plot_types}."
             raise ValueError(e_msg)
+        im = None
         if plot_type == "min-max":
             __tmp_x = x - y / 2
             y = x + y / 2
@@ -1437,7 +1439,7 @@ class CycleCount:
                 # edgecolors="#CCC",
                 # linewidths=0.5,
                 c=x,
-                **kwargs,
+                **kwargs,  # type: ignore
             )
             # axes.set_yscale("log")
             # axes.set_xscale("log")
@@ -1915,6 +1917,7 @@ def _lffd_checks(self_: CycleCount, solve_mode: str) -> tuple:
         raise ValueError(e_msg)
 
     return_self = False
+    res_sequence = np.empty(0)
     if self_.lffd_solved:
         w_msg = "Residuals already resolved. Nothing to do."
         warnings.warn(w_msg, UserWarning)

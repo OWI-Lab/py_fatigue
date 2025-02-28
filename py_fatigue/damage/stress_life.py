@@ -13,6 +13,7 @@ import warnings
 
 # Packages from external libraries
 import matplotlib
+import matplotlib.axes
 import matplotlib.pyplot as plt
 import numba as nb
 import numpy as np
@@ -168,12 +169,10 @@ class PalmgrenMiner:
     def plot_histogram(
         self,
         fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.collections.PathCollection] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,
         dens_func: Optional[Callable] = None,
         **kwargs,
-    ) -> Tuple[
-        matplotlib.figure.Figure, matplotlib.collections.PathCollection
-    ]:
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """Plot the damage.
 
         Parameters
@@ -1028,9 +1027,7 @@ def calc_nonlinear_damage_with_dca(
         # fmt: off
         cur_dmg_band = np.digitize(cumsum_nl_dmg[i - 1], damage_bands,
                                    right=False) if i >= 1 else 0
-        # cur_dmg_band = min(cur_dmg_band, len(damage_bands) - 1)
-        if cur_dmg_band >= len(damage_bands) - 1:
-            cur_dmg_band = len(damage_bands) - 1
+        cur_dmg_band = min(cur_dmg_band, len(damage_bands) - 1)
         if (
             cur_dmg_band != prev_dmg_band
             and len(damage_bands) < 20

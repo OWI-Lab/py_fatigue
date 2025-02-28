@@ -54,6 +54,7 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
     """
 
     # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-positional-arguments
     # pylint: disable=too-many-arguments
     # Eight is reasonable in this case.
 

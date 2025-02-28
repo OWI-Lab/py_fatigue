@@ -195,9 +195,9 @@ class HollowCylinder(AbstractCrackGeometry):
         # plot
         fig, axes = pfu.make_axes(fig=fig, ax=ax)
         axes.set_aspect("equal")
-        axes.plot(x_o, y_o, c="k", lw=0.5, **kwargs)
-        axes.plot(x_i, y_i, c="k", lw=0.5, **kwargs)
-        axes.plot(x_c, y_c, c="r", lw=1.0, **kwargs)
+        axes.plot(x_o, y_o, c="k", lw=0.5, **kwargs)  # type: ignore
+        axes.plot(x_i, y_i, c="k", lw=0.5, **kwargs)  # type: ignore
+        axes.plot(x_c, y_c, c="r", lw=1.0, **kwargs)  # type: ignore
         return fig, axes
 
 
