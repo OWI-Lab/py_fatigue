@@ -262,17 +262,19 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
 
     .. math::
 
-        amp_out =  \\left( \\frac{1 - \\left( \\frac{(1 + r_in) \\cdot amp_in}
-                                                {(1 - r_in) \\cdot ult_s}
-                                    \right)^n}{amp_in}
-                 + amp_out^{n-1} \\cdot \\left( \\frac{(1 + r_out)}{(1 - r_out)
-                                                    \\cdot ult_s}
-                                    \right)^n \right)^{-1}
+        \\text{amp}_{\\text{out}} =  \\left( \\frac{1 - \\left(
+            \\frac{(1 + \\text{r}_{\\text{in}}) \\cdot \\text{amp}_{\\text{in}}}
+            {(1 - \\text{r}_{\\text{in}}) \\cdot \\text{ult}_\\text{s}}
+            \\right)^{\\text{n}}}{\\text{amp}_{\\text{in}}}
+            + \\text{amp}_{\\text{out}}^{\\text{n-1}} \\cdot \\left( 
+            \\frac{(1 + \\text{r}_{\\text{out}})}{(1 - \\text{r}_{\\text{out}})
+            \\cdot \\text{ult}_\\text{s}} \\right)^{\\text{n}} \\right)^{-1}
 
-    where r:sub:`in` = min / max = (mean - amp) / (mean + amp) is the input
-    stress ratio, r:sub:`out` is the output stress ratio, amp:sub:`in` is the
-    input amplitude, amp:sub:`out` is the output amplitude, ult:sub:`s` is the
-    ultimate strength of the material, and n is the correction exponent.
+    where r\\ :sub:`in`\\  = min / max = (mean - amp) / (mean + amp) is the 
+    input stress ratio, r\\ :sub:`out`\\  is the output stress ratio,
+    amp\\ :sub:`in`\\  is the input amplitude, amp\\ :sub:`out`\\  is the output
+    amplitude, ult\\ :sub:`s`\\  is the ultimate strength of the material, and
+    n is the correction exponent.
 
     Parameters
     ----------
@@ -409,7 +411,7 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
         ax1.set_xlabel("load ratio, $\\sigma_{min}/ \\sigma_{max}$")
         ax1.set_ylabel("MSC stress amplitude, $\\Delta \\sigma_{MSC} / 2$")
         ax1.set_title("Goodman Correction - Amplitude vs R")
-        ax1.set_xlim(right=1.25, left=max(-25, min(r_in) - 0.25))
+        ax1.set_xlim(right=1.25, left=max(-5, min(r_in) - 0.25))
         ax1.set_ylim(top=min(max(amp_in) * 1.5, ult_s))
         ax1.grid(True)
 

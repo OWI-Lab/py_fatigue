@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 The :mod:`py_fatigue.utils` module collects all the utility functions
 and classes.
@@ -63,7 +64,7 @@ def ensure_array(method: Callable) -> Callable:
 
 # Decorator
 def check_iterable(function: Callable) -> Callable:
-    """Decorator checking whether function *args are iterable.
+    """Decorator checking whether function ``*args`` are iterable.
 
     Parameters
     ----------
@@ -73,7 +74,7 @@ def check_iterable(function: Callable) -> Callable:
     Returns
     -------
     Callable
-    Generic function output
+        Generic function output
     """
 
     @wraps(function)
@@ -699,16 +700,16 @@ def compile_specialized_bisect(fun):
 
     def python_bisect(a, b, tol, mxiter, *args):
         its = 0
-        fa = compiled_f(a, *args)
-        fb = compiled_f(b, *args)
+        fa = compiled_f(a, *args)[0]
+        fb = compiled_f(b, *args)[0]
 
         if abs(fa) < tol:
-            return a  # , its, fa, fb, np.nan
+            return a
         if abs(fb) < tol:
-            return b  # , its, fa, fb, np.nan
+            return b
 
         c = (a + b) / 2.0
-        fc = compiled_f(c, *args)
+        fc = compiled_f(c, *args)[0]
 
         while abs(fc) > tol and its < mxiter:
             its += 1
@@ -719,7 +720,7 @@ def compile_specialized_bisect(fun):
                 a = c
                 fa = fc
             c = (a + b) / 2.0
-            fc = compiled_f(c, *args)
+            fc = compiled_f(c, *args)[0]
         return c  # , its, fa, fb, fc
 
     return nb.njit()(python_bisect)

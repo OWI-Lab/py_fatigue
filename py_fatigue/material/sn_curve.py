@@ -1139,19 +1139,21 @@ def __sn_curve_residuals(  # pragma: no cover
     cycles: float,
     slope: np.ndarray,
     intercept: np.ndarray,
-    endurance: float = np.inf,
-    res_stress: float | None = None,
-    weight: float | None = None,
+    endurance: float,
+    res_stress: float,
+    weight: float,
 ):
     """Calculate the residual stress range available to the SN curve, provided
     its material properties (slopes, intercepts, and endurance), the data
     points, the nonlinearity weights (must be one-to-one with the data points)
     and the residual stress range.
     """
-    if not weight:
-        weight = 1
-    if not res_stress:
-        res_stress = 0
+    # if not weight:
+    #     weight = 1.
+    # if not res_stress:
+    #     res_stress = 0.
+    # print(f"np.array([cycles]) = {cycles}, type = {type(cycles)}") 
+    
     fail = _calc_stress_2(np.array([cycles]), slope, intercept, endurance)[0]
     return fail - weight * cycles - res_stress
 
