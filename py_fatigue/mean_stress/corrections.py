@@ -123,7 +123,7 @@ def dnvgl_mean_stress_correction(
         axes.set_ylabel("$f_m$")
         axes.spines["right"].set_visible(False)
         axes.spines["top"].set_visible(False)
-        axes.set_xlim([-20, 20])
+        axes.set_xlim((-20, 20))
 
     return stress_range_corr
 

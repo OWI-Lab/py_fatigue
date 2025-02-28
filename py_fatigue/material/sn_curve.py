@@ -7,11 +7,10 @@ The main and only class is SNCurve.
 
 # Standard "from" imports
 from __future__ import annotations
-from collections.abc import Collection
+from collections.abc import Collection, Sized
 from typing import (
     Any,
     Callable,
-    Sized,
     Tuple,
 )
 
@@ -129,7 +128,6 @@ def color_setter(func: Callable):
         def __call__(self, *args, **kwargs):
             self.calls += 1
             self.color = next(self.cycle_color_list)
-            # print(f'wrapper called {wrapper.calls} times')
             return func(*args, **kwargs)
 
     return Wrapper()
@@ -502,9 +500,9 @@ class SNCurve(AbstractSNCurve):
             knee_zip = zip(self.get_knee_cycles(), self.get_knee_stress())
             for j, (knee_cycles, knee_stress) in enumerate(knee_zip):
                 annotation = (
-                    f"Knee {j +1}: "
-                    + f"({round(knee_cycles, 0):.2E}, "
-                    + f"{round(knee_stress, 2)})"
+                    f"Knee {j + 1}: "
+                    + f"({np.round(knee_cycles, 0):.2E}, "
+                    + f"{np.round(knee_stress, 2)})"
                 )
                 ax.plot(knee_cycles, knee_stress, "o", color="#C40000")
                 ax.text(
@@ -523,8 +521,8 @@ class SNCurve(AbstractSNCurve):
             )
             annotation = (
                 "Endurance: "
-                + f"({round(self.endurance, 0):.2E}, "
-                + f"{round(self.endurance_stress, 2)})"
+                + f"({np.round(self.endurance, 0):.2E}, "
+                + f"{np.round(self.endurance_stress, 2)})"
             )
             ax.plot(
                 self.endurance, self.endurance_stress, "d", color="#435580"
@@ -833,7 +831,7 @@ class SNCurve(AbstractSNCurve):
                 x=n_plot,
                 y=sigma_plot,
                 name=self.name,
-                line=dict(color=self.color, width=1),
+                line={"color": self.color, "width": 1},
             )
         ]
 
@@ -848,25 +846,29 @@ class SNCurve(AbstractSNCurve):
                     y=stress_range,
                     name=dataset_name,
                     mode="lines+markers",
-                    line=dict(color=dataset_color, width=1),
-                    marker=dict(color=dataset_color, size=4),
+                    line={"color": dataset_color, "width": 1},
+                    marker={"color": dataset_color, "size": 4},
                 )
             )
         layout = go.Layout(
-            xaxis=dict(
-                title="Number of cycles",
-                linecolor="#000",
-                type="log",
-                tickformat=".0f",
-            ),
-            yaxis=dict(
-                title="Stress range, " + self.unit,
-                linecolor="#000",
-                type="log",
-                tickformat=".0f",
-            ),
-            font=dict(family="Roboto", size=14, color="#000"),
-            legend=dict(font=dict(family="Roboto", size=12, color="#000")),
+            xaxis={
+                "title": "Number of cycles",
+                "type": "log",
+                "tickformat": ".0f",
+            },
+            yaxis={
+                "title": "Stress range, " + self.unit,
+                "type": "log",
+                "tickformat": ".0f",
+            },
+            font={"family": PLOTLY_FONT_FAMILY, "size": 14, "color": "#000"},
+            legend={
+                "font": {
+                    "family": PLOTLY_FONT_FAMILY,
+                    "size": 12,
+                    "color": "#000",
+                }
+            },
         )
 
         return data, layout
@@ -946,7 +948,7 @@ class SNCurve(AbstractSNCurve):
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
-    parallel=True,
+    # parallel=True,
 )
 def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
     # pylint: disable=not-an-iterable
@@ -959,8 +961,7 @@ def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
         max_i = intercept[0] * log10 - slope[0] * log_stress
         for j in range(1, len(intercept)):
             value = intercept[j] * log10 - slope[j] * log_stress
-            if value > max_i:
-                max_i = value
+            max_i = max(max_i, value)
         the_cycles[i] = np.exp(max_i)
     if endurance < np.inf:
         the_cycles[the_cycles > endurance] = np.inf
@@ -970,7 +971,7 @@ def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
-    parallel=True,
+    # parallel=True,
 )
 def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
     """
@@ -1024,7 +1025,7 @@ def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
-    parallel=True,
+    # parallel=True,
 )
 def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
     # pylint: disable=not-an-iterable
@@ -1037,8 +1038,7 @@ def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
         max_i = (intercept[0] * log10 - log_cycles) / slope[0]
         for j in range(1, len(intercept)):
             value = (intercept[j] * log10 - log_cycles) / slope[j]
-            if value > max_i:
-                max_i = value
+            max_i = max(max_i, value)
         the_stress[i] = np.exp(max_i)
     if endurance < np.inf:
         endurance_stress = np.exp(
@@ -1051,7 +1051,7 @@ def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
-    parallel=True,
+    # parallel=True,
     cache=True,
 )
 def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
@@ -1068,7 +1068,7 @@ def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
     numpy.ndarray: Array of calculated cycles to failure.
     """
     assert intercept.size > 0 and intercept.size == slope.size
-    assert np.min(cycles) >= 0
+    assert np.nanmin(cycles) >= 0
 
     log_cycles = np.log10(cycles)
     log_endurance = np.log10(endurance)

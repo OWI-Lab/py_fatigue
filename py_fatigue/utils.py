@@ -50,15 +50,13 @@ def ensure_array(method: Callable) -> Callable:
 
     @wraps(method)
     def wrapper(self, x):
-        try:
-            iter(x)
-        except TypeError:
-            xm = np.asarray([x])
-            ym = method(self, xm)[0]
+        if np.isscalar(x):
+            xm = np.array([x])
+            result = method(self, xm)
         else:
             xm = np.asarray(x)
-            ym = method(self, xm)
-        return ym
+            result = method(self, xm)
+        return result
 
     return wrapper
 
@@ -846,14 +844,14 @@ def _plot_damage_accumulation(  # pragma: no cover
     # Add a vertical line where the damage exceeds 1
     if np.any(cumsum_nl_dmg > limit_damage):
         ax.axvline(
-            np.argmax(cumsum_nl_dmg > limit_damage),
+            float(np.argmax(cumsum_nl_dmg > limit_damage)),
             color='firebrick',
             linestyle='--',
             label='Non-linear damage Exceeds Limit'
         )
     if np.any(cumsum_pm_dmg > limit_damage):
         ax.axvline(
-            np.argmax(cumsum_pm_dmg > limit_damage),
+            float(np.argmax(cumsum_pm_dmg > limit_damage)),
             color='crimson',
             linestyle='--',
             label='Palmgren-Mineramage Exceeds Limit'

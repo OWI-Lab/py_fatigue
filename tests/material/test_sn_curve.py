@@ -354,7 +354,7 @@ def test_plotly():
         data[0].y[-1], 4
     )
     assert np.round(EXOTIC.get_stress(np.inf), 4) == np.round(data[0].y[-1], 4)
-    assert np.any(np.in1d(EXOTIC.get_knee_cycles(), data[0].x))
+    assert np.any(np.isin(EXOTIC.get_knee_cycles(), data[0].x))
     assert np.any(
         np.in1d(np.round(EXOTIC.get_knee_stress(), 4), np.round(data[0].y, 4))
     )

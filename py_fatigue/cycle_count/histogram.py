@@ -9,10 +9,11 @@ package `[4]`_.
 # standard imports
 from __future__ import annotations
 import itertools
-from typing import Callable, List, Optional, Sequence, Union, TypeVar
+from typing import Callable, List, Optional, Sequence, Union
 
 # non-standard imports
 import matplotlib
+import matplotlib.axes
 import numpy as np
 import numpy.typing as npt
 
@@ -30,7 +31,7 @@ __all__ = [
 ]
 
 
-FloatArray = TypeVar("FloatArray", bound=npt.NDArray[np.floating])
+FloatArray = npt.NDArray[np.floating]
 
 
 def make_histogram(
@@ -87,7 +88,7 @@ def make_histogram(
         raise ValueError("Input arrays must be the same length")
 
     try:
-        hist, mean_e, range_e = np.histogram2d(
+        hist, mean_e, range_e = np.histogram2d(  # type: ignore
             mean_stress,
             stress_range,
             bins=bins,
@@ -162,7 +163,7 @@ def xy_hist2d(
     normed: bool = False,
     weights: Optional[FloatArray] = None,  # np.histogram2d args
     fig: Optional[matplotlib.figure.Figure] = None,
-    ax: Optional[matplotlib.collections.PathCollection] = None,
+    ax: Optional[matplotlib.axes.Axes] = None,
     dens_func: Optional[Callable] = None,
     **kwargs: dict,
 ) -> tuple:
@@ -258,7 +259,7 @@ def xy_hist2d(
         # edgecolors="#CCC",
         # linewidths=0.5,
         c=dens,
-        **kwargs,
+        **kwargs,  # type: ignore
     )
     return fig, axes, im
 
@@ -510,7 +511,7 @@ def initialise_binned_rainflow_dict(
     return out_dct
 
 
-def binned_rainflow(  # pylint: disable=too-many-arguments
+def binned_rainflow(  # pylint: disable=R0917,R0913
     data: Union[np.ndarray, list],
     time: Optional[Union[np.ndarray, list]] = None,
     range_bin_lower_bound: float = 0.2,

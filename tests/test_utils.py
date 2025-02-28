@@ -281,3 +281,23 @@ def test_calc_slope_intercept(
     calculated_slopes, calculated_intercepts = pu.calc_slope_intercept(x, y)
     assert np.allclose(calculated_slopes, expected_slopes)
     assert np.allclose(calculated_intercepts, expected_intercepts)
+
+
+@pytest.mark.parametrize(
+    "input_value, expected_output",
+    [
+        (5, np.array([5])),
+        ([1, 2, 3], np.array([1, 2, 3])),
+        (np.array([4, 5, 6]), np.array([4, 5, 6])),
+    ],
+)
+def test_ensure_array(input_value, expected_output):
+    """Test ensure_array decorator"""
+
+    class TestClass:
+        @pu.ensure_array
+        def method(self, x):
+            return x
+
+    test_instance = TestClass()
+    assert np.array_equal(test_instance.method(input_value), expected_output)

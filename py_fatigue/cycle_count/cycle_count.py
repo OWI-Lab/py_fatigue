@@ -10,7 +10,7 @@ from __future__ import annotations
 import copy
 import datetime as dt
 import itertools
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from time import sleep
 from types import SimpleNamespace
 from typing import (
@@ -257,6 +257,7 @@ class CycleCount:
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-public-methods
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
     # 16 is reasonable in this case.
 
     count_cycle: np.ndarray[Any, np.dtype[np.float64]]
@@ -269,8 +270,12 @@ class CycleCount:
     _mean_bin_lower_bound: Optional[float] = None
     mean_bin_width: float = 10
     nr_small_cycles: float = 0
-    residuals_sequence: np.ndarray[Any, Any] = np.empty(0)
-    _min_max_sequence: np.ndarray[Any, Any] = np.empty(0)
+    residuals_sequence: np.ndarray[Any, Any] = field(
+        default_factory=lambda: np.empty(0)
+    )
+    _min_max_sequence: np.ndarray[Any, Any] = field(
+        default_factory=lambda: np.empty(0)
+    )
     lffd_solved: bool = False
     mean_stress_corrected: str = "No"
     stress_concentration_factor: float = 1.0
@@ -1411,6 +1416,7 @@ class CycleCount:
         if plot_type not in plot_types:
             e_msg = f"Invalid plot type. Must be one of {plot_types}."
             raise ValueError(e_msg)
+        im = None
         if plot_type == "min-max":
             __tmp_x = x - y / 2
             y = x + y / 2
@@ -1433,7 +1439,7 @@ class CycleCount:
                 # edgecolors="#CCC",
                 # linewidths=0.5,
                 c=x,
-                **kwargs,
+                **kwargs,  # type: ignore
             )
             # axes.set_yscale("log")
             # axes.set_xscale("log")
@@ -1911,6 +1917,7 @@ def _lffd_checks(self_: CycleCount, solve_mode: str) -> tuple:
         raise ValueError(e_msg)
 
     return_self = False
+    res_sequence = np.empty(0)
     if self_.lffd_solved:
         w_msg = "Residuals already resolved. Nothing to do."
         warnings.warn(w_msg, UserWarning)
@@ -1979,7 +1986,7 @@ def pbar_sum(cc_list: Sequence[CycleCount]) -> CycleCount:
         pbar += TermColors.CBLUE2 + "|" + "".join(["█"] * blocks)
         pbar += "".join(["_"] * underscores) + "|" + TermColors.CEND
         # try:
-        pbar += f" -> { min(int(k / l_c * 100), 100)}% completed... "
+        pbar += f" -> {min(int(k / l_c * 100), 100)}% completed... "
         # except ZeroDivisionError:
         #     pbar += f" -> { min(int(k / l_c * 100), 100)}% completed... "
         print(pbar, end="\r")
