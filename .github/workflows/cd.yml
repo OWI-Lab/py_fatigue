@@ -43,7 +43,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v5
     - name: Set up Python
-      run: uv python install 3.10
+      run: uv python install 3.13
     - name: Bump version
       run: |
         uv run bumpversion.py ${{ github.event.inputs.bumptype }}
@@ -58,17 +58,18 @@ jobs:
             git tag v$NEW_VERSION
             git push origin release/v$NEW_VERSION --tags
         fi
-        # Merge changes to 'refs/heads/main'
-        git fetch origin main
-        git checkout main
-        git merge --no-ff release/v$NEW_VERSION -m "ci(pipeline): Merge release/v$NEW_VERSION to main [skip ci] [publish pages]"
-        git push origin main
-        uv build --out-dir dist-3.10
+        # Merge changes to the branch that triggered the workflow
+        BRANCH_NAME=${{ github.ref_name }}
+        git fetch origin $BRANCH_NAME
+        git checkout $BRANCH_NAME
+        git merge --no-ff release/v$NEW_VERSION -m "ci(pipeline): Merge release/v$NEW_VERSION to $BRANCH_NAME [skip ci] [publish pages]"
+        git push origin $BRANCH_NAME
+        uv build --out-dir dist
     - name: Upload built package
       uses: actions/upload-artifact@v4
       with:
-        name: dist-3.10
-        path: dist-3.10/
+        name: dist
+        path: dist/
         retention-days: 1
   pages:
     needs: [bump-and-build]
@@ -87,13 +88,13 @@ jobs:
     - name: Download built package
       uses: actions/download-artifact@v4
       with:
-        name: dist-3.10
-        path: dist-3.10
+        name: dist
+        path: dist
     - name: Install uv
       uses: astral-sh/setup-uv@v5
     - name: Publish distribution 📦 to Test PyPI
       if: env.PUBLISH_TO_TEST_PYPI == 'true' || env.PUBLISH_TO_TEST_PYPI == true
-      run: uv publish --publish-url https://test.pypi.org/legacy/ dist-3.10/* -t ${{ secrets.PYPI_TEST_API_TOKEN }}
+      run: uv publish --publish-url https://test.pypi.org/legacy/ dist/* -t ${{ secrets.PYPI_TEST_API_TOKEN }}
     - name: Publish distribution 📦 to PyP
       if: env.PUBLISH_TO_PYPI == 'true' || env.PUBLISH_TO_PYPI == true
-      run: uv publish dist-3.10/* -t ${{ secrets.PYPI_API_TOKEN }}
+      run: uv publish dist/* -t ${{ secrets.PYPI_API_TOKEN }}
