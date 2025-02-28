@@ -6,6 +6,8 @@ and classes.
 # Packages from the Python Standard Library
 from __future__ import annotations
 from dataclasses import dataclass
+from functools import wraps
+from types import FunctionType
 from typing import (
     Any,
     Generator,
@@ -21,6 +23,7 @@ from typing import (
     Union,
 )
 import copy
+import logging
 
 # Packages from non-standard libraries
 # from pydantic.fields import ModelField
@@ -28,6 +31,90 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numba as nb
 import numpy as np
+
+
+# Decorator
+def ensure_array(method: Callable) -> Callable:
+    """Ensures that the input variable of a class method is an array.
+
+    Parameters
+    ----------
+    method : Callable
+        Input method
+
+    Returns
+    -------
+    Callable
+        Input method output
+    """
+
+    @wraps(method)
+    def wrapper(self, x):
+        try:
+            iter(x)
+        except TypeError:
+            xm = np.asarray([x])
+            ym = method(self, xm)[0]
+        else:
+            xm = np.asarray(x)
+            ym = method(self, xm)
+        return ym
+
+    return wrapper
+
+
+# Decorator
+def check_iterable(function: Callable) -> Callable:
+    """Decorator checking whether function *args are iterable.
+
+    Parameters
+    ----------
+    function : Callable
+        Generic function
+
+    Returns
+    -------
+    Callable
+    Generic function output
+    """
+
+    @wraps(function)
+    def wrapper(*args):
+        iter_args = []
+        for arg in args:
+            try:
+                iter(arg)
+            except TypeError:
+                iter_args.append(np.asarray([arg], dtype=float))
+            else:
+                iter_args.append(np.asarray(arg, dtype=float))
+        return function(*iter_args)
+
+    return wrapper
+
+
+# Decorator
+def check_str(function: Callable) -> Callable:
+    """Decorator that checks whether a variable is string or NoneType.
+
+    Parameters
+    ----------
+    function : Callable
+        Input function
+
+    Returns
+    -------
+    Input function output
+    """
+
+    @wraps(function)
+    def wrapper(*args):
+        str_args = []
+        for arg in args:
+            str_args.append(str(arg or ""))
+        return function(*str_args)
+
+    return wrapper
 
 
 def inplacify(method: Callable) -> Callable:  # pragma: no cover
@@ -602,57 +689,139 @@ def calc_slope_intercept(
     return slopes, intercepts
 
 
-def numba_bisect(fun, slope, intercept, endurance, weight, res_stress):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
-    """
-    Returns a numba-compiled bisection implementation for ``f``.
-    """
+# # **Find zeros
 
-    def python_bisect(a, b, tol=1e-6, mxiter=1000):
-        """
-        Bisection method for root finding implemented in Python
-        Parameters
-        ----------
-        a : scalar(int)
-            An initial guess
-        b : scalar(int)
-            An initial guess
-        tol : scalar(float)
-            The convergence tolerance
-        mxiter : scalar(int)
-            Max number of iterations to allow
-        Note: f(a) should be less than 0 and f(b) should be greater than 0.
-              I removed the checks to simplify code.
-        """
-        assert 0 < a < b, "a must be positive and less than b"
-        assert tol > 0, "tolerance must be positive"
-        assert mxiter > 0, "max iterations must be positive"
+
+def compile_specialized_bisect(fun):
+    """
+    Returns a compiled bisection implementation for `f`.
+    """
+    # Compile the passed function in nopython mode.
+    compiled_f = nb.njit()(fun)
+
+    def python_bisect(a, b, tol, mxiter, *args):
         its = 0
-        fa = fun(a, slope, intercept, endurance, weight, res_stress)
-        fb = fun(b, slope, intercept, endurance, weight, res_stress)
-        if np.abs(fa) < tol:
-            return a
-        if np.abs(fb) < tol:
-            return b
-        c = (a + b) / 2
-        fc = fun(c, slope, intercept, endurance, weight, res_stress)
-        while np.abs(fc) > tol and its < mxiter:
+        fa = compiled_f(a, *args)
+        fb = compiled_f(b, *args)
 
+        if abs(fa) < tol:
+            return a  # , its, fa, fb, np.nan
+        if abs(fb) < tol:
+            return b  # , its, fa, fb, np.nan
+
+        c = (a + b) / 2.0
+        fc = compiled_f(c, *args)
+
+        while abs(fc) > tol and its < mxiter:
             its += 1
-
             if fa * fc < 0:
                 b = c
                 fb = fc
             else:
                 a = c
                 fa = fc
+            c = (a + b) / 2.0
+            fc = compiled_f(c, *args)
+        return c  # , its, fa, fb, fc
 
-            c = (a + b) / 2
-            fc = fun(c, slope, intercept, endurance, weight, res_stress)
-        if its == mxiter:
-            raise ValueError("No zeros found in the interval provided")
-        return c
+    return nb.njit()(python_bisect)
 
-    return nb.njit(cache=True)(python_bisect)
+
+def compile_specialized_newton(fun):
+    """
+    Returns a compiled Newton–Raphson implementation for f that accepts extra
+    arguments.
+    A finite-difference approximation is used to compute the derivative.
+    """
+    # Compile the function in nopython mode.
+    compiled_f = nb.njit()(fun)
+
+    def python_newton(x0, tol, mxiter, *args):
+        x = x0
+        eps = 1e-6  # small perturbation for finite differences
+        for _ in range(mxiter):
+            fx = compiled_f(x, *args)
+            if abs(fx) < tol:
+                return x
+            # Compute the derivative using a central finite difference.
+            dfx = (compiled_f(x + eps, *args) - compiled_f(x - eps, *args)) / (
+                2.0 * eps
+            )
+            x = x - fx / dfx
+        return x  # return the latest estimate if tol not reached
+
+    return nb.njit()(python_newton)
+
+
+def py_bisect(fun, a, b, tol, mxiter, *args):
+    """
+    A pure Python implementation of the bisection algorithm that accepts extra
+    arguments.
+    """
+    # print("Using Python bisection")
+    its = 0
+    fa = fun(a, *args)
+    fb = fun(b, *args)
+
+    if abs(fa) < tol:
+        return a
+    if abs(fb) < tol:
+        return b
+
+    c = (a + b) / 2.0
+    fc = fun(c, *args)
+
+    while abs(fc) > tol and its < mxiter:
+        its += 1
+        if fa * fc < 0:
+            b = c
+            fb = fc
+        else:
+            a = c
+            fa = fc
+        c = (a + b) / 2.0
+        fc = fun(c, *args)
+    # else:
+    #     raise ValueError("The bisection algorithm did not converge")
+    # print(f"its: {its}, fa: {fa}, fb: {fb}, fc: {fc}, c: {c}")
+    return c
+
+
+def py_newton(fun, x0, tol, mxiter, *args):
+    """
+    A pure Python Newton–Raphson implementation that uses finite differences
+    to approximate the derivative.
+    """
+    x = x0
+    eps = 1e-6
+    for _ in range(mxiter):
+        fx = fun(x, *args)
+        if abs(fx) < tol:
+            return x
+        dfx = (fun(x + eps, *args) - fun(x - eps, *args)) / (2.0 * eps)
+        x = x - fx / dfx
+    return x
+
+
+def numba_bisect(fun, a, b, tol, mxiter, *args):
+    """
+    A wrapper that compiles `f` if it is a regular Python function.
+    """
+    if isinstance(fun, FunctionType):
+        jit_bisect_func = compile_specialized_bisect(fun)
+        return jit_bisect_func(a, b, tol, mxiter, args)
+    return fun(a, b, tol, mxiter, *args)
+
+
+def numba_newton(fun, x0, tol, mxiter, *args):
+    """
+    A wrapper that compiles f if it is a regular Python function and calls the
+    Newton–Raphson routine with extra arguments.
+    """
+    if isinstance(fun, FunctionType):
+        jit_newton_func = compile_specialized_newton(fun)
+        return jit_newton_func(x0, tol, mxiter, *args)
+    return fun(x0, tol, mxiter, *args)
 
 
 def _plot_damage_accumulation(  # pragma: no cover
@@ -692,3 +861,39 @@ def _plot_damage_accumulation(  # pragma: no cover
     # fmt: on
     plt.show()
     return fig, ax
+
+
+# # **Logging
+
+
+class CustomFormatter(logging.Formatter):
+    """Logging Formatter to add colors and count warning / errors"""
+
+    grey = "\033[38m"
+    blue = "\033[34m"
+    yellow = "\033[33m"
+    red = "\033[31m"
+    bold = "\033[1m"
+    italic = "\033[3m"
+    reset = "\033[0m"
+    level = "\033[1m%(levelname)-8s → \033[22m"
+    message = "%(message)s"
+
+    FORMATS = {
+        logging.DEBUG: grey + "🐞 " + level + italic + message + reset,
+        logging.INFO: blue + "ℹ️ " + level + italic + message + reset,
+        logging.WARNING: yellow + "⚠️ " + level + italic + message + reset,
+        logging.ERROR: red + "⛔ " + level + italic + message + reset,
+        logging.CRITICAL: red
+        + "🆘 "
+        + level
+        + bold
+        + italic
+        + message
+        + reset,
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)

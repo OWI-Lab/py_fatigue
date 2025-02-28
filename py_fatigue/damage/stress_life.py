@@ -7,7 +7,7 @@ damage models related to the stress-life approach.
 
 from __future__ import annotations
 from types import SimpleNamespace
-from typing import Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Tuple, Union
 import logging
 import warnings
 
@@ -20,10 +20,13 @@ import pandas as pd
 
 # py-fatigue imports
 from ..cycle_count.cycle_count import CycleCount
-from ..material.sn_curve import SNCurve
-from ..utils import make_axes, numba_bisect, _plot_damage_accumulation
+from ..material.sn_curve import (
+    _check_param_couple_types,
+    __jit_sn_curve_residuals,
+    SNCurve,
+)
 from ..styling import py_fatigue_formatwarning
-from ..material.sn_curve import _check_param_couple_types, sn_curve_residuals
+from ..utils import make_axes, numba_bisect, _plot_damage_accumulation
 
 try:
     # delete the accessor to avoid warning
@@ -846,6 +849,7 @@ def calc_nonlinear_damage(
     total_damage = 0
     damage_array = np.empty(len(damage_per_cycle))
     for i, (d_i, e_i) in enumerate(zip(damage_per_cycle, damage_exp)):
+        # total_damage = (total_damage + d_i) ** e_i - total_damage
         total_damage = (total_damage + d_i) ** e_i
         damage_array[i] = total_damage
 
@@ -1041,7 +1045,6 @@ def calc_nonlinear_damage_with_dca(
                         f"                • current damage value: "
                         f"{cumsum_nl_dmg[i-1]}\033[0m")
 
-        # print(f"cur_dmg_band: {cur_dmg_band}")
         # Damage weight for the current cycle
         w_ij: float = (
             (damage_bands[cur_dmg_band] - damage_bands[cur_dmg_band - 1])
@@ -1105,7 +1108,6 @@ def get_nonlinear_damage(
     if cycle_count.unit != sn_curve.unit:
         e_msg = "The units of the cycle count and SN curve must be the same."
         raise ValueError(e_msg)
-    kwargs["use_dca"] = False
     return calc_nonlinear_damage(
         damage_rule,
         cycle_count.stress_range,
@@ -1184,13 +1186,13 @@ def get_nonlinear_damage_with_dca(
 
 
 def find_sn_curve_intersection(
-    intercept: float,
-    slope: float,
+    slope: np.ndarray,
+    intercept: np.ndarray,
     endurance: float,
     weight: float,
     res_stress: float,
-    n_min: float = 1e0,
-    n_max: float = 1e9,
+    n_min: float,
+    n_max: float,
     tol=1e-6,
 ):
     """
@@ -1241,24 +1243,35 @@ def find_sn_curve_intersection(
     ValueError
         If the bisection method fails to find a solution.
     """
-    bisect_sn_curve_residuals = numba_bisect(
-        sn_curve_residuals,
-        slope=slope,
-        intercept=intercept,
-        endurance=endurance,
-        weight=weight,
-        res_stress=res_stress,
+    return numba_bisect(
+        __jit_sn_curve_residuals,
+        n_min,
+        n_max,
+        tol,
+        1000,
+        slope,
+        intercept,
+        endurance,
+        weight,
+        res_stress,
     )
-    return bisect_sn_curve_residuals(n_min, n_max, tol=tol)
+    # from ..utils import python_bisect
+    # from ..material.sn_curve import __sn_curve_residuals
+    # return python_bisect(
+    #     __sn_curve_residuals,
+    #     n_min,
+    #     n_max,
+    #     tol,
+    #     1000,
+    #     slope, intercept, endurance, weight, res_stress
+    # )
 
 
 @nb.njit(
     fastmath=True,
     cache=True,
 )
-def _calc_theil_cycles_to_failure(
-    stress_range, count_cycle, cycles_to_failure
-):
+def _calc_theil_sn_damage(stress_range, count_cycle, cycles_to_failure):
     """
     Calculate the cycles to failure using the Theil's method for variable
     amplitude loading.
@@ -1363,10 +1376,12 @@ def _calc_theil_cycles_to_failure(
         n_cumsum = n_end
         stress_range_cumsum = w_ij[i] * n_cumsum + current_stress_range
 
-    return history
+    return history, stress_range_cumsum, n_cumsum
 
 
-def calc_theil_cycles_to_failure(stress_range, count_cycle, sn_curve: SNCurve):
+def calc_theil_sn_damage(
+    stress_range, count_cycle, sn_curve: SNCurve, to_failure: bool = False
+) -> tuple[tuple[str, Any, Any], ...]:
     """
     Calculate the cycles to failure using the Theil's method for variable
     amplitude loading.
@@ -1446,15 +1461,46 @@ def calc_theil_cycles_to_failure(stress_range, count_cycle, sn_curve: SNCurve):
     - The S-N curve is used to relate the stress range to the number of cycles
       to failure.
     """
-    history = _calc_theil_cycles_to_failure(
+    history, stress_range_cumsum, n_cumsum = _calc_theil_sn_damage(
         count_cycle=count_cycle,
         stress_range=stress_range,
         cycles_to_failure=sn_curve.get_cycles(stress_range),
     )
 
+    labels = [
+        f"Block {i+1} (r={stress_range[i]} MPa)"
+        for i in range(len(stress_range))
+    ]
+    # tuple([(label, *tup) for tup, label in zip(history, labels)])
+    hist_dict = {
+        label: (n_segment, stress_range_segment)
+        for (n_segment, stress_range_segment), label in zip(history, labels)
+    }
+    if to_failure:
+        w_final = stress_range[-1] / sn_curve.get_cycles(stress_range[-1])
+        # print("w_final", w_final)
+        current_stress_range = stress_range_cumsum - w_final * n_cumsum
+        # print("current_stress_range", current_stress_range)
+        # Solve modified Basquin for total cycles at final block:
+        n_final = find_sn_curve_intersection(
+            sn_curve.slope,
+            sn_curve.intercept,
+            sn_curve.endurance,
+            current_stress_range,
+            w_final,
+            n_min=n_cumsum,
+            n_max=1e15,
+        )
+        n_final_array = np.logspace(np.log10(n_cumsum), np.log10(n_final), 20)
+        stress_range_final = w_final * n_final_array + current_stress_range
+        # n_cumsum += n_final
+        # stress_range_cumsum = w_final * n_cumsum + current_stress_range
+        # Append to the last label block
+        hist_dict[labels[-1]] = (
+            np.append(history[-1][0], n_final_array),
+            np.append(history[-1][1], stress_range_final),
+        )
     # fmt: off
-    labels = [f"Block {i+1} (r={stress_range[i]} MPa)"
-              for i in range(len(stress_range))]
+    return tuple((label, *tup) for tup, label in zip(hist_dict.values(),
+                                                      hist_dict.keys()))
     # fmt: on
-
-    return [(*tup, label) for tup, label in zip(history, labels)]

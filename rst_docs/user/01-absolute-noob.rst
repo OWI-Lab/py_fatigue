@@ -126,18 +126,18 @@ Cycle-count definition
 
 .. table:: 
 
-    ================================= ================ === === === === === === === === 
-    Cycle counting object             Random signal                                   
-    ================================= ================ === === === === === === === === 
-    largest full stress range, MPa    179.026964                                 
-    largest stress range, MPa         180.0                                            
-    number of full cycles             33317                                            
-    number of residuals               23                                              
-    number of small cycles            0                                               
-    stress concentration factor       N/A                                             
-    residuals resolved                False                                           
-    mean stress-corrected             No                                              
-    ================================= ================ === === === === === === === === 
+    ================================= ================
+    Cycle counting object             Random signal   
+    ================================= ================
+    largest full stress range, MPa    179.026964      
+    largest stress range, MPa         180.0           
+    number of full cycles             33317           
+    number of residuals               23              
+    number of small cycles            0               
+    stress concentration factor       N/A             
+    residuals resolved                False           
+    mean stress-corrected             No              
+    ================================= ================
 
 Cycle-count matrix
 ~~~~~~~~~~~~~~~~~~
@@ -278,8 +278,8 @@ Damage calculation analysis
 .. code-block:: python
 
     # Calculate damage for the cycle-count objects
-    damage = pf.damage.get_pm(cycle_count=cycle_count, sn_curve=c_air)
-    damage_d = pf.damage.get_pm(cycle_count=cycle_count_d, sn_curve=c_air)
+    damage = pf.damage.stress_life.get_pm(cycle_count=cycle_count, sn_curve=c_air)
+    damage_d = pf.damage.stress_life.get_pm(cycle_count=cycle_count_d, sn_curve=c_air)
     print(f"damage from signal: {sum(damage)}")
     print(f"damage from matrix: {sum(damage_d)}")
 

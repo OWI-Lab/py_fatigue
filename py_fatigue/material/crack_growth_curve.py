@@ -820,7 +820,9 @@ class ParisCurve(AbstractCrackGrowthCurve):
     fastmath=False,
     parallel=True,
 )
-def _calc_growth_rate(sif, slope, intercept, threshold, critical):  #pragma: no cover  # noqa: E501  # pylint: disable=C0301
+def _calc_growth_rate(
+    sif, slope, intercept, threshold, critical
+):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
     assert np.min(sif) >= 0
@@ -865,7 +867,9 @@ def _calc_growth_rate(sif, slope, intercept, threshold, critical):  #pragma: no 
     fastmath=False,
     parallel=True,
 )
-def _calc_sif(growth_rate, slope, intercept, threshold, critical):  #pragma: no cover  # noqa: E501  # pylint: disable=C0301
+def _calc_sif(
+    growth_rate, slope, intercept, threshold, critical
+):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
     assert np.min(growth_rate) >= 0
@@ -882,9 +886,13 @@ def _calc_sif(growth_rate, slope, intercept, threshold, critical):  #pragma: no 
 
     knees_growth_rate = np.hstack(
         (
-            np.array([intercept[0] * (0.9999999999999999 * threshold) ** slope[0]]),
+            np.array(
+                [intercept[0] * (0.9999999999999999 * threshold) ** slope[0]]
+            ),
             knees_growth_rate,
-            np.array([intercept[-1] * (critical / 0.9999999999999999) ** slope[-1]]),
+            np.array(
+                [intercept[-1] * (critical / 0.9999999999999999) ** slope[-1]]
+            ),
         )
     )
     e_msg = (

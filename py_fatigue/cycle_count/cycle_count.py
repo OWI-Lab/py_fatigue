@@ -46,6 +46,7 @@ from ..styling import TermColors, py_fatigue_formatwarning
 
 __all__ = ["CycleCount"]
 
+warnings.formatwarning = py_fatigue_formatwarning
 
 NDT = NewType("NDT", dt.datetime)  # non-aware datetime
 ADT = NewType("ADT", dt.datetime)  # timezone aware datetime
@@ -874,7 +875,6 @@ class CycleCount:
                         f"{TermColors.CYELLOW2}.",
                     )
                 )
-                warnings.formatwarning = py_fatigue_formatwarning
                 warnings.warn(w_msg, UserWarning)
                 added_res_seq = self.residuals_sequence
                 added_min_max = self.min_max_sequence
@@ -889,14 +889,12 @@ class CycleCount:
                         f"{TermColors.CYELLOW2}.",
                     )
                 )
-                warnings.formatwarning = py_fatigue_formatwarning
                 warnings.warn(w_msg, UserWarning)
                 added_res_seq = other.residuals_sequence
                 added_min_max = other.min_max_sequence
             # 1d) Residuals sequence is neither defined in self nor in other
             else:
                 w_msg = "No residuals_sequence attribute found."
-                warnings.formatwarning = py_fatigue_formatwarning
                 warnings.warn(w_msg, UserWarning)
                 added_res_seq = np.empty(0)
                 added_min_max = np.empty(0)
@@ -911,7 +909,6 @@ class CycleCount:
                     f"{TermColors.CYELLOW2}.",
                 )
             )
-            warnings.formatwarning = py_fatigue_formatwarning
             warnings.warn(w_msg, UserWarning)
             added_res_seq = self.residuals_sequence
             added_min_max = self.min_max_sequence
@@ -926,14 +923,12 @@ class CycleCount:
                     f"{TermColors.CYELLOW2}.",
                 )
             )
-            warnings.formatwarning = py_fatigue_formatwarning
             warnings.warn(w_msg, UserWarning)
             added_res_seq = other.residuals_sequence
             added_min_max = other.min_max_sequence
         # 4) Neither self nor other have Residuals sequence
         else:
             w_msg = "No residuals_sequence attribute found."
-            warnings.formatwarning = py_fatigue_formatwarning
             warnings.warn(w_msg, UserWarning)
             added_res_seq = np.empty(0)
             added_min_max = np.empty(0)
@@ -1041,7 +1036,7 @@ class CycleCount:
         """
         return self.solve_lffd()
 
-    def mean_stress_correction(
+    def mean_stress_correction(  # pylint: disable=R0912
         self,
         correction_type: str = "DNVGL-RP-C203",
         plot: bool = False,
@@ -1050,7 +1045,7 @@ class CycleCount:
     ) -> "CycleCount":
         """Calculates the mean stress correction returning a new
         :class:`CycleCount` instance with corrected stress ranges
-        at :math:`R=\\sigma_{min}/\\sigma_{max}=0`.
+        at constant load ratio (:math:`R=\\sigma_{min}/\\sigma_{max}`).
 
         Parameters
         ----------
@@ -1064,13 +1059,31 @@ class CycleCount:
 
         `correction_types` : list
             * *dnvgl-rp-c203*
-            * *Goodman* (not included yet)
+            * *Walker*
+            * *SWT* or *Smith-Watson-Topper*
+            * *Goodman*
+            * *Gerber*
+            * *Morrow*
+            * *Soderberg*
+            * *Generic-Haigh*
 
         **kwargs : dict
             *detail_factor* : float
                 See DNVGL-RP-C203, by default 0.8
             *yield_strength* : float
                 Yielding stress amplitude
+            *gamma* : float
+                Exponent for Walker mean stress correction, by default 0.5
+            *r_out* : float
+                Load ratio at which the correction is performed
+            *ult_s* : float
+                Ultimate tensile strength for Goodman and Gerber, yield
+                strength for Soderberg, and true fracture strength for Morrow
+            *correction_exponent* : float
+                Exponent for Generic-Haigh mean stress
+                correction. It is set to 1 for Goodman, Morrow, and Soderberg,
+                and 2 for Gerber.
+
 
         Returns
         -------
@@ -1087,16 +1100,38 @@ class CycleCount:
             enforce_load_ratio to True to proceed.
         ValueError
             This correction type is not supported.
+        ValueError
+            The mean stress correction method requires the 'r_out'
+            parameter, i.e. the fixed load ratio at which the correction
+            is performed.
+        ValueError
+            The mean stress correction method requires the 'ult_s'
+            parameter, i.e. the ultimate tensile strength for Goodman and
+            Gerber, the yield strength for Soderberg, and the true fracture
+            strength for Morrow.
+        ValueError
+            The mean stress correction method requires the
+            'correction_exponent' parameter, i.e. the exponent of the
+            correction function.
 
         See also
         --------
         :func:`py_fatigue.mean_stress.corrections.dnvgl_mean_stress_correction`
+        :func:`py_fatigue.mean_stress.corrections.walker_mean_stress_correction`
+        :func:`py_fatigue.mean_stress.corrections.swt_mean_stress_correction`
+        :func:`py_fatigue.mean_stress.corrections.goodman_haigh_mean_stress_correction`
         """
         correction_types = [
             "dnvgl-rp-c203",
             "walker",
             "swt",
             "smith-watson-topper",
+            "goodman",
+            "gerber",
+            "morrow",
+            "soderberg",
+            "generic-haigh",
+            "haigh",
         ]
         if correction_type.lower() not in correction_types:
             raise ValueError(
@@ -1111,7 +1146,6 @@ class CycleCount:
                     ".",
                 )
             )
-            warnings.formatwarning = py_fatigue_formatwarning
             warnings.warn(w_msg, UserWarning)
             return self
 
@@ -1141,7 +1175,6 @@ class CycleCount:
                         "without significant residual stresses.",
                     )
                 )
-                warnings.formatwarning = py_fatigue_formatwarning
                 warnings.warn(w_msg, UserWarning)
                 ns.detail_factor = 0.8
             stress_ranges_corr = msc.dnvgl_mean_stress_correction(
@@ -1162,7 +1195,6 @@ class CycleCount:
                         "and corresponds to applying SWT correction.",
                     )
                 )
-                warnings.formatwarning = py_fatigue_formatwarning
                 warnings.warn(w_msg, UserWarning)
                 ns.gamma = 0.5
             stress_ranges_corr = msc.walker_mean_stress_correction(
@@ -1180,7 +1212,76 @@ class CycleCount:
                 plot,
             )
             mean_stress_corr = np.zeros(len(self_.mean_stress))
+        if correction_type.lower() in [
+            "goodman",
+            "gerber",
+            "morrow",
+            "soderberg",
+            "haigh",
+            "generic-haigh",
+        ]:
+            if "r_out" not in kwargs:
+                e_msg = "".join(
+                    (
+                        "The mean stress correction method ",
+                        f"{correction_type.upper()} requires the ",
+                        "'r_out', i.e. the fixed load ratio at which the ",
+                        "correction is performed. ",
+                    )
+                )
+                raise ValueError(e_msg)
+            if "ult_s" not in kwargs:
+                e_msg = "".join(
+                    (
+                        "The mean stress correction method ",
+                        f"{correction_type.upper()} requires the ",
+                        "'ult_s' parameter, i.e. the ultimate tensile "
+                        "strength for Goodman and Gerber, the yield strength "
+                        "for Soderberg, and the true fracture strength for "
+                        "Morrow.",
+                    )
+                )
+                raise ValueError(e_msg)
+            if correction_type.lower() in ["goodman", "morrow", "soderberg"]:
+                ns.correction_exponent = 1
+            if correction_type.lower() in ["gerber"]:
+                ns.correction_exponent = 2
+            if correction_type.lower() in ["generic-haigh", "haigh"]:
+                if "correction_exponent" not in kwargs:
+                    e_msg = "".join(
+                        (
+                            "The mean stress correction method ",
+                            f"{correction_type.upper()} requires the ",
+                            "'correction_exponent' parameter, i.e. the ",
+                            "exponent of the correction function.",
+                        )
+                    )
+                    raise ValueError(e_msg)
+            if isinstance(ns.r_out, (list, np.ndarray)) and len(ns.r_out) > 1:
+                w_msg = "".join(
+                    (
+                        "Multiple output load ratios provided!\n",
+                        f"Only the first one (r_out={ns.r_out[0]}) will be "
+                        "used in the mean stress-corrected CycleCount "
+                        "instance creation, while the others will be used "
+                        "for plotting purposes.",
+                    )
+                )
+                warnings.warn(w_msg, UserWarning)
+                if not plot:
+                    ns.r_out = ns.r_out[0]
+            s_a_c, mean_stress_corr = msc.goodman_haigh_mean_stress_correction(
+                amp_in=self_.stress_amplitude,
+                mean_in=self_.mean_stress,
+                r_out=ns.r_out,
+                ult_s=ns.ult_s,
+                correction_exponent=ns.correction_exponent,
+                plot=plot,
+            )
+            stress_ranges_corr = s_a_c[0] * 2
+            mean_stress_corr = mean_stress_corr[0]
 
+        # ! Creating the corrected CycleCount instance
         cc_msc = CycleCount(
             count_cycle=self_.count_cycle,
             stress_range=stress_ranges_corr,
@@ -1214,7 +1315,6 @@ class CycleCount:
                 )
             )
 
-            warnings.formatwarning = py_fatigue_formatwarning
             warnings.warn(w_msg, UserWarning)
 
         return cc_msc
@@ -1483,7 +1583,6 @@ def _multiplication_by_scalar(
                 f"{self_.stress_concentration_factor}{TermColors.CYELLOW2}.",
             )
         )
-        warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
 
     mul_range = other_ * self_.stress_range
@@ -1562,7 +1661,6 @@ def _cycle_count_add_checks(
                     f"after {self_.timestamp.strftime('%d %B %Y, %H:%M')}.",
                 )
             )
-            warnings.formatwarning = py_fatigue_formatwarning
             warnings.warn(w_msg, UserWarning)
             return False
         raise TypeError(
@@ -1579,7 +1677,6 @@ def _cycle_count_add_checks(
                 f"({self_.name} + {other_.name})"
             )
         )
-        warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
 
     # ! 3) TypeError
@@ -1619,7 +1716,6 @@ def _cycle_count_add_checks(
                 ").",
             )
         )
-        warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
 
     return checks_ok
@@ -1651,7 +1747,6 @@ def _bin_widths_add_check(
                 f"{self_} and {other_}{TermColors.CYELLOW2}).",
             )
         )
-        warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
 
 
@@ -1818,7 +1913,6 @@ def _lffd_checks(self_: CycleCount, solve_mode: str) -> tuple:
     return_self = False
     if self_.lffd_solved:
         w_msg = "Residuals already resolved. Nothing to do."
-        warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
         return_self = True
     if (
@@ -1831,7 +1925,6 @@ def _lffd_checks(self_: CycleCount, solve_mode: str) -> tuple:
             res_sequence = self_.min_max_sequence
     else:
         w_msg = "'residuals_sequence' is not available. Nothing to do."
-        warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
         return_self = True
     if len(res_sequence) < 3:
@@ -1843,7 +1936,6 @@ def _lffd_checks(self_: CycleCount, solve_mode: str) -> tuple:
                 f"{TermColors.CBOLD}'self'{TermColors.CEND}.",
             )
         )
-        warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
         return_self = True
     return return_self, res_sequence

@@ -6,15 +6,13 @@ The main and only class is SNCurve.
 """
 
 # Standard "from" imports
+from __future__ import annotations
 from collections.abc import Collection
 from typing import (
     Any,
     Callable,
-    List,
-    Optional,
     Sized,
     Tuple,
-    Union,
 )
 
 # Standard imports
@@ -24,7 +22,6 @@ import itertools
 import warnings
 
 # Non-standard "from" imports
-from functools import wraps
 from plotly.express import colors as px_colors
 
 # Non-standard imports
@@ -37,42 +34,19 @@ import plotly.graph_objs as go
 import plotly.io as pio
 
 # py_fatigue imports
-from ..utils import make_axes, calc_slope_intercept
+from ..utils import (
+    make_axes,
+    calc_slope_intercept,
+    ensure_array,
+    check_iterable,
+    check_str,
+    compile_specialized_bisect,
+)
 
 COLOR_LIST = px_colors.qualitative.Alphabet
 PLOTLY_FONT_FAMILY = "Roboto"
 pio.templates.default = "none"
 __all__ = ["SNCurve"]
-
-
-# Decorator
-def check_iterable(function: Callable) -> Callable:
-    """Decorator checking whether function *args are iterable.
-
-    Parameters
-    ----------
-    function : Callable
-        Generic function
-
-    Returns
-    -------
-    Callable
-    Generic function output
-    """
-
-    @wraps(function)
-    def wrapper(*args):
-        iter_args = []
-        for arg in args:
-            try:
-                iter(arg)
-            except TypeError:
-                iter_args.append(np.asarray([arg], dtype=float))
-            else:
-                iter_args.append(np.asarray(arg, dtype=float))
-        return function(*iter_args)
-
-    return wrapper
 
 
 @check_iterable
@@ -104,30 +78,6 @@ def _check_param_couple_types(
             "Params lengths must match. Got:", len(par_1), len(par_2)
         )
     return par_1, par_2
-
-
-# Decorator
-def check_str(function: Callable) -> Callable:
-    """Decorator that checks whether a variable is string or NoneType.
-
-    Parameters
-    ----------
-    function : Callable
-        Input function
-
-    Returns
-    -------
-    Input function output
-    """
-
-    @wraps(function)
-    def wrapper(*args):
-        str_args = []
-        for arg in args:
-            str_args.append(str(arg or ""))
-        return function(*str_args)
-
-    return wrapper
 
 
 @check_str
@@ -167,7 +117,7 @@ def color_setter(func: Callable):
         be assigned to SN curve.
         """
 
-        color: Optional[str]
+        color: str | None
 
         def __init__(self):
             # Wrapper is callable because it has the `__call__` method.
@@ -186,7 +136,7 @@ def color_setter(func: Callable):
 
 
 @color_setter
-def _set_color(color: Union[str, None]) -> tuple:
+def _set_color(color: str | None) -> tuple:
     """Sets the SN curve color.
 
     Parameters
@@ -208,36 +158,6 @@ def _set_color(color: Union[str, None]) -> tuple:
     return color, my_id
 
 
-# Decorator
-def ensure_array(method: Callable) -> Callable:
-    """Ensures that the input variable of a class method is an array.
-
-    Parameters
-    ----------
-    method : Callable
-        Input method
-
-    Returns
-    -------
-    Callable
-        Input method output
-    """
-
-    @wraps(method)
-    def wrapper(self, x):
-        try:
-            iter(x)
-        except TypeError:
-            xm = np.asarray([x])
-            ym = method(self, xm)[0]
-        else:
-            xm = np.asarray(x)
-            ym = method(self, xm)
-        return ym
-
-    return wrapper
-
-
 class AbstractSNCurve(metaclass=abc.ABCMeta):
     """Abstract SN curve.
     Concrete subclasses should define methods:
@@ -257,25 +177,25 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
 
     def __init__(
         self,
-        slope: Union[int, float, list, np.ndarray],
-        intercept: Union[int, float, list, np.ndarray],
-        endurance: Union[int, float] = np.inf,
-        environment: Optional[str] = None,
-        curve: Optional[str] = None,
-        norm: Optional[str] = None,
+        slope: int | float | list | np.ndarray,
+        intercept: int | float | list | np.ndarray,
+        endurance: int | float = np.inf,
+        environment: str | None = None,
+        curve: str | None = None,
+        norm: str | None = None,
         unit_string: str = "MPa",
-        color: Optional[str] = None,
+        color: str | None = None,
     ) -> None:
         """Define stress-life (SN) curve.
         See class docstring for more information.
 
         Parameters
         ----------
-        slope : Union[int, float, list, np.ndarray]
+        slope : int | float | list | np.ndarray
             SN curve slope
-        intercept : Union[int, float, list, np.ndarray]
+        intercept : int | float | list | np.ndarray
             Stress axis intercept
-        endurance : Union[int, float], optional
+        endurance : float | np.ndarray[int, float], optional
             endurance number of cycles, by default np.inf
         environment : str, optional
             SN curve envirnoment, by default None
@@ -368,11 +288,11 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
         return self.__intercept
 
     @property
-    def endurance(self) -> Union[int, float]:
+    def endurance(self) -> int | float:
         """Preventing attribute modification outside of constructor
 
         Returns:
-            Union[int, float]: Endurance
+            float | np.ndarray[int, float]: Endurance
         """
         return self.__endurance
 
@@ -416,7 +336,7 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_cycles(
         self,
-        check_knee: Optional[Collection] = None,
+        check_knee: Collection | None = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Calculate the knee cycles.
@@ -437,7 +357,7 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_knee_stress(
         self,
-        check_knee: Optional[Collection] = None,
+        check_knee: Collection | None = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         """Return stress at the knee(s).
@@ -457,8 +377,8 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_cycles(
-        self, stress_range: Union[int, float, list, np.ndarray]
-    ) -> Union[float, np.ndarray]:
+        self, stress_range: int | float | list | np.ndarray
+    ) -> float | np.ndarray:
         """Return cycles value(s) for stress range(s).
 
         Arguments
@@ -476,8 +396,8 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_stress(
-        self, cycles: Union[int, float, list, np.ndarray]
-    ) -> Union[float, np.ndarray]:
+        self, cycles: int | float | list | np.ndarray
+    ) -> float | np.ndarray:
         """Return stress range(s) for the endurance(s) N.
 
         Arguments
@@ -629,14 +549,14 @@ class SNCurve(AbstractSNCurve):
     @classmethod
     def from_knee_points(
         cls,
-        knee_stress: Union[List[float], np.ndarray],
-        knee_cycles: Union[List[float], np.ndarray],
+        knee_stress: list[float] | np.ndarray,
+        knee_cycles: list[float] | np.ndarray,
         endurance: float = np.inf,
-        environment: Optional[str] = None,
-        curve: Optional[str] = None,
-        norm: Optional[str] = None,
+        environment: str | None = None,
+        curve: str | None = None,
+        norm: str | None = None,
         unit_string: str = "MPa",
-        color: Optional[str] = None,
+        color: str | None = None,
     ) -> "SNCurve":
         """Create an SN curve from knee points. The first and last pairs of
         knee stress and knee cycles are used to set y-intercept and endurance
@@ -680,7 +600,7 @@ class SNCurve(AbstractSNCurve):
 
     def get_knee_stress(
         self,
-        check_knee: Optional[Collection] = None,
+        check_knee: Collection | None = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         if not self.linear:
@@ -721,7 +641,7 @@ class SNCurve(AbstractSNCurve):
 
     def get_knee_cycles(
         self,
-        check_knee: Optional[Collection] = None,
+        check_knee: Collection | None = None,
         significant_digits: int = 2,
     ) -> np.ndarray:
         knee_stress = self.get_knee_stress()
@@ -757,8 +677,8 @@ class SNCurve(AbstractSNCurve):
 
     @ensure_array
     def get_cycles(
-        self, stress_range: Union[int, float, list, np.ndarray]
-    ) -> Union[float, np.ndarray]:
+        self, stress_range: int | float | list | np.ndarray
+    ) -> float | np.ndarray:
         # m, a = self.slope, self.intercept
         # # List comprehension approach
         # np.minimum(np.max(
@@ -781,8 +701,8 @@ class SNCurve(AbstractSNCurve):
 
     @ensure_array
     def get_stress(
-        self, cycles: Union[int, float, list, np.ndarray]
-    ) -> Union[float, np.ndarray]:
+        self, cycles: int | float | list | np.ndarray
+    ) -> float | np.ndarray:
         # m, a = self.slope, self.intercept
         # endurance_stress = np.power(10 ** a / self.endurance, 1 / m)
         # # List comprehension approach
@@ -802,8 +722,8 @@ class SNCurve(AbstractSNCurve):
         )
 
     def n(  # pylint: disable=invalid-name
-        self, sigma: Union[int, float, list, np.ndarray]
-    ) -> Union[float, np.ndarray]:
+        self, sigma: int | float | list | np.ndarray
+    ) -> float | np.ndarray:
         """Equivalent of :func:`~SNCurve.get_cycles()`. Added for backwards
         compatibility. It will be removed in a future release.
 
@@ -831,8 +751,8 @@ class SNCurve(AbstractSNCurve):
 
     def sigma(
         self,
-        n: Union[int, float, list, np.ndarray],  # pylint: disable=invalid-name
-    ) -> Union[float, np.ndarray]:
+        n: int | float | list | np.ndarray,  # pylint: disable=invalid-name
+    ) -> float | np.ndarray:
         """Equivalent of :func:`SNCurve.get_stress()`. Added for backwards
         compatibility. It will be removed in a future release
 
@@ -859,9 +779,9 @@ class SNCurve(AbstractSNCurve):
 
     def plotly(
         self,
-        cycles: Optional[list] = None,
-        stress_range: Optional[list] = None,
-        dataset_name: Optional[str] = None,
+        cycles: list | None = None,
+        stress_range: list | None = None,
+        dataset_name: str | None = None,
         dataset_color: str = "#000",
     ) -> Tuple[list, dict]:
         """Use plotly to plot the SN curve and a stress-cycles history dataset.
@@ -953,12 +873,12 @@ class SNCurve(AbstractSNCurve):
 
     def plot(
         self,
-        cycles: Optional[list] = None,
-        stress_range: Optional[list] = None,
-        dataset_name: Optional[str] = None,
+        cycles: list | None = None,
+        stress_range: list | None = None,
+        dataset_name: str | None = None,
         dataset_color: str = "#000",
-        fig: Optional[matplotlib.figure.Figure] = None,
-        ax: Optional[matplotlib.axes.Axes] = None,
+        fig: matplotlib.figure.Figure | None = None,
+        ax: matplotlib.axes.Axes | None = None,
         **kwargs: Any,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """Use plotly to plot the SN curve and a stress-cycles history dataset.
@@ -1215,13 +1135,13 @@ def _sn_curve_data_points(sn: SNCurve) -> tuple:
     return n_plot, sigma_plot
 
 
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=True,
-    cache=True,
-)
-def sn_curve_residuals(  # pragma: no cover
-    cycles, slope, intercept, endurance, weight, res_stress
+def __sn_curve_residuals(  # pragma: no cover
+    cycles: float,
+    slope: np.ndarray,
+    intercept: np.ndarray,
+    endurance: float = np.inf,
+    res_stress: float | None = None,
+    weight: float | None = None,
 ):
     """Calculate the residual stress range available to the SN curve, provided
     its material properties (slopes, intercepts, and endurance), the data
@@ -1233,5 +1153,8 @@ def sn_curve_residuals(  # pragma: no cover
     if not res_stress:
         res_stress = 0
     fail = _calc_stress_2(np.array([cycles]), slope, intercept, endurance)[0]
-    # fmt: on
     return fail - weight * cycles - res_stress
+
+
+# Create a jitted bisection function specialized for root_func
+__jit_sn_curve_residuals = compile_specialized_bisect(__sn_curve_residuals)

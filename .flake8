@@ -2,5 +2,5 @@
 max-line-length = 79
 exclude = **/__pycache__
 max-complexity = 20
-ignore = E203, W503
+ignore = E127, E128, E203, W503
 jobs=4

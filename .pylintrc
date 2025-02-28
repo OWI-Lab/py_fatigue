@@ -64,6 +64,8 @@ disable=
   logging-format-interpolation,
   locally-disabled,
   duplicate-code,
+  consider-using-enumerate,
+  line-too-long,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -239,7 +241,7 @@ indent-string='    '
 max-line-length=79
 
 # Maximum number of lines in a module
-max-module-lines=2000
+max-module-lines=2500
 
 # List of optional constructs for which whitespace checking is disabled. `dict-
 # separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
@@ -340,6 +342,7 @@ good-names=
            l,
            m,
            n,
+           r,
            t,
            v,
            x,
