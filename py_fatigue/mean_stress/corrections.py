@@ -242,7 +242,7 @@ def swt_mean_stress_correction(
     )
 
 
-def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912
+def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,E501
     amp_in: np.ndarray | list[float],
     mean_in: np.ndarray | list[float],
     r_out: float | np.ndarray | list[float],
