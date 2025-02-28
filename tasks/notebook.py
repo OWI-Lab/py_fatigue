@@ -16,7 +16,7 @@ def run(c_r):
     with c_r.cd("./notebooks"):
         # check current directory
         with c_r.prefix("export JUPYTER_CONFIG_DIR=../.jupyter"):
-            _command = f"jupyter notebook --port={c_r.start_port} --no-browser"
+            _command = f"jupyter notebook --port={c_r.start_port} --no-browser --NotebookApp.token='' --NotebookApp.password=''"
             c_r.run(_command)
 
 
@@ -59,7 +59,8 @@ def start(c_r):
             with c_r.prefix("export JUPYTER_CONFIG_DIR=../.jupyter"):
                 _command = (
                     f"screen -d -S {SCREEN_NAME} -m "
-                    f"jupyter notebook --port={c_r.start_port} --no-browser"
+                    f"jupyter notebook --port={c_r.start_port} --no-browser "
+                    "--NotebookApp.token='' --NotebookApp.password=''"
                 )
                 print(f"{tmp_str}")
                 c_r.run(_command)
@@ -68,7 +69,7 @@ def start(c_r):
             with c_r.cd("./notebooks"):
                 _command = (
                     "wt -d . jupyter notebook "
-                    f"--port={c_r.start_port}"
+                    f"--port={c_r.start_port} --no-browser --NotebookApp.token='' --NotebookApp.password=''"
                 )
                 print(
                     colorize(
