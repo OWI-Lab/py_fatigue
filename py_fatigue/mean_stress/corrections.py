@@ -253,10 +253,21 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
     logger: logging.Logger | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Solves the implicit Goodman correction formula for fatigue analysis using
-    the fsolve function from scipy.optimize which is a numerical solver for
-    non-linear equations. It uses the Newton-Raphson method to find the roots
-    of the implicit equation.
+    Given the standard Goodman-Haigh correction formula:
+    
+    .. math::
+
+        \\text{amp}_{\\text{out}} =  \\frac{\\text{amp}_{\\text{in}}}
+        {1 - \\left(\\frac{\\text{mean}_{\\text{in}}}{\\text{ult}_\\text{s}}
+        \\right)^{\\text{n}}}
+
+    this function computes the corrected stress amplitude at zero mean stress
+    (R = -1) for a given set ofinput stress amplitudes and mean stresses. The
+    correction exponent :math:`n` is a material property that can be obtained
+    from experimental data. The corrected stress amplitudes can also be
+    computed for any other stress ratio R, as long as the material's ultimate
+    strength is known. In this case, ths formula becomes implicit and must be
+    solved numerically.
 
     The formula being solved is:
 
@@ -276,6 +287,11 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
     amplitude, ult\\ :sub:`s`\\  is the ultimate strength of the material, and
     n is the correction exponent.
 
+    The solver is based on the Newton-Raphson method, which is implemented
+    internally at :func:`py_fatigue.utils.numba_newton`,
+    :func:`py_fatigue.utils.compile_specialized_newton`, and
+    :func:`py_fatigue.utils.__goodman_equation`.
+
     Parameters
     ----------
     amp_in : np.ndarray | list
@@ -294,6 +310,36 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
     tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, np.ndarray, plt.Figure]
         Computed amp_out values, corresponding mean_out values, and the figure
         object if plot is set to True.
+
+    See Also
+    --------
+    :func:`py_fatigue.utils.numba_newton`,
+    :func:`py_fatigue.utils.compile_specialized_newton`,
+    :func:`py_fatigue.utils.__goodman
+
+    Raises
+    ------
+    ValueError
+        If the input arrays have different shapes or if there are negative
+        stress amplitude values in amp_in.
+    Warning
+        If the number of points in the input arrays is too large for plotting.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from py_fatigue.mean_stress.corrections import (
+    ...     goodman_haigh_mean_stress_correction
+    ... )
+    >>> amp_in = np.array([100, 200, 300])
+    >>> mean_in = np.array([0, 0, 0])
+    >>> r_out = np.array([-1, 0, 0.5, 0.75, 0.9])
+    >>> ult_s = 1000
+    >>> correction_exponent = 9
+    >>> amp_out, mean_out = goodman_haigh_mean_stress_correction(
+    ...     amp_in, mean_in, r_out, ult_s, correction_exponent, plot=True
+    ... )
+
     """
     # Convert inputs to numpy arrays for element-wise operations
     if isinstance(amp_in, list):

@@ -657,15 +657,15 @@ class CrackGrowth:
             indices = [int(idx) for idx in indices]
             start_indices = [int(idx) for idx in start_indices]
             # fmt: off
-            crack_depth = np.array([cg_.crack_depth[start:end].sum() \
+            crack_depth = np.array([cg_.crack_depth[start:end].sum()
                                     for start, end in zip(start_indices,
                                                           indices)])
-            sif = np.array([cg_.sif[start:end].sum() \
+            sif = np.array([cg_.sif[start:end].sum()
                             for start, end in zip(start_indices, indices)])
-            cumul_cycle = np.array([cumul_cycle[start:end].sum() \
+            cumul_cycle = np.array([cumul_cycle[start:end].sum()
                                     for start, end in zip(start_indices,
                                                           indices)])
-            geometry_factor = np.array([cg_.geometry_factor[start:end].sum() \
+            geometry_factor = np.array([cg_.geometry_factor[start:end].sum()
                                         for start, end in zip(start_indices,
                                                               indices)])
             # fmt: on
