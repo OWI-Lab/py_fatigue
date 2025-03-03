@@ -47,7 +47,8 @@ If you use Py-Fatigue in your research, please use the following citation:
 ### APA 7-style
 
 ```
-D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software]. In Github (1.0.3). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
+D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software].
+In Github (1.0.3). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 ```
 
 ### BibTeX-style
