@@ -30,7 +30,7 @@ Therefore, it is highly recommended to have a look at the documentation of these
 
 ## Installation requirements
 
-Py-Fatigue v1.*.* requires Python [3.8, 3.9, 3.10], while py-fatigue v2.*.* is compatible with Python [3.10, 3.11, 3.12, 3.13]. It is a 64-bit package, hence not compatible with 32-bit Python.
+Py-Fatigue `v1.*.*` requires Python [3.8, 3.9, 3.10], while py-fatigue `v2.*.*` is compatible with Python [3.10, 3.11, 3.12, 3.13]. It is a 64-bit package, hence not compatible with 32-bit Python.
 
 ### Installation
 
@@ -48,7 +48,7 @@ If you use Py-Fatigue in your research, please use the following citation:
 
 ```
 D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software].
-In Github (1.0.3). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
+In Github (2.0.1). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 ```
 
 ### BibTeX-style
@@ -74,7 +74,7 @@ In Github (1.0.3). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 	title = {Py-Fatigue},
 	type = {software},
 	url = {https://owi-lab.github.io/py_fatigue},
-	version = {1.0.3},
+	version = {2.0.1},
 }
 ```
 
