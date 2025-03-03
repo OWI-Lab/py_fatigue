@@ -14,7 +14,7 @@
   <img src="https://owi-lab.github.io/py_fatigue/_static/py-fatigue-logo-with-name.png" alt="py-fatigue logo" width="height"/>
 </p>
 
-Py-Fatigue is a Python package for cycle-conuting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel.
+Py-Fatigue is a Python package for cycle-conuting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel. Full documentation can be found [**here**](https://owi-lab.github.io/py_fatigue/).
 
 - a powerful cycle-counting implementation based on the ASTM E1049-85 rainflow method that retrieves the main class of the package: ``CycleCount``
 - capability of storing the ``CycleCount`` results in a sparse format for storage and memory efficiency
@@ -30,11 +30,25 @@ Therefore, it is highly recommended to have a look at the documentation of these
 
 ## Installation requirements
 
-Py-Fatigue requires Python [3.8, 3.9, 3.10]. It is a 64-bit package and it is not compatible with 32-bit Python.
+Py-Fatigue v1.*.* requires Python [3.8, 3.9, 3.10], while py-fatigue v2.*.* is compatible with Python [3.10, 3.11, 3.12, 3.13]. It is a 64-bit package, hence not compatible with 32-bit Python.
+
+### Installation
+
+Py-Fatigue can be installed via pip:
+
+```bash
+pip install py_fatigue
+```
 
 ## To cite Py-Fatigue
 
-If you use Py-Fatigue in your research, please cite the following paper:
+If you use Py-Fatigue in your research, please use the following citation:
+
+### APA 7-style
+
+```
+D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software]. In Github (1.0.3). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
+```
 
 ### BibTeX-style
 
@@ -63,12 +77,10 @@ If you use Py-Fatigue in your research, please cite the following paper:
 }
 ```
 
-### APA 7-style
-
-```
-D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software]. In Github (1.0.3). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
-```
-
 ## License
 
 The package is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
+## Acknowledgements
+
+Py-Fatigue was originally developed in the framework of the [MAXWind project](https://www.owi-lab.be/maxwind/), funded by the Federale Overheidsdienst Economie, KMO, Middenstand en Energie (FOD Economie) in the framework of the Energy Transition Fund (ETF).

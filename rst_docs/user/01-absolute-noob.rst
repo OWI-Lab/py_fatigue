@@ -12,11 +12,11 @@ py-fatigue was originally part of the DYNAwind suite of tools for wind
 turbine structural health monitoring and analysis. The tool has been detached
 from the project and now relies on the following PyPi packages only:
 
-- **Python** ([3.8, 3.9, 3.10], 64-bit)
+- **Python** ([3.8, 3.9, 3.10] for v1.*.*, [3.10, 3.11, 3.12, 3.13] for v2.*.*,  64-bit only)
 - `numpy`
 - `plotly`
 - `pandas`
-- `numba` vers. <0.57 (next year we will update to the latest version, but for now, we are stuck with this one, as it is the last one compatible with Python 3.8)
+- `numba` vers. ^0.57 (for v1.*.*), vers. ^0.61 (for v2.*.*)
 - `matplotlib`
 - `pydantic`
 
@@ -28,14 +28,13 @@ Installing py-fatigue
 
 py-fatigue is freely available on GitHub and gets maintained through CI/CD phylosophy. The package requires Python 3.8 or higher, and it requires a 64-bit version of Python.
 
-To install the toolbox, simply run:
+To install the toolbox from PyPI, simply run:
     
 .. code-block:: bash
 
     pip install py-fatigue
 
-and you will get the latest stable version of the toolbox.
-
+and you will get the latest published version.
 
 
 How to import py-fatigue
@@ -70,10 +69,9 @@ tasks. The main functions are:
   a. `stress-life`: fatigue analysis based on the :term:`cycle-counting<Cycle-counting>` and :term:`SN curve<SN Curve>`.
   b. `crack_growth`: crack propagation (growth) analysis based on  the :term:`cycle-counting<Cycle-counting>`, the :term:`Paris' law` and the geometrical definition of a crack case (defect geometry and medium).
 
-The toolbox also provides a number of helper functions to simulate load
-histories:
+5. `mean_stress`: a module to calculate the mean stress correction factor for the :term:`cycle-counting<Cycle-counting>`.
+6. `testing`: a module to simulate different kinds of load histories. The most generic type of load history can be simulated using the `get_sampled_time` and `get_random_data` functions, as shown in the example below.
 
--   `testing` includes functions to simulate different kinds of load histories. The most generic type of load history can be simulated using the `make_random_signal` function which outputs a `dw_signal.Signal` object.
 
 Example
 -------
@@ -224,18 +222,18 @@ Cycle-count matrix
 
 .. table:: 
 
-    ================================= ================ === === === === === === === === 
-    Cycle counting object             Random Signal                                   
-    ================================= ================ === === === === === === === === 
-    largest full stress range, MPa    179.027                                          
-    largest stress range, MPa         180.0                                            
-    number of full cycles             33219                                            
-    number of residuals               22                                              
-    number of small cycles            99                                              
-    stress concentration factor       N/A                                             
-    residuals resolved                False             
-    mean stress-corrected             No                              
-    ================================= ================ === === === === === === === === 
+    ================================= ================
+    Cycle counting object             Random Signal   
+    ================================= ================
+    largest full stress range, MPa    179.027         
+    largest stress range, MPa         180.0           
+    number of full cycles             33219           
+    number of residuals               22              
+    number of small cycles            99              
+    stress concentration factor       N/A             
+    residuals resolved                False           
+    mean stress-corrected             No              
+    ================================= ================
 
 .. code-block:: python
 

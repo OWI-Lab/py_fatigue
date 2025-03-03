@@ -648,11 +648,31 @@ class CrackGrowth:
                 (cg_.geometry_factor, np.full(d_l, np.nan))
             )
         else:
-            idx = np.asarray(self._obj["count_cycle"].cumsum(), dtype=int) - 1
-            self._obj["crack_depth"] = cg_.crack_depth[idx]
-            self._obj["sif"] = cg_.sif[idx]
-            self._obj["cumul_cycle"] = cumul_cycle[idx]
-            self._obj["geometry_factor"] = cg_.geometry_factor[idx]
+            # perform a piecewise cumsum, as the cycles are clustered
+            # and the crack growth is performed on the split cycles
+            indices = np.cumsum(self._obj["count_cycle"].values).tolist()
+            # Get the cumulative indices from count_cycles
+            start_indices = [0] + indices[:-1]
+            # Convert indices to integers
+            indices = [int(idx) for idx in indices]
+            start_indices = [int(idx) for idx in start_indices]
+            # fmt: off
+            crack_depth = np.array([cg_.crack_depth[start:end].sum() \
+                                    for start, end in zip(start_indices,
+                                                          indices)])
+            sif = np.array([cg_.sif[start:end].sum() \
+                            for start, end in zip(start_indices, indices)])
+            cumul_cycle = np.array([cumul_cycle[start:end].sum() \
+                                    for start, end in zip(start_indices,
+                                                          indices)])
+            geometry_factor = np.array([cg_.geometry_factor[start:end].sum() \
+                                        for start, end in zip(start_indices,
+                                                              indices)])
+            # fmt: on
+            self._obj["crack_depth"] = crack_depth
+            self._obj["sif"] = sif
+            self._obj["cumul_cycle"] = cumul_cycle
+            self._obj["geometry_factor"] = geometry_factor
         self._obj.cg_curve = cg_curve
         self.cg_curve = cg_curve
         self._obj.crack_geometry = crack_geometry
