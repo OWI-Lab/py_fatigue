@@ -254,7 +254,7 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Given the standard Goodman-Haigh correction formula:
-    
+
     .. math::
 
         \\text{amp}_{\\text{out}} =  \\frac{\\text{amp}_{\\text{in}}}

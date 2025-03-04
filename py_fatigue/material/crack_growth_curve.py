@@ -64,8 +64,6 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
         intercept: Union[int, float, list, np.ndarray],
         threshold: Union[int, float] = 0,
         critical: Union[int, float] = np.inf,
-        load_ratio: Union[int, float] = 0,
-        walker_exponent: Union[int, float] = 0,
         environment: Optional[str] = None,
         curve: Optional[str] = None,
         norm: Optional[str] = None,
@@ -111,8 +109,6 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
         self.__linear = len(self.slope) == 1
         self.__threshold = threshold
         self.__critical = critical
-        self.__load_ratio = load_ratio
-        self.__walker_exponent = walker_exponent
         self.__unit = unit_string
 
     @classmethod
@@ -199,40 +195,6 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
             Union[int, float]: Critical SIF
         """
         return self.__critical
-
-    @property
-    def load_ratio(self) -> Union[int, float]:
-        """Preventing attribute modification outside of constructor
-
-        Returns:
-            Union[int, float]: Load ratio
-        """
-        return self.__load_ratio
-
-    @property
-    def walker_exponent(self) -> Union[int, float]:
-        """Preventing attribute modification outside of constructor
-
-        Returns:
-            Union[int, float]: Walker's exponent
-        """
-        return self.__walker_exponent
-
-    @property
-    def w_intcpt(self) -> np.ndarray:
-        """Walker-corrected intercept.
-
-        .. math::
-            a_w = \\frac{a}{(1 - R)^{\\frac{m}{1 - \\gamma}}}
-
-        Preventing attribute modification outside of constructor
-
-        Returns:
-            np.ndarray: Corrected intercept
-        """
-        return self.__intercept * (1 - self.__load_ratio) ** (
-            self.__slope * (self.__walker_exponent - 1)
-        )
 
     @property
     def unit(self) -> str:
@@ -420,6 +382,60 @@ class ParisCurve(AbstractCrackGrowthCurve):
 
     """
 
+    def __init__(
+        self,
+        slope: Union[int, float, list, np.ndarray],
+        intercept: Union[int, float, list, np.ndarray],
+        threshold: Union[int, float] = 0,
+        critical: Union[int, float] = np.inf,
+        environment: Optional[str] = None,
+        curve: Optional[str] = None,
+        norm: Optional[str] = None,
+        unit_string: str = "MPa √mm",
+        color: Union[str, None] = None,
+    ) -> None:
+        """Define crack growth rate curve (Paris' law).
+        See class docstring for more information.
+
+        Parameters
+        ----------
+        slope : Union[int, float, list, np.ndarray]
+            Paris curve slope
+        intercept : Union[int, float, list, np.ndarray]
+            crack growth rate axis intercept
+        threshold : Union[int, float]
+            propagation threshold, below which crack growth rate is null
+        critical : Union[int, float]
+            critical propagation stress intensity factor, imminent failure
+        load_ratio : Union[int, float]
+            load ratio. Used for mean stress-corrected Paris' law
+        walker_exponent : Union[int, float]
+            Walker's exponent. Used for mean stress-corrected Paris' law
+        environment : str, optional
+            Paris' law envirnoment, by default None
+        curve : str, optional
+            Paris' law category, by default None
+        norm : str, optional
+            Paris' law norm, by default None
+        unit_string : str, optional
+            units, by default "MPa √mm"
+        color : str, optional
+            RGBS or HEX string for color, by default None
+        """
+        super().__init__(
+            slope,
+            intercept,
+            threshold,
+            critical,
+            environment,
+            curve,
+            norm,
+            unit_string,
+            color,
+        )
+        self.__threshold = threshold
+        self.__critical = critical
+
     @classmethod
     def from_knee_points(
         cls,
@@ -489,7 +505,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
             cg_unit = "/".join((split_unit[1], "cycle"))
 
         ann_1 = f"{self.name},\nSlope: {[round(s, 2) for s in self.slope]}"
-        ann_2 = f"Intercept: {[f'{i:.2E}' for i in self.w_intcpt]}".replace(
+        ann_2 = f"Intercept: {[f'{i:.2E}' for i in self.walker_intercept]}".replace(  # noqa: E501
             "'", ""
         )
         ann_3 = f"Threshold: {self.threshold:.2f} {cg_unit}"
@@ -585,6 +601,60 @@ class ParisCurve(AbstractCrackGrowthCurve):
             self.name = self.name.replace("\n", "<br> ")
 
     @property
+    def load_ratio(self) -> Union[int, float]:
+        """Preventing attribute modification outside of constructor
+
+        Returns:
+            Union[int, float]: Load ratio
+        """
+        return 0
+
+    @property
+    def walker_exponent(self) -> Union[int, float]:
+        """Preventing attribute modification outside of constructor
+
+        Returns:
+            Union[int, float]: Walker's exponent
+        """
+        return 0
+
+    @property
+    def walker_intercept(self) -> np.ndarray:
+        """Walker-corrected intercept.
+
+        .. math::
+            a_w = \\frac{a}{(1 - R)^{\\frac{m}{1 - \\gamma}}}
+
+        Preventing attribute modification outside of constructor
+
+        Returns:
+            np.ndarray: Corrected intercept
+        """
+        return self.intercept
+
+    @property
+    def threshold(self) -> Union[int, float]:
+        """
+
+        Returns:
+            Union[int, float]: Threshold SIF
+        """
+        return self.__threshold * (1 - self.load_ratio) ** (
+            1 - self.walker_exponent
+        )
+
+    @property
+    def critical(self) -> Union[int, float]:
+        """
+
+        Returns:
+            Union[int, float]: Critical SIF
+        """
+        return self.__critical * (1 - self.load_ratio) ** (
+            1 - self.walker_exponent
+        )
+
+    @property
     def threshold_growth_rate(self) -> float:
         """Calculates the crack growth rate at threshold, if threshold
         SIF is defined.
@@ -628,13 +698,16 @@ class ParisCurve(AbstractCrackGrowthCurve):
         np.ndarray
             knee crack growth rate
         """
-        knee_growth_rate = np.empty(self.w_intcpt.size - 1, dtype=np.float64)
+        knee_growth_rate = np.empty(
+            self.walker_intercept.size - 1, dtype=np.float64
+        )
         if not self.linear:
-            for i in range(self.w_intcpt.size - 1):
+            for i in range(self.walker_intercept.size - 1):
                 m_i = self.slope[i + 1] / (self.slope[i + 1] - self.slope[i])
                 m_i_p_1 = self.slope[i] / (self.slope[i + 1] - self.slope[i])
                 knee_growth_rate[i] = (
-                    self.w_intcpt[i] ** m_i / self.w_intcpt[i + 1] ** m_i_p_1
+                    self.walker_intercept[i] ** m_i
+                    / self.walker_intercept[i + 1] ** m_i_p_1
                 )
             if check_knee is not None:
                 try:
@@ -682,13 +755,13 @@ class ParisCurve(AbstractCrackGrowthCurve):
         np.ndarray
             knee SIF
         """
-        knee_sif = np.empty(self.w_intcpt.size - 1, dtype=np.float64)
+        knee_sif = np.empty(self.walker_intercept.size - 1, dtype=np.float64)
         if not self.linear:
-            if self.w_intcpt.size > 1:
-                for i in range(self.w_intcpt.size - 1):
-                    knee_sif[i] = (self.w_intcpt[i] / self.w_intcpt[i + 1]) ** (
-                        1 / (self.slope[i + 1] - self.slope[i])
-                    )
+            if self.walker_intercept.size > 1:
+                for i in range(self.walker_intercept.size - 1):
+                    knee_sif[i] = (
+                        self.walker_intercept[i] / self.walker_intercept[i + 1]
+                    ) ** (1 / (self.slope[i + 1] - self.slope[i]))
             if check_knee is not None:
                 try:
                     len(check_knee)
@@ -718,7 +791,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
         return _calc_growth_rate(
             sif_range,
             self.slope,
-            self.w_intcpt,
+            self.walker_intercept,
             self.threshold,
             self.critical,
         )
@@ -730,7 +803,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
         return _calc_sif(
             growth_rate,
             self.slope,
-            self.w_intcpt,
+            self.walker_intercept,
             self.threshold,
             self.critical,
         )
@@ -812,6 +885,176 @@ class ParisCurve(AbstractCrackGrowthCurve):
         ax.set_ylabel(f"Crack growth rate (da/dN), {y_unit}")  # type: ignore
 
         return fig, ax
+
+
+class WalkerCurve(ParisCurve):
+    """Define a crack growth curve inthe form of Paris' law that can
+    have an arbitrary number of slopes/intercepts as well as a
+    threshold and critical stress intensity factor. For example:
+
+    >>> #
+    >>> #         ^                log da/dN - log ΔK
+    >>> #         │                                *
+    >>> #         │                                *
+    >>> #         │                                *
+    >>> #         │                                *
+    >>> #         │                             *  .
+    >>> #         │                          *  │  .
+    >>> #         │                       *     │ m2
+    >>> #         │                    *        │  .
+    >>> #         │                 *-----------┘  .
+    >>> #         │              *                 .
+    >>> #         │           .*│                  .
+    >>> #         │        . *  │ m1               .
+    >>> #         │     .  *    │                  .
+    >>> #         │  .   *------┘                  .
+    >>> # (da/dN)1+    *                           .
+    >>> #         │  . *                           .
+    >>> #         │.   *                           .
+    >>> # (da/dN)2+----|---------------------------|--------------->
+    >>> #             ΔK0                         ΔKc
+    >>> #                          Number of cycles
+
+    The slope-intercept couples `((m1, log_a1), (m2, log_a2))`, and the
+    endurance value `(Ne)` are the parameters necessary to fully describe this
+    trilinear Paris' law. If the endurance is not set, it defaults to Inf.
+
+    .. note::
+        The curve can account for mean stress effect according to Walker's
+        model. The walker_exponent is set to 0 by default, meaning no
+        correction is applied, i.e. the base curve is valid for R=0.
+
+    Example
+    -------
+
+    >>> from py_fatigue import ParisCurve
+    >>> import numpy as np
+
+    >>> # Define a Paris' law with 5 slopes and 5 interceps
+    >>> SIF = np.linspace(1,2500, 300)
+    >>> SLOPE_5 = np.array([2.88, 5.1, 8.16, 5.1, 2.88])
+    >>> INTERCEPT_5 = np.array([1E-16, 1E-20, 1E-27, 1E-19, 1E-13])
+    >>> THRESHOLD = 20
+    >>> CRITICAL = 2000
+
+    >>> pc = ParisCurve(slope=SLOPE_5, intercept=INTERCEPT_5,
+                      threshold=THRESHOLD, critical=CRITICAL, norm="The norm",
+                      environment="Environment", curve="nr. 4")
+    >>> pc_.get_knee_sif()
+    array([ 63.35804993, 193.9017369 , 411.50876026, 504.31594872])
+
+    """
+
+    def __init__(  # pylint: disable=R0913, R0917
+        self,
+        slope: Union[int, float, list, np.ndarray],
+        intercept: Union[int, float, list, np.ndarray],
+        threshold: Union[int, float] = 0,
+        critical: Union[int, float] = np.inf,
+        load_ratio: Union[int, float] = 0,
+        walker_exponent: Union[int, float] = 0,
+        environment: Optional[str] = None,
+        curve: Optional[str] = None,
+        norm: Optional[str] = None,
+        unit_string: str = "MPa √mm",
+        color: Union[str, None] = None,
+    ) -> None:
+        """Define crack growth rate curve (Paris' law).
+        See class docstring for more information.
+
+        Parameters
+        ----------
+        slope : Union[int, float, list, np.ndarray]
+            Paris curve slope
+        intercept : Union[int, float, list, np.ndarray]
+            crack growth rate axis intercept
+        threshold : Union[int, float]
+            propagation threshold, below which crack growth rate is null
+        critical : Union[int, float]
+            critical propagation stress intensity factor, imminent failure
+        load_ratio : Union[int, float]
+            load ratio. Used for mean stress-corrected Paris' law
+        walker_exponent : Union[int, float]
+            Walker's exponent. Used for mean stress-corrected Paris' law
+        environment : str, optional
+            Paris' law envirnoment, by default None
+        curve : str, optional
+            Paris' law category, by default None
+        norm : str, optional
+            Paris' law norm, by default None
+        unit_string : str, optional
+            units, by default "MPa √mm"
+        color : str, optional
+            RGBS or HEX string for color, by default None
+        """
+        super().__init__(
+            slope,
+            intercept,
+            threshold,
+            critical,
+            environment,
+            curve,
+            norm,
+            unit_string,
+            color,
+        )
+
+        self.__slope, self.__intercept = _check_param_couple_types(
+            slope, intercept
+        )
+        self.__load_ratio = load_ratio
+        self.__walker_exponent = walker_exponent
+
+    @property
+    def load_ratio(self) -> Union[int, float]:
+        """Preventing attribute modification outside of constructor
+
+        Returns:
+            Union[int, float]: Load ratio
+        """
+        return self.__load_ratio
+
+    @load_ratio.setter
+    def load_ratio(self, value: Union[int, float]) -> None:
+        self.__load_ratio = value
+
+    @property
+    def walker_exponent(self) -> Union[int, float]:
+        """Preventing attribute modification outside of constructor
+
+        Returns:
+            Union[int, float]: Walker's exponent
+        """
+        return self.__walker_exponent
+
+    @walker_exponent.setter
+    def walker_exponent(self, value: Union[int, float]) -> None:
+        self.__walker_exponent = value
+
+    @property
+    def walker_correction(self) -> bool:
+        """Check if walker correction is applied.
+
+        Returns:
+            bool: True if walker correction is applied
+        """
+        return (1 - self.__load_ratio) ** (
+            -self.__slope * (1 - self.__walker_exponent)
+        )
+
+    @property
+    def walker_intercept(self) -> np.ndarray:
+        """Walker-corrected intercept.
+
+        .. math::
+            a_w = \\frac{a}{(1 - R)^{\\frac{m}{1 - \\gamma}}}
+
+        Preventing attribute modification outside of constructor
+
+        Returns:
+            np.ndarray: Corrected intercept
+        """
+        return self.__intercept * self.walker_correction
 
 
 @nb.njit(
