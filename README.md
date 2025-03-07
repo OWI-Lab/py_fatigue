@@ -16,6 +16,7 @@
 
 Py-Fatigue is a Python package for cycle-conuting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel. Full documentation can be found [**here**](https://owi-lab.github.io/py_fatigue/).
 
+The main features of Py-Fatigue are:
 - a powerful cycle-counting implementation based on the ASTM E1049-85 rainflow method that retrieves the main class of the package: ``CycleCount``
 - capability of storing the ``CycleCount`` results in a sparse format for storage and memory efficiency
 - easy applicability of multiple mean stress effect correction models
