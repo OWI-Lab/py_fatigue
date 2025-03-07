@@ -50,15 +50,13 @@ def ensure_array(method: Callable) -> Callable:
 
     @wraps(method)
     def wrapper(self, x):
-        try:
-            iter(x)
-        except TypeError:
-            xm = np.asarray([x])
-            ym = method(self, xm)[0]
+        if np.isscalar(x):
+            xm = np.array([x])
+            result = method(self, xm)
         else:
             xm = np.asarray(x)
-            ym = method(self, xm)
-        return ym
+            result = method(self, xm)
+        return result
 
     return wrapper
 
