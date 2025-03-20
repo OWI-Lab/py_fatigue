@@ -664,7 +664,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
         float
             threshold crack growth rate
         """
-        return self.get_growth_rate(self.threshold)
+        return self.get_growth_rate(self.threshold)[0]
 
     @property
     def critical_growth_rate(self) -> float:
@@ -676,7 +676,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
         float
             critical crack growth rate
         """
-        return self.get_growth_rate(self.critical)
+        return self.get_growth_rate(self.critical)[0]
 
     def get_knee_growth_rate(
         self,
