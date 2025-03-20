@@ -51,9 +51,8 @@ dev = [
     "invoke>=1.5",
     "hypothesis>=6.14.0",
     "notebook>=6.4",
-    "jupyter_contrib_nbextensions>=0.5",
-    "nb-clean>=2.1",
-    "nbdime>=3.1"
+    "rich>=13.9.4",
+    "jsbeautifier>=1.15.4",
 ]
 docs = [
     "Sphinx>=7.0",
