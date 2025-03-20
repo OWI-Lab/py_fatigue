@@ -1,4 +1,4 @@
-name: publish to GitHub Pages
+name: Publish to GitHub Pages
 
 on: [push, pull_request, workflow_dispatch, workflow_call]
 
@@ -27,7 +27,7 @@ jobs:
           uv run sphinx-build -b  html -d rst_docs/doctrees ./rst_docs _build/docs -E -a
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/')) }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/develop') }}
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
