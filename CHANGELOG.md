@@ -1,4 +1,8 @@
-## 2.0.2
+## 2.0.3
+- bump(patch): Bump version to 2.0.3 [skip ci]
+- ci(pages): Pages compiled only from develop branch.
+- fix(threshold-and-critical-growth-rate): Now threshold and critical growth rate calculation returns a float always.
+
 ## 2.0.2
 - bump(patch): Bump version to 2.0.2 [skip ci]
 - ci(pages): Pages compiled only from develop branch.
