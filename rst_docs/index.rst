@@ -15,7 +15,7 @@ py-fatigue documentation
    Version |release|
 
 `py-fatigue` bundles the main functionality for performing cyclic stress
-(fatigue and crack growth) analysis and cycle-counting. The toolbox is based 
+(fatigue and crack growth) analysis and cycle-counting. The toolbox is based
 on four buinding blocks:
 
 1. `cycle_count`: collects all the functions related with cycle-counting fatigue data

@@ -643,7 +643,7 @@ def calc_slope_intercept(
     y: Union[np.ndarray, List[float]],
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Given a series of (x,y) knee point coordinates, return the slope and
+    Given a series of (x, y) knee point coordinates, return the slope and
     intercept of the line that passes through the knee point and the previous
     point.
 
@@ -655,10 +655,10 @@ def calc_slope_intercept(
 
     where:
 
-    - | :math:`m` is the slope of the line, calculated as
-      | :math:`\\frac{y_2 - y_1}{x_2 - x_1}`
-    - | :math:`c` is the intercept of the line, calculated as
-      | :math:`\\exp(y_2 - m \\times x_2)`
+    * :math:`m` is the slope of the line, calculated as
+      :math:`\\frac{y_2 - y_1}{x_2 - x_1}`
+    * :math:`c` is the intercept of the line, calculated as
+      :math:`\\exp(y_2 - m \\times x_2)`
 
     Parameters
     ----------
@@ -666,6 +666,7 @@ def calc_slope_intercept(
         The x-coordinates of the knee points.
     y : ArrayLike
         The y-coordinates of the knee points.
+
     Returns
     -------
     tuple[ArrayLike, ArrayLike]

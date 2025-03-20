@@ -583,7 +583,7 @@ class SNCurve(AbstractSNCurve):
                     f"({self.get_knee_cycles()} cycles). ",
                     "\nConsider changing params",
                 )
-            return self.get_stress(self.endurance)
+            return self.get_stress(self.endurance)[0]
         return 0.0
 
     def format_name(self, html_format: bool = False) -> None:

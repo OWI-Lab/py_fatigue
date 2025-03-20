@@ -55,8 +55,8 @@ def dnvgl_mean_stress_correction(
 
     .. math::
 
-        \\frac{\\sigma_a}{\\vert \\sigma_m \\vert} \\leq 1, \\quad
-        \\sigma_a = \\frac{\\sigma_{max} - \\sigma_{min}}{2} \\,\\land
+        \\frac{\\sigma_{amp}}{\\vert \\sigma_m \\vert} \\leq 1, \\quad
+        \\sigma_{amp} = \\frac{\\sigma_{max} - \\sigma_{min}}{2} \\,\\land
         \\, \\sigma_m = \\frac{\\sigma_{max} + \\sigma_{min}}{2}
 
     Parameters
@@ -64,7 +64,7 @@ def dnvgl_mean_stress_correction(
     mean_stress : np.ndarray
         The mean stress of the fatigue test (:math:`\\sigma_m`).
     stress_amplitude : np.ndarray
-        The stress amplitude of the fatigue test (:math:`\\sigma_a`).
+        The stress amplitude of the fatigue test (:math:`\\sigma_{amp}`).
     detail_factor : float, optional
         mean stress attenuation factor (:math:`p`), defaults to 0.8
         in welded connections without significant residual stresses.
@@ -141,20 +141,20 @@ def walker_mean_stress_correction(
     .. math::
 
         \\Delta \\sigma_{corr} = {\\sigma_{max}} ^ {(1 - \\gamma)} \\,
-        \\sigma_{alt} ^ {\\gamma}
+        \\sigma_{amp} ^ {\\gamma}
 
     with:
 
     .. math::
 
-        \\sigma_{max} = \\sigma_{mean} + \\sigma_{alt}
+        \\sigma_{max} = \\sigma_{mean} + \\sigma_{amp}
 
     Parameters
     ----------
     mean_stress : np.ndarray
         The mean stress of the fatigue test (:math:`\\sigma_{mean}`).
     stress_amplitude : np.ndarray
-        The stress amplitude of the fatigue test (:math:`\\sigma_{alt}`).
+        The stress amplitude of the fatigue test (:math:`\\sigma_{amp}`).
     gamma : float, optional
         The gamma Walker exponent (:math:`\\gamma`), defaults to 0.5.
     plot : bool, optional
@@ -213,20 +213,20 @@ def swt_mean_stress_correction(
 
     .. math::
 
-        \\Delta \\sigma_{corr} = \\sqrt{\\sigma_{max} \\, \\sigma_{alt}}
+        \\Delta \\sigma_{corr} = \\sqrt{\\sigma_{max} \\cdot \\sigma_{amp}}
 
     with:
 
     .. math::
 
-        \\sigma_{max} = \\sigma_{mean} + \\sigma_{alt}
+        \\sigma_{max} = \\sigma_{mean} + \\sigma_{amp}
 
     Parameters
     ----------
     mean_stress : np.ndarray
         The mean stress of the fatigue test (:math:`\\sigma_{mean}`).
     stress_amplitude : np.ndarray
-        The stress amplitude of the fatigue test (:math:`\\sigma_{alt}`).
+        The stress amplitude of the fatigue test (:math:`\\sigma_{amp}`).
     plot : bool, optional
         If True, the mean stress correction is plotted, defaults to
         False.
@@ -253,44 +253,51 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
     logger: logging.Logger | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Given the standard Goodman-Haigh correction formula:
+    This function extends the standard Goodman-Haigh correction formula which
+    computes the corrected stress amplitude at zero mean stress (:math:`R=-1`)
+    for a given set of input stress amplitudes and mean stresses. 
 
     .. math::
 
-        \\text{amp}_{\\text{out}} =  \\frac{\\text{amp}_{\\text{in}}}
-        {1 - \\left(\\frac{\\text{mean}_{\\text{in}}}{\\text{ult}_\\text{s}}
-        \\right)^{\\text{n}}}
+        \\sigma_{amp, \\text{out}} =  \\frac{\\sigma_{amp, \\text{in}}}
+        {1 - \\left(\\frac{\\sigma_{mean, \\text{in}}}{\\sigma_{ult}}
+        \\right)^{n}}
 
-    this function computes the corrected stress amplitude at zero mean stress
-    (R = -1) for a given set ofinput stress amplitudes and mean stresses. The
-    correction exponent :math:`n` is a material property that can be obtained
-    from experimental data. The corrected stress amplitudes can also be
-    computed for any other stress ratio R, as long as the material's ultimate
-    strength is known. In this case, ths formula becomes implicit and must be
-    solved numerically.
+    The correction exponent :math:`n` is a material property that can
+    be obtained from experimental data.
 
-    The formula being solved is:
+    The current implementation extends the standard Goodman-Haigh formula by
+    correcting the stress amplitude from an initial load ratio :math:`R_{in}`
+    to any other load ratio :math:`R_{out}`, as long as the material's
+    ultimate strength is known.
+    The corrected stress amplitude :math:`\\sigma_{amp, \\text{out}}` is
+    computed using the following implicit nonlinear equation:
 
     .. math::
 
-        \\text{amp}_{\\text{out}} =  \\left( \\frac{1 - \\left(
-            \\frac{(1 + \\text{r}_{\\text{in}}) \\cdot \\text{amp}_{\\text{in}}}
-            {(1 - \\text{r}_{\\text{in}}) \\cdot \\text{ult}_\\text{s}}
-            \\right)^{\\text{n}}}{\\text{amp}_{\\text{in}}}
-            + \\text{amp}_{\\text{out}}^{\\text{n-1}} \\cdot \\left(
-            \\frac{(1 + \\text{r}_{\\text{out}})}{(1 - \\text{r}_{\\text{out}})
-            \\cdot \\text{ult}_\\text{s}} \\right)^{\\text{n}} \\right)^{-1}
+        \\sigma_{amp, \\text{out}} =  \\frac{1}{ \\frac{1 - \\left(
+            \\frac{(1 + R_{\\text{in}}) \\cdot \\sigma_{amp, \\text{in}}}
+            {(1 - R_{\\text{in}}) \\cdot \\sigma_{ult}}
+            \\right)^{n}}{\\sigma_{amp, \\text{in}}}
+            + \\sigma_{amp, \\text{out}}^{n-1} \\cdot \\left(
+            \\frac{(1 + R_{\\text{out}})}{(1 - R_{\\text{out}})
+            \\cdot \\sigma_{ult}} \\right)^{n}}
 
-    where r\\ :sub:`in`\\  = min / max = (mean - amp) / (mean + amp) is the
-    input stress ratio, r\\ :sub:`out`\\  is the output stress ratio,
-    amp\\ :sub:`in`\\  is the input amplitude, amp\\ :sub:`out`\\  is the output
-    amplitude, ult\\ :sub:`s`\\  is the ultimate strength of the material, and
-    n is the correction exponent.
+    where:
+
+    * :math:`R`\\ :sub:`in`\\  = :math:`\\sigma_{min} / \\sigma_{max} =
+      (\\sigma_{mean} - \\sigma_{amp}) / (\\sigma_{mean} + \\sigma_{amp})` is
+      the input stress ratio,
+    * :math:`R`\\ :sub:`out`\\  is the output stress ratio,
+    * :math:`\\sigma_{amp}`\\ :sub:`in`\\  is the input amplitude,
+    * :math:`\\sigma_{amp}`\\ :sub:`out`\\  is the output amplitude,
+    * :math:`\\sigma_{ult}` is the ultimate strength of the material, and
+    * :math:`n` is the correction exponent.
 
     The solver is based on the Newton-Raphson method, which is implemented
     internally at :func:`py_fatigue.utils.numba_newton`,
     :func:`py_fatigue.utils.compile_specialized_newton`, and
-    :func:`py_fatigue.utils.__goodman_equation`.
+    :func:`py_fatigue.mean_stress.corrections.__goodman_equation`.
 
     Parameters
     ----------
@@ -307,15 +314,14 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
 
     Returns
     -------
-    tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, np.ndarray, plt.Figure]
-        Computed amp_out values, corresponding mean_out values, and the figure
-        object if plot is set to True.
+    tuple[np.ndarray, np.ndarray]
+        Computed amp_out values, and corresponding mean_out values.
 
     See Also
     --------
     :func:`py_fatigue.utils.numba_newton`,
     :func:`py_fatigue.utils.compile_specialized_newton`,
-    :func:`py_fatigue.utils.__goodman
+    :func:`py_fatigue.mean_stress.corrections.__goodman
 
     Raises
     ------
@@ -505,7 +511,46 @@ def __goodman_equation(
     ult_s: float,
     correction_exponent: float,
 ) -> float:
-    """Implicit equation to solve for amp_out."""
+    """Implicit equation to solve for amp_out.
+
+    .. math::
+
+        \\sigma_{amp, \\text{out}} =  \\frac{1}{ \\frac{1 - \\left(
+            \\frac{(1 + R_{\\text{in}}) \\cdot \\sigma_{amp, \\text{in}}}
+            {(1 - R_{\\text{in}}) \\cdot \\sigma_{ult}}
+            \\right)^{n}}{\\sigma_{amp, \\text{in}}}
+            + \\sigma_{amp, \\text{out}}^{n-1} \\cdot \\left(
+            \\frac{(1 + R_{\\text{out}})}{(1 - R_{\\text{out}})
+            \\cdot \\sigma_{ult}} \\right)^{n}}
+    where:
+    * :math:`R`\\ :sub:`in`\\  = :math:`\\sigma_{min} / \\sigma_{max} =
+      (\\sigma_{mean} - \\sigma_{amp}) / (\\sigma_{mean} + \\sigma_{amp})` is
+      the input stress ratio,
+    * :math:`R`\\ :sub:`out`\\  is the output stress ratio,
+    * :math:`\\sigma_{amp}`\\ :sub:`in`\\  is the input amplitude,
+    * :math:`\\sigma_{amp}`\\ :sub:`out`\\  is the output amplitude,
+    * :math:`\\sigma_{ult}` is the ultimate strength of the material, and
+    * :math:`n` is the correction exponent.
+    Parameters
+    ----------
+    amp_out_val : float
+        The output amplitude value.
+    amp_in_val : float
+        The input amplitude value.
+    r_in_val : float
+        The input load ratio value.
+    r_out_val : float
+        The output load ratio value.
+    ult_s : float
+        The ultimate strength of the material.
+    correction_exponent : float
+        The correction exponent value.
+    Returns
+    -------
+    float
+        The difference between the left-hand side and right-hand side of the
+        equation.
+    """
     assert r_in_val != 1, "Input load ratio equals 1, meaning static load."
     # if r_in_val == 1:
     # fmt: off
