@@ -255,7 +255,7 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
     """
     This function extends the standard Goodman-Haigh correction formula which
     computes the corrected stress amplitude at zero mean stress (:math:`R=-1`)
-    for a given set of input stress amplitudes and mean stresses. 
+    for a given set of input stress amplitudes and mean stresses.
 
     .. math::
 
