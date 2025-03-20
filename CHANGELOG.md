@@ -1,37 +1,38 @@
 ## 2.0.2
-- **bump(patch)**: Bump version to 2.0.2 [skip ci]
-- **ci(pages)**: Pages compiled only from develop branch.
-- **fix(endurance-stress)**: Now endurance stress calculation returns a float always.
-- **fix(gitignore)**: Ignore .jupyter folder.
-- **feat(crack-growth)**: Split Paris curve into Paris and Walker curves for clarity.
-- **docs(README)**: Fix flake and Goodman correction docstring.
-- **docs(README)**: Improve README.
-- **chore(tasks)**: Run invoke notebook task without token.
-- **docs(README)**: Add py-fatigue logo to README.
+## 2.0.2
+- bump(patch): Bump version to 2.0.2 [skip ci]
+- ci(pages): Pages compiled only from develop branch.
+- fix(endurance-stress): Now endurance stress calculation returns a float always.
+- fix(gitignore): Ignore .jupyter folder.
+- feat(crack-growth): Split Paris curve into Paris and Walker curves for clarity.
+- docs(README): Fix flake and Goodman correction docstring.
+- docs(README): Improve README.
+- chore(tasks): Run invoke notebook task without token.
+- docs(README): Add py-fatigue logo to README.
 
 ## 2.0.1
-- **bump(patch)**: Bump version to 2.0.1 [skip ci]
-- **chore(qa)**: Fix flake line length.
-- **build(pyproject)**: Relax numpy constraint. Increase Pandas constraint.
-- **ci(templates)**: Update issue templates.
-- **ci(pages)**: Push to pages also from develop and releases.
+- bump(patch): Bump version to 2.0.1 [skip ci]
+- chore(qa): Fix flake line length.
+- build(pyproject): Relax numpy constraint. Increase Pandas constraint.
+- ci(templates): Update issue templates.
+- ci(pages): Push to pages also from develop and releases.
 
 ## 2.0.0
-- **bump(major)**: Bump version to 2.0.0 [skip ci]
-- **test**.
-- **bump(revert)**: Revert to 1.4.0 to publish on PyPI.
-- **bump(revert)**: Revert to 1.4.0.
-- **ci(python)**: Fix CI/CD for Python >= 3.10.
-- **fix(qa)**: Quality assessment passes.
-- **feat(python-support)**: First commit for Issue #10. (Test pass, qa needs fix)
+- bump(major): Bump version to 2.0.0 [skip ci]
+- test.
+- bump(revert): Revert to 1.4.0 to publish on PyPI.
+- bump(revert): Revert to 1.4.0.
+- ci(python): Fix CI/CD for Python >= 3.10.
+- fix(qa): Quality assessment passes.
+- feat(python-support): First commit for Issue #10. (Test pass, qa needs fix)
 
 ## 1.4.0
-- **bump(minor)**: Bump version to 1.4.0 [skip ci]
-- **feat(mean-stress)**: Add generic Goodman-Haigh correction.
-- **fix(cycle_count)**: Bug when plotting min-max histogram.
-- **docs(home)**: Improve docs appearance.
-- **docs(stress-life)**: Fix on calc_nonlinear_damage_with_dca.
-- **docs(changelog)**: Add changelog.
+- bump(minor): Bump version to 1.4.0 [skip ci]
+- feat(mean-stress): Add generic Goodman-Haigh correction.
+- fix(cycle_count): Bug when plotting min-max histogram.
+- docs(home): Improve docs appearance.
+- docs(stress-life): Fix on calc_nonlinear_damage_with_dca.
+- docs(changelog): Add changelog.
 
 ## 1.3.4
 - ci(pages): Embed pages in CI/CD pipeline
