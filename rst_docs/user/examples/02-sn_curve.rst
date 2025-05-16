@@ -98,7 +98,7 @@ a. Multiple SN curves
         curve='E'
     )
 
-This check on slopes and intercepts shows that they are alrays stored as numpy
+This check on slopes and intercepts shows that they are always stored as numpy
 1darrays.
 
 Input:
