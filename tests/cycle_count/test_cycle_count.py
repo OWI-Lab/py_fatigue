@@ -17,6 +17,7 @@ from typing import Union
 
 # Non-standard imports
 import numpy as np
+import pandas as pd
 from hypothesis import given, strategies as hy
 import pytest
 
@@ -836,6 +837,109 @@ class TestCycleCount:
                 assert issubclass(w[-1].category, UserWarning)
                 assert "different SCFs" in str(w[-1].message)
 
+    @pytest.mark.parametrize(cc_names, cc_data)
+    def test_summary(
+        self,
+        cc: CycleCount,
+        stress_range: StressRange,
+        mean_stress: MeanStress,
+        res_sig: Union[list, np.ndarray],
+    ) -> None:
+        """Test the summary method of the CycleCount class."""
+        summary_df = cc.summary()
+
+        # Check that summary returns a pandas DataFrame
+        assert isinstance(summary_df, pd.DataFrame)
+
+        # Check that the DataFrame has the correct structure
+        assert summary_df.index.name == "Cycle counting object"
+        assert cc.name in summary_df.columns
+
+        # Check expected rows are present
+        expected_rows = [
+            f"largest full stress range, {cc.unit}",
+            f"largest stress range, {cc.unit}",
+            "number of full cycles",
+            "number of residuals",
+            "number of small cycles",
+            "stress concentration factor",
+            "residuals resolved",
+            "mean stress-corrected",
+        ]
+
+        for row in expected_rows:
+            assert row in summary_df.index
+
+        # Verify specific values
+        assert summary_df.loc[f"largest stress range, {cc.unit}", cc.name] == max(cc.stress_range)
+        assert summary_df.loc["number of residuals", cc.name] == int(len(cc.residuals[:, 1]))
+        assert summary_df.loc["number of small cycles", cc.name] == int(cc.nr_small_cycles)
+        assert summary_df.loc["residuals resolved", cc.name] == bool(cc.lffd_solved)
+        assert summary_df.loc["mean stress-corrected", cc.name] == cc.mean_stress_corrected
+
+    @pytest.mark.parametrize("cc", [CC_TS_1])
+    def test_summary_with_scf(self, cc: CycleCount) -> None:
+        """Test summary method with stress concentration factor."""
+        cc_scf = cc * 2.5
+        summary_df = cc_scf.summary()
+
+        # Check that SCF is displayed correctly
+        assert summary_df.loc["stress concentration factor", cc_scf.name] == 2.5
+
+    @pytest.mark.parametrize("cc", [CC_TS_1])
+    def test_summary_no_scf(self, cc: CycleCount) -> None:
+        """Test summary method without stress concentration factor (SCF = 1)."""
+        summary_df = cc.summary()
+
+        # Check that N/A is displayed when SCF = 1
+        assert summary_df.loc["stress concentration factor", cc.name] == "N/A"
+
+    @pytest.mark.parametrize("cc", [CC_TS_1])
+    def test_summary_solved_lffd(self, cc: CycleCount) -> None:
+        """Test summary method with solved LFFD."""
+        cc_solved = cc.solve_lffd()
+        summary_df = cc_solved.summary()
+
+        # Check that residuals resolved is True
+        assert summary_df.loc["residuals resolved", cc_solved.name] == True
+
+    @pytest.mark.parametrize("cc", [CC_TS_1])
+    def test_summary_mean_stress_corrected(self, cc: CycleCount) -> None:
+        """Test summary method with mean stress correction applied."""
+        cc_corrected = cc.mean_stress_correction(detail_factor=0.8)
+        summary_df = cc_corrected.summary()
+
+        # Check that mean stress correction is reflected
+        assert "DNVGL-RP-C203" in summary_df.loc["mean stress-corrected", cc_corrected.name]
+
+    def test_summary_empty_cycle_count(self) -> None:
+        """Test summary method with minimal/empty cycle count data."""
+        # Create a minimal CycleCount with very small data
+        minimal_cc = CycleCount(
+            count_cycle=np.array([0.1]),
+            stress_range=np.array([0.05]),
+            mean_stress=np.array([0.0]),
+            name="minimal_test"
+        )
+
+        summary_df = minimal_cc.summary()
+
+        # Check that summary handles edge cases properly
+        assert isinstance(summary_df, pd.DataFrame)
+        assert "minimal_test" in summary_df.columns
+
+        # For very small stress ranges, largest full stress range should be None
+        largest_full = summary_df.loc[f"largest full stress range, {minimal_cc.unit}", "minimal_test"]
+        assert largest_full is None or pd.isna(largest_full)
+
+    @pytest.mark.parametrize("cc", [CC_TS_4])  # CC_TS_4 has no mean stress data
+    def test_summary_no_mean_stress(self, cc: CycleCount) -> None:
+        """Test summary method with cycle count that has no mean stress binning."""
+        summary_df = cc.summary()
+
+        # Should still work and return valid DataFrame
+        assert isinstance(summary_df, pd.DataFrame)
+        assert cc.name in summary_df.columns
 
 # Add the tests for error messages, specially for the
 # - mean_stress_correction,

@@ -671,13 +671,16 @@ class CycleCount:
         ).tolist()
         return output_dict
 
-    def _repr_html_(self) -> str:  # pragma: no cover
-        """HTML representation of the cycle-counting object.
+    def summary(self) -> pd.DataFrame:
+        """
+        Summary Dataframe of the most important properties of the cycle-counting
+        object.
 
         Returns
         -------
-        str
+        pd.DataFrame
         """
+
         df = pd.DataFrame()
         df["Cycle counting object"] = [
             f"largest full stress range, {self.unit}",
@@ -711,7 +714,18 @@ class CycleCount:
         ]
         df = df.set_index("Cycle counting object")
 
-        return df._repr_html_()  # pylint: disable=protected-access
+        return df
+
+    def _repr_html_(self) -> str:  # pragma: no cover
+        """HTML representation of the cycle-counting object.
+
+        Returns
+        -------
+        str
+        """
+
+        return self.summary()._repr_html_()  # pylint: disable=protected-access
+
 
     def __str__(self) -> str:
         """String representation of the cycle-counting object.
