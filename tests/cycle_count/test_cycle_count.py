@@ -649,6 +649,147 @@ class TestCycleCount:
         assert np.allclose(np.sort(range_cor), np.sort(cc_cor.stress_range))
         assert "swt" in cc_cor.mean_stress_corrected.lower()
 
+    @pytest.mark.parametrize(
+        "cc",
+        [CC_TS_1, CC_TS_2, CC_TS_3, CC_TS_4],
+    )
+    def test_goodman_mean_stress_correction(
+        self,
+        cc: CycleCount,
+    ) -> None:
+        """Test the Goodman mean stress correction method."""
+        cc_cor = cc.mean_stress_correction(
+            correction_type="goodman",
+            ult_s=1000,
+            correction_exponent=1.0,
+            r_out=-1.0
+        )
+        assert "goodman" in cc_cor.mean_stress_corrected.lower()
+        assert np.all(cc_cor.stress_range >= 0)
+        assert np.all(np.isfinite(cc_cor.stress_range))
+
+    @pytest.mark.parametrize(
+        "cc",
+        [CC_TS_1, CC_TS_2, CC_TS_3, CC_TS_4],
+    )
+    def test_gerber_mean_stress_correction(
+        self,
+        cc: CycleCount,
+    ) -> None:
+        """Test the Gerber mean stress correction method."""
+        cc_cor = cc.mean_stress_correction(
+            correction_type="gerber",
+            ult_s=1000,
+            correction_exponent=2.0,
+            r_out=-1.0
+        )
+        assert "gerber" in cc_cor.mean_stress_corrected.lower()
+        assert np.all(cc_cor.stress_range >= 0)
+        assert np.all(np.isfinite(cc_cor.stress_range))
+
+    @pytest.mark.parametrize(
+        "cc",
+        [CC_TS_1, CC_TS_2, CC_TS_3, CC_TS_4],
+    )
+    def test_morrow_mean_stress_correction(
+        self,
+        cc: CycleCount,
+    ) -> None:
+        """Test the Morrow mean stress correction method."""
+        cc_cor = cc.mean_stress_correction(
+            correction_type="morrow",
+            ult_s=1000,
+            correction_exponent=1.0,
+            r_out=-1.0
+        )
+        assert "morrow" in cc_cor.mean_stress_corrected.lower()
+        assert np.all(cc_cor.stress_range >= 0)
+        assert np.all(np.isfinite(cc_cor.stress_range))
+
+    @pytest.mark.parametrize(
+        "cc",
+        [CC_TS_1, CC_TS_2, CC_TS_3, CC_TS_4],
+    )
+    def test_soderberg_mean_stress_correction(
+        self,
+        cc: CycleCount,
+    ) -> None:
+        """Test the Soderberg mean stress correction method."""
+        cc_cor = cc.mean_stress_correction(
+            correction_type="soderberg",
+            ult_s=600,  # For Soderberg, ult_s should be yield strength
+            correction_exponent=1.0,
+            r_out=-1.0
+        )
+        assert "soderberg" in cc_cor.mean_stress_corrected.lower()
+        assert np.all(cc_cor.stress_range[np.isfinite(cc_cor.stress_range)] >= 0)
+        # Allow for some NaN values which can occur in numerical corrections
+        assert np.sum(np.isfinite(cc_cor.stress_range)) > 0
+
+    @pytest.mark.parametrize(
+        "cc",
+        [CC_TS_1, CC_TS_2, CC_TS_3, CC_TS_4],
+    )
+    def test_generic_haigh_mean_stress_correction(
+        self,
+        cc: CycleCount,
+    ) -> None:
+        """Test the Generic-Haigh mean stress correction method."""
+        cc_cor = cc.mean_stress_correction(
+            correction_type="generic-haigh",
+            ult_s=1000,
+            correction_exponent=1.5,
+            r_out=-1.0
+        )
+        assert "generic-haigh" in cc_cor.mean_stress_corrected.lower()
+        # Check that finite values are non-negative (allow NaN for numerical issues)
+        finite_mask = np.isfinite(cc_cor.stress_range)
+        assert np.all(cc_cor.stress_range[finite_mask] >= 0)
+        # Ensure we have some finite results
+        assert np.sum(finite_mask) > 0
+
+    @pytest.mark.parametrize(
+        "cc",
+        [CC_TS_1, CC_TS_2, CC_TS_3, CC_TS_4],
+    )
+    def test_haigh_mean_stress_correction(
+        self,
+        cc: CycleCount,
+    ) -> None:
+        """Test the Haigh mean stress correction method (alias for generic-haigh)."""
+        cc_cor = cc.mean_stress_correction(
+            correction_type="haigh",
+            ult_s=1000,
+            correction_exponent=1.2,
+            r_out=-1.0
+        )
+        assert "haigh" in cc_cor.mean_stress_corrected.lower()
+        # Check that finite values are non-negative (allow NaN for numerical issues)
+        finite_mask = np.isfinite(cc_cor.stress_range)
+        assert np.all(cc_cor.stress_range[finite_mask] >= 0)
+        # Ensure we have some finite results
+        assert np.sum(finite_mask) > 0
+
+    @pytest.mark.parametrize(
+        "cc",
+        [CC_TS_1, CC_TS_2, CC_TS_3, CC_TS_4],
+    )
+    def test_smith_watson_topper_mean_stress_correction(
+        self,
+        cc: CycleCount,
+    ) -> None:
+        """Test the Smith-Watson-Topper (full name) mean stress correction method."""
+        cc_cor = cc.mean_stress_correction(correction_type="smith-watson-topper")
+        assert "smith-watson-topper" in cc_cor.mean_stress_corrected.lower()
+        assert np.all(cc_cor.stress_range >= 0)
+        assert np.all(np.isfinite(cc_cor.stress_range))
+
+    @pytest.mark.parametrize("cc", [CC_TS_1, CC_TS_2, CC_TS_3, CC_TS_4])
+    def test_invalid_correction_type(self, cc: CycleCount) -> None:
+        """Test that invalid correction types raise ValueError."""
+        with pytest.raises(ValueError, match="must be one of"):
+            cc.mean_stress_correction(correction_type="invalid_correction")
+
     # Tests for errors and warnings
     @pytest.mark.parametrize("cc", [(CC_RF_1), (CC_TS_1)])
     @given(

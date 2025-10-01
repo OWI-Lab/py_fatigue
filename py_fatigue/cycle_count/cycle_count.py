@@ -675,7 +675,8 @@ class CycleCount:
 
     def summary(self) -> pd.DataFrame:
         """
-        Summary Dataframe of the most important properties of the cycle-counting object.
+        Summary Dataframe of the most important properties of the cycle-counting
+        object.
 
         Returns
         -------
@@ -698,7 +699,7 @@ class CycleCount:
             (
                 max(self.full_cycles[:, 1])
                 if max(self.count_cycle) > 0.5
-                   and max(self.full_cycles[:, 1]) > self.range_bin_lower_bound
+                and max(self.full_cycles[:, 1]) > self.range_bin_lower_bound
                 else None
             ),
             max(self.stress_range),
