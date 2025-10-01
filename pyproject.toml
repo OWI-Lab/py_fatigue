@@ -1,5 +1,5 @@
 [tool.black]
-line-length = 80 # Code length, not docstrings
+line-length = 79 # Code length, not docstrings
 
 [project]
 name = "py_fatigue"

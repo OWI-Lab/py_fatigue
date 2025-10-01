@@ -726,7 +726,6 @@ class CycleCount:
 
         return self.summary()._repr_html_()  # pylint: disable=protected-access
 
-
     def __str__(self) -> str:
         """String representation of the cycle-counting object.
 
