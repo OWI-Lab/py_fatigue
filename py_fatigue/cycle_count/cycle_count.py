@@ -673,8 +673,8 @@ class CycleCount:
 
     def summary(self) -> pd.DataFrame:
         """
-        Summary Dataframe of the most important properties of the cycle-counting
-        object.
+        Summary Dataframe of the most important properties of the
+        cycle-counting object.
 
         Returns
         -------
