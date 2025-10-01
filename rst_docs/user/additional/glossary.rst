@@ -47,13 +47,13 @@ Glossary
       cyclic stress variations. 
 
       Hysteresis and memory dependence, or fatigue, are basic characteristics
-      of many complex systems. A pre-requisite for hysteresis is that the
+      of many complex systems. A prerequisite for hysteresis is that the
       systems have sufficiently many metastable states so that, if they are
-      sub-jected to cyclic loading, there are at least two distinct sequences
+      subjected to cyclic loading, there are at least two distinct sequences
       of states that connect the initial and final configurations to some
       intermediate point of the cycle. Memory dependence is qualitatively more
-      compli-cated. In hysteresis systems the existence of a memory is
-      essentially equivalent to the existence of a count-ing mechanism that is
+      complicated. In hysteresis systems the existence of a memory is
+      essentially equivalent to the existence of a counting mechanism that is
       capable of recording the cumulation of successive cycles. These can be
       estimated by cycle-counting the time series through algorithms such as
       :term:`rainflow<Rainflow>` (cfr. Figure 2) or rainfill (also known as 
