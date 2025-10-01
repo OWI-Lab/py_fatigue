@@ -31,7 +31,12 @@ Therefore, it is highly recommended to have a look at the documentation of these
 
 ## Installation requirements
 
-Py-Fatigue `v1.*.*` requires Python [3.8, 3.9, 3.10], while py-fatigue `v2.*.*` is compatible with Python [3.10, 3.11, 3.12, 3.13]. It is a 64-bit package, hence not compatible with 32-bit Python.
+> [!IMPORTANT]  
+> Py-Fatigue `v1.*.*` is hosted on branch `main` and requires Python [3.8, 3.9, 3.10].
+>
+> Py-Fatigue `v2.*.*` is hosted on branch `develop` and is compatible with Python [3.10, 3.11, 3.12, 3.13].
+>
+> It is a 64-bit package, hence not compatible with 32-bit Python.
 
 ### Installation
 
