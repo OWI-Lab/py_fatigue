@@ -1,0 +1,948 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Change Log &#8212; py-fatigue Documentation (2.0.4)</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ee1c6c6" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/autoclasstoc.css?v=08871587" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=28773381" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=adc66a14"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
+    <link rel="icon" href="_static/py-fatigue-logo.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="styling" href="api/styling.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2.0.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/py-fatigue-logo-with-name.png" class="logo__image only-light" alt="py-fatigue Documentation (2.0.4) - Home"/>
+    <img src="_static/py-fatigue-logo-with-name.png" class="logo__image only-dark pst-js-only" alt="py-fatigue Documentation (2.0.4) - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user/01-absolute-noob.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user/02-user-guide.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user/additional/01-index.html">
+    Glossary and guidelines
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/01-index.html">
+    API index
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Change Log
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/owi-lab/py_fatigue" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/py-fatigue/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/owi-lab" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin-in  fa-lg fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD" title="Launch Interactive environment" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-rocket fa-lg fa-beat fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Launch Interactive environment</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.owi-lab.be" title="OWI-Lab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="_static/_img/owi-lab.png" class="icon-link-image" alt="OWI-Lab"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user/01-absolute-noob.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user/02-user-guide.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user/additional/01-index.html">
+    Glossary and guidelines
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/01-index.html">
+    API index
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Change Log
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/owi-lab/py_fatigue" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/py-fatigue/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/owi-lab" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin-in  fa-lg fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD" title="Launch Interactive environment" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-rocket fa-lg fa-beat fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Launch Interactive environment</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.owi-lab.be" title="OWI-Lab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="_static/_img/owi-lab.png" class="icon-link-image" alt="OWI-Lab"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Change Log</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="change-log">
+<h1>Change Log<a class="headerlink" href="#change-log" title="Link to this heading">#</a></h1>
+<section id="id1">
+<h2>2.0.4<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 2.0.4 [skip ci]</p></li>
+<li><p><strong>ci(pages)</strong>: Pages compiled only from develop branch.</p></li>
+<li><p><strong>feat(cycle-count)</strong> Add <code class="docutils literal notranslate"><span class="pre">CycleCount.summary()</span></code> method to print a summary of the CycleCount object.</p></li>
+<li><p><strong>test(improve)</strong>: Improve test coverage throughout the package.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>2.0.3<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 2.0.3 [skip ci]</p></li>
+<li><p><strong>ci(pages)</strong>: Pages compiled only from develop branch.</p></li>
+<li><p><strong>fix(threshold-and-critical-growth-rate)</strong>: Now threshold and critical growth rate calculation returns a float always.</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>2.0.2<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 2.0.2 [skip ci]</p></li>
+<li><p><strong>ci(pages)</strong>: Pages compiled only from develop branch.</p></li>
+<li><p><strong>fix(endurance-stress)</strong>: Now endurance stress calculation returns a float always.</p></li>
+<li><p><strong>fix(gitignore)</strong>: Ignore .jupyter folder.</p></li>
+<li><p><strong>feat(crack-growth)</strong>: Split Paris curve into Paris and Walker curves for clarity.</p></li>
+<li><p><strong>docs(README)</strong>: Fix flake and Goodman correction docstring.</p></li>
+<li><p><strong>docs(README)</strong>: Improve README.</p></li>
+<li><p><strong>chore(tasks)</strong>: Run invoke notebook task without token.</p></li>
+<li><p><strong>docs(README)</strong>: Add py-fatigue logo to README.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>2.0.1<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 2.0.1 [skip ci]</p></li>
+<li><p><strong>chore(qa)</strong>: Fix flake line length.</p></li>
+<li><p><strong>build(pyproject)</strong>: Relax numpy constraint. Increase Pandas constraint.</p></li>
+<li><p><strong>ci(templates)</strong>: Update issue templates.</p></li>
+<li><p><strong>ci(pages)</strong>: Push to pages also from develop and releases.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h2>2.0.0<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(major)</strong>: Bump version to 2.0.0 [skip ci]</p></li>
+<li><p><strong>test</strong>.</p></li>
+<li><p><strong>bump(revert)</strong>: Revert to 1.4.0 to publish on PyPI.</p></li>
+<li><p><strong>bump(revert)</strong>: Revert to 1.4.0.</p></li>
+<li><p><strong>ci(python)</strong>: Fix CI/CD for Python &gt;= 3.10.</p></li>
+<li><p><strong>fix(qa)</strong>: Quality assessment passes.</p></li>
+<li><p><strong>feat(python-support)</strong>: First commit for Issue #10. (Test pass, qa needs fix)</p></li>
+</ul>
+</section>
+<section id="id6">
+<h2>1.4.0<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(minor)</strong>: Bump version to 1.4.0 [skip ci]</p></li>
+<li><p><strong>feat(mean-stress)</strong>: Add generic Goodman-Haigh correction.</p></li>
+<li><p><strong>fix(cycle_count)</strong>: Bug when plotting min-max histogram.</p></li>
+<li><p><strong>docs(home)</strong>: Improve docs appearance.</p></li>
+<li><p><strong>docs(stress-life)</strong>: Fix on calc_nonlinear_damage_with_dca.</p></li>
+<li><p><strong>docs(changelog)</strong>: Add changelog.</p></li>
+</ul>
+</section>
+<section id="id7">
+<h2>1.3.4<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>ci(pages)</strong>: Embed pages in CI/CD pipeline</p></li>
+</ul>
+</section>
+<section id="id8">
+<h2>1.3.3<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 1.3.3 [skip ci]</p></li>
+<li><p><strong>ci(pipeline)</strong>: Merge release/v1.3.3 to main [skip ci]</p></li>
+<li><p><strong>chore(change-log)</strong>: Update change log</p></li>
+</ul>
+</section>
+<section id="id9">
+<h2>1.3.2<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 1.3.2 [skip ci]</p></li>
+<li><p><strong>ci(pipeline)</strong>: Merge release/v1.3.2 to main [skip ci]</p></li>
+<li><p><strong>test(material)</strong>: Increase coverage</p></li>
+<li><p><strong>test(nonlinear)</strong>: Add few tests on Theil and Pavlou (DCA) stress-life methods</p></li>
+</ul>
+</section>
+<section id="id10">
+<h2>1.3.1<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 1.3.1 [skip ci]</p></li>
+<li><p><strong>ci(pipeline)</strong>: Merge release/v1.3.1 to main [skip ci]</p></li>
+</ul>
+</section>
+<section id="id11">
+<h2>1.3.0<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(minor)</strong>: Bump version to 1.3.0 [skip ci]</p></li>
+<li><p><strong>ci(pipeline)</strong>: Merge release/v1.3.0 to main [skip ci]</p></li>
+<li><p>Merge pull request #9 from OWI-Lab/feature/#8-pavlou-non-linear-damage-accumulation-model</p></li>
+<li><p><strong>feat(nonlinear)</strong>: Add Theil and Pavlou (DCA) stress-life methods</p></li>
+<li><p><strong>feat(stress_life)</strong>: Add calc_nonlinear_damage_with_dca function</p></li>
+</ul>
+</section>
+<section id="id12">
+<h2>1.2.2<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 1.2.2 [skip ci]</p></li>
+<li><p><strong>ci(pipeline)</strong>: Merge release/v1.2.2 to main [skip ci]</p></li>
+<li><p><strong>chore(notebooks)</strong>: Move notebooks to Binder Repo</p></li>
+<li><p>Merge branch ‘main’ of <a class="github reference external" href="https://github.com/OWI-Lab/py_fatigue">OWI-Lab/py_fatigue</a></p></li>
+<li><p><strong>docs(binder)</strong>: Add badge</p></li>
+</ul>
+</section>
+<section id="id13">
+<h2>1.2.1<a class="headerlink" href="#id13" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: Bump version to 1.2.1 [skip ci]</p></li>
+<li><p><strong>ci(pipeline)</strong>: Merge release/v1.2.1 to main [skip ci]</p></li>
+<li><p><strong>ci(bump)</strong>: Add bump step to cicd pipeline [skip ci]</p></li>
+<li><p><strong>chore(relative-imports)</strong>: Edit relative imports</p></li>
+</ul>
+</section>
+<section id="id14">
+<h2>1.2.0<a class="headerlink" href="#id14" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(minor)</strong>: 1.2.0 &lt;- 1.1.2</p></li>
+<li><p><strong>ci(uv)</strong>: Add uv integration in cd</p></li>
+<li><p><strong>ci(uv)</strong>: Add uv integration in pages</p></li>
+<li><p><strong>ci(uv)</strong>: Add uv integration in ci</p></li>
+<li><p><strong>docs(material)</strong>: Upgraded Paris and SN curve definition</p></li>
+<li><p><strong>feat(material)</strong>: Upgraded Paris and SN curve definition</p></li>
+</ul>
+</section>
+<section id="id15">
+<h2>1.1.2<a class="headerlink" href="#id15" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: 1.1.2</p></li>
+<li><p>Update pages.yml</p></li>
+<li><p><strong>docs(pipeline)</strong>: Add pipeline #4</p></li>
+</ul>
+</section>
+<section id="id16">
+<h2>1.1.1<a class="headerlink" href="#id16" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bump(patch)</strong>: 1.1.1</p></li>
+<li><p><strong>docs(pipeline)</strong>: Add pipeline #3</p></li>
+<li><p><strong>docs(pipeline)</strong>: Add pipeline #2</p></li>
+<li><p><strong>docs(pipeline)</strong>: Add pipeline</p></li>
+</ul>
+</section>
+<section id="id17">
+<h2>1.1.0<a class="headerlink" href="#id17" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>fix(gitignore)</strong>: Add docs folder</p></li>
+<li><p><strong>fix(pyproject)</strong>: Fix CI pipeline</p></li>
+<li><p><strong>fix(pyproject)</strong>: Fix dependencies. Max py must be 3.10 because of numba 0.56. From numba 0.57 onwards, support for py 3.8 has been dropped</p></li>
+<li><p><strong>fix(qa)</strong>: Remove mypy for now since new version gives issues</p></li>
+<li><p>Add test for support from 3.8 to 3.13</p></li>
+<li><p>Drop poetry + multiple fixes</p></li>
+</ul>
+</section>
+<section id="id18">
+<h2>1.0.20<a class="headerlink" href="#id18" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>fix(dev)</strong>: Fixed unwanted pylint update in pyproject.toml that broke quality assessment</p></li>
+<li><p><strong>doc(dev)</strong>: #6 Run sphinx-build (inv docs)</p></li>
+<li><p><strong>ver(dev)</strong>: Bumpversion patch 1.0.20</p></li>
+<li><p><strong>doc(dev)</strong>: #6 Fixed error in get_des and get_dem documentation</p></li>
+</ul>
+</section>
+<section id="id19">
+<h2>1.0.19<a class="headerlink" href="#id19" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>new(doc)</strong>: Updated documentation for version 1.0.19</p></li>
+<li><p><strong>new(usr)</strong>: Improved badges</p></li>
+</ul>
+</section>
+<section id="id20">
+<h2>1.0.18<a class="headerlink" href="#id20" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>new(doc)</strong>: Updated documentation for version 1.0.18</p></li>
+<li><p><strong>bumpversion</strong>: 1.0.18</p></li>
+<li><p>Update README.md</p></li>
+<li><p>Update cd.yml</p></li>
+</ul>
+</section>
+<section id="id21">
+<h2>1.0.16<a class="headerlink" href="#id21" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.16</p></li>
+<li><p><strong>fix(usr)</strong>: Added check on CycleCounts having different units being added</p></li>
+<li><p><strong>fix(doc)</strong>: Run sphinx</p></li>
+<li><p><strong>fix(usr)</strong>: Run quality assessment</p></li>
+</ul>
+</section>
+<section id="id22">
+<h2>1.0.15<a class="headerlink" href="#id22" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.15</p></li>
+<li><p><strong>fix(usr)</strong>: Added unit to cycle_count.from_rainflow and to cycle_count.from_timeseries !wip</p></li>
+</ul>
+</section>
+<section id="id23">
+<h2>1.0.14<a class="headerlink" href="#id23" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.14</p></li>
+<li><p><strong>new(pkg)</strong>: Edited README.md</p></li>
+<li><p><strong>new(pkg)</strong>: Edited workflow</p></li>
+</ul>
+</section>
+<section id="id24">
+<h2>1.0.13<a class="headerlink" href="#id24" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.13</p></li>
+<li><p><strong>new(pkg)</strong>: Added badges to README.md</p></li>
+<li><p><strong>new(pkg)</strong>: Updated coverage.yml</p></li>
+<li><p><strong>new(pkg)</strong>: Added coverage.yml</p></li>
+</ul>
+</section>
+<section id="id25">
+<h2>1.0.12<a class="headerlink" href="#id25" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.12</p></li>
+<li><p><strong>new(pkg)</strong>: Added build without publish !wip</p></li>
+<li><p><strong>fix(dev)</strong>: Misc changes !wip</p></li>
+<li><p><strong>fix(pkg)</strong>: Publish runs only on branches main and release*</p></li>
+<li><p><strong>fix(dev)</strong>: Run quality assessment before publishing</p></li>
+</ul>
+</section>
+<section id="id26">
+<h2>1.0.11<a class="headerlink" href="#id26" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.11</p></li>
+<li><p><strong>new(usr)</strong>: Added save_residuals bool flag to aggregate_cc to speed up analysis !wip</p></li>
+</ul>
+</section>
+<section id="id27">
+<h2>1.0.10<a class="headerlink" href="#id27" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.10</p></li>
+<li><p><strong>fix(dev)</strong>: Solved some circular imports</p></li>
+<li><p><strong>new(usr)</strong>: Added function calc_aggregated_damage to pf.cycle_count.utils !wip</p></li>
+<li><p><strong>new(usr)</strong>: Release 1.0.9</p></li>
+</ul>
+</section>
+<section id="id28">
+<h2>1.0.8<a class="headerlink" href="#id28" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.8</p></li>
+<li><p><strong>new(dev)</strong>: Added an aggregation function !wip</p></li>
+<li><p><strong>fix(dev)</strong>: Fixed case where error is thrown if no hist key is available in rainflow !bugfix</p></li>
+</ul>
+</section>
+<section id="id29">
+<h2>1.0.6<a class="headerlink" href="#id29" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.6 !bumpversion</p></li>
+<li><p><strong>new(usr)</strong>: #6.0 Added unit property to cyclecount !feature</p></li>
+<li><p><strong>new(usr)</strong>: #5.0 Added statistical moments to cyclecount !feature</p></li>
+</ul>
+</section>
+<section id="id30">
+<h2>1.0.5<a class="headerlink" href="#id30" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.5</p></li>
+<li><p><strong>fix(dev)</strong>: #4.0 Substituted pietrodantuono with OWI-Lab links</p></li>
+<li><p>Ownership transferred to OWI-Lab</p></li>
+</ul>
+</section>
+<section id="id31">
+<h2>1.0.0<a class="headerlink" href="#id31" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>bumpversion</strong>: 1.0.0</p></li>
+<li><p><strong>new(dev)</strong>: #1.0 First commit !wip</p></li>
+<li><p><strong>new(dev)</strong>: #0.0 Initial commit !wip</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="api/styling.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">styling</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">2.0.4</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">2.0.3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">2.0.2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">2.0.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">2.0.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">1.4.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">1.3.4</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">1.3.3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">1.3.2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">1.3.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">1.3.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">1.2.2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">1.2.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">1.2.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">1.1.2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">1.1.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">1.1.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">1.0.20</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">1.0.19</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">1.0.18</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">1.0.16</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">1.0.15</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">1.0.14</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">1.0.13</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">1.0.12</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">1.0.11</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">1.0.10</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">1.0.8</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">1.0.6</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">1.0.5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">1.0.0</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+ 
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
+        /* Sidebar header (and topbar for mobile) */
+        .wy-side-nav-search, .wy-nav-top {
+        background: #A9BCC8;
+        }
+        /* Sidebar */
+        .wy-nav-side {
+        background: #384263;
+        }
+        .toctree-l1:hover .wy-menu {
+            background: #3D66A1;
+        }
+        /* Main content */
+        .wy-nav-content {
+        background: #FFFFFF;
+        }
+        .wy-menu .wy-menu-vertical{
+            display: block;
+            top: -10px;
+            margin-right: -25%;
+        }
+        
+        .toctree-l1 li ul li:first-child a {
+            border-radius: 4px 4px 0 0;
+        }
+        .toctree-l1 li ul li:last-child a {
+            border-radius: 0 0 4px 4px;
+        }
+    </style>
+
+  </body>
+</html>

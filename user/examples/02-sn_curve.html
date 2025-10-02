@@ -1,0 +1,964 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2. SN curve &#8212; py-fatigue Documentation (2.0.4)</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=3ee1c6c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autoclasstoc.css?v=08871587" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=28773381" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=adc66a14"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"chtml": {"mtextInheritFont": "true"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/examples/02-sn_curve';</script>
+    <link rel="icon" href="../../_static/py-fatigue-logo.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="3. Crack growth curve" href="03-cg_curve.html" />
+    <link rel="prev" title="1. Set up a notebook running py-fatigue" href="01-notebook_setup.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2.0.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/py-fatigue-logo-with-name.png" class="logo__image only-light" alt="py-fatigue Documentation (2.0.4) - Home"/>
+    <img src="../../_static/py-fatigue-logo-with-name.png" class="logo__image only-dark pst-js-only" alt="py-fatigue Documentation (2.0.4) - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../01-absolute-noob.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../02-user-guide.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../additional/01-index.html">
+    Glossary and guidelines
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/01-index.html">
+    API index
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Change Log
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/owi-lab/py_fatigue" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/py-fatigue/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/owi-lab" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin-in  fa-lg fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD" title="Launch Interactive environment" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-rocket fa-lg fa-beat fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Launch Interactive environment</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.owi-lab.be" title="OWI-Lab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/_img/owi-lab.png" class="icon-link-image" alt="OWI-Lab"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../01-absolute-noob.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../02-user-guide.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../additional/01-index.html">
+    Glossary and guidelines
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/01-index.html">
+    API index
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Change Log
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/owi-lab/py_fatigue" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/py-fatigue/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/owi-lab" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin-in  fa-lg fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD" title="Launch Interactive environment" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-rocket fa-lg fa-beat fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Launch Interactive environment</span></a>
+        </li>
+        <li class="nav-item">
+            
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.owi-lab.be" title="OWI-Lab" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/_img/owi-lab.png" class="icon-link-image" alt="OWI-Lab"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01-notebook_setup.html">1. Set up a notebook running <em>py-fatigue</em></a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">2. SN curve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03-cg_curve.html">3. Crack growth curve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04-cycle_counting.html">4. CycleCount definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05-cycle_count_sum.html">5. CycleCount sum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06-mean_stress.html">6. Mean stress effect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07-damage.html">7. Stress-Life damage calculation</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../02-user-guide.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">2. SN curve</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="sn-curve">
+<span id="id1"></span><h1>2. SN curve<a class="headerlink" href="#sn-curve" title="Link to this heading">#</a></h1>
+<p>The first reference to the fatigue of metals dates to 1829 when Poncelet, a
+French military engineer, used the adjective “tired” to describe steels under
+stress and assumed that steel components experience a decrease of durability
+when they undergo repeated variable loads. In 1837, the first document in
+history relating to a fatigue test was published. The test was recorded by
+Albert a German mining administrator, and it was aimed to understand the
+causes of the failure of the conveyor chains in the Clausthal mines in 1829.
+In 1843, Rankine and York focused their attention on railway axles, thanks to
+the establishment of the Her Majesty’s Railway Inspectorate instituted because
+of the increasing number of accidents, amongst which the so-called Versailles
+disaster, where almost 60 people lost their lives because of the failure of the
+axle tree of the first engine on 5 October 1842. Anyway, the term fatigue was
+coined only in 1854 by the Englishman Braithwite, who discussed the fatigue
+failures of multiple components as water pumps, brewery equipment, and of
+course, railway axles. Many other English and German studies on the
+deterioration of railway axles were made in those years, but the work of
+Wöhler, Royal “Obermaschinenmeister” of the “Niederschlesisch-Mährische”
+Railways in Frankfurt an der Oder, was the milestone paving the way for the
+modern conception of fatigue testing and interpretation of results. In 1858 and
+1860, August Wöhler measured, for 22 000 km, the service loads of railway
+axles with deflection gages personally developed and from his studies
+concluded that “If we estimate the durability of the axles to be 200,000
+miles with respect to wear of the journal bearings, it is therefore only
+necessary that it withstands 200,000 bending cycles of the magnitude measured
+without failure.” Such statement represents the first suggestion for a safe
+life design philosophy with retirement time (or distance travelled). Wöhler
+then calculated the stresses deriving from service loads and concluded that
+the higher the stress amplitude is, the more detrimental influence on the
+axle will be, plus a tensile mean stress anticipates the rupture.
+Furthermore, he even stated that a replacement of the axle would have been
+necessary if radial flaws propagated up to 20 mm into the material, and this
+procedure could be interpreted as an ancestor of the flaw tolerant safe life
+methodology. Anyway, test results of Wöhler were tabulated and not plotted
+until 1875, when Spangenberg adopted unusual linear axes to present these
+data. Furthermore, stress versus number of cycles (S/N) curves were addressed
+as Wöhler curves only in 1936 by Kloth and Stroppel. The idea to plot many
+fatigue test data, including the 60-year-old experiments of Wöhler, in
+logarithmic axes and interpolate them with a power law is from 1910 by
+Basquin. The equation relating maximum or alternate stress with the number of
+cycles is</p>
+<div class="math notranslate nohighlight">
+\[N \cdot \left( \Delta \sigma \right)^m = \bar{a}\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(N\)</span> = predicted number of cycles to failure for stress range Δσ;</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta \sigma\)</span> = stress range with unit MPa;</p></li>
+<li><p><span class="math notranslate nohighlight">\(m\)</span> = negative inverse slope of S-N curve;</p></li>
+<li><p><span class="math notranslate nohighlight">\(\log \left( \bar{a} \right)\)</span> = intercept of log N-axis by S-N curve.</p></li>
+</ul>
+<section id="a-multiple-sn-curves">
+<h2>a. Multiple SN curves<a class="headerlink" href="#a-multiple-sn-curves" title="Link to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this example we define four SN curves for free corrosion as per
+<a class="reference external" href="shorturl.at/ipBKL">DNVGL-RP-C203</a> and plot them using
+<a class="reference external" href="https://matplotlib.org">matplotlib</a> and <a class="reference external" href="https://plotly.com">plotly</a>.
+We additionally define a random gaussian stress range-cycles history to
+plot against the SN curves defined.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">#SN curves definition</span>
+<span class="linenos"> 2</span><span class="n">b1_c</span> <span class="o">=</span> <span class="n">sn</span><span class="o">.</span><span class="n">SNCurve</span><span class="p">(</span>
+<span class="linenos"> 3</span>    <span class="n">slope</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>                       <span class="c1"># SNCurve can handle multiple slope and</span>
+<span class="linenos"> 4</span>    <span class="n">intercept</span><span class="o">=</span><span class="mf">12.436</span><span class="p">,</span>              <span class="c1"># intercept types, as long as their sizes</span>
+<span class="linenos"> 5</span>    <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;DNVGL-RP-C203&#39;</span><span class="p">,</span>          <span class="c1"># are compatible. The slope and intercept</span>
+<span class="linenos"> 6</span>    <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;Free corrosion&#39;</span><span class="p">,</span>  <span class="c1"># attribute will be stored as numpy arrays.</span>
+<span class="linenos"> 7</span>    <span class="n">curve</span><span class="o">=</span><span class="s1">&#39;B1&#39;</span>
+<span class="linenos"> 8</span><span class="p">)</span>
+<span class="linenos"> 9</span><span class="n">c_c</span> <span class="o">=</span> <span class="n">sn</span><span class="o">.</span><span class="n">SNCurve</span><span class="p">(</span>
+<span class="linenos">10</span>    <span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+<span class="linenos">11</span>    <span class="mf">12.115</span><span class="p">,</span>
+<span class="linenos">12</span>    <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;DNVGL-RP-C203&#39;</span><span class="p">,</span>
+<span class="linenos">13</span>    <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;Free corrosion&#39;</span><span class="p">,</span>
+<span class="linenos">14</span>    <span class="n">curve</span><span class="o">=</span><span class="s1">&#39;C&#39;</span>
+<span class="linenos">15</span><span class="p">)</span>
+<span class="linenos">16</span><span class="n">e_c</span> <span class="o">=</span> <span class="n">sn</span><span class="o">.</span><span class="n">SNCurve</span><span class="p">(</span>
+<span class="linenos">17</span>    <span class="mi">3</span><span class="p">,</span>
+<span class="linenos">18</span>    <span class="n">intercept</span><span class="o">=</span><span class="p">[</span><span class="mf">11.533</span><span class="p">,],</span>
+<span class="linenos">19</span>    <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;DNVGL-RP-C203&#39;</span><span class="p">,</span>
+<span class="linenos">20</span>    <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;Free corrosion&#39;</span><span class="p">,</span>
+<span class="linenos">21</span>    <span class="n">curve</span><span class="o">=</span><span class="s1">&#39;E&#39;</span>
+<span class="linenos">22</span><span class="p">)</span>
+<span class="linenos">23</span><span class="n">w3_c</span> <span class="o">=</span> <span class="n">sn</span><span class="o">.</span><span class="n">SNCurve</span><span class="p">(</span>
+<span class="linenos">24</span>    <span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+<span class="linenos">25</span>    <span class="n">intercept</span><span class="o">=</span><span class="p">[</span><span class="mf">10.493</span><span class="p">,],</span>
+<span class="linenos">26</span>    <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;DNVGL-RP-C203&#39;</span><span class="p">,</span>
+<span class="linenos">27</span>    <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;Free corrosion&#39;</span><span class="p">,</span>
+<span class="linenos">28</span>    <span class="n">curve</span><span class="o">=</span><span class="s1">&#39;E&#39;</span>
+<span class="linenos">29</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This check on slopes and intercepts shows that they are always stored as numpy
+1darrays.</p>
+<p>Input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;b1_c.slope: </span><span class="si">{</span><span class="n">b1_c</span><span class="o">.</span><span class="n">slope</span><span class="si">}</span><span class="s1">, b1_c.intercept: </span><span class="si">{</span><span class="n">b1_c</span><span class="o">.</span><span class="n">intercept</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="linenos"> 2</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;type(b1_c.slope): </span><span class="si">{0}</span><span class="s1">, type(b1_c.intercept): </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos"> 3</span>    <span class="nb">type</span><span class="p">(</span><span class="n">b1_c</span><span class="o">.</span><span class="n">slope</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">b1_c</span><span class="o">.</span><span class="n">intercept</span><span class="p">)</span>
+<span class="linenos"> 4</span>    <span class="p">)</span>
+<span class="linenos"> 5</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;c_c.slope: </span><span class="si">{</span><span class="n">c_c</span><span class="o">.</span><span class="n">slope</span><span class="si">}</span><span class="s1">, c_c.intercept: </span><span class="si">{</span><span class="n">c_c</span><span class="o">.</span><span class="n">intercept</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="linenos"> 7</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;type(c_c.slope): </span><span class="si">{0}</span><span class="s1">, type(c_c.intercept): </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos"> 8</span>    <span class="nb">type</span><span class="p">(</span><span class="n">c_c</span><span class="o">.</span><span class="n">slope</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">c_c</span><span class="o">.</span><span class="n">intercept</span><span class="p">)</span>
+<span class="linenos"> 9</span>    <span class="p">)</span>
+<span class="linenos">10</span><span class="p">)</span>
+<span class="linenos">11</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;e_c.slope: </span><span class="si">{</span><span class="n">e_c</span><span class="o">.</span><span class="n">slope</span><span class="si">}</span><span class="s1">, e_c.intercept: </span><span class="si">{</span><span class="n">e_c</span><span class="o">.</span><span class="n">intercept</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="linenos">12</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;type(e_c.slope): </span><span class="si">{0}</span><span class="s1">, type(e_c.intercept): </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos">13</span>    <span class="nb">type</span><span class="p">(</span><span class="n">e_c</span><span class="o">.</span><span class="n">slope</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">e_c</span><span class="o">.</span><span class="n">intercept</span><span class="p">)</span>
+<span class="linenos">14</span>    <span class="p">)</span>
+<span class="linenos">15</span><span class="p">)</span>
+<span class="linenos">16</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;w3_c.slope: </span><span class="si">{</span><span class="n">w3_c</span><span class="o">.</span><span class="n">slope</span><span class="si">}</span><span class="s1">, w3_c.intercept: </span><span class="si">{</span><span class="n">w3_c</span><span class="o">.</span><span class="n">intercept</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="linenos">17</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;type(w3_c.slope): </span><span class="si">{0}</span><span class="s1">, type(w3_c.intercept): </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos">18</span>    <span class="nb">type</span><span class="p">(</span><span class="n">w3_c</span><span class="o">.</span><span class="n">slope</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">w3_c</span><span class="o">.</span><span class="n">intercept</span><span class="p">)</span>
+<span class="linenos">19</span>    <span class="p">)</span>
+<span class="linenos">20</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>b1_c.slope:<span class="w"> </span><span class="o">[</span><span class="m">3</span><span class="o">]</span>,<span class="w"> </span>b1_c.intercept:<span class="w"> </span><span class="o">[</span><span class="m">12</span>.436<span class="o">]</span>
+type<span class="o">(</span>b1_c.slope<span class="o">)</span>:<span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">&#39;numpy.ndarray&#39;</span>&gt;,<span class="w"> </span>type<span class="o">(</span>b1_c.intercept<span class="o">)</span>:<span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">&#39;numpy.ndarray&#39;</span>&gt;
+c_c.slope:<span class="w"> </span><span class="o">[</span><span class="m">3</span><span class="o">]</span>,<span class="w"> </span>c_c.intercept:<span class="w"> </span><span class="o">[</span><span class="m">12</span>.115<span class="o">]</span>
+type<span class="o">(</span>c_c.slope<span class="o">)</span>:<span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">&#39;numpy.ndarray&#39;</span>&gt;,<span class="w"> </span>type<span class="o">(</span>c_c.intercept<span class="o">)</span>:<span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">&#39;numpy.ndarray&#39;</span>&gt;
+e_c.slope:<span class="w"> </span><span class="o">[</span><span class="m">3</span><span class="o">]</span>,<span class="w"> </span>e_c.intercept:<span class="w"> </span><span class="o">[</span><span class="m">11</span>.533<span class="o">]</span>
+type<span class="o">(</span>e_c.slope<span class="o">)</span>:<span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">&#39;numpy.ndarray&#39;</span>&gt;,<span class="w"> </span>type<span class="o">(</span>e_c.intercept<span class="o">)</span>:<span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">&#39;numpy.ndarray&#39;</span>&gt;
+w3_c.slope:<span class="w"> </span><span class="o">[</span><span class="m">3</span><span class="o">]</span>,<span class="w"> </span>w3_c.intercept:<span class="w"> </span><span class="o">[</span><span class="m">10</span>.493<span class="o">]</span>
+type<span class="o">(</span>w3_c.slope<span class="o">)</span>:<span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">&#39;numpy.ndarray&#39;</span>&gt;,<span class="w"> </span>type<span class="o">(</span>w3_c.intercept<span class="o">)</span>:<span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">&#39;numpy.ndarray&#39;</span>&gt;
+</pre></div>
+</div>
+<p>Defining a normally distributed fatigue spectrum</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># Seed random number generator</span>
+<span class="linenos"> 2</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos"> 3</span><span class="c1"># Generate some integers shifted so that their minimum is certainly &gt;0</span>
+<span class="linenos"> 4</span><span class="n">random_nums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+<span class="linenos"> 5</span><span class="n">random_ints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">random_nums</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">random_nums</span><span class="p">))</span>
+<span class="linenos"> 6</span><span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">random_ints</span><span class="p">),</span> <span class="n">stop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">random_ints</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="linenos"> 7</span><span class="n">hist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
+<span class="linenos"> 8</span>    <span class="n">random_ints</span><span class="p">,</span>
+<span class="linenos"> 9</span>    <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+<span class="linenos">10</span><span class="p">)</span>
+<span class="linenos">11</span><span class="n">cycles</span> <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="mi">0</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># sorted from highest bin to lowest</span>
+<span class="linenos">12</span><span class="n">cumulative_cycles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">cycles</span><span class="p">)</span>
+<span class="linenos">13</span><span class="n">stress_range_bins</span> <span class="o">=</span> <span class="p">((</span><span class="n">hist</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">hist</span><span class="p">[</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Matplotlib</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">#Plot</span>
+<span class="linenos"> 2</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">b1_c</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="linenos"> 3</span>    <span class="n">cycles</span><span class="o">=</span><span class="n">cumulative_cycles</span><span class="p">,</span>
+<span class="linenos"> 4</span>    <span class="n">stress_range</span><span class="o">=</span><span class="n">stress_range_bins</span><span class="p">,</span>
+<span class="linenos"> 5</span>    <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;Example data&quot;</span>
+<span class="linenos"> 6</span><span class="p">)</span>
+<span class="linenos"> 7</span><span class="n">c_c</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="linenos"> 8</span><span class="n">e_c</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="linenos"> 9</span><span class="n">w3_c</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="linenos">10</span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../_images/sn_curve_11.png" src="../../_images/sn_curve_11.png" />
+<p>Reformat SN curve names for plotly</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">b1_c</span><span class="o">.</span><span class="n">format_name</span><span class="p">(</span><span class="n">html_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">2</span><span class="n">c_c</span><span class="o">.</span><span class="n">format_name</span><span class="p">(</span> <span class="n">html_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">3</span><span class="n">e_c</span><span class="o">.</span><span class="n">format_name</span><span class="p">(</span> <span class="n">html_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">4</span><span class="n">w3_c</span><span class="o">.</span><span class="n">format_name</span><span class="p">(</span><span class="n">html_format</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Plotly</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># Plot</span>
+<span class="linenos"> 2</span><span class="n">data</span><span class="p">,</span> <span class="n">layout</span> <span class="o">=</span> <span class="n">b1_c</span><span class="o">.</span><span class="n">plotly</span><span class="p">(</span>
+<span class="linenos"> 3</span>    <span class="n">cycles</span><span class="o">=</span><span class="n">cumulative_cycles</span><span class="p">,</span>
+<span class="linenos"> 4</span>    <span class="n">stress_range</span><span class="o">=</span><span class="n">stress_range_bins</span><span class="p">,</span>
+<span class="linenos"> 5</span>    <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;Example data&quot;</span>
+<span class="linenos"> 6</span><span class="p">)</span>
+<span class="linenos"> 7</span><span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c_c</span><span class="o">.</span><span class="n">plotly</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<span class="linenos"> 8</span><span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">e_c</span><span class="o">.</span><span class="n">plotly</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<span class="linenos"> 9</span><span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">w3_c</span><span class="o">.</span><span class="n">plotly</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<span class="linenos">10</span><span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
+<span class="linenos">11</span><span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../_images/sn_curve_2.png" src="../../_images/sn_curve_2.png" />
+</section>
+<section id="b-sn-curves-methods">
+<h2>b. SN curves methods<a class="headerlink" href="#b-sn-curves-methods" title="Link to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this example we define two SN curves and we will see how the following
+methods work:</p>
+<ul class="simple">
+<li><p>get_cycles()</p></li>
+<li><p>get_stress()</p></li>
+<li><p>get_knee_cycles()</p></li>
+<li><p>get_knee_stress()</p></li>
+</ul>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># SN curve definition</span>
+<span class="linenos">2</span><span class="n">s</span> <span class="o">=</span> <span class="n">sn</span><span class="o">.</span><span class="n">SNCurve</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mf">10.970</span><span class="p">,</span> <span class="mf">13.617</span><span class="p">],</span> <span class="n">endurance</span><span class="o">=</span><span class="mf">1e11</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Asking to print the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># prints</span>
+<span class="linenos">2</span><span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_cycles</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>  <span class="c1"># Get nr of cycles for stress_range = 100 MPa</span>
+<span class="linenos">3</span><span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_stress</span><span class="p">(</span><span class="mf">1E6</span><span class="p">))</span>  <span class="c1"># Get nr of cycles for 1 million cycles</span>
+<span class="linenos">4</span><span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_knee_cycles</span><span class="p">())</span>  <span class="c1"># Get nr of cycles where there is/are knee(s)</span>
+<span class="linenos">5</span><span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_knee_stress</span><span class="p">())</span>  <span class="c1"># Get stress(es) where there is/are knee(s)</span>
+<span class="linenos">6</span><span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_stress</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">endurance</span><span class="p">))</span>  <span class="c1"># Get stress at endurance (1e11 cycles)</span>
+</pre></div>
+</div>
+<p>Gives:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="m">93325</span>.43007969948
+<span class="m">45</span>.35933372579283
+<span class="o">[</span><span class="m">9988493</span>.69936506<span class="o">]</span>
+<span class="o">[</span><span class="m">21</span>.06201899<span class="o">]</span>
+<span class="m">3</span>.3373365130514894
+</pre></div>
+</div>
+<p>Asking back the number of cycles at endurance shall return <em>Inf</em> instead.</p>
+<p>Input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_cycles</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">endurance_stress</span><span class="p">))</span>  <span class="c1"># Get cycles at endurance stress.</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inf
+</pre></div>
+</div>
+</section>
+<section id="c-sn-curve-interpolation">
+<h2>c. SN curve interpolation<a class="headerlink" href="#c-sn-curve-interpolation" title="Link to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function has been added from version 1.2.0.</p>
+</div>
+<p>It is now possible to build a piecewise py-fatigue SN curve from a set of
+“knee points”. The class method <code class="xref py py-meth docutils literal notranslate"><span class="pre">pyfatigue.sn.SNCurve.from_knee_points()</span></code>
+will pass through all the knee points.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The function does not perform a curve fit, rather it interpolates the
+points through the following piecewise linear (in log space) function:</p>
+<div class="math notranslate nohighlight">
+\[\log(N) = \log(\bar{a}) - m \cdot \log(\Delta \sigma)\]</div>
+<p>Solving by <span class="math notranslate nohighlight">\(\log(\Delta \sigma)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\log(\Delta \sigma) = \left( - \frac{1}{m} \right) \cdot \log(N) +
+                      \left(   \frac{1}{m} \right) \cdot \log(\bar{a})\]</div>
+<p>retrievs the well-known interpolation formula:</p>
+<div class="math notranslate nohighlight">
+\[Y = M \cdot X + Q\]</div>
+<p>where <span class="math notranslate nohighlight">\(M = - \frac{1}{m}\)</span> and <span class="math notranslate nohighlight">\(Q = \frac{1}{m} \cdot \log(\bar{a})\)</span>.</p>
+</div>
+<p>Input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">knee_points</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="s2">             10, 320</span>
+<span class="linenos"> 3</span><span class="s2">          1_000, 308</span>
+<span class="linenos"> 4</span><span class="s2">          5_039, 303</span>
+<span class="linenos"> 5</span><span class="s2">         11_771, 299</span>
+<span class="linenos"> 6</span><span class="s2">         23_357, 275</span>
+<span class="linenos"> 7</span><span class="s2">         39_967, 250</span>
+<span class="linenos"> 8</span><span class="s2">         73_176, 213</span>
+<span class="linenos"> 9</span><span class="s2">        119_377, 182</span>
+<span class="linenos">10</span><span class="s2">        207_880, 150</span>
+<span class="linenos">11</span><span class="s2">        350_376, 119</span>
+<span class="linenos">12</span><span class="s2">        553_241, 101</span>
+<span class="linenos">13</span><span class="s2">        963_397,  86</span>
+<span class="linenos">14</span><span class="s2">      1_733_270,  74</span>
+<span class="linenos">15</span><span class="s2">      3_221_789,  65</span>
+<span class="linenos">16</span><span class="s2">      7_525_202,  56</span>
+<span class="linenos">17</span><span class="s2">     15_937_828,  50</span>
+<span class="linenos">18</span><span class="s2">     32_671_572,  45</span>
+<span class="linenos">19</span><span class="s2">     73_861_998,  41</span>
+<span class="linenos">20</span><span class="s2">    172_521_054,  37</span>
+<span class="linenos">21</span><span class="s2">    430_133_471,  34</span>
+<span class="linenos">22</span><span class="s2">  1_182_699_719,  32</span>
+<span class="linenos">23</span><span class="s2">  2_673_778_988,  30</span>
+<span class="linenos">24</span><span class="s2">  5_850_681_784,  28</span>
+<span class="linenos">25</span><span class="s2"> 13_665_563_053,  26</span>
+<span class="linenos">26</span><span class="s2"> 28_013_567_611,  25</span>
+<span class="linenos">27</span><span class="s2"> 53_798_384_034,  24</span>
+<span class="linenos">28</span><span class="s2">121_624_268_965,  23</span>
+<span class="linenos">29</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="c1"># Convert the string data to a list of lists</span>
+<span class="linenos">32</span><span class="n">knee_points_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+<span class="linenos">33</span>                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">knee_points</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+<span class="linenos">34</span><span class="n">knee_points_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">knee_points_list</span><span class="p">)</span>
+<span class="linenos">35</span>
+<span class="linenos">36</span><span class="n">curve_fkp</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">SNCurve</span><span class="o">.</span><span class="n">from_knee_points</span><span class="p">(</span>
+<span class="linenos">37</span>    <span class="n">knee_stress</span><span class="o">=</span><span class="n">knee_points_list</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span>
+<span class="linenos">38</span>    <span class="n">knee_cycles</span><span class="o">=</span><span class="n">knee_points_list</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span>
+<span class="linenos">39</span>    <span class="n">endurance</span><span class="o">=</span><span class="mf">1E11</span><span class="p">,</span>
+<span class="linenos">40</span>    <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;Custom&quot;</span><span class="p">,</span>
+<span class="linenos">41</span>    <span class="n">curve</span><span class="o">=</span><span class="s2">&quot;From Knee Points&quot;</span><span class="p">,</span>
+<span class="linenos">42</span>    <span class="n">environment</span><span class="o">=</span><span class="s2">&quot;Interpolated&quot;</span><span class="p">,</span>
+<span class="linenos">43</span><span class="p">)</span>
+<span class="linenos">44</span><span class="n">curve_fkp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<img alt="../../_images/sn_curve_3.png" src="../../_images/sn_curve_3.png" />
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="01-notebook_setup.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">1. Set up a notebook running <em>py-fatigue</em></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="03-cg_curve.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">3. Crack growth curve</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-multiple-sn-curves">a. Multiple SN curves</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#b-sn-curves-methods">b. SN curves methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#c-sn-curve-interpolation">c. SN curve interpolation</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user/examples/02-sn_curve.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+ 
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
+        /* Sidebar header (and topbar for mobile) */
+        .wy-side-nav-search, .wy-nav-top {
+        background: #A9BCC8;
+        }
+        /* Sidebar */
+        .wy-nav-side {
+        background: #384263;
+        }
+        .toctree-l1:hover .wy-menu {
+            background: #3D66A1;
+        }
+        /* Main content */
+        .wy-nav-content {
+        background: #FFFFFF;
+        }
+        .wy-menu .wy-menu-vertical{
+            display: block;
+            top: -10px;
+            margin-right: -25%;
+        }
+        
+        .toctree-l1 li ul li:first-child a {
+            border-radius: 4px 4px 0 0;
+        }
+        .toctree-l1 li ul li:last-child a {
+            border-radius: 0 0 4px 4px;
+        }
+    </style>
+
+  </body>
+</html>
