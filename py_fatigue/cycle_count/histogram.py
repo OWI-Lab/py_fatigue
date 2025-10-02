@@ -525,6 +525,7 @@ def binned_rainflow(  # pylint: disable=R0917,R0913
     damage_exponent: float = 5.0,
     round_decimals: int = 4,
     debug_mode: bool = False,
+    rainflow_method: str = "astm",
 ):
     """
     Returns the cycle-count of the input data calculated through the
@@ -558,6 +559,9 @@ def binned_rainflow(  # pylint: disable=R0917,R0913
         number of decimals to round the output, by default 4
     debug_mode : bool, optional
         if True, print debug messages, by default False
+    rainflow_method : str, optional
+        Rainflow counting algorithm passed to
+        :func:`py_fatigue.cycle_count.rainflow.rainflow`, by default "astm".
     Returns
     -------
     Union[np.ndarray, tuple]
@@ -589,6 +593,7 @@ def binned_rainflow(  # pylint: disable=R0917,R0913
     rfs, res_seq, _ = calc_rainflow(
         data=data,
         time=time,
+        method=rainflow_method,
         extended_output=True,
     )
 

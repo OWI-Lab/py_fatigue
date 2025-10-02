@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from collections import ChainMap, defaultdict
+from functools import partial
 from typing import Any, DefaultDict, Iterable, Union
 import time
 
@@ -20,7 +21,10 @@ from .cycle_count import pbar_sum
 from .rainflow import rainflow as calc_rainflow
 
 
-def solve_lffd(x: Any) -> Union[Any, CycleCount]:  # pragma: no cover
+def solve_lffd(
+    x: Any,
+    rainflow_method: str = "astm",
+) -> Union[Any, CycleCount]:  # pragma: no cover
     """Solve the low-frequency fatigue dynamics of a cycle count or return the
     object as is.
 
@@ -37,12 +41,15 @@ def solve_lffd(x: Any) -> Union[Any, CycleCount]:  # pragma: no cover
         The object evaluated
     """
     if isinstance(x, CycleCount) and len(x.time_sequence) > 1:
-        return x.solve_lffd()
+        return x.solve_lffd(rainflow_method=rainflow_method)
     return x
 
 
 def aggregate_cc(  # pragma: no cover
-    df: pd.DataFrame, aggr_by: str, save_residuals: bool = False
+    df: pd.DataFrame,
+    aggr_by: str,
+    save_residuals: bool = False,
+    rainflow_method: str = "astm",
 ) -> Union[
     pd.DataFrame,
     tuple[pd.DataFrame, DefaultDict[str, DefaultDict[str, list[float]]]],
@@ -102,6 +109,9 @@ def aggregate_cc(  # pragma: no cover
     save_residuals : bool, optional
         If True, the residuals sequences of each aggregated CycleCount are
         saved
+    rainflow_method : str, optional
+        Rainflow counting algorithm forwarded to
+        :func:`py_fatigue.cycle_count.rainflow.rainflow`, by default "astm".
 
     Returns
     -------
@@ -144,7 +154,9 @@ def aggregate_cc(  # pragma: no cover
 
     # Retrieving the low-frequency fatigue dynamics on the aggregated dataframe
     print("\33[36m4. Retrieving LFFD on aggregated \33[1mdf\33[22m.\33[0m")
-    df_agg_rr = df_agg.applymap(solve_lffd)
+    df_agg_rr = df_agg.applymap(
+        partial(solve_lffd, rainflow_method=rainflow_method)
+    )
 
     cc_cols: list[str] = [
         col for col in df_agg_rr.columns if col.startswith("CC_")
@@ -170,6 +182,7 @@ def aggregate_cc(  # pragma: no cover
                 continue
             _, res_res_seq, res_res_idx = calc_rainflow(
                 data=np.asarray(row[col].residuals_sequence),
+                method=rainflow_method,
                 extended_output=True,
             )
             if len(residuals_sequence[col]["idx"]) > 0:

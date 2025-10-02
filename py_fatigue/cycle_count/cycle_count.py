@@ -338,6 +338,7 @@ class CycleCount:
         mean_bin_width: float = 10,
         name: Optional[str] = None,
         unit: str = "MPa",
+        rainflow_method: str = "astm",
     ) -> "CycleCount":
         """Generate a cycle-count from a timeseries.
 
@@ -348,7 +349,9 @@ class CycleCount:
         **kwargs
             Keyword arguments passed to `_build_input_data_from_json`.
         """
-        cc = calc_rainflow(data=data, time=time, extended_output=True)
+        cc = calc_rainflow(
+            data=data, time=time, method=rainflow_method, extended_output=True
+        )
         stress_range = 2 * cc[0][:, 0]
         mean_stress = cc[0][:, 1]
         count_cycle = cc[0][:, 2]
@@ -1022,22 +1025,34 @@ class CycleCount:
         """
         return _multiplication_by_scalar(self, other)
 
-    def solve_lffd(self, solve_mode: str = "Residuals") -> "CycleCount":
+    def solve_lffd(
+        self,
+        solve_mode: str = "Residuals",
+        rainflow_method: str = "astm",
+    ) -> "CycleCount":
         """Resolve the LFFD using Marsh et al. (2016) method.
 
         Parameters
         ----------
         solve_mode : str
             Solve mode. Options are: "Residuals" and "Min-Max".
+        rainflow_method : str, optional
+            Rainflow counting algorithm to propagate to
+            :func:`py_fatigue.cycle_count.rainflow.rainflow`, by default
+            "astm".
 
         Returns
         -------
         :class:`CycleCount`
             :class:`CycleCount` instance with :term:`LFFD` resolved.
         """
-        return _solve_lffd(self, solve_mode)
+        return _solve_lffd(
+            self,
+            solve_mode,
+            rainflow_method=rainflow_method,
+        )
 
-    def resolve_residuals(self) -> "CycleCount":
+    def resolve_residuals(self, rainflow_method: str = "astm") -> "CycleCount":
         """Resolve the residuals. It is a symlink to :meth:`solve_lffd`.
 
         Returns
@@ -1049,7 +1064,7 @@ class CycleCount:
         --------
         :meth:`solve_lffd`
         """
-        return self.solve_lffd()
+        return self.solve_lffd(rainflow_method=rainflow_method)
 
     def mean_stress_correction(  # pylint: disable=R0912
         self,
@@ -1498,6 +1513,7 @@ class CycleCount:
         self,
         fig: Optional[matplotlib.figure.Figure] = None,
         ax: Optional[matplotlib.axes.Axes] = None,
+        rainflow_method: str = "astm",
         **kwargs,
     ) -> Tuple[
         matplotlib.figure.Figure, matplotlib.axes.Axes
@@ -1510,6 +1526,10 @@ class CycleCount:
             a Figure instance to add axes into, by default None
         ax : Optional[matplotlib.axes.Axes], optional
             an Axes instance to add axes into, by default None
+        rainflow_method : str, optional
+            Rainflow counting algorithm to propagate, by default "astm".
+        rainflow_method : str, optional
+            Rainflow counting algorithm to propagate, by default "astm".
 
         Returns
         -------
@@ -1521,6 +1541,7 @@ class CycleCount:
         """
         _, res_res_seq, res_res_idx = calc_rainflow(
             data=np.asarray(self.residuals_sequence),
+            method=rainflow_method,
             extended_output=True,
         )
 
@@ -1541,6 +1562,7 @@ class CycleCount:
         self,
         fig: Optional[matplotlib.figure.Figure] = None,
         ax: Optional[matplotlib.axes.Axes] = None,
+        rainflow_method: str = "astm",
         **kwargs,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
         """A symlink to plot_residuals_sequence.
@@ -1560,7 +1582,12 @@ class CycleCount:
         ]
             The figure with plot instance.
         """
-        return self.plot_residuals_sequence(fig=fig, ax=ax, **kwargs)
+        return self.plot_residuals_sequence(
+            fig=fig,
+            ax=ax,
+            rainflow_method=rainflow_method,
+            **kwargs,
+        )
 
 
 def _multiplication_by_scalar(
@@ -1812,7 +1839,11 @@ def _handling_different_bins_in_sum(
     )
 
 
-def _solve_lffd(self_: CycleCount, solve_mode: str = "Residuals") -> CycleCount:
+def _solve_lffd(
+    self_: CycleCount,
+    solve_mode: str = "Residuals",
+    rainflow_method: str = "astm",
+) -> CycleCount:
     """Retrieve the LFFD for the cycle count instance.
 
     Parameters
@@ -1821,6 +1852,9 @@ def _solve_lffd(self_: CycleCount, solve_mode: str = "Residuals") -> CycleCount:
         Cycle count instance
     solve_mode : str, optional
         Solve mode. Default is "Residuals".
+    rainflow_method : str, optional
+        Rainflow counting algorithm passed down to
+        :func:`py_fatigue.cycle_count.rainflow.rainflow`.
 
     Returns
     -------
@@ -1836,6 +1870,7 @@ def _solve_lffd(self_: CycleCount, solve_mode: str = "Residuals") -> CycleCount:
 
     res_rf, res_res_seq, _ = calc_rainflow(
         data=res_seq,
+        method=rainflow_method,
         extended_output=True,
     )
 

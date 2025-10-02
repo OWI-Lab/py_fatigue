@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tests for the crack growth curve module."""
 
-import os
-
 import pytest
 import numpy as np
 import numba as nb
