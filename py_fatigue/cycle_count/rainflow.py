@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
+"""
+Rainflow cycle counting algorithms for fatigue analysis.
 
-r"""The following code is based on the Python `[1]`_ Rainflow algorithm
-implemented in the WAFO toolbox `[2]`_. The method gives the following
-definition of rainflow cycles, in accordance with Rychlik (1987) `[3]`_:
+Implements:
+- ASTM rainflow (Nieslony's algorithm, standard practice).
+- Four-point rainflow (Amzallag et al. 1994).
 
-From each local maximum M\ :sub:`k` one shall try to reach above the same
-level, in the backward (left) and forward (right) directions, with an as small
-downward excursion as possible. The minima,
-m\ :sup:`-`\ :sub:`k` and m\ :sup:`+`\ :sub:`k`\ , on each side are identified.
-The minimum that represents the smallest deviation from the maximum M\ :sub:`k`
-is defined as the corresponding rainflow minimum
-m\ :sup:`RFC`\ :sub:`k`\ . The k:th rainflow cycle
-is defined as (m\ :sup:`RFC`\ :sub:`k`\ , M\ :sub:`k`\ ).
+Also includes utilities to find turning points and extrema.
 
-.. _[1]: https://www.maths.lth.se/matstat/wafo/
-.. _[2]: https://github.com/wafo-project/pywafo
-.. _[3]: https://www.sciencedirect.com/science/article/abs/pii/0142112387900545
+References
+----------
+[1] WAFO Toolbox https://www.maths.lth.se/matstat/wafo/
+[2] PyWAFO https://github.com/wafo-project/pywafo
+[3] Rychlik (1987), "A new definition of the rainflow cycle counting method"
+[4] Amzallag et al. (1994), "Standardization of the rainflow counting method"
 
 See also
 ---------
 findtp : Find indices to turning points.
 findextrema : Find indices to local maxima and minima.
+findcross : Find indices to level crossings.
 """
 
 # from future imports
@@ -29,14 +28,24 @@ from __future__ import absolute_import, division, print_function
 # standard imports
 # import itertools
 import warnings
-from typing import Any, Optional, Union
+from typing import Any, Dict, List, Tuple, Optional, Union
 
 # non-standard imports
 import numpy as np
 from numba import njit, int64, int8
 
+__all__ = [
+    "rainflow",
+    "findcross",
+    "findextrema",
+    "findtp",
+    "findrfc_astm",
+    "findrfc_fourpoint",
+]
 
-__all__ = ["rainflow", "findextrema", "findtp", "findrfc_astm", "findcross"]
+# -------------------------------------------------------------------------
+# Turning point and extrema helpers
+# -------------------------------------------------------------------------
 
 
 def findtp(x: np.ndarray) -> np.ndarray:
@@ -248,6 +257,11 @@ def _findcross(ind, y):
     return ix
 
 
+# -------------------------------------------------------------------------
+# ASTM rainflow implementation (Nieslony)
+# -------------------------------------------------------------------------
+
+
 def _findrfc3_astm(
     array_ext: np.ndarray, a: np.ndarray, array_out: np.ndarray
 ) -> tuple:
@@ -402,14 +416,210 @@ def findrfc_astm(tp: np.ndarray, t: Optional[np.ndarray] = None) -> np.ndarray:
     return sig_rfc[: n - cnr[0]]
 
 
+# -------------------------------------------------------------------------
+# Four-point rainflow (Amzallag)
+# -------------------------------------------------------------------------
+
+
+def _extract_cycles_from_sequence(
+    seq: List[Tuple[float, Optional[float], int]]
+) -> Tuple[List[Dict[str, Any]], List[Tuple[float, Optional[float], int]]]:
+    """
+    Internal 4-point extraction following Amzallag et al. (1994).
+
+    Parameters
+    ----------
+    seq : list of (value, time, index)
+
+    Returns
+    -------
+    cycles : list of dict
+        Extracted full cycles.
+    residue_seq : list of (value, time, index)
+        Remaining extrema sequence.
+    """
+    x = seq.copy()
+    cycles: List[Dict[str, Any]] = []
+    while True:
+        changed = False
+        if len(x) < 4:
+            break
+        i = 0
+        while i <= len(x) - 4:
+            v1, v2, v3, v4 = x[i][0], x[i + 1][0], x[i + 2][0], x[i + 3][0]
+            as1, as2, as3 = abs(v2 - v1), abs(v3 - v2), abs(v4 - v3)
+            if as2 <= as1 and as2 <= as3:
+                p1, p2 = x[i + 1], x[i + 2]
+                amp = as2 / 2.0  # amplitude (half of range)
+                mean = (p1[0] + p2[0]) / 2.0
+                cycles.append(
+                    {
+                        "amplitude": float(amp),
+                        "mean": float(mean),
+                        "type": 1.0,
+                        "i_idx": p1[2],
+                        "j_idx": p2[2],
+                        "i_time": p1[1],
+                        "j_time": p2[1],
+                    }
+                )
+                del x[i + 1 : i + 3]
+                changed = True
+                i = max(i - 1, 0)  # step back
+            else:
+                i += 1
+        if not changed:
+            break
+    return cycles, x
+
+
+def _duplicate_and_select_crossing_cycles(
+    residue_seq: List[Tuple[float, Optional[float], int]]
+) -> List[Dict[str, Any]]:
+    """
+    Decompose residue by duplication and select cycles crossing boundary.
+
+    Parameters
+    ----------
+    residue_seq : list of (value, time, index)
+
+    Returns
+    -------
+    crossing_cycles : list of dict
+    """
+    m = len(residue_seq)
+    if m == 0:
+        return []
+    dup: List[Tuple[float, Optional[float], int]] = []
+    for item in residue_seq:
+        dup.append(item)
+    for item in residue_seq:
+        dup.append(item)
+    cycles_dup, _ = _extract_cycles_from_sequence(dup)
+    crossing_cycles: List[Dict[str, Any]] = []
+    for c in cycles_dup:
+        i_idx, j_idx = c["i_idx"], c["j_idx"]
+        if (i_idx < residue_seq[0][2] and j_idx >= residue_seq[0][2]) or (
+            j_idx < residue_seq[0][2] and i_idx >= residue_seq[0][2]
+        ):
+            crossing_cycles.append(c)
+    return crossing_cycles
+
+
+def _process_residue(
+    residue_seq: List[Tuple[float, Optional[float], int]]
+) -> Tuple[List[Dict[str, Any]], List[Tuple[float, Optional[float], int]]]:
+    """
+    Fully decompose residue by iterative duplication until stable.
+
+    Parameters
+    ----------
+    residue_seq : list of (value, time, index)
+
+    Returns
+    -------
+    cycles : list of dict
+        Full cycles extracted from the residue.
+    residue_seq : list
+        Final residue after decomposition (≤ 3 points).
+    """
+    all_cycles: List[Dict[str, Any]] = []
+    while True:
+        new_cycles = _duplicate_and_select_crossing_cycles(residue_seq)
+        if not new_cycles:
+            break
+        all_cycles.extend(new_cycles)
+        # fmt: off
+        used = {c["i_idx"] for c in new_cycles} | \
+               {c["j_idx"] for c in new_cycles}
+        # fmt: on
+        residue_seq = [pt for pt in residue_seq if pt[2] not in used]
+        if len(residue_seq) < 4:
+            break
+    return all_cycles, residue_seq
+
+
+def findrfc_fourpoint(
+    tp: np.ndarray, t: Optional[np.ndarray] = None
+) -> np.ndarray:
+    """
+    Return rainflow counted cycles using the four-point method.
+
+    Parameters
+    ----------
+    tp : array-like
+        vector of turning-points (NB! Only values, not sampled times)
+    t : array-like, optional
+        vector of sampled times
+
+    Returns
+    -------
+    sig_rfc : array-like
+        array of shape (n,3) or (n, 5) with:
+        sig_rfc[:,0] Cycles amplitude
+        sig_rfc[:,1] Cycles mean value
+        sig_rfc[:,2] Cycle type, half (=0.5) or full (=1.0)
+        sig_rfc[:,3] cycle_begin_time (only if t is given)
+        sig_rfc[:,4] cycle_period_time (only if t is given)
+    """
+    sig = np.asarray(tp, dtype=float)
+    n = len(sig)
+    times: List[Optional[float]] = [None] * n if t is None else list(t)
+    seq = [(float(sig[i]), times[i], i) for i in range(n)]
+
+    cycles, residue_seq = _extract_cycles_from_sequence(seq)
+    final_cycles = cycles.copy()
+    decomposed, residue_seq = _process_residue(residue_seq)
+    final_cycles.extend(decomposed)
+
+    # convert leftover residue into half cycles
+    for k in range(len(residue_seq) - 1):
+        p1, p2 = residue_seq[k], residue_seq[k + 1]
+        amp = abs(p2[0] - p1[0]) / 2.0  # amplitude definition
+        mean = (p1[0] + p2[0]) / 2.0
+        final_cycles.append(
+            {
+                "amplitude": amp,
+                "mean": mean,
+                "type": 0.5,
+                "i_idx": p1[2],
+                "j_idx": p2[2],
+                "i_time": p1[1],
+                "j_time": p2[1],
+            }
+        )
+
+    rows: List[List[Any]] = []
+    for c in final_cycles:
+        if t is None:
+            rows.append([c["amplitude"], c["mean"], c["type"]])
+        else:
+            begin_time = c["i_time"]
+            period_time = (
+                abs(c["j_time"] - c["i_time"]) * 2
+                if c["i_time"] is not None and c["j_time"] is not None
+                else None
+            )
+            rows.append(
+                [c["amplitude"], c["mean"], c["type"], begin_time, period_time]
+            )
+    return np.asarray(rows, dtype=float)
+
+
+# -------------------------------------------------------------------------
+# Main rainflow function
+# -------------------------------------------------------------------------
+
+
 def rainflow(
     data: Union[np.ndarray, list],
     time: Optional[Union[np.ndarray, list]] = None,
+    method: str = "astm",
     extended_output: bool = True,
-) -> Union[np.ndarray, tuple]:
+) -> Union[np.ndarray, Tuple]:
     """
     Returns the cycle-count of the input data calculated through the
-    :term:`rainflow<Rainflow>` method.
+    rainflow method (ASTM or four-point).
 
     Parameters
     ----------
@@ -417,38 +627,14 @@ def rainflow(
         time series or residuals sequence
     time : Optional[Union[np.ndarray, list]], optional
         sampled times, by default None
-        extended_output : bool, optional
-        if False it returns only the :term:`rainflow<Rainflow>`, if True
-        returns also the residuals signal, by default True
+    method : str, optional
+        "astm" or "fourpoint"
+    extended_output : bool, optional
+        If True, also return residuals.
 
     Returns
     -------
     Union[np.ndarray, tuple]
-        - if np.ndarray:
-            + rfs : np.ndarray
-                rainflow
-                [ampl ampl_mean nr_of_cycle cycle_begin_time cycle_period_time]
-        - if tuple:
-            + rfs : np.ndarray
-                rainflow
-                [ampl ampl_mean nr_of_cycle cycle_begin_time cycle_period_time]
-            + data[res_tp] : numpy.ndarray
-                the residuals signal
-            + res_tp : numpy.ndarray
-                the indices of the residuals signal
-            + time[res_tp] : numpy.ndarray
-                the time signal for residuals
-
-    Raises
-    ------
-    TypeError
-        data shall be numpy.ndarray or list
-
-    See also
-    --------
-    findtp : Find indices to turning points.
-    findextrema : Find indices to local maxima and minima.
-    findrfc_astm : Find rainflow cycles.
     """
     if isinstance(data, list):
         data = np.array(data)
@@ -462,7 +648,16 @@ def rainflow(
         if len(time) != len(data):
             raise ValueError("time and data must have the same length")
     idx = findtp(data)  # [1:-1]
-    rfs = findrfc_astm(data[idx], idx)
+    tp = data[idx]
+
+    if method.lower() == "astm":
+        rfs = findrfc_astm(tp, idx)
+    elif method.lower() == "fourpoint":
+        rfs = findrfc_fourpoint(tp, idx)
+    else:
+        raise ValueError(f"Unknown rainflow method: {method}")
+
+    # build residual signal (based on half cycles)
     res = rfs[rfs[:, 2] == 0.5]
     res_tp = res[:, -2].astype(int)
     res_tp = np.append(res_tp, [len(data) - 1])

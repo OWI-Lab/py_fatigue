@@ -23,6 +23,7 @@ import numpy as np
 
 os.environ["NUMBA_DISABLE_JIT"] = "1"
 import py_fatigue.cycle_count.rainflow as rf
+from py_fatigue.cycle_count.histogram import binned_rainflow
 
 
 def expected(x) -> Tuple[Any, nullcontext]:
@@ -41,6 +42,93 @@ test_data = [
     ([0], [1, 2], *expected([0, 1, 2])),
     ([0, 1], 0, *error(TypeError, match="can only concatenate")),
 ]
+
+FOUR_POINT_SIGNAL = np.array(
+    [
+        4,
+        7,
+        2,
+        10,
+        5,
+        9,
+        3,
+        4,
+        2,
+        12,
+        5,
+        11,
+        1,
+        4,
+        3,
+        10,
+        6,
+        12,
+        4,
+        8,
+        1,
+        9,
+        4,
+        6,
+    ],
+    dtype=float,
+)
+
+FOUR_POINT_EXPECTED_CORE = np.array(
+    [
+        [2.0, 7.0, 1.0],
+        [0.5, 3.5, 1.0],
+        [4.0, 6.0, 1.0],
+        [3.0, 8.0, 1.0],
+        [0.5, 3.5, 1.0],
+        [2.0, 8.0, 1.0],
+        [2.0, 6.0, 1.0],
+        [5.5, 6.5, 1.0],
+        [1.5, 5.5, 0.5],
+        [2.5, 4.5, 0.5],
+        [5.0, 7.0, 0.5],
+        [5.5, 6.5, 0.5],
+        [4.0, 5.0, 0.5],
+        [2.5, 6.5, 0.5],
+        [1.0, 5.0, 0.5],
+    ],
+    dtype=float,
+)
+
+FOUR_POINT_EXPECTED_START_PERIOD = np.array(
+    [
+        [4, 2],
+        [6, 2],
+        [3, 10],
+        [10, 2],
+        [13, 2],
+        [15, 2],
+        [18, 2],
+        [12, 10],
+        [0, 2],
+        [1, 2],
+        [2, 14],
+        [9, 22],
+        [20, 2],
+        [21, 2],
+        [22, 2],
+    ],
+    dtype=float,
+)
+
+FOUR_POINT_EXPECTED_RESIDUALS = np.array(
+    [4.0, 7.0, 2.0, 12.0, 1.0, 9.0, 4.0, 6.0],
+    dtype=float,
+)
+
+FOUR_POINT_EXPECTED_RES_INDICES = np.array(
+    [0, 1, 2, 9, 20, 21, 22, 23],
+    dtype=int,
+)
+
+CONSTANT_SIGNAL = np.array(
+    [0, 5, 0, 5, 0, 5, 0, 0, 5, 0, 5, 0, 5, 0],
+    dtype=float,
+)
 
 
 @pytest.mark.parametrize(test_names, test_data)
@@ -309,6 +397,80 @@ def test_rainflow(trng_pts: list, time: Union[list, None]) -> None:
     with pytest.raises(TypeError) as te:
         rf.rainflow(1, time=3)
     assert "data shall be either numpy.1darray or list" in te.value.args[0]
+
+
+# def test_basic_extraction():
+#     sig = np.array([0, 5, -5, 5, -5, 5, 0], float)
+#     rfc, resid, cycles = four_point_rainflow.rainflow(sig)
+#     assert isinstance(rfc, np.ndarray)
+#     assert all("amplitude" in c for c in cycles)
+
+
+# def test_residue_half_cycles():
+#     sig = np.array([0, 5, -5, 5], float)
+#     rfc, resid, cycles = four_point_rainflow.rainflow(sig,
+#                                            decompose_residue=False)
+#     assert any(c[2] == 0.5 for c in rfc)
+
+
+# def test_amplitude_threshold():
+#     sig = np.array([0, 1, 0, 1, 0], float)
+#     rfc, _, _ = four_point_rainflow.rainflow(sig, amplitude_threshold=2.0)
+#     assert rfc.size == 0
+
+
+# def test_with_time_and_matrix():
+#     sig = np.array([0, 5, -5, 5], float)
+#     t = np.arange(len(sig))
+#     hist, _, _ = four_point_rainflow.rainflow(sig, t=t,
+#                                    as_matrix=True,
+#                                    amp_bins=np.linspace(0, 10, 5),
+#                                    mean_bins=np.linspace(-5, 5, 5))
+#     assert hist.shape == (4, 4)
+
+
+# def test_plotting(monkeypatch):
+#     sig = np.array([0, 5, -5, 5], float)
+#     _, _, cycles = four_point_rainflow.rainflow(sig)
+#     called = {}
+
+#     def fake_show():
+#         called["yes"] = True
+#     monkeypatch.setattr(rainflow.plt, "show", fake_show)
+#     rainflow.plot_signal_and_cycles(sig, cycles)
+#     assert "yes" in called
+
+
+def test_rainflow_fourpoint_reference() -> None:
+    """Four-point rainflow shall match the reference decomposition."""
+
+    cycles, residuals, indices = rf.rainflow(FOUR_POINT_SIGNAL, method="fourpoint")
+
+    np.testing.assert_allclose(cycles[:, :3], FOUR_POINT_EXPECTED_CORE)
+    np.testing.assert_allclose(cycles[:, 3:], FOUR_POINT_EXPECTED_START_PERIOD)
+    np.testing.assert_allclose(residuals, FOUR_POINT_EXPECTED_RESIDUALS)
+    np.testing.assert_array_equal(indices, FOUR_POINT_EXPECTED_RES_INDICES)
+
+
+def test_rainflow_histogram_equivalence() -> None:
+    """Histogram binning shall produce identical results."""
+
+    hist_astm = binned_rainflow(FOUR_POINT_SIGNAL, rainflow_method="astm")
+    hist_four = binned_rainflow(FOUR_POINT_SIGNAL, rainflow_method="fourpoint")
+
+    assert hist_astm["hist"] == hist_four["hist"]
+
+
+def test_fourpoint_residuals_oscillate_on_constant_signal() -> None:
+    """Residual counts oscillate between two states for a constant signal."""
+
+    lengths = []
+    for size in range(4, len(CONSTANT_SIGNAL) + 1):
+        _, residuals, _ = rf.rainflow(CONSTANT_SIGNAL[:size], method="fourpoint")
+        lengths.append(len(residuals))
+
+    assert set(lengths) == {2, 3}
+    assert any(a != b for a, b in zip(lengths, lengths[1:]))
 
 
 os.environ["NUMBA_DISABLE_JIT"] = "0"
