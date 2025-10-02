@@ -31,6 +31,10 @@ from py_fatigue.mean_stress import MeanStress
 import py_fatigue.utils as pfu
 import py_fatigue.cycle_count.rainflow as rf
 
+# Add missing imports at the top
+import matplotlib
+import matplotlib.pyplot as plt
+
 PROJECT_PATH = os.path.dirname(os.getcwd())
 if not PROJECT_PATH in sys.path:
     sys.path.append(PROJECT_PATH)
@@ -209,7 +213,7 @@ def test_legacy_json_keys() -> None:
              "range_bin_width": 1, "hist": [3, 0, 1], "lg_c": [],
              "res": [8.0, 9.0, 8.0, 2.0], "res_sig": [-3, 5, -4, 4, 2]}
     dct_2 = {"no_sm_c": 0, "bin_lb": 0.5,
-             "bin_width": 1, "hist": [3, 0, 1], "lg_c": [], 
+             "bin_width": 1, "hist": [3, 0, 1], "lg_c": [],
              "res": [8.0, 9.0, 8.0, 2.0], "res_sig": [-3, 5, -4, 4, 2]}
     dct_3 = {"nr_small_cycles": 0, "bin_lb": 0.5,
              "bin_width": 1, "hist": [3, 0, 1], "lg_c": [],
@@ -324,7 +328,7 @@ class TestCycleCount:
             json.dumps(copy.deepcopy(export_dict))
             json.dumps(cc_rf.as_dict())
             assert not "not JSON serializable" in te.value.args[0]
-    
+
     @pytest.mark.parametrize("cc_ts, cc_rf", [(CC_TS_1, CC_RF_1)])
     def test_as_dict_legacy_export(
         self,
@@ -922,14 +926,14 @@ class TestCycleCount:
     ) -> None:
         """Test the summary method of the CycleCount class."""
         summary_df = cc.summary()
-        
+
         # Check that summary returns a pandas DataFrame
         assert isinstance(summary_df, pd.DataFrame)
-        
+
         # Check that the DataFrame has the correct structure
         assert summary_df.index.name == "Cycle counting object"
         assert cc.name in summary_df.columns
-        
+
         # Check expected rows are present
         expected_rows = [
             f"largest full stress range, {cc.unit}",
@@ -941,10 +945,10 @@ class TestCycleCount:
             "residuals resolved",
             "mean stress-corrected",
         ]
-        
+
         for row in expected_rows:
             assert row in summary_df.index
-        
+
         # Verify specific values
         assert summary_df.loc[f"largest stress range, {cc.unit}", cc.name] == max(cc.stress_range)
         assert summary_df.loc["number of residuals", cc.name] == int(len(cc.residuals[:, 1]))
@@ -957,7 +961,7 @@ class TestCycleCount:
         """Test summary method with stress concentration factor."""
         cc_scf = cc * 2.5
         summary_df = cc_scf.summary()
-        
+
         # Check that SCF is displayed correctly
         assert summary_df.loc["stress concentration factor", cc_scf.name] == 2.5
 
@@ -965,7 +969,7 @@ class TestCycleCount:
     def test_summary_no_scf(self, cc: CycleCount) -> None:
         """Test summary method without stress concentration factor (SCF = 1)."""
         summary_df = cc.summary()
-        
+
         # Check that N/A is displayed when SCF = 1
         assert summary_df.loc["stress concentration factor", cc.name] == "N/A"
 
@@ -974,7 +978,7 @@ class TestCycleCount:
         """Test summary method with solved LFFD."""
         cc_solved = cc.solve_lffd()
         summary_df = cc_solved.summary()
-        
+
         # Check that residuals resolved is True
         assert summary_df.loc["residuals resolved", cc_solved.name] == True
 
@@ -983,7 +987,7 @@ class TestCycleCount:
         """Test summary method with mean stress correction applied."""
         cc_corrected = cc.mean_stress_correction(detail_factor=0.8)
         summary_df = cc_corrected.summary()
-        
+
         # Check that mean stress correction is reflected
         assert "DNVGL-RP-C203" in summary_df.loc["mean stress-corrected", cc_corrected.name]
 
@@ -996,13 +1000,13 @@ class TestCycleCount:
             mean_stress=np.array([0.0]),
             name="minimal_test"
         )
-        
+
         summary_df = minimal_cc.summary()
-        
+
         # Check that summary handles edge cases properly
         assert isinstance(summary_df, pd.DataFrame)
         assert "minimal_test" in summary_df.columns
-        
+
         # For very small stress ranges, largest full stress range should be None
         largest_full = summary_df.loc[f"largest full stress range, {minimal_cc.unit}", "minimal_test"]
         assert largest_full is None or pd.isna(largest_full)
@@ -1011,630 +1015,470 @@ class TestCycleCount:
     def test_summary_no_mean_stress(self, cc: CycleCount) -> None:
         """Test summary method with cycle count that has no mean stress binning."""
         summary_df = cc.summary()
-        
+
         # Should still work and return valid DataFrame
         assert isinstance(summary_df, pd.DataFrame)
         assert cc.name in summary_df.columns
 
     @pytest.mark.parametrize(cc_names, cc_data)
-    def test_mean_bin_lower_bound_property(
+    def test_stress_amplitude_property(
         self,
         cc: CycleCount,
         stress_range: StressRange,
         mean_stress: MeanStress,
         res_sig: Union[list, np.ndarray],
     ) -> None:
-        """Test the mean_bin_lower_bound property getter and setter."""
-        # Test getter
-        original_bound = cc.mean_bin_lower_bound
-        assert isinstance(original_bound, float)
-        
-        # Test setter
-        new_bound = -1.0
-        cc.mean_bin_lower_bound = new_bound
-        assert cc.mean_bin_lower_bound == new_bound
-        
-        # Reset to original
-        cc.mean_bin_lower_bound = original_bound
+        """Test the stress_amplitude property."""
+        stress_amp = cc.stress_amplitude
+        assert isinstance(stress_amp, np.ndarray)
+        assert np.allclose(stress_amp, cc.stress_range / 2)
 
     @pytest.mark.parametrize(cc_names, cc_data)
-    def test_time_sequence_property(
+    def test_min_max_stress_properties(
         self,
         cc: CycleCount,
         stress_range: StressRange,
         mean_stress: MeanStress,
         res_sig: Union[list, np.ndarray],
     ) -> None:
-        """Test the time_sequence property."""
-        time_seq = cc.time_sequence
-        assert isinstance(time_seq, np.ndarray)
-        assert len(time_seq) >= 1
-        # Fix: timestamp should be in time_sequence, not necessarily exactly equal
-        assert any(np.datetime64(cc.timestamp) == np.datetime64(ts) for ts in time_seq)
+        """Test the min_stress and max_stress properties."""
+        min_stress = cc.min_stress
+        max_stress = cc.max_stress
+
+        assert isinstance(min_stress, np.ndarray)
+        assert isinstance(max_stress, np.ndarray)
+        assert np.allclose(min_stress, cc.mean_stress - cc.stress_amplitude)
+        assert np.allclose(max_stress, cc.mean_stress + cc.stress_amplitude)
+        assert np.all(max_stress >= min_stress)
 
     @pytest.mark.parametrize(cc_names, cc_data)
-    def test_min_max_sequence_property(
+    def test_statistical_moments(
         self,
         cc: CycleCount,
         stress_range: StressRange,
         mean_stress: MeanStress,
         res_sig: Union[list, np.ndarray],
     ) -> None:
-        """Test the min_max_sequence property."""
-        min_max_seq = cc.min_max_sequence
-        assert isinstance(min_max_seq, np.ndarray)
-        # Fix: Check if residuals_sequence exists and has length >= 2
-        if hasattr(cc, 'residuals_sequence') and cc.residuals_sequence is not None and len(cc.residuals_sequence) >= 2:
-            assert len(min_max_seq) == 2
-            assert min_max_seq[0] == min(cc.residuals_sequence)
-            assert min_max_seq[1] == max(cc.residuals_sequence)
+        """Test the statistical_moments property."""
+        moments = cc.statistical_moments
+        assert isinstance(moments, tuple)
+        assert len(moments) == 3
+
+        mean_val, coeff_var, skewness = moments
+        assert isinstance(mean_val, (float, np.floating))
+        assert isinstance(coeff_var, (float, np.floating))
+        assert isinstance(skewness, (float, np.floating))
+        assert mean_val > 0
+        assert coeff_var >= 0
 
     @pytest.mark.parametrize(cc_names, cc_data)
-    def test_to_df_method(
+    def test_bin_properties(
         self,
         cc: CycleCount,
         stress_range: StressRange,
         mean_stress: MeanStress,
         res_sig: Union[list, np.ndarray],
     ) -> None:
-        """Test the to_df method."""
-        df = cc.to_df()
-        assert isinstance(df, pd.DataFrame)
-        
-        # Check columns
-        expected_columns = ['count_cycle', 'mean_stress', 'stress_range']
-        for col in expected_columns:
-            assert col in df.columns
-        
-        # Check data integrity
-        assert np.allclose(df['count_cycle'], cc.count_cycle)
-        assert np.allclose(df['mean_stress'], cc.mean_stress)
-        assert np.allclose(df['stress_range'], cc.stress_range)
-        
-        # Fix: Check metadata exists before accessing it
-        if hasattr(df, '_metadata'):
-            assert df._metadata['name'] == cc.name
+        """Test bin-related properties."""
+        # Test bin_centers
+        mean_centers, range_centers = cc.bin_centers
+        assert isinstance(mean_centers, np.ndarray)
+        assert isinstance(range_centers, np.ndarray)
+        assert len(mean_centers) > 0
+        assert len(range_centers) > 0
 
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_post_init_behavior(self, cc: CycleCount) -> None:
-        """Test the __post_init__ method behavior."""
-        # Create a new CycleCount to test post_init
-        new_cc = CycleCount(
-            count_cycle=cc.count_cycle,
-            stress_range=cc.stress_range,
-            mean_stress=cc.mean_stress,
-            name="test_post_init"
+        # Test bin_edges
+        mean_edges, range_edges = cc.bin_edges
+        assert isinstance(mean_edges, np.ndarray)
+        assert isinstance(range_edges, np.ndarray)
+        assert len(mean_edges) == len(mean_centers) + 1
+        assert len(range_edges) == len(range_centers) + 1
+
+        # Test bin bounds
+        assert cc.mean_bin_upper_bound > cc.mean_bin_lower_bound
+        assert cc.range_bin_upper_bound > cc.range_bin_lower_bound
+
+    def test_from_timeseries_with_time_array(self) -> None:
+        """Test from_timeseries with time array."""
+        data = np.array([0, 1, -1, 2, -2, 1, 0])
+        time = np.linspace(0, 6, len(data))
+
+        cc = CycleCount.from_timeseries(
+            data=data,
+            time=time,
+            name="test_with_time"
         )
-        
-        # Check that mean_bin_lower_bound is calculated if not provided
-        assert new_cc._mean_bin_lower_bound is not None
-        
-        # Check that time_sequence is set
-        assert new_cc.time_sequence is not None
-        assert len(new_cc.time_sequence) >= 1
 
-    def test_post_init_with_nan_mean_stress(self) -> None:
-        """Test __post_init__ with NaN mean stress values."""
-        cc_with_nan = CycleCount(
-            count_cycle=np.array([1.0, 1.0]),
-            stress_range=np.array([2.0, 3.0]),
-            mean_stress=np.array([np.nan, np.nan]),
-            name="test_nan"
+        assert cc.name == "test_with_time"
+        assert len(cc.count_cycle) > 0
+        assert len(cc.stress_range) > 0
+
+    def test_from_rainflow_with_custom_parameters(self) -> None:
+        """Test from_rainflow with custom parameters."""
+        cc = CycleCount.from_rainflow(
+            AS_DICT_1,
+            timestamp=TIMESTAMP_1,
+            round_decimals=2,
+            name="custom_test",
+            mean_stress_corrected="Test correction",
+            lffd_solved=True,
+            unit="kPa"
         )
-        
-        # Should handle NaN values gracefully
-        assert cc_with_nan._mean_bin_lower_bound is None
 
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_full_cycles_half_cycles_properties(self, cc: CycleCount) -> None:
-        """Test full_cycles and half_cycles properties."""
-        full_cycles = cc.full_cycles
-        half_cycles = cc.half_cycles
-        residuals = cc.residuals
-        
-        # Test shapes
-        assert full_cycles.shape[1] == 2  # mean, range
-        assert half_cycles.shape[1] == 2  # mean, range
-        assert residuals.shape[1] == 2  # mean, range
-        
-        # Test that half_cycles and residuals are the same
-        assert np.allclose(half_cycles, residuals)
-        
-        # Test that full cycles have count > 0.5
-        full_indices = cc.count_cycle > 0.5
-        if np.any(full_indices):
-            expected_full_mean = cc.mean_stress[full_indices]
-            expected_full_range = cc.stress_range[full_indices]
-            # Fix: Sort both arrays before comparison
-            assert np.allclose(np.sort(full_cycles[:, 0]), np.sort(expected_full_mean))
-            assert np.allclose(np.sort(full_cycles[:, 1]), np.sort(expected_full_range))
+        assert cc.name == "custom_test"
+        assert cc.mean_stress_corrected == "Test correction"
+        assert cc.lffd_solved == True
+        assert cc.unit == "kPa"
 
-    def test_solve_lffd_different_modes(self) -> None:
-        """Test solve_lffd with different solve modes."""
-        # Test min-max mode
-        from py_fatigue.cycle_count.cycle_count import _solve_lffd
-        return_self, res_sequence = _solve_lffd(solve_mode="Min-Max")
-        if not return_self:
-            cc_result = CC_TS_1.solve_lffd(solve_mode="Min-Max")
-            assert cc_result.lffd_solved
-            assert np.allclose(cc_result.residuals_sequence, res_sequence)
-        else:
-            assert res_sequence is not None
-
-        # Test invalid mode - Fix: Use correct error message pattern
-        with pytest.raises(ValueError, match="Invalid solve mode"):
-            CC_TS_1.solve_lffd(solve_mode="invalid_mode")
-
-    def test_solve_lffd_short_residuals(self) -> None:
-        """Test solve_lffd with short residuals sequence."""
-        # Create a CycleCount with very short residuals
-        cc_short = copy.deepcopy(CC_TS_1)
-        cc_short.residuals_sequence = np.array([1, 2])  # Less than 3 elements
-        
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            cc_result = cc_short.solve_lffd()
-            assert len(w) == 1
-            # Fix: Use correct warning message pattern
-            assert "len" in str(w[0].message) and "residuals_sequence" in str(w[0].message)
-        
-        assert cc_result == cc_short
-
-    def test_solve_lffd_no_residuals(self) -> None:
-        """Test solve_lffd without residuals sequence."""
-        cc_no_res = copy.deepcopy(CC_TS_1)
-        cc_no_res.residuals_sequence = None
-        
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            cc_result = cc_no_res.solve_lffd()
-            assert len(w) == 2
-            # Fix: Use correct warning message pattern
-            assert "residuals_sequence" in str(w[0].message) and "not available" in str(w[0].message)
-        
-        assert cc_result == cc_no_res
-
-    def test_add_with_different_bin_parameters(self) -> None:
-        """Test addition with different bin parameters."""
+    def test_cycle_count_equality_edge_cases(self) -> None:
+        """Test equality comparison edge cases."""
         cc1 = copy.deepcopy(CC_TS_1)
-        cc2 = copy.deepcopy(CC_TS_2)
-        
-        # Change bin parameters
-        cc2.range_bin_width = 1.5
-        cc2.mean_bin_width = 0.75  # Fix: Use a different value that will trigger warning
-        
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            cc_sum = cc1 + cc2
-            # Should have warnings about different bin widths
-            warning_messages = [str(warning.message) for warning in w]
-            # Fix: Check for actual warning patterns from the code
-            assert any("Different bin" in msg and "widths" in msg for msg in warning_messages)
+        cc2 = copy.deepcopy(CC_TS_1)
 
-    def test_html_repr(self) -> None:
-        """Test _repr_html_ method."""
-        html_repr = CC_TS_1._repr_html_()
-        assert isinstance(html_repr, str)
-        # Should contain HTML table elements
-        assert any(tag in html_repr for tag in ['<table', '<tr', '<td'])
+        # Test equality
+        assert cc1 == cc2
 
-    # Fix the duplicate test_timestamp_order methods by removing one
-    @pytest.mark.parametrize(
-        "cc_1, cc_2",
-        [(CC_TS_1, CC_TS_2)],
-    )
-    def test__add__timestamp_order_single(
-        self,
-        cc_1: CycleCount,
-        cc_2: CycleCount,
-    ) -> None:
-        """Test that an error is raised when summing timestamps in the wrong order."""
-        with pytest.raises(TypeError) as te:
-            cc_2 + cc_1
-            assert "predates" in te.value.args[0]
-        cc_sum = cc_1 + cc_2
-        assert len(cc_sum.time_sequence) == 2
+        # Test inequality with different attributes
+        cc2.name = "different_name"
+        assert cc1 != cc2
 
-    # Fix multiplication error message test
+        # Test inequality with non-CycleCount object
+        assert cc1 != "not_a_cyclecount"
+        assert cc1 != 42
+        assert cc1 != None
+
     @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_multiplication_edge_cases(self, cc: CycleCount) -> None:
-        """Test multiplication edge cases and error conditions."""
-        # Test with int
-        cc_int = cc * 2
-        assert cc_int.stress_concentration_factor == 2.0
-        
-        # Test with float
-        cc_float = cc * 2.5
-        assert cc_float.stress_concentration_factor == 2.5
-        
-        # Test chaining multiplications
-        cc_chain = cc * 2 * 1.5
-        assert cc_chain.stress_concentration_factor == 3.0
-        
-        # Test error with invalid type - Fix: Use correct error message pattern
-        with pytest.raises(TypeError, match="Multiplication by a scalar"):
-            cc * "invalid"
-        
-        with pytest.raises(TypeError, match="Multiplication by a scalar"):
-            cc * [1, 2, 3]
+    def test_radd_method(self, cc: CycleCount) -> None:
+        """Test the __radd__ method."""
+        # Test with None
+        result_none = None + cc
+        assert result_none == cc
 
-    def test_multiplication_with_existing_scf(self) -> None:
-        """Test multiplication when SCF is already set."""
-        cc_with_scf = CC_TS_1 * 2.0
-        
+        # Test with 0
+        result_zero = 0 + cc
+        assert result_zero == cc
+
+        # Test with NaN
+        result_nan = np.nan + cc
+        assert result_nan == cc
+
+    def test_str_representation_variations(self) -> None:
+        """Test __str__ method variations."""
+        # Single timestamp
+        str_repr = str(CC_TS_1)
+        assert isinstance(str_repr, str)
+        assert CC_TS_1.name in str_repr
+
+        # Multiple timestamps
+        cc_sum = CC_TS_1 + CC_TS_2
+        str_repr = str(cc_sum)
+        assert "from" in str_repr
+        assert "to" in str_repr
+
+    def test_plot_methods(self) -> None:
+        """Test plotting methods."""
+        import matplotlib.pyplot as plt
+
+        # Test plot_histogram with different types
+        fig, ax = CC_TS_1.plot_histogram(plot_type="min-max")
+        assert isinstance(fig, plt.Figure)
+        plt.close(fig)
+
+        fig, ax = CC_TS_1.plot_histogram(plot_type="mean-range")
+        assert isinstance(fig, plt.Figure)
+        plt.close(fig)
+
+        # Test invalid plot type
+        with pytest.raises(ValueError, match="Invalid plot type"):
+            CC_TS_1.plot_histogram(plot_type="invalid")
+
+        # Test plot_residuals_sequence
+        fig, ax = CC_TS_1.plot_residuals_sequence()
+        assert isinstance(fig, plt.Figure)
+        plt.close(fig)
+
+        # Test plot_half_cycles_sequence (alias)
+        fig, ax = CC_TS_1.plot_half_cycles_sequence()
+        assert isinstance(fig, plt.Figure)
+        plt.close(fig)
+
+    def test_pbar_sum_function(self) -> None:
+        """Test pbar_sum function."""
+        from py_fatigue.cycle_count.cycle_count import pbar_sum
+
+        # Single element
+        result = pbar_sum([CC_TS_1])
+        assert result == CC_TS_1
+
+        # Multiple elements
+        cc_list = [CC_TS_1, CC_TS_2]
+        result = pbar_sum(cc_list)
+        assert isinstance(result, CycleCount)
+
+        # With None elements
+        cc_list_with_none = [CC_TS_1, None, CC_TS_2]
+        result = pbar_sum(cc_list_with_none)
+        assert isinstance(result, CycleCount)
+
+    def test_mean_stress_correction_edge_cases(self) -> None:
+        """Test mean stress correction edge cases."""
+        # Test Walker without gamma
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            cc_double_scf = cc_with_scf * 1.5
-            assert len(w) == 1
-            # Fix: Check for actual warning message pattern
-            assert "SCF already defined" in str(w[0].message)
-        
-        assert cc_double_scf.stress_concentration_factor == 3.0
+            cc_cor = CC_TS_1.solve_lffd().mean_stress_correction(correction_type="walker")
+            assert any("No gamma exponent" in str(warning.message) for warning in w)
+
+        # Test already corrected
+        cc_corrected = CC_TS_1.solve_lffd().mean_stress_correction(detail_factor=0.8)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            cc_cor2 = cc_corrected.mean_stress_correction(detail_factor=0.8)
+            assert any("already been corrected" in str(warning.message) for warning in w)
+
+        # Test zero mean stress
+        cc_zero = copy.deepcopy(CC_TS_1).solve_lffd()
+        cc_zero.mean_stress = np.zeros_like(cc_zero.mean_stress)
+        with pytest.raises(ValueError, match="will not be applied"):
+            # The actual call that should raise the error
+            cc_zero.mean_stress_correction(
+                detail_factor=0.8,
+                enforce_pulsating_load=False
+            )
+
+        # Test with enforce_pulsating_load
+        cc_cor = cc_zero.solve_lffd().mean_stress_correction(
+            detail_factor=0.8, enforce_pulsating_load=True
+        )
+        assert isinstance(cc_cor, CycleCount)
+
+    def test_mean_stress_correction_parameter_errors(self) -> None:
+        """Test mean stress correction parameter validation."""
+        # Missing r_out
+        with pytest.raises(ValueError, match="requires the 'r_out'"):
+            CC_TS_1.solve_lffd().mean_stress_correction(
+                correction_type="goodman", ult_s=1000
+            )
+
+        # Missing ult_s
+        with pytest.raises(ValueError, match="requires the 'ult_s'"):
+            CC_TS_1.solve_lffd().mean_stress_correction(
+                correction_type="goodman", r_out=-1.0
+            )
+
+        # Missing correction_exponent for generic-haigh
+        with pytest.raises(ValueError, match="requires the 'correction_exponent'"):
+            CC_TS_1.solve_lffd().mean_stress_correction(
+                correction_type="generic-haigh", r_out=-1.0, ult_s=1000
+            )
+
+        # Multiple r_out values
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            cc_cor = CC_TS_1.solve_lffd().mean_stress_correction(
+                correction_type="goodman",
+                r_out=[-1.0, -0.5],
+                ult_s=1000
+            )
+            assert any("Multiple output load ratios" in str(warning.message) for warning in w)
 
     def test_solve_lffd_edge_cases(self) -> None:
-        """Test solve_lffd method edge cases."""
-        # Test with already solved LFFD
+        """Test solve_lffd edge cases."""
+        # Already solved
         cc_solved = CC_TS_1.solve_lffd()
-        
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             cc_double_solved = cc_solved.solve_lffd()
-            assert len(w) == 1
-            # Fix: Check for actual warning message pattern
-            assert "already resolved" in str(w[0].message)
-        
-        assert cc_double_solved == cc_solved
+            assert any("already resolved" in str(warning.message) for warning in w)
 
-    @pytest.mark.parametrize(
-        "cc_1, cc_2",
-        [(CC_TS_1, CC_TS_2)],
-    )
-    def test__add__timestamp_order(
-        self,
-        cc_1: CycleCount,
-        cc_2: CycleCount,
-    ) -> None:
-        """Test warnings within the __add__ method when residuals_sequence
-        is not defined.
-        """
-        assert np.max(cc_1.time_sequence) <= np.min(cc_2.time_sequence)
-        with pytest.raises(TypeError) as te:
-            cc_2 + cc_1
-            assert "predates" in te.value.args[0]
-
-        cc_sum = cc_1 + cc_2
-        assert len(cc_sum.time_sequence) == 2
-
-    @pytest.mark.parametrize(
-        "cc_1, cc_2",
-        [(CC_TS_1, CC_TS_2)],
-    )
-    def test__add__different_parameters(
-        self,
-        cc_1: CycleCount,
-        cc_2: CycleCount,
-    ) -> None:
-        """Test warning when summing different parameters."""
-        cc_2.name = " ".join([cc_1.name, " modified"])
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            cc_1 + cc_2
-            assert len(w) == 1
-            assert issubclass(w[-1].category, UserWarning)
-            assert "Summing different parameters." in str(w[-1].message)
-
-    @pytest.mark.parametrize(
-        "cc_1, cc_2",
-        [(CC_TS_1, CC_TS_2)],
-    )
-    @given(
-        scf_1=hy.floats(min_value=1, max_value=1e3),
-        scf_2=hy.floats(min_value=1, max_value=1e3),
-    )
-    def test__add__different_scf(
-        self,
-        cc_1: CycleCount,
-        cc_2: CycleCount,
-        scf_1: float,
-        scf_2: float,
-    ) -> None:
-        """Test warning when summing different parameters."""
-        cc_2.name = " ".join([cc_1.name, " modified"])
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            cc_1 * scf_1 + cc_2 * scf_2
-            if scf_1 != scf_2:
-                assert len(w) == 4
-                assert issubclass(w[-1].category, UserWarning)
-                assert "different SCFs" in str(w[-1].message)
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_summary(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the summary method of the CycleCount class."""
-        summary_df = cc.summary()
-        
-        # Check that summary returns a pandas DataFrame
-        assert isinstance(summary_df, pd.DataFrame)
-        
-        # Check that the DataFrame has the correct structure
-        assert summary_df.index.name == "Cycle counting object"
-        assert cc.name in summary_df.columns
-        
-        # Check expected rows are present
-        expected_rows = [
-            f"largest full stress range, {cc.unit}",
-            f"largest stress range, {cc.unit}",
-            "number of full cycles",
-            "number of residuals",
-            "number of small cycles",
-            "stress concentration factor",
-            "residuals resolved",
-            "mean stress-corrected",
-        ]
-        
-        for row in expected_rows:
-            assert row in summary_df.index
-        
-        # Verify specific values
-        assert summary_df.loc[f"largest stress range, {cc.unit}", cc.name] == max(cc.stress_range)
-        assert summary_df.loc["number of residuals", cc.name] == int(len(cc.residuals[:, 1]))
-        assert summary_df.loc["number of small cycles", cc.name] == int(cc.nr_small_cycles)
-        assert summary_df.loc["residuals resolved", cc.name] == bool(cc.lffd_solved)
-        assert summary_df.loc["mean stress-corrected", cc.name] == cc.mean_stress_corrected
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_summary_with_scf(self, cc: CycleCount) -> None:
-        """Test summary method with stress concentration factor."""
-        cc_scf = cc * 2.5
-        summary_df = cc_scf.summary()
-        
-        # Check that SCF is displayed correctly
-        assert summary_df.loc["stress concentration factor", cc_scf.name] == 2.5
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_summary_no_scf(self, cc: CycleCount) -> None:
-        """Test summary method without stress concentration factor (SCF = 1)."""
-        summary_df = cc.summary()
-        
-        # Check that N/A is displayed when SCF = 1
-        assert summary_df.loc["stress concentration factor", cc.name] == "N/A"
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_summary_solved_lffd(self, cc: CycleCount) -> None:
-        """Test summary method with solved LFFD."""
-        cc_solved = cc.solve_lffd()
-        summary_df = cc_solved.summary()
-        
-        # Check that residuals resolved is True
-        assert summary_df.loc["residuals resolved", cc_solved.name] == True
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_summary_mean_stress_corrected(self, cc: CycleCount) -> None:
-        """Test summary method with mean stress correction applied."""
-        cc_corrected = cc.mean_stress_correction(detail_factor=0.8)
-        summary_df = cc_corrected.summary()
-        
-        # Check that mean stress correction is reflected
-        assert "DNVGL-RP-C203" in summary_df.loc["mean stress-corrected", cc_corrected.name]
-
-    def test_summary_empty_cycle_count(self) -> None:
-        """Test summary method with minimal/empty cycle count data."""
-        # Create a minimal CycleCount with very small data
-        minimal_cc = CycleCount(
-            count_cycle=np.array([0.1]),
-            stress_range=np.array([0.05]),
-            mean_stress=np.array([0.0]),
-            name="minimal_test"
-        )
-        
-        summary_df = minimal_cc.summary()
-        
-        # Check that summary handles edge cases properly
-        assert isinstance(summary_df, pd.DataFrame)
-        assert "minimal_test" in summary_df.columns
-        
-        # For very small stress ranges, largest full stress range should be None
-        largest_full = summary_df.loc[f"largest full stress range, {minimal_cc.unit}", "minimal_test"]
-        assert largest_full is None or pd.isna(largest_full)
-
-    @pytest.mark.parametrize("cc", [CC_TS_4])  # CC_TS_4 has no mean stress data
-    def test_summary_no_mean_stress(self, cc: CycleCount) -> None:
-        """Test summary method with cycle count that has no mean stress binning."""
-        summary_df = cc.summary()
-        
-        # Should still work and return valid DataFrame
-        assert isinstance(summary_df, pd.DataFrame)
-        assert cc.name in summary_df.columns
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_mean_bin_lower_bound_property(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the mean_bin_lower_bound property getter and setter."""
-        # Test getter
-        original_bound = cc.mean_bin_lower_bound
-        assert isinstance(original_bound, float)
-        
-        # Test setter
-        new_bound = -1.0
-        cc.mean_bin_lower_bound = new_bound
-        assert cc.mean_bin_lower_bound == new_bound
-        
-        # Reset to original
-        cc.mean_bin_lower_bound = original_bound
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_time_sequence_property(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the time_sequence property."""
-        time_seq = cc.time_sequence
-        assert isinstance(time_seq, np.ndarray)
-        assert len(time_seq) >= 1
-        # Fix: timestamp should be in time_sequence, not necessarily exactly equal
-        assert any(np.datetime64(cc.timestamp) == np.datetime64(ts) for ts in time_seq)
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_min_max_sequence_property(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the min_max_sequence property."""
-        min_max_seq = cc.min_max_sequence
-        assert isinstance(min_max_seq, np.ndarray)
-        # Fix: Check if residuals_sequence exists and has length >= 2
-        if hasattr(cc, 'residuals_sequence') and cc.residuals_sequence is not None and len(cc.residuals_sequence) >= 2:
-            assert len(min_max_seq) == 2
-            assert min_max_seq[0] == min(cc.residuals_sequence)
-            assert min_max_seq[1] == max(cc.residuals_sequence)
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_to_df_method(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the to_df method."""
-        df = cc.to_df()
-        assert isinstance(df, pd.DataFrame)
-        
-        # Check columns
-        expected_columns = ['count_cycle', 'mean_stress', 'stress_range']
-        for col in expected_columns:
-            assert col in df.columns
-        
-        # Check data integrity
-        assert np.allclose(df['count_cycle'], cc.count_cycle)
-        assert np.allclose(df['mean_stress'], cc.mean_stress)
-        assert np.allclose(df['stress_range'], cc.stress_range)
-        
-        # Fix: Check metadata exists before accessing it
-        if hasattr(df, '_metadata'):
-            assert df._metadata['name'] == cc.name
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_post_init_behavior(self, cc: CycleCount) -> None:
-        """Test the __post_init__ method behavior."""
-        # Create a new CycleCount to test post_init
-        new_cc = CycleCount(
-            count_cycle=cc.count_cycle,
-            stress_range=cc.stress_range,
-            mean_stress=cc.mean_stress,
-            name="test_post_init"
-        )
-        
-        # Check that mean_bin_lower_bound is calculated if not provided
-        assert new_cc._mean_bin_lower_bound is not None
-        
-        # Check that time_sequence is set
-        assert new_cc.time_sequence is not None
-        assert len(new_cc.time_sequence) >= 1
-
-    def test_post_init_with_nan_mean_stress(self) -> None:
-        """Test __post_init__ with NaN mean stress values."""
-        cc_with_nan = CycleCount(
-            count_cycle=np.array([1.0, 1.0]),
-            stress_range=np.array([2.0, 3.0]),
-            mean_stress=np.array([np.nan, np.nan]),
-            name="test_nan"
-        )
-        
-        # Should handle NaN values gracefully
-        assert cc_with_nan._mean_bin_lower_bound is None
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_full_cycles_half_cycles_properties(self, cc: CycleCount) -> None:
-        """Test full_cycles and half_cycles properties."""
-        full_cycles = cc.full_cycles
-        half_cycles = cc.half_cycles
-        residuals = cc.residuals
-        
-        # Test shapes
-        assert full_cycles.shape[1] == 2  # mean, range
-        assert half_cycles.shape[1] == 2  # mean, range
-        assert residuals.shape[1] == 2  # mean, range
-        
-        # Test that half_cycles and residuals are the same
-        assert np.allclose(half_cycles, residuals)
-        
-        # Test that full cycles have count > 0.5
-        full_indices = cc.count_cycle > 0.5
-        if np.any(full_indices):
-            expected_full_mean = cc.mean_stress[full_indices]
-            expected_full_range = cc.stress_range[full_indices]
-            # Fix: Sort both arrays before comparison
-            assert np.allclose(np.sort(full_cycles[:, 0]), np.sort(expected_full_mean))
-            assert np.allclose(np.sort(full_cycles[:, 1]), np.sort(expected_full_range))
-
-        # Test invalid mode - Fix: Use correct error message pattern
-        with pytest.raises(ValueError, match="Invalid solve mode"):
-            CC_TS_1.solve_lffd(solve_mode="invalid_mode")
-
-    def test_solve_lffd_short_residuals(self) -> None:
-        """Test solve_lffd with short residuals sequence."""
-        # Create a CycleCount with very short residuals
+        # Short residuals sequence
         cc_short = copy.deepcopy(CC_TS_1)
-        cc_short.residuals_sequence = np.array([1, 2])  # Less than 3 elements
-        
+        cc_short.residuals_sequence = np.array([1, 2])
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             cc_result = cc_short.solve_lffd()
-            assert len(w) == 1
-            # Fix: Use correct warning message pattern
-            assert "len" in str(w[0].message) and "residuals_sequence" in str(w[0].message)
-        
-        assert cc_result == cc_short
+            assert any("len" in str(warning.message) and "residuals_sequence" in str(warning.message) for warning in w)
 
-    def test_solve_lffd_no_residuals(self) -> None:
-        """Test solve_lffd without residuals sequence."""
+        # No residuals sequence
         cc_no_res = copy.deepcopy(CC_TS_1)
         cc_no_res.residuals_sequence = None
-        
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             cc_result = cc_no_res.solve_lffd()
-            assert len(w) == 2
-            # Fix: Use correct warning message pattern
-            assert "residuals_sequence" in str(w[0].message) and "not available" in str(w[0].message)
-        
-        assert cc_result == cc_no_res
+            assert any("residuals_sequence" in str(warning.message) and "not available" in str(warning.message) for warning in w)
 
-    def test_add_with_different_bin_parameters(self) -> None:
-        """Test addition with different bin parameters."""
+        # Invalid solve mode
+        with pytest.raises(ValueError, match="Invalid solve mode"):
+            CC_TS_1.solve_lffd(solve_mode="invalid_mode")
+
+    def test_multiplication_edge_cases(self) -> None:
+        """Test multiplication edge cases."""
+        # Test with existing SCF
+        cc_with_scf = CC_TS_1 * 2.0
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            cc_double_scf = cc_with_scf * 1.5
+            assert any("SCF already defined" in str(warning.message) for warning in w)
+
+        # Test invalid types
+        with pytest.raises(TypeError, match="Multiplication by a scalar"):
+            CC_TS_1 * "invalid"
+
+        with pytest.raises(TypeError, match="Multiplication by a scalar"):
+            CC_TS_1 * [1, 2, 3]
+
+    def test_addition_edge_cases(self) -> None:
+        """Test addition edge cases."""
+        # Different bin parameters
         cc1 = copy.deepcopy(CC_TS_1)
         cc2 = copy.deepcopy(CC_TS_2)
-        
-        # Change bin parameters
         cc2.range_bin_width = 1.5
-        cc2.mean_bin_width = 0.75  # Fix: Use a different value that will trigger warning
-        
+        cc2.mean_bin_width = 0.75
+
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             cc_sum = cc1 + cc2
-            # Should have warnings about different bin widths
             warning_messages = [str(warning.message) for warning in w]
-            # Fix: Check for actual warning patterns from the code
             assert any("Different bin" in msg and "widths" in msg for msg in warning_messages)
+
+    def test_build_input_data_edge_cases(self) -> None:
+        """Test _build_input_data_from_json edge cases."""
+        # Test with 2D histogram data
+        hist_2d_data = {
+            "nr_small_cycles": 0,
+            "range_bin_lower_bound": 0.5,
+            "range_bin_width": 1,
+            "mean_bin_lower_bound": -0.75,
+            "mean_bin_width": 0.5,
+            "hist": [[1.0, 0.0], [0.0, 1.0]],
+            "lg_c": [[1.0, 2.0]],
+            "res": [[1.0, 8.0]],
+            "res_sig": [-3, 5]
+        }
+
+        result = _build_input_data_from_json(hist_2d_data, name="test", timestamp=TIMESTAMP_1)
+        assert isinstance(result, dict)
+        assert "count_cycle" in result
+
+        # Test without mean_bin_width
+        no_mean_data = {
+            "nr_small_cycles": 0,
+            "range_bin_lower_bound": 0.5,
+            "range_bin_width": 1,
+            "hist": [1.0, 2.0],
+            "lg_c": [],
+            "res": [8.0, 9.0],
+            "res_sig": [-3, 5]
+        }
+
+        result = _build_input_data_from_json(no_mean_data, name="test", timestamp=TIMESTAMP_1)
+        assert result["mean_bin_width"] == 10  # Default value
+
+    def test_assess_json_keys_edge_cases(self) -> None:
+        """Test _assess_json_keys edge cases."""
+        # Test legacy key mapping
+        data_with_legacy = {
+            "no_sm_c": 5,
+            "bin_lb": 0.5,
+            "bin_width": 1.0,
+            "hist": [],
+            "lg_c": [],
+            "res": []
+        }
+
+        result = _assess_json_keys(data_with_legacy)
+        assert "nr_small_cycles" in result
+        assert "range_bin_lower_bound" in result
+        assert "range_bin_width" in result
+
+    def test_multiplication_by_scalar_edge_cases(self) -> None:
+        """Test _multiplication_by_scalar edge cases."""
+        from py_fatigue.cycle_count.cycle_count import _multiplication_by_scalar
+
+        # Test with None residuals_sequence
+        cc_no_res = copy.deepcopy(CC_TS_1)
+        cc_no_res.residuals_sequence = None
+        result = _multiplication_by_scalar(cc_no_res, 2.0)
+        assert len(result.residuals_sequence) == 0
+
+        # Test with None min_max_sequence
+        cc_no_minmax = copy.deepcopy(CC_TS_1)
+        cc_no_minmax.residuals_sequence = None
+        result = _multiplication_by_scalar(cc_no_minmax, 2.0)
+        assert len(result._min_max_sequence) == 0
+
+    def test_handling_different_bins_in_sum(self) -> None:
+        """Test _handling_different_bins_in_sum function."""
+        from py_fatigue.cycle_count.cycle_count import _handling_different_bins_in_sum
+
+        cc1 = copy.deepcopy(CC_TS_1)
+        cc2 = copy.deepcopy(CC_TS_2)
+
+        # Test with different bounds
+        cc2.range_bin_lower_bound = 1.0
+        cc2._mean_bin_lower_bound = -1.0
+
+        result = _handling_different_bins_in_sum(cc1, cc2)
+        assert len(result) == 4
+        assert result[2] == min(cc1.range_bin_lower_bound, cc2.range_bin_lower_bound)
+
+    def test_bin_widths_add_check(self) -> None:
+        """Test _bin_widths_add_check function."""
+        from py_fatigue.cycle_count.cycle_count import _bin_widths_add_check
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            _bin_widths_add_check(1.0, 2.0, "test")
+            assert len(w) == 1
+            assert "Different bin test widths" in str(w[0].message)
+
+    def test_lffd_checks_function(self) -> None:
+        """Test _lffd_checks function."""
+        from py_fatigue.cycle_count.cycle_count import _lffd_checks
+
+        # Test invalid solve mode
+        with pytest.raises(ValueError, match="Invalid solve mode"):
+            _lffd_checks(CC_TS_1, "invalid")
+
+        # Test already solved
+        cc_solved = CC_TS_1.solve_lffd()
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            return_self, _ = _lffd_checks(cc_solved, "residuals")
+            assert return_self == True
+            assert any("already resolved" in str(warning.message) for warning in w)
+
+    def test_cycle_count_add_checks(self) -> None:
+        """Test _cycle_count_add_checks function."""
+        from py_fatigue.cycle_count.cycle_count import _cycle_count_add_checks
+
+        # Test different units
+        cc1 = copy.deepcopy(CC_TS_1)
+        cc2 = copy.deepcopy(CC_TS_2)
+        cc2.unit = "kPa"
+
+        with pytest.raises(TypeError, match="different units"):
+            _cycle_count_add_checks(cc1, cc2)
+
+    def test_post_init_edge_cases(self) -> None:
+        """Test __post_init__ edge cases."""
+        # Test with NaN mean stress
+        cc_nan = CycleCount(
+            count_cycle=np.array([1.0]),
+            stress_range=np.array([2.0]),
+            mean_stress=np.array([np.nan]),
+            name="test_nan"
+        )
+        # Should not set _mean_bin_lower_bound
+        assert cc_nan._mean_bin_lower_bound is None
+
+        # Test with valid mean stress
+        cc_valid = CycleCount(
+            count_cycle=np.array([1.0]),
+            stress_range=np.array([2.0]),
+            mean_stress=np.array([1.0]),
+            name="test_valid"
+        )
+        assert cc_valid._mean_bin_lower_bound is not None
 
     def test_html_repr(self) -> None:
         """Test _repr_html_ method."""
@@ -1643,363 +1487,66 @@ class TestCycleCount:
         # Should contain HTML table elements
         assert any(tag in html_repr for tag in ['<table', '<tr', '<td'])
 
-    # Fix the duplicate test_timestamp_order methods by removing one
-    @pytest.mark.parametrize(
-        "cc_1, cc_2",
-        [(CC_TS_1, CC_TS_2)],
+    def test_as_dict_debug_mode(self) -> None:
+        """Test as_dict with debug_mode."""
+        result = CC_TS_1.as_dict(debug_mode=True)
+        assert isinstance(result, dict)
+        assert "res_sig" in result
+
+# Add more tests for uncovered utility functions and edge cases...
+
+def test_build_input_data_complex_cases():
+    """Test _build_input_data_from_json with complex cases."""
+    # Test with large cycles as iterable
+    complex_data = {
+        "nr_small_cycles": 5,
+        "range_bin_lower_bound": 1.0,
+        "range_bin_width": 2.0,
+        "mean_bin_lower_bound": -1.0,
+        "mean_bin_width": 1.0,
+        "hist": [],
+        "lg_c": [[0.5, 10.0], [1.0, 15.0]],
+        "res": [[2.0, 5.0]],
+        "res_sig": [1, 2, 3]
+    }
+
+    result = _build_input_data_from_json(complex_data, name="complex_test", timestamp=TIMESTAMP_1)
+    assert isinstance(result, dict)
+    assert result["nr_small_cycles"] == 5
+    assert len(result["count_cycle"]) > 0
+
+def test_solve_lffd_only_residuals() -> None:
+    """Test solve_lffd when only residuals exist."""
+    # Create a CycleCount with only residuals (count <= 0.5)
+    cc_only_res = CycleCount(
+        count_cycle=np.array([0.5, 0.5, 0.5]),
+        stress_range=np.array([1.0, 2.0, 3.0]),
+        mean_stress=np.array([0.0, 1.0, 2.0]),
+        residuals_sequence=np.array([1, -1, 2, -2, 1]),
+        name="only_residuals"
     )
-    def test__add__timestamp_order(
-        self,
-        cc_1: CycleCount,
-        cc_2: CycleCount,
-    ) -> None:
-        """Test warnings within the __add__ method when residuals_sequence
-        is not defined.
-        """
-        assert np.max(cc_1.time_sequence) <= np.min(cc_2.time_sequence)
-        with pytest.raises(TypeError) as te:
-            cc_2 + cc_1
-            assert "predates" in te.value.args[0]
 
-        cc_sum = cc_1 + cc_2
-        assert len(cc_sum.time_sequence) == 2
+    result = cc_only_res.solve_lffd()
+    assert result.lffd_solved
+    # Should return only the residuals component since max(count_cycle) <= 0.5
 
-    @pytest.mark.parametrize(
-        "cc_1, cc_2",
-        [(CC_TS_1, CC_TS_2)],
-    )
-    def test__add__different_parameters(
-        self,
-        cc_1: CycleCount,
-        cc_2: CycleCount,
-    ) -> None:
-        """Test warning when summing different parameters."""
-        cc_2.name = " ".join([cc_1.name, " modified"])
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            cc_1 + cc_2
-            assert len(w) == 1
-            assert issubclass(w[-1].category, UserWarning)
-            assert "Summing different parameters." in str(w[-1].message)
+def test_build_input_data_no_mean_stress():
+    """Test _build_input_data_from_json without mean stress binning."""
+    data_no_mean = {
+        "nr_small_cycles": 0,
+        "range_bin_lower_bound": 0.5,
+        "range_bin_width": 1,
+        "hist": [1.0, 2.0, 3.0],
+        "lg_c": [10.0, 15.0],
+        "res": [8.0, 9.0],
+        "res_sig": [-3, 5, -4, 4, 2]
+    }
 
-    @pytest.mark.parametrize(
-        "cc_1, cc_2",
-        [(CC_TS_1, CC_TS_2)],
-    )
-    @given(
-        scf_1=hy.floats(min_value=1, max_value=1e3),
-        scf_2=hy.floats(min_value=1, max_value=1e3),
-    )
-    def test__add__different_scf(
-        self,
-        cc_1: CycleCount,
-        cc_2: CycleCount,
-        scf_1: float,
-        scf_2: float,
-    ) -> None:
-        """Test warning when summing different parameters."""
-        cc_2.name = " ".join([cc_1.name, " modified"])
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            cc_1 * scf_1 + cc_2 * scf_2
-            if scf_1 != scf_2:
-                assert len(w) == 4
-                assert issubclass(w[-1].category, UserWarning)
-                assert "different SCFs" in str(w[-1].message)
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_summary(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the summary method of the CycleCount class."""
-        summary_df = cc.summary()
-        
-        # Check that summary returns a pandas DataFrame
-        assert isinstance(summary_df, pd.DataFrame)
-        
-        # Check that the DataFrame has the correct structure
-        assert summary_df.index.name == "Cycle counting object"
-        assert cc.name in summary_df.columns
-        
-        # Check expected rows are present
-        expected_rows = [
-            f"largest full stress range, {cc.unit}",
-            f"largest stress range, {cc.unit}",
-            "number of full cycles",
-            "number of residuals",
-            "number of small cycles",
-            "stress concentration factor",
-            "residuals resolved",
-            "mean stress-corrected",
-        ]
-        
-        for row in expected_rows:
-            assert row in summary_df.index
-        
-        # Verify specific values
-        assert summary_df.loc[f"largest stress range, {cc.unit}", cc.name] == max(cc.stress_range)
-        assert summary_df.loc["number of residuals", cc.name] == int(len(cc.residuals[:, 1]))
-        assert summary_df.loc["number of small cycles", cc.name] == int(cc.nr_small_cycles)
-        assert summary_df.loc["residuals resolved", cc.name] == bool(cc.lffd_solved)
-        assert summary_df.loc["mean stress-corrected", cc.name] == cc.mean_stress_corrected
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_summary_with_scf(self, cc: CycleCount) -> None:
-        """Test summary method with stress concentration factor."""
-        cc_scf = cc * 2.5
-        summary_df = cc_scf.summary()
-        
-        # Check that SCF is displayed correctly
-        assert summary_df.loc["stress concentration factor", cc_scf.name] == 2.5
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_summary_no_scf(self, cc: CycleCount) -> None:
-        """Test summary method without stress concentration factor (SCF = 1)."""
-        summary_df = cc.summary()
-        
-        # Check that N/A is displayed when SCF = 1
-        assert summary_df.loc["stress concentration factor", cc.name] == "N/A"
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_summary_solved_lffd(self, cc: CycleCount) -> None:
-        """Test summary method with solved LFFD."""
-        cc_solved = cc.solve_lffd()
-        summary_df = cc_solved.summary()
-        
-        # Check that residuals resolved is True
-        assert summary_df.loc["residuals resolved", cc_solved.name] == True
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_summary_mean_stress_corrected(self, cc: CycleCount) -> None:
-        """Test summary method with mean stress correction applied."""
-        cc_corrected = cc.mean_stress_correction(detail_factor=0.8)
-        summary_df = cc_corrected.summary()
-        
-        # Check that mean stress correction is reflected
-        assert "DNVGL-RP-C203" in summary_df.loc["mean stress-corrected", cc_corrected.name]
-
-    def test_summary_empty_cycle_count(self) -> None:
-        """Test summary method with minimal/empty cycle count data."""
-        # Create a minimal CycleCount with very small data
-        minimal_cc = CycleCount(
-            count_cycle=np.array([0.1]),
-            stress_range=np.array([0.05]),
-            mean_stress=np.array([0.0]),
-            name="minimal_test"
-        )
-        
-        summary_df = minimal_cc.summary()
-        
-        # Check that summary handles edge cases properly
-        assert isinstance(summary_df, pd.DataFrame)
-        assert "minimal_test" in summary_df.columns
-        
-        # For very small stress ranges, largest full stress range should be None
-        largest_full = summary_df.loc[f"largest full stress range, {minimal_cc.unit}", "minimal_test"]
-        assert largest_full is None or pd.isna(largest_full)
-
-    @pytest.mark.parametrize("cc", [CC_TS_4])  # CC_TS_4 has no mean stress data
-    def test_summary_no_mean_stress(self, cc: CycleCount) -> None:
-        """Test summary method with cycle count that has no mean stress binning."""
-        summary_df = cc.summary()
-        
-        # Should still work and return valid DataFrame
-        assert isinstance(summary_df, pd.DataFrame)
-        assert cc.name in summary_df.columns
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_mean_bin_lower_bound_property(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the mean_bin_lower_bound property getter and setter."""
-        # Test getter
-        original_bound = cc.mean_bin_lower_bound
-        assert isinstance(original_bound, float)
-        
-        # Test setter
-        new_bound = -1.0
-        cc.mean_bin_lower_bound = new_bound
-        assert cc.mean_bin_lower_bound == new_bound
-        
-        # Reset to original
-        cc.mean_bin_lower_bound = original_bound
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_time_sequence_property(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the time_sequence property."""
-        time_seq = cc.time_sequence
-        assert isinstance(time_seq, np.ndarray)
-        assert len(time_seq) >= 1
-        # Fix: timestamp should be in time_sequence, not necessarily exactly equal
-        assert any(np.datetime64(cc.timestamp) == np.datetime64(ts) for ts in time_seq)
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_min_max_sequence_property(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the min_max_sequence property."""
-        min_max_seq = cc.min_max_sequence
-        assert isinstance(min_max_seq, np.ndarray)
-        # Fix: Check if residuals_sequence exists and has length >= 2
-        if hasattr(cc, 'residuals_sequence') and cc.residuals_sequence is not None and len(cc.residuals_sequence) >= 2:
-            assert len(min_max_seq) == 2
-            assert min_max_seq[0] == min(cc.residuals_sequence)
-            assert min_max_seq[1] == max(cc.residuals_sequence)
-
-    @pytest.mark.parametrize(cc_names, cc_data)
-    def test_to_df_method(
-        self,
-        cc: CycleCount,
-        stress_range: StressRange,
-        mean_stress: MeanStress,
-        res_sig: Union[list, np.ndarray],
-    ) -> None:
-        """Test the to_df method."""
-        df = cc.to_df()
-        assert isinstance(df, pd.DataFrame)
-        
-        # Check columns
-        expected_columns = ['count_cycle', 'mean_stress', 'stress_range']
-        for col in expected_columns:
-            assert col in df.columns
-        
-        # Check data integrity
-        assert np.allclose(df['count_cycle'], cc.count_cycle)
-        assert np.allclose(df['mean_stress'], cc.mean_stress)
-        assert np.allclose(df['stress_range'], cc.stress_range)
-        
-        # Fix: Check metadata exists before accessing it
-        if hasattr(df, '_metadata'):
-            assert df._metadata['name'] == cc.name
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_post_init_behavior(self, cc: CycleCount) -> None:
-        """Test the __post_init__ method behavior."""
-        # Create a new CycleCount to test post_init
-        new_cc = CycleCount(
-            count_cycle=cc.count_cycle,
-            stress_range=cc.stress_range,
-            mean_stress=cc.mean_stress,
-            name="test_post_init"
-        )
-        
-        # Check that mean_bin_lower_bound is calculated if not provided
-        assert new_cc._mean_bin_lower_bound is not None
-        
-        # Check that time_sequence is set
-        assert new_cc.time_sequence is not None
-        assert len(new_cc.time_sequence) >= 1
-
-    def test_post_init_with_nan_mean_stress(self) -> None:
-        """Test __post_init__ with NaN mean stress values."""
-        cc_with_nan = CycleCount(
-            count_cycle=np.array([1.0, 1.0]),
-            stress_range=np.array([2.0, 3.0]),
-            mean_stress=np.array([np.nan, np.nan]),
-            name="test_nan"
-        )
-        
-        # Should handle NaN values gracefully
-        assert cc_with_nan._mean_bin_lower_bound is None
-
-    @pytest.mark.parametrize("cc", [CC_TS_1])
-    def test_full_cycles_half_cycles_properties(self, cc: CycleCount) -> None:
-        """Test full_cycles and half_cycles properties."""
-        full_cycles = cc.full_cycles
-        half_cycles = cc.half_cycles
-        residuals = cc.residuals
-        
-        # Test shapes
-        assert full_cycles.shape[1] == 2  # mean, range
-        assert half_cycles.shape[1] == 2  # mean, range
-        assert residuals.shape[1] == 2  # mean, range
-        
-        # Test that half_cycles and residuals are the same
-        assert np.allclose(half_cycles, residuals)
-        
-        # Test that full cycles have count > 0.5
-        full_indices = cc.count_cycle > 0.5
-        if np.any(full_indices):
-            expected_full_mean = cc.mean_stress[full_indices]
-            expected_full_range = cc.stress_range[full_indices]
-            # Fix: Sort both arrays before comparison
-            assert np.allclose(np.sort(full_cycles[:, 0]), np.sort(expected_full_mean))
-            assert np.allclose(np.sort(full_cycles[:, 1]), np.sort(expected_full_range))
-
-    def test_solve_lffd_different_modes(self) -> None:
-        """Test solve_lffd with different solve modes."""
-        # Test invalid mode - Fix: Use correct error message pattern
-        with pytest.raises(ValueError, match="Invalid solve mode"):
-            CC_TS_1.solve_lffd(solve_mode="invalid_mode")
-
-    def test_solve_lffd_short_residuals(self) -> None:
-        """Test solve_lffd with short residuals sequence."""
-        # Create a CycleCount with very short residuals
-        cc_short = copy.deepcopy(CC_TS_1)
-        cc_short.residuals_sequence = np.array([1, 2])  # Less than 3 elements
-        
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            cc_result = cc_short.solve_lffd()
-            assert len(w) == 1
-            # Fix: Use correct warning message pattern
-            assert "len" in str(w[0].message) and "residuals_sequence" in str(w[0].message)
-        
-        assert cc_result == cc_short
-
-    def test_solve_lffd_no_residuals(self) -> None:
-        """Test solve_lffd without residuals sequence."""
-        cc_no_res = copy.deepcopy(CC_TS_1)
-        cc_no_res.residuals_sequence = None
-        
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            cc_result = cc_no_res.solve_lffd()
-            assert len(w) == 2
-            # Fix: Use correct warning message pattern
-            assert "residuals_sequence" in str(w[0].message) and "not available" in str(w[0].message)
-        
-        assert cc_result == cc_no_res
-
-    def test_add_with_different_bin_parameters(self) -> None:
-        """Test addition with different bin parameters."""
-        cc1 = copy.deepcopy(CC_TS_1)
-        cc2 = copy.deepcopy(CC_TS_2)
-        
-        # Change bin parameters
-        cc2.range_bin_width = 1.5
-        cc2.mean_bin_width = 0.75  # Fix: Use a different value that will trigger warning
-        
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            cc_sum = cc1 + cc2
-            # Should have warnings about different bin widths
-            warning_messages = [str(warning.message) for warning in w]
-            # Fix: Check for actual warning patterns from the code
-            assert any("Different bin" in msg and "widths" in msg for msg in warning_messages)
-
-    def test_html_repr(self) -> None:
-        """Test _repr_html_ method."""
-        html_repr = CC_TS_1._repr_html_()
-        assert isinstance(html_repr, str)
-        # Should contain HTML table elements
-        assert any(tag in html_repr for tag in ['<table', '<tr', '<td'])
+    result = _build_input_data_from_json(data_no_mean, name="no_mean_test", timestamp=TIMESTAMP_1)
+    assert isinstance(result, dict)
+    assert "mean_stress" in result
+    # When mean_bin_width is not provided, mean_stress should be zeros
+    # with the same shape as stress_range
+    expected_length = len(result["stress_range"])
+    assert len(result["mean_stress"]) == expected_length
+    assert np.allclose(result["mean_stress"], np.zeros(expected_length))

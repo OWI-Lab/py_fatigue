@@ -1,3 +1,10 @@
+2.0.4
+------
+- **bump(patch)**: Bump version to 2.0.4 [skip ci]
+- **ci(pages)**: Pages compiled only from develop branch.
+- **feat(cycle-count)** Add ``CycleCount.summary()`` method to print a summary of the CycleCount object.
+- **test(improve)**: Improve test coverage throughout the package.
+
 2.0.3
 ------
 - **bump(patch)**: Bump version to 2.0.3 [skip ci]

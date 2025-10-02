@@ -1167,6 +1167,7 @@ class CycleCount:
         self_ = copy.deepcopy(self) if self.lffd_solved else self.solve_lffd()
 
         if np.all((self_.mean_stress == 0)) and not enforce_pulsating_load:
+            print("cycle_count file", self_.mean_stress)
             e_msg = "".join(
                 (
                     f"{correction_type} mean stress correction will not be ",

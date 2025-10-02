@@ -155,7 +155,7 @@ class TestCrackGrowth:
         # fmt: off
         analytical = 2 / (2 - slope) / intercept * np.pi ** (-slope / 2) \
             * scf ** (-slope) * (-(initial_depth ** (1 - slope / 2)))
-        
+
         geo = geometry.InfiniteSurface(initial_depth=initial_depth)
         # fmt: on
 

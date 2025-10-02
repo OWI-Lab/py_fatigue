@@ -460,7 +460,7 @@ class TestPalmgrenMiner:
             damage.get_dem(
                 outer_radius=r_o,
                 inner_radius=r_i,
-                cycle_count=cc, 
+                cycle_count=cc,
                 slope=slope,
                 equivalent_cycles=n_eq
             ),
@@ -523,7 +523,7 @@ class TestGassner:
         assert df_g._metadata["lffd_solved"] == cc_obj.lffd_solved
         assert isinstance(df_g, pd.DataFrame)
         assert df_g["shift_factor"].sum() == pytest.approx(1, 1e-12)
-    
+
     @pytest.mark.parametrize(
         "cc", [CC_TS_1, CC_TS_3]
     )
@@ -614,7 +614,7 @@ def test_nonlinear_damage_rules(rule: str, sn_curve: SNCurve):
         The SNCurve object to use.
     """
     lh = [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3]
-    
+
     hl = [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1]
     cc_lh = CycleCount.from_timeseries(
         np.asarray(lh),

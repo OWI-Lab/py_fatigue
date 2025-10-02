@@ -63,7 +63,7 @@ class TestCalcCrackGrowth:
             self.crack_type,
             self.crack_geometry
         )
-        
+
         assert np.array_equal(calc.stress_range, self.stress_range)
         assert np.array_equal(calc.count_cycle, self.count_cycle)
         assert np.array_equal(calc.slope, self.slope)
@@ -84,7 +84,7 @@ class TestCalcCrackGrowth:
         count_cycle = np.array([count_value])
         slope = np.array([slope_value])
         intercept = np.array([intercept_value])
-        
+
         calc = CalcCrackGrowth(
             stress_range,
             count_cycle,
@@ -95,7 +95,7 @@ class TestCalcCrackGrowth:
             self.crack_type,
             self.crack_geometry
         )
-        
+
         assert calc.stress_range[0] == stress_value
         assert calc.count_cycle[0] == count_value
         assert calc.slope[0] == slope_value
@@ -113,7 +113,7 @@ class TestCalcCrackGrowth:
             self.crack_type,
             self.crack_geometry
         )
-        
+
         assert calc.size == len(self.stress_range)
 
     def test_calc_crack_growth_string_representation(self):
@@ -128,7 +128,7 @@ class TestCalcCrackGrowth:
             self.crack_type,
             self.crack_geometry
         )
-        
+
         str_repr = str(calc)
         # Should contain information about the object
         assert "Crack growth object" in str_repr
@@ -202,7 +202,7 @@ class TestCalcCrackGrowth:
             self.crack_type,
             self.crack_geometry
         )
-        
+
         # Should have calculated crack depths
         assert hasattr(calc, 'crack_depth')
         assert hasattr(calc, 'sif')
@@ -213,7 +213,7 @@ class TestCalcCrackGrowth:
         """Test CalcCrackGrowth with different initial crack depths."""
         geometry1 = to_numba_dict({"initial_depth": 0.5, "_id": "INF_SUR_00"})
         geometry2 = to_numba_dict({"initial_depth": 2.0, "_id": "INF_SUR_00"})
-        
+
         calc1 = CalcCrackGrowth(
             self.stress_range,
             self.count_cycle,
@@ -224,7 +224,7 @@ class TestCalcCrackGrowth:
             self.crack_type,
             geometry1
         )
-        
+
         calc2 = CalcCrackGrowth(
             self.stress_range,
             self.count_cycle,
@@ -235,7 +235,7 @@ class TestCalcCrackGrowth:
             self.crack_type,
             geometry2
         )
-        
+
         # Different initial depths should lead to different results
         assert calc1.crack_geometry["initial_depth"] != calc2.crack_geometry["initial_depth"]
 
@@ -247,10 +247,10 @@ class TestGetCrackGrowthFunction:
         """Set up test fixtures."""
         # Create test geometry
         self.geometry = geometry.InfiniteSurface(initial_depth=1.0)
-        
+
         # Create test crack growth curve
         self.cg_curve = ParisCurve(slope=3.0, intercept=1e-12)
-        
+
         # Create test cycle count
         self.cycle_count = CycleCount(
             count_cycle=np.array([1000.0, 500.0, 200.0]),
@@ -265,7 +265,7 @@ class TestGetCrackGrowthFunction:
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result, CalcCrackGrowth)
         assert sum(result.count_cycle) == sum(self.cycle_count.count_cycle)
 
@@ -277,14 +277,14 @@ class TestGetCrackGrowthFunction:
             crack_geometry=self.geometry,
             express_mode=True
         )
-        
+
         result_normal = get_crack_growth(
             cycle_count=self.cycle_count,
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry,
             express_mode=False
         )
-        
+
         # Both should be CalcCrackGrowth objects
         assert isinstance(result_express, CalcCrackGrowth)
         assert isinstance(result_normal, CalcCrackGrowth)
@@ -296,13 +296,13 @@ class TestGetCrackGrowthFunction:
             stress_range=np.array([120.0]),
             mean_stress=np.array([0.0]),
         )
-        
+
         result = get_crack_growth(
             cycle_count=single_cycle,
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result, CalcCrackGrowth)
         assert result.size == 1
 
@@ -317,13 +317,13 @@ class TestGetCrackGrowthFunction:
             stress_range=np.array([stress_range]),
             mean_stress=np.array([0.0]),
         )
-        
+
         result = get_crack_growth(
             cycle_count=cycle_count,
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result, CalcCrackGrowth)
         assert result.size >= 1
 
@@ -331,10 +331,10 @@ class TestGetCrackGrowthFunction:
         """Test get_crack_growth with different geometry initial depths."""
         geometry1 = geometry.InfiniteSurface(initial_depth=0.5)
         geometry2 = geometry.InfiniteSurface(initial_depth=2.0)
-        
+
         result1 = get_crack_growth(self.cycle_count, self.cg_curve, geometry1)
         result2 = get_crack_growth(self.cycle_count, self.cg_curve, geometry2)
-        
+
         # Different initial depths should lead to different results
         assert result1.crack_geometry["initial_depth"] != result2.crack_geometry["initial_depth"]
 
@@ -347,7 +347,7 @@ class TestGetCrackGrowthFunction:
             mean_stress=np.array([0.0]),
             unit="ksi√in"  # Different from curve unit
         )
-        
+
         # This should raise an error
         with pytest.raises(ValueError, match="not compatible"):
             get_crack_growth(
@@ -362,7 +362,7 @@ class TestGetCrackGrowthFunction:
         mock_geometry = Mock()
         mock_geometry._id = "UNSUPPORTED_GEO"
         mock_geometry.__dict__ = {"initial_depth": 1.0, "_id": "UNSUPPORTED_GEO"}
-        
+
         with pytest.raises(ValueError, match="Unsupported crack geometry"):
             get_crack_growth(
                 cycle_count=self.cycle_count,
@@ -377,13 +377,13 @@ class TestGetCrackGrowthFunction:
             stress_range=np.array([100.0]),
             mean_stress=np.array([0.0]),
         )
-        
+
         result = get_crack_growth(
             cycle_count=large_cycle_count,
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result, CalcCrackGrowth)
         # Should have more elements due to splitting
         assert result.size > 1
@@ -400,7 +400,7 @@ class TestCrackGrowthDataFrameAccessor:
             'count_cycle': [1000.0, 500.0, 300.0, 200.0],
             'mean_stress': [0.0, 0.0, 0.0, 0.0]
         })
-        
+
         # Create test crack growth curve and geometry
         self.cg_curve = ParisCurve(slope=3.0, intercept=1e-12)
         self.geometry = geometry.InfiniteSurface(initial_depth=1.0)
@@ -419,9 +419,9 @@ class TestCrackGrowthDataFrameAccessor:
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result, pd.DataFrame)
-        
+
         # Should have additional columns after calculation
         expected_columns = ['crack_depth', 'sif', 'cumul_cycle', 'geometry_factor']
         for col in expected_columns:
@@ -434,7 +434,7 @@ class TestCrackGrowthDataFrameAccessor:
             'stress_range': [50.0, 100.0],
             # Missing 'count_cycle' and 'mean_stress'
         })
-        
+
         with pytest.raises(AttributeError, match="Must have"):
             incomplete_df.cg.calc_growth(
                 cg_curve=self.cg_curve,
@@ -448,7 +448,7 @@ class TestCrackGrowthDataFrameAccessor:
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         # Second calculation should raise error
         with pytest.raises(AttributeError, match="already calculated"):
             result.cg.calc_growth(
@@ -463,7 +463,7 @@ class TestCrackGrowthDataFrameAccessor:
             crack_geometry=self.geometry,
             express_mode=True
         )
-        
+
         assert isinstance(result, pd.DataFrame)
         assert 'crack_depth' in result.columns
 
@@ -474,19 +474,19 @@ class TestCrackGrowthDataFrameAccessor:
     def test_crack_growth_accessor_property_based(self, stress_ranges, count_cycles):
         """Test accessor with property-based testing."""
         assume(len(stress_ranges) == len(count_cycles))
-        
+
         df = pd.DataFrame({
             'stress_range': stress_ranges,
             'count_cycle': count_cycles,
             'mean_stress': [0.0] * len(stress_ranges)
         })
-        
+
         # Should not raise an error
         result = df.cg.calc_growth(
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result, pd.DataFrame)
         assert 'crack_depth' in result.columns
 
@@ -496,12 +496,12 @@ class TestCrackGrowthDataFrameAccessor:
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         # Check that attributes are set on both the accessor and DataFrame
         assert hasattr(result.cg, 'cg_curve')
         assert hasattr(result.cg, 'crack_geometry')
         assert hasattr(result.cg, 'final_cycles')
-        
+
         assert result.cg.cg_curve is self.cg_curve
         assert result.cg.crack_geometry is self.geometry
 
@@ -512,12 +512,12 @@ class TestCrackGrowthDataFrameAccessor:
             'count_cycle': [50000.0],  # Large value
             'mean_stress': [0.0]
         })
-        
+
         result = large_df.cg.calc_growth(
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result, pd.DataFrame)
         assert 'crack_depth' in result.columns
 
@@ -528,12 +528,12 @@ class TestCrackGrowthDataFrameAccessor:
             'count_cycle': [1.0, 0.5],  # Small values
             'mean_stress': [0.0, 0.0]
         })
-        
+
         result = single_df.cg.calc_growth(
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result, pd.DataFrame)
         assert 'crack_depth' in result.columns
 
@@ -559,29 +559,29 @@ class TestIntegration:
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         # Validate function results
         assert isinstance(result_func, CalcCrackGrowth)
-        
+
         # Test pandas accessor approach
         df = pd.DataFrame({
             'stress_range': self.cycle_count.stress_range,
             'count_cycle': self.cycle_count.count_cycle,
             'mean_stress': self.cycle_count.mean_stress
         })
-        
+
         result_accessor = df.cg.calc_growth(
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         assert isinstance(result_accessor, pd.DataFrame)
         assert 'crack_depth' in result_accessor.columns
 
     def test_module_exports(self):
         """Test that the damage module exports the expected functions."""
         assert hasattr(damage, 'get_crack_growth')
-        
+
         # Test that we can import the function directly
         from py_fatigue.damage.crack_growth import get_crack_growth as imported_func
         assert imported_func is not None
@@ -597,7 +597,7 @@ class TestIntegration:
         critical = 50.0  # MPa√m
         crack_type = "INF_SUR_00"
         crack_geometry = to_numba_dict({"initial_depth": 1e-3, "_id": "INF_SUR_00"})  # 1mm initial crack
-        
+
         calc = CalcCrackGrowth(
             stress_range,
             count_cycle,
@@ -608,7 +608,7 @@ class TestIntegration:
             crack_type,
             crack_geometry
         )
-        
+
         # Should calculate realistic results
         assert calc.final_cycles > 0
         assert len(calc.crack_depth) > 0
@@ -617,17 +617,17 @@ class TestIntegration:
         """Test that the pandas accessor is properly registered."""
         # Create any DataFrame
         df = pd.DataFrame({'a': [1, 2, 3]})
-        
+
         # The .cg accessor should be available
         assert hasattr(df, 'cg')
-        
+
         # But it should work properly only with crack growth data
         cg_df = pd.DataFrame({
             'stress_range': [100.0],
             'count_cycle': [1000.0],
             'mean_stress': [0.0]
         })
-        
+
         assert hasattr(cg_df, 'cg')
         assert hasattr(cg_df.cg, 'calc_growth')
 
@@ -640,21 +640,21 @@ class TestIntegration:
         """Property-based integration test."""
         # Create geometry with given initial depth
         geo = geometry.InfiniteSurface(initial_depth=initial_depth)
-        
+
         # Create cycle count
         cycle_count_obj = CycleCount(
             count_cycle=np.array([count_cycle]),
             stress_range=np.array([stress_range]),
             mean_stress=np.array([0.0]),
         )
-        
+
         # Get crack growth results
         result = get_crack_growth(
             cycle_count=cycle_count_obj,
             cg_curve=self.cg_curve,
             crack_geometry=geo
         )
-        
+
         # Validate basic properties
         assert isinstance(result, CalcCrackGrowth)
         assert result.crack_geometry["initial_depth"] == initial_depth
@@ -667,23 +667,23 @@ class TestIntegration:
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         # DataFrame accessor approach
         df = pd.DataFrame({
             'stress_range': self.cycle_count.stress_range,
             'count_cycle': self.cycle_count.count_cycle,
             'mean_stress': self.cycle_count.mean_stress
         })
-        
+
         result_df = df.cg.calc_growth(
             cg_curve=self.cg_curve,
             crack_geometry=self.geometry
         )
-        
+
         # Both should use the same underlying calculation
         assert isinstance(result_func, CalcCrackGrowth)
         assert isinstance(result_df, pd.DataFrame)
-        
+
         # The DataFrame approach should have stored the final_cycles
         assert hasattr(result_df.cg, 'final_cycles')
         assert result_df.cg.final_cycles > 0

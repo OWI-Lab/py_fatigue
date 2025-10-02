@@ -88,7 +88,7 @@ def test_binned_rainflow(
     """
     with error:
         dct = ht.binned_rainflow(
-            sig, 
+            sig,
             range_bin_lower_bound=range_bin_lb,
             range_bin_width=range_bin_width,
             mean_bin_lower_bound=mean_bin_lb,

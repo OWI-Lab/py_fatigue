@@ -463,9 +463,12 @@ def bin_upper_bound(
     float
         The upper bound of the bin edges
     """
-    return bin_lower_bound + bin_width * np.ceil(
+    upper = bin_lower_bound + bin_width * np.ceil(
         (max_val - bin_lower_bound) / bin_width
     )
+    if upper < bin_lower_bound:
+        upper = bin_lower_bound
+    return upper
 
 
 def split_full_cycles_and_residuals(count_cycle: np.ndarray) -> tuple:
@@ -586,6 +589,15 @@ class TypedArray(np.ndarray, Generic[DType]):
     its dtype will be *coerced* at runtime to the declared type.
     """
 
+    def __new__(cls, input_array: Any, dtype: Optional[np.dtype] = None):
+        """Create a new TypedArray viewing the input numpy array."""
+        obj = np.array(input_array, dtype=dtype).view(cls)
+        return obj
+
+    def __array_finalize__(self, obj):
+        # Nothing to finalize for now; keep method for subclassing correctness
+        pass
+
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
@@ -690,17 +702,84 @@ def calc_slope_intercept(
 # # **Find zeros
 
 
+# def compile_specialized_bisect(fun):
+#     """
+#     Returns a compiled bisection implementation for `f`.
+#     """
+#     # Compile the passed function in nopython mode.
+#     compiled_f = nb.njit()(fun)
+
+#     def python_bisect(a, b, tol, mxiter, *args):
+#         its = 0
+#         fa = compiled_f(a, *args)
+#         fb = compiled_f(b, *args)
+
+#         if abs(fa) < tol:
+#             return a
+#         if abs(fb) < tol:
+#             return b
+
+#         c = (a + b) / 2.0
+#         fc = compiled_f(c, *args)
+
+#         while abs(fc) > tol and its < mxiter:
+#             its += 1
+#             if fa * fc < 0:
+#                 b = c
+#                 fb = fc
+#             else:
+#                 a = c
+#                 fa = fc
+#             c = (a + b) / 2.0
+#             fc = compiled_f(c, *args)
+#         return c  # , its, fa, fb, fc
+
+#     return nb.njit()(python_bisect)
+
+
 def compile_specialized_bisect(fun):
     """
     Returns a compiled bisection implementation for `f`.
     """
-    # Compile the passed function in nopython mode.
     compiled_f = nb.njit()(fun)
 
     def python_bisect(a, b, tol, mxiter, *args):
         its = 0
-        fa = compiled_f(a, *args)[0]
-        fb = compiled_f(b, *args)[0]
+        len_args = len(args)
+
+        if len_args > 3:
+            raise ValueError("Too many extra arguments for compiled function")
+
+        def ensure_scalar(value):
+            if isinstance(value, (tuple, list)):
+                if len(value) != 1:
+                    raise TypeError(
+                        "Compiled function must return a scalar value"
+                    )
+                return value[0]
+            if isinstance(value, np.ndarray):
+                if value.size != 1:
+                    raise TypeError(
+                        "Compiled function must return a scalar value"
+                    )
+                return float(value.item())
+            if isinstance(value, np.generic):
+                return float(value)
+            return value
+
+        def evaluate(point):
+            if len_args == 0:
+                result = compiled_f(point)
+            elif len_args == 1:
+                result = compiled_f(point, args[0])
+            elif len_args == 2:
+                result = compiled_f(point, args[0], args[1])
+            else:
+                result = compiled_f(point, args[0], args[1], args[2])
+            return ensure_scalar(result)
+
+        fa = evaluate(a)
+        fb = evaluate(b)
 
         if abs(fa) < tol:
             return a
@@ -708,7 +787,7 @@ def compile_specialized_bisect(fun):
             return b
 
         c = (a + b) / 2.0
-        fc = compiled_f(c, *args)[0]
+        fc = evaluate(c)
 
         while abs(fc) > tol and its < mxiter:
             its += 1
@@ -719,10 +798,10 @@ def compile_specialized_bisect(fun):
                 a = c
                 fa = fc
             c = (a + b) / 2.0
-            fc = compiled_f(c, *args)[0]
-        return c  # , its, fa, fb, fc
+            fc = evaluate(c)
+        return c
 
-    return nb.njit()(python_bisect)
+    return python_bisect
 
 
 def compile_specialized_newton(fun):
@@ -807,7 +886,7 @@ def numba_bisect(fun, a, b, tol, mxiter, *args):
     """
     if isinstance(fun, FunctionType):
         jit_bisect_func = compile_specialized_bisect(fun)
-        return jit_bisect_func(a, b, tol, mxiter, args)
+        return jit_bisect_func(a, b, tol, mxiter, *args)
     return fun(a, b, tol, mxiter, *args)
 
 

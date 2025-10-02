@@ -4,7 +4,7 @@ r"""Comprehensive tests for mean stress corrections module.
 
 This module contains tests for all mean stress correction functions:
 - dnvgl_mean_stress_correction
-- walker_mean_stress_correction  
+- walker_mean_stress_correction
 - swt_mean_stress_correction
 - goodman_haigh_mean_stress_correction
 - __goodman_equation
@@ -34,10 +34,10 @@ class TestDNVGLMeanStressCorrection:
         """Test basic functionality with known values."""
         mean_stress = np.array([10, 20, -10, 0])
         stress_amplitude = np.array([50, 30, 40, 25])
-        
+
         # Test with detail_factor=0.8 (default)
         result = dnvgl_mean_stress_correction(mean_stress, stress_amplitude)
-        
+
         assert len(result) == len(mean_stress)
         assert np.all(result >= 0)
         assert isinstance(result, np.ndarray)
@@ -46,11 +46,11 @@ class TestDNVGLMeanStressCorrection:
         """Test with detail_factor=0.8 (welded connections)."""
         mean_stress = np.array([100, -50, 0])
         stress_amplitude = np.array([80, 60, 40])
-        
+
         result = dnvgl_mean_stress_correction(
             mean_stress, stress_amplitude, detail_factor=0.8
         )
-        
+
         # For fully tensile (mean + amp > 0, mean - amp > 0), f_m should be 1
         # For fully compressive cycles, f_m should be >= 0.8
         assert len(result) == 3
@@ -60,11 +60,11 @@ class TestDNVGLMeanStressCorrection:
         """Test with detail_factor=0.6 (base material)."""
         mean_stress = np.array([100, -50, 0])
         stress_amplitude = np.array([80, 60, 40])
-        
+
         result = dnvgl_mean_stress_correction(
             mean_stress, stress_amplitude, detail_factor=0.6
         )
-        
+
         # For fully compressive cycles with detail_factor=0.6, stress should be 0
         assert len(result) == 3
         assert np.all(result >= 0)
@@ -73,12 +73,12 @@ class TestDNVGLMeanStressCorrection:
         """Test that invalid detail factors raise ValueError."""
         mean_stress = np.array([10, 20])
         stress_amplitude = np.array([5, 15])
-        
+
         with pytest.raises(ValueError, match="Detail factor.*not allowed"):
             dnvgl_mean_stress_correction(
                 mean_stress, stress_amplitude, detail_factor=0.7
             )
-        
+
         with pytest.raises(ValueError, match="Detail factor.*not allowed"):
             dnvgl_mean_stress_correction(
                 mean_stress, stress_amplitude, detail_factor=0.9
@@ -99,14 +99,14 @@ class TestDNVGLMeanStressCorrection:
         if len(mean_stress) != len(stress_amp):
             mean_stress = mean_stress[:min(len(mean_stress), len(stress_amp))]
             stress_amp = stress_amp[:min(len(mean_stress), len(stress_amp))]
-        
+
         mean_stress = np.array(mean_stress)
         stress_amp = np.array(stress_amp)
-        
+
         result = dnvgl_mean_stress_correction(
             mean_stress, stress_amp, detail_factor=0.8
         )
-        
+
         # Results should be non-negative
         assert np.all(result >= 0)
         # Results should be finite
@@ -133,14 +133,14 @@ class TestDNVGLMeanStressCorrection:
         if len(mean_stress) != len(stress_amp):
             mean_stress = mean_stress[:min(len(mean_stress), len(stress_amp))]
             stress_amp = stress_amp[:min(len(mean_stress), len(stress_amp))]
-        
+
         mean_stress = np.array(mean_stress)
         stress_amp = np.array(stress_amp)
-        
+
         result = dnvgl_mean_stress_correction(
             mean_stress, stress_amp, detail_factor=0.6
         )
-        
+
         # Results should be non-negative
         assert np.all(result >= 0)
         # Results should be finite
@@ -150,7 +150,7 @@ class TestDNVGLMeanStressCorrection:
         """Test that plotting doesn't raise errors."""
         mean_stress = np.array([10, -20, 0, 50])
         stress_amplitude = np.array([15, 25, 30, 20])
-        
+
         # Should not raise any exceptions
         result = dnvgl_mean_stress_correction(
             mean_stress, stress_amplitude, plot=True
@@ -168,7 +168,7 @@ class TestDNVGLMeanStressCorrection:
         )
         assert result[0] < 100  # Should be less than 2*amplitude for mixed loading
         assert result[0] >= 80  # But at least detail_factor * 2 * amplitude
-        
+
         # Very small amplitude with high tensile mean
         result = dnvgl_mean_stress_correction(
             np.array([100]), np.array([1]), detail_factor=0.8
@@ -183,9 +183,9 @@ class TestWalkerMeanStressCorrection:
         """Test basic functionality with known values."""
         mean_stress = np.array([10, 20, -10, 0])
         stress_amplitude = np.array([50, 30, 40, 25])
-        
+
         result = walker_mean_stress_correction(mean_stress, stress_amplitude)
-        
+
         assert len(result) == len(mean_stress)
         assert np.all(result >= 0)
         assert isinstance(result, np.ndarray)
@@ -194,26 +194,26 @@ class TestWalkerMeanStressCorrection:
         """Test with different gamma values."""
         mean_stress = np.array([100, -50])
         stress_amplitude = np.array([80, 60])
-        
+
         # Test gamma = 0.5 (default, equivalent to SWT)
         result_05 = walker_mean_stress_correction(
             mean_stress, stress_amplitude, gamma=0.5
         )
-        
+
         # Test gamma = 0 (maximum influence of mean stress)
         result_0 = walker_mean_stress_correction(
             mean_stress, stress_amplitude, gamma=0.0
         )
-        
+
         # Test gamma = 1 (no influence of mean stress)
         result_1 = walker_mean_stress_correction(
             mean_stress, stress_amplitude, gamma=1.0
         )
-        
+
         assert len(result_05) == 2
-        assert len(result_0) == 2  
+        assert len(result_0) == 2
         assert len(result_1) == 2
-        
+
         # When gamma = 1, result should equal stress amplitude
         np.testing.assert_allclose(result_1, stress_amplitude, rtol=1e-10)
 
@@ -224,11 +224,11 @@ class TestWalkerMeanStressCorrection:
         """Test gamma parameter in valid range."""
         mean_stress = np.array([50, -25, 0])
         stress_amplitude = np.array([30, 40, 25])
-        
+
         result = walker_mean_stress_correction(
             mean_stress, stress_amplitude, gamma=gamma
         )
-        
+
         assert len(result) == 3
         assert np.all(result >= 0)
         assert np.all(np.isfinite(result))
@@ -237,7 +237,7 @@ class TestWalkerMeanStressCorrection:
         """Test that plotting doesn't raise errors."""
         mean_stress = np.array([10, -20, 0, 50])
         stress_amplitude = np.array([15, 25, 30, 20])
-        
+
         # Should not raise any exceptions
         result = walker_mean_stress_correction(
             mean_stress, stress_amplitude, plot=True
@@ -249,9 +249,9 @@ class TestWalkerMeanStressCorrection:
         # Case where mean_stress + stress_amplitude < 0
         mean_stress = np.array([-100])
         stress_amplitude = np.array([50])  # max_stress = -50
-        
+
         result = walker_mean_stress_correction(mean_stress, stress_amplitude)
-        
+
         # Should handle negative max stress gracefully
         assert len(result) == 1
         assert np.isfinite(result[0])
@@ -271,12 +271,12 @@ class TestWalkerMeanStressCorrection:
         if len(mean_stress) != len(stress_amp):
             mean_stress = mean_stress[:min(len(mean_stress), len(stress_amp))]
             stress_amp = stress_amp[:min(len(mean_stress), len(stress_amp))]
-        
+
         mean_stress = np.array(mean_stress)
         stress_amp = np.array(stress_amp)
-        
+
         result = walker_mean_stress_correction(mean_stress, stress_amp)
-        
+
         # Results should be non-negative
         assert np.all(result >= 0)
         # Results should be finite (nan_to_num should handle infinities)
@@ -290,9 +290,9 @@ class TestSWTMeanStressCorrection:
         """Test basic functionality."""
         mean_stress = np.array([10, 20, -10, 0])
         stress_amplitude = np.array([50, 30, 40, 25])
-        
+
         result = swt_mean_stress_correction(mean_stress, stress_amplitude)
-        
+
         assert len(result) == len(mean_stress)
         assert np.all(result >= 0)
         assert isinstance(result, np.ndarray)
@@ -301,19 +301,19 @@ class TestSWTMeanStressCorrection:
         """Test that SWT is equivalent to Walker with gamma=0.5."""
         mean_stress = np.array([100, -50, 0, 25])
         stress_amplitude = np.array([80, 60, 40, 35])
-        
+
         swt_result = swt_mean_stress_correction(mean_stress, stress_amplitude)
         walker_result = walker_mean_stress_correction(
             mean_stress, stress_amplitude, gamma=0.5
         )
-        
+
         np.testing.assert_allclose(swt_result, walker_result, rtol=1e-10)
 
     def test_plotting_functionality(self):
         """Test that plotting doesn't raise errors."""
         mean_stress = np.array([10, -20, 0, 50])
         stress_amplitude = np.array([15, 25, 30, 20])
-        
+
         # Should not raise any exceptions
         result = swt_mean_stress_correction(
             mean_stress, stress_amplitude, plot=True
@@ -335,12 +335,12 @@ class TestSWTMeanStressCorrection:
         if len(mean_stress) != len(stress_amp):
             mean_stress = mean_stress[:min(len(mean_stress), len(stress_amp))]
             stress_amp = stress_amp[:min(len(mean_stress), len(stress_amp))]
-        
+
         mean_stress = np.array(mean_stress)
         stress_amp = np.array(stress_amp)
-        
+
         result = swt_mean_stress_correction(mean_stress, stress_amp)
-        
+
         # Results should be non-negative
         assert np.all(result >= 0)
         # Results should be finite
@@ -357,11 +357,11 @@ class TestGoodmanHaighMeanStressCorrection:
         r_out = -1.0  # Fully reversed loading
         ult_s = 1000
         correction_exponent = 1.0  # Goodman correction
-        
+
         amp_out, mean_out = goodman_haigh_mean_stress_correction(
             amp_in, mean_in, r_out, ult_s, correction_exponent
         )
-        
+
         assert amp_out.shape == (1, 3)  # r_out as scalar creates (1, len(amp_in))
         assert mean_out.shape == (1, 3)
         assert np.all(amp_out >= 0)
@@ -374,7 +374,7 @@ class TestGoodmanHaighMeanStressCorrection:
             goodman_haigh_mean_stress_correction(
                 np.array([100, 200]), np.array([50]), -1.0, 1000, 1.0
             )
-        
+
         # Negative amplitude
         with pytest.raises(ValueError, match="negative stress amplitude"):
             goodman_haigh_mean_stress_correction(
@@ -388,14 +388,14 @@ class TestGoodmanHaighMeanStressCorrection:
         r_out = -1.0
         ult_s = 1000
         correction_exponent = 1.0
-        
+
         amp_out, mean_out = goodman_haigh_mean_stress_correction(
             amp_in, mean_in, r_out, ult_s, correction_exponent
         )
-        
+
         # For r_out = -1, mean_out should be zeros
         np.testing.assert_allclose(mean_out[0], np.zeros_like(amp_in), rtol=1e-10)
-        
+
         # Analytical solution: amp_out = amp_in / (1 - (mean_in / ult_s)^n)
         expected_amp_out = amp_in / (1 - (mean_in / ult_s) ** correction_exponent)
         np.testing.assert_allclose(amp_out[0], expected_amp_out, rtol=1e-6)
@@ -406,17 +406,17 @@ class TestGoodmanHaighMeanStressCorrection:
         mean_in = np.array([50])
         r_out = -1.0
         ult_s = 1000
-        
+
         # Goodman correction (n=1)
         amp_out_goodman, _ = goodman_haigh_mean_stress_correction(
             amp_in, mean_in, r_out, ult_s, correction_exponent=1.0
         )
-        
+
         # Gerber correction (n=2)
         amp_out_gerber, _ = goodman_haigh_mean_stress_correction(
             amp_in, mean_in, r_out, ult_s, correction_exponent=2.0
         )
-        
+
         # Both should be greater than input amplitude due to mean stress effect
         assert amp_out_goodman[0, 0] > amp_in[0]
         assert amp_out_gerber[0, 0] > amp_in[0]
@@ -430,11 +430,11 @@ class TestGoodmanHaighMeanStressCorrection:
         r_out = np.array([-1.0, 0.0, 0.5])
         ult_s = 1000
         correction_exponent = 1.0
-        
+
         amp_out, mean_out = goodman_haigh_mean_stress_correction(
             amp_in, mean_in, r_out, ult_s, correction_exponent
         )
-        
+
         assert amp_out.shape == (3, 2)  # 3 r_out values, 2 input points
         assert mean_out.shape == (3, 2)
 
@@ -445,11 +445,11 @@ class TestGoodmanHaighMeanStressCorrection:
         r_out = [-1.0, 0.0]
         ult_s = 1000
         correction_exponent = 1.0
-        
+
         amp_out, mean_out = goodman_haigh_mean_stress_correction(
             amp_in, mean_in, r_out, ult_s, correction_exponent
         )
-        
+
         assert isinstance(amp_out, np.ndarray)
         assert isinstance(mean_out, np.ndarray)
         assert amp_out.shape == (2, 2)
@@ -460,13 +460,13 @@ class TestGoodmanHaighMeanStressCorrection:
         amp_in = np.ones(1001)
         mean_in = np.zeros(1001)
         r_out = np.linspace(-1, 0.9, 1001)
-        
+
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             amp_out, _ = goodman_haigh_mean_stress_correction(
                 amp_in, mean_in, r_out, 1000, 1.0, plot=True
             )
-            
+
             # Should have triggered a warning about large arrays
             assert len(w) > 0
             assert "too large for plotting" in str(w[0].message)
@@ -475,18 +475,18 @@ class TestGoodmanHaighMeanStressCorrection:
         """Test logger integration."""
         # Create a logger
         logger = logging.getLogger("test_logger")
-        
+
         amp_in = np.array([100])
         mean_in = np.array([50])
         r_out = 0.0
         ult_s = 1000
         correction_exponent = 1.0
-        
+
         # Should not raise any errors with logger
         amp_out, mean_out = goodman_haigh_mean_stress_correction(
             amp_in, mean_in, r_out, ult_s, correction_exponent, logger=logger
         )
-        
+
         assert amp_out.shape == (1, 1)
 
     def test_plotting_functionality(self):
@@ -496,12 +496,12 @@ class TestGoodmanHaighMeanStressCorrection:
         r_out = np.array([-1.0, 0.0, 0.5])
         ult_s = 1000
         correction_exponent = 1.0
-        
+
         # Should not raise errors
         amp_out, mean_out = goodman_haigh_mean_stress_correction(
             amp_in, mean_in, r_out, ult_s, correction_exponent, plot=True
         )
-        
+
         assert amp_out.shape == (3, 3)
 
     def test_initial_guess_parameter(self):
@@ -512,12 +512,12 @@ class TestGoodmanHaighMeanStressCorrection:
         ult_s = 1000
         correction_exponent = 1.0
         initial_guess = np.array([120, 180])
-        
+
         amp_out, mean_out = goodman_haigh_mean_stress_correction(
-            amp_in, mean_in, r_out, ult_s, correction_exponent, 
+            amp_in, mean_in, r_out, ult_s, correction_exponent,
             initial_guess=initial_guess
         )
-        
+
         assert amp_out.shape == (1, 2)
 
     @given(
@@ -538,27 +538,27 @@ class TestGoodmanHaighMeanStressCorrection:
             min_len = min(len(amp_in), len(mean_in))
             amp_in = amp_in[:min_len]
             mean_in = mean_in[:min_len]
-        
+
         amp_in = np.array(amp_in)
         mean_in = np.array(mean_in)
         r_out = -1.0  # Use simple case
-        
+
         # Filter out cases that might cause numerical issues
         # Skip if any amplitude is too close to ultimate strength relative to mean stress
         stress_ratio = np.abs(mean_in) / ult_s
         if np.any(stress_ratio > 0.1):  # More conservative threshold
             # Skip problematic cases
             return
-        
+
         # Additional check: ensure reasonable stress levels
         if np.any(amp_in / ult_s > 0.3):
             return
-        
+
         try:
             amp_out, mean_out = goodman_haigh_mean_stress_correction(
                 amp_in, mean_in, r_out, ult_s, correction_exponent
             )
-            
+
             # Results should be finite and positive where they exist
             finite_mask = np.isfinite(amp_out)
             if np.any(finite_mask):
@@ -576,7 +576,7 @@ class TestIntegration:
         """Compare different correction methods for consistency."""
         mean_stress = np.array([50, -25, 0])
         stress_amplitude = np.array([100, 75, 50])
-        
+
         # DNVGL corrections
         dnvgl_08 = dnvgl_mean_stress_correction(
             mean_stress, stress_amplitude, detail_factor=0.8
@@ -584,16 +584,16 @@ class TestIntegration:
         dnvgl_06 = dnvgl_mean_stress_correction(
             mean_stress, stress_amplitude, detail_factor=0.6
         )
-        
-        # Walker/SWT corrections  
+
+        # Walker/SWT corrections
         walker_05 = walker_mean_stress_correction(
             mean_stress, stress_amplitude, gamma=0.5
         )
         swt = swt_mean_stress_correction(mean_stress, stress_amplitude)
-        
+
         # SWT should equal Walker with gamma=0.5
         np.testing.assert_allclose(walker_05, swt, rtol=1e-10)
-        
+
         # All results should be positive and finite
         for result in [dnvgl_08, dnvgl_06, walker_05, swt]:
             assert np.all(result >= 0)
@@ -604,7 +604,7 @@ class TestIntegration:
         # Zero stress cases
         zero_mean = np.array([0])
         small_amp = np.array([1e-6])
-        
+
         for correction in [dnvgl_mean_stress_correction, walker_mean_stress_correction, swt_mean_stress_correction]:
             if correction == dnvgl_mean_stress_correction:
                 result = correction(zero_mean, small_amp, detail_factor=0.8)
@@ -617,12 +617,12 @@ class TestIntegration:
         """Test with large stress values."""
         large_mean = np.array([1e6])
         large_amp = np.array([5e5])
-        
+
         # Should handle large values gracefully
         result_dnvgl = dnvgl_mean_stress_correction(large_mean, large_amp)
         result_walker = walker_mean_stress_correction(large_mean, large_amp)
         result_swt = swt_mean_stress_correction(large_mean, large_amp)
-        
+
         for result in [result_dnvgl, result_walker, result_swt]:
             assert np.all(np.isfinite(result))
             assert np.all(result >= 0)

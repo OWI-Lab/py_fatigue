@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-r"""The following tests are based on the rainflow algorithm 
+r"""The following tests are based on the rainflow algorithm
 implementation according to the ASTM standard E1049-85 [1]_,
 in its 2017 version.
 

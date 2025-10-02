@@ -28,7 +28,7 @@ def test_pure_paris_curve():
     with pytest.raises(ValueError):
         paris_pure.get_knee_sif(check_knee=True)
     assert paris_pure.__str__() == paris_pure.name
-    paris_pure.format_name() 
+    paris_pure.format_name()
     assert paris_pure.name == paris_pure.name.replace("<br>", "\n")
     paris_pure.format_name(html_format=True)
     assert paris_pure.name == paris_pure.name.replace("\n", "<br>")
@@ -37,7 +37,7 @@ def test_pure_paris_curve():
     with pytest.raises(ValueError):
         paris_pure.get_knee_sif(check_knee=np.array([0]))
 
-            
+
 def test_paris_curve_initialization():
     slope = [2.88, 5.1, 8.16, 5.1, 2.88]
     intercept = [1E-16, 1E-20, 1E-27, 1E-19, 1E-13]
@@ -181,7 +181,7 @@ def test_pure_walker_curve():
     with pytest.raises(ValueError):
         walker_pure.get_knee_sif(check_knee=True)
     assert walker_pure.__str__() == walker_pure.name
-    walker_pure.format_name() 
+    walker_pure.format_name()
     assert walker_pure.name == walker_pure.name.replace("<br>", "\n")
     walker_pure.format_name(html_format=True)
     assert walker_pure.name == walker_pure.name.replace("\n", "<br>")
@@ -190,7 +190,7 @@ def test_pure_walker_curve():
     with pytest.raises(ValueError):
         walker_pure.get_knee_sif(check_knee=np.array([0]))
 
-            
+
 def test_walker_curve_initialization():
     slope = [2.88, 5.1, 8.16, 5.1, 2.88]
     intercept = [1E-16, 1E-20, 1E-27, 1E-19, 1E-13]
@@ -322,7 +322,7 @@ def test_walker_curve_plot():
 def test_walker_curve_multiple_load_ratios():
     """Assert that increasing the load ratios reduces the threshold and critical
     SIF"""
-    
+
     slope = [2.88, 5.1, 8.16, 5.1, 2.88]
     intercept = [1E-16, 1E-20, 1E-27, 1E-19, 1E-13]
     threshold = 20
@@ -383,6 +383,6 @@ def test_walker_curve_change_exponent():
     assert np.allclose(wc.get_knee_sif(), pc.get_knee_sif(), rtol=1e-2)
     assert np.allclose(wc.get_knee_growth_rate(), pc.get_knee_growth_rate(),
                        rtol=1e-2)
-        
+
 
 nb.config.DISABLE_JIT = False

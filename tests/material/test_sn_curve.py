@@ -186,7 +186,7 @@ def test_sn_curve_equality():
     `py_fatigue.sn_curve.SNCurve.__eq__()` method)
     """
     from random import Random, seed
-    
+
     seed(2)
     my_random = Random(2)
 
@@ -450,7 +450,7 @@ def test_from_knee_points():
         sn_knee.plot(fig=fig, ax=ax)
         ax.legend()
         assert sn_knee.id != sn.id
-        assert sn != sn_knee   
+        assert sn != sn_knee
         assert np.allclose(sn_knee.slope, sn.slope, rtol=1e-3)
         assert np.allclose(sn_knee.intercept, sn.intercept, rtol=1e-3)
         assert sn_knee.endurance == sn.endurance

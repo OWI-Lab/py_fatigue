@@ -158,4 +158,4 @@ class TestCylinder:
                 initial_depth=neg_height,
                 height=height,
             )
-        
+
