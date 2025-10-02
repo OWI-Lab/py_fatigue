@@ -1,5 +1,7 @@
 name: Publish to GitHub Pages
 
+# Trigger: Run on push, PR, or manual dispatch for all branches
+# This allows testing the docs build on any branch, but only deploys from develop
 on: [push, pull_request, workflow_dispatch, workflow_call]
 
 permissions:
@@ -8,23 +10,33 @@ permissions:
 jobs:
   docs:
     runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.message, '[publish pages]')
     steps:
       - uses: actions/checkout@v4
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
+      
+      # Set up Python environment using uv package manager
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.13"
           enable-cache: true
+      
       - name: Set up Python
         run: uv python install
+      
       - name: Install the project
         run: uv sync --group docs
+      
+      # Build Sphinx documentation
+      # This runs for all branches to verify docs build correctly
       - name: Sphinx build
         run: |
-          uv run sphinx-build -b  html -d rst_docs/doctrees ./rst_docs _build/docs -E -a
+          uv run sphinx-build -b html -d rst_docs/doctrees ./rst_docs _build/docs -E -a
+      
+      # Deploy ONLY from develop branch to gh-pages
+      # GitHub Pages must be configured to serve from gh-pages branch
+      # Documentation will be available at: https://owi-lab.github.io/py_fatigue/
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/develop') }}
