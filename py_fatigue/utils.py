@@ -466,9 +466,7 @@ def bin_upper_bound(
     upper = bin_lower_bound + bin_width * np.ceil(
         (max_val - bin_lower_bound) / bin_width
     )
-    if upper < bin_lower_bound:
-        upper = bin_lower_bound
-    return upper
+    return max(upper, bin_lower_bound)
 
 
 def split_full_cycles_and_residuals(count_cycle: np.ndarray) -> tuple:
