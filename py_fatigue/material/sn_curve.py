@@ -18,6 +18,7 @@ from typing import (
 import abc
 import io
 import itertools
+import os
 import warnings
 
 # Non-standard "from" imports
@@ -689,7 +690,13 @@ class SNCurve(AbstractSNCurve):
         #     axis=1
         # ), self.endurance)
 
-        return _calc_cycles_2(
+        calc_cycles = _calc_cycles_2
+        if (
+            getattr(nb.config, "DISABLE_JIT", False)
+            or os.environ.get("NUMBA_DISABLE_JIT") == "1"
+        ):
+            calc_cycles = _calc_cycles_2.py_func
+        return calc_cycles(
             stress_range, self.slope, self.intercept, self.endurance
         )
 
@@ -711,9 +718,13 @@ class SNCurve(AbstractSNCurve):
         #         cycles.shape[0],-1),
         #         axis=1
         # ), endurance_stress)
-        return _calc_stress_2(
-            cycles, self.slope, self.intercept, self.endurance
-        )
+        calc_stress = _calc_stress_2
+        if (
+            getattr(nb.config, "DISABLE_JIT", False)
+            or os.environ.get("NUMBA_DISABLE_JIT") == "1"
+        ):
+            calc_stress = _calc_stress_2.py_func
+        return calc_stress(cycles, self.slope, self.intercept, self.endurance)
 
     def n(  # pylint: disable=invalid-name
         self, sigma: int | float | list | np.ndarray
@@ -941,17 +952,29 @@ class SNCurve(AbstractSNCurve):
         return fig, ax
 
 
+@nb.njit(cache=True)
+def get_sn_array_min(values):  # pragma: no cover
+    """Return the minimum value of a one-dimensional array."""
+
+    min_value = values[0]
+    for i in range(1, values.size):
+        if np.isnan(values[i]) or values[i] < min_value:
+            min_value = values[i]
+    return min_value
+
+
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
+    cache=True,
     # parallel=True,
 )
 def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
-    assert np.min(stress) >= 0
+    assert get_sn_array_min(stress) >= 0
     log10 = np.log(10)
-    the_cycles = np.empty(stress.size, dtype=np.float64)
+    the_cycles = np.empty(stress.size)
     for i in nb.prange(stress.size):
         log_stress = np.log(stress[i])
         max_i = intercept[0] * log10 - slope[0] * log_stress
@@ -967,6 +990,7 @@ def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
+    cache=True,
     # parallel=True,
 )
 def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
@@ -983,11 +1007,11 @@ def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
     numpy.ndarray: Array of calculated cycles to failure.
     """
     assert intercept.size > 0 and intercept.size == slope.size
-    assert np.min(stress) >= 0
+    assert get_sn_array_min(stress) >= 0
 
     log_stress = np.log10(stress)
     log_endurance = np.log10(endurance)
-    log_knee_stress = np.empty(intercept.size - 1, dtype=np.float64)
+    log_knee_stress = np.empty(intercept.size - 1)
     if intercept.size > 1:
         for i in nb.prange(intercept.size - 1):  # pylint: disable=E1133
             log_knee_stress[i] = (intercept[i + 1] - intercept[i]) / (
@@ -1002,7 +1026,7 @@ def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
         )
     )
     idx = np.digitize(log_stress, log_knee_stress, right=False) - 1
-    the_cycles = np.empty(stress.size, dtype=np.float64)
+    the_cycles = np.empty(stress.size)
     nr_knees = intercept.size - 1
     for i in nb.prange(stress.size):  # pylint: disable=E1133
         if idx[i] <= 0:
@@ -1021,14 +1045,15 @@ def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
 @nb.njit(
     # 'float64[::1](float64[::1], float64[::1], float64[::1])',
     fastmath=False,
+    cache=True,
     # parallel=True,
 )
 def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
     # pylint: disable=not-an-iterable
     assert intercept.size > 0 and intercept.size == slope.size
-    assert np.min(cycles) > 0
+    assert get_sn_array_min(cycles) > 0
     log10 = np.log(10)
-    the_stress = np.empty(cycles.size, dtype=np.float64)
+    the_stress = np.empty(cycles.size)
     for i in nb.prange(cycles.size):
         log_cycles = np.log(cycles[i])
         max_i = (intercept[0] * log10 - log_cycles) / slope[0]
@@ -1064,12 +1089,12 @@ def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
     numpy.ndarray: Array of calculated cycles to failure.
     """
     assert intercept.size > 0 and intercept.size == slope.size
-    assert np.nanmin(cycles) >= 0
+    assert get_sn_array_min(cycles) >= 0
 
     log_cycles = np.log10(cycles)
     log_endurance = np.log10(endurance)
-    log_knee_stress = np.empty(intercept.size - 1, dtype=np.float64)
-    log_knee_cycles = np.empty(intercept.size - 1, dtype=np.float64)
+    log_knee_stress = np.empty(intercept.size - 1)
+    log_knee_cycles = np.empty(intercept.size - 1)
     if intercept.size > 1:
         for i in nb.prange(intercept.size - 1):  # pylint: disable=E1133
             log_knee_stress[i] = (intercept[i + 1] - intercept[i]) / (
@@ -1089,7 +1114,7 @@ def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
     )
     endurance_stress = 10 ** log_knee_stress[-1]
     idx = np.digitize(log_cycles, log_knee_cycles, right=False) - 1
-    the_stress = np.empty(cycles.size, dtype=np.float64)
+    the_stress = np.empty(cycles.size)
     nr_knees = intercept.size - 1
     for i in nb.prange(cycles.size):  # pylint: disable=E1133
         if idx[i] <= 0:
@@ -1156,3 +1181,7 @@ def __sn_curve_residuals(  # pragma: no cover
 
 # Create a jitted bisection function specialized for root_func
 __jit_sn_curve_residuals = compile_specialized_bisect(__sn_curve_residuals)
+
+# Backwards-compatible aliases used by older notebooks.
+sn_curve_residuals = __sn_curve_residuals
+jit_sn_curve_residuals = __jit_sn_curve_residuals

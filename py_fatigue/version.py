@@ -14,6 +14,7 @@ Attributes:
     __version__ (str): Current version of py_fatigue package.
 
 """
+
 import re
 from typing import Optional, NamedTuple
 

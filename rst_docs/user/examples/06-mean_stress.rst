@@ -37,7 +37,7 @@ DNVGL-RP-C203 correction
 ---------------------------
 
 Calculates the mean stress correction according to par.
-2.5 of `DNVGL-RP-C203 <https://bit.ly/3dUZ1OY>`_ which includes
+2.5 of DNVGL-RP-C203, which includes
 an attenuation factor :math:`p` for the stress ranges if the
 following cases:
 

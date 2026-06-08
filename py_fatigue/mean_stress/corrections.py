@@ -5,6 +5,7 @@ classes.
 """
 
 from __future__ import annotations
+from typing import cast
 import logging
 import warnings
 
@@ -26,7 +27,7 @@ def dnvgl_mean_stress_correction(
     plot: bool = False,
 ) -> np.ndarray:
     """Calculates the mean stress correction according to par.
-    2.5 of`DNVGL-RP-C203 <https://bit.ly/3dUZ1OY>`_ which includes
+    2.5 of DNVGL-RP-C203, which includes
     an attenuation factor :math:`p` for the stress ranges if the
     following cases:
 
@@ -320,8 +321,7 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
     See Also
     --------
     :func:`py_fatigue.utils.numba_newton`,
-    :func:`py_fatigue.utils.compile_specialized_newton`,
-    :func:`py_fatigue.mean_stress.corrections.__goodman
+    :func:`py_fatigue.utils.compile_specialized_newton`
 
     Raises
     ------
@@ -394,6 +394,8 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
     for r_out_val in r_out:
         # NOTE: Special cases for r_out = -1 and r_out = 0
         # NOTE: These cases are solved analytically to improve performance
+        # NOTE: The case correction_exponent = 1 is also solved
+        #       analytically, as the equation becomes linear in amp_out.
         if r_out_val == -1:
             # amp_out.append(
             #     amp_in / (1 - (mean_in / ult_s) ** correction_exponent)
@@ -403,6 +405,17 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
                 1 - (mean_in / ult_s) ** correction_exponent
             )
             mean_out[r_out == -1, :] = np.zeros_like(amp_in)
+            continue
+        if correction_exponent == 1:
+            r_in_term = (1 + r_in) / (1 - r_in) * amp_in / ult_s
+            r_out_term = (1 + r_out_val) / (1 - r_out_val) / ult_s
+            amp_out_fsolve = ((1 - r_in_term) / amp_in + r_out_term) ** -1
+            amp_out[r_out == r_out_val, :] = np.clip(amp_out_fsolve, 0.0, ult_s)
+            mean_out[r_out == r_out_val, :] = (
+                amp_out[r_out == r_out_val, :]
+                * (1 + r_out_val)
+                / (1 - r_out_val)
+            )
             continue
         amp_out_fsolve = []
         for i in range(len(initial_guess)):
@@ -425,7 +438,7 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
                                    f"{r_out_val}")
                 amp_out_fsolve.append(np.nan)
             else:
-                amp_out_fsolve.append(sol if sol < ult_s else ult_s)
+                amp_out_fsolve.append(np.clip(sol, 0.0, ult_s))
             # fmt: on
         # amp_out.append(amp_out_fsolve)
         # mean_out.append(
@@ -444,8 +457,8 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912 # noqa: C901,
     else:
         srt_idx = np.argsort(r_out)
         srt_r_out = r_out[srt_idx]
-        srt_amp_out = amp_out[srt_idx, :]
-        srt_mean_out = mean_out[srt_idx, :]
+        srt_amp_out = cast(np.ndarray, amp_out[srt_idx, :])
+        srt_mean_out = cast(np.ndarray, mean_out[srt_idx, :])
     if plot:
         # Create figure with two subplots
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))

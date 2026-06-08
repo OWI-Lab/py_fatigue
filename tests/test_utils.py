@@ -10,6 +10,7 @@ from typing import Any, List, Callable, Tuple
 from unittest.mock import Mock
 
 # Non-standard imports
+import numba as nb
 import numpy as np
 import matplotlib.pyplot as plt
 import pytest
@@ -94,6 +95,8 @@ bub_data = [
     (0, 1, 99, *expected(99.0)),
     (0, 1, 98.9, *expected(99.0)),
 ]
+
+
 @pytest.mark.parametrize(bub_names, bub_data)
 def test_bin_upper_bound(
     bin_lower_bound: float,
@@ -172,6 +175,8 @@ def test_calc_half_cycles(
 
 
 cfc_names = "count_cycle, expected, error"
+
+
 # fmt: off
 cfc_data = [
     (COUNTS_1, *expected(np.array(
@@ -231,27 +236,19 @@ class TestFatigueStress(unittest.TestCase):
         with self.assertRaises(ValueError) as ve:
             pu.FatigueStress(_counts=cts, _values=vals[1:], bin_width=0.5)
             self.assertEqual(
-                "counts and values must have the same length",
-                str(ve.exception)
+                "counts and values must have the same length", str(ve.exception)
             )
 
     @given(same_len_lists())
     def test_empty_fatigue_stress(self, lists: Tuple[List[int], List[int]]):
-        """Assert that an error is raised when the counts or values is empty
-        """
+        """Assert that an error is raised when the counts or values is empty"""
         vals, cts = lists
         with self.assertRaises(ValueError) as ve:
             pu.FatigueStress(_counts=cts, _values=[], bin_width=0.5)
-            self.assertEqual(
-                "No data provided",
-                str(ve.exception)
-            )
+            self.assertEqual("No data provided", str(ve.exception))
         with self.assertRaises(ValueError) as ve:
             pu.FatigueStress(_counts=[], _values=vals, bin_width=0.5)
-            self.assertEqual(
-                "No data provided",
-                str(ve.exception)
-            )
+            self.assertEqual("No data provided", str(ve.exception))
 
 
 @pytest.mark.parametrize(
@@ -377,18 +374,17 @@ def test_make_axes():
     plt.close(fig)
 
     # Test with invalid figure type
-    with pytest.raises(TypeError, match="fig must be a matplotlib.figure.Figure"):
+    with pytest.raises(
+        TypeError, match="fig must be a matplotlib.figure.Figure"
+    ):
         pu.make_axes(fig="not_a_figure")
 
 
 def test_to_numba_dict():
     """Test to_numba_dict function"""
     import numba as nb
-    data = {
-        "key1": 1.0,
-        "key2": 2.0,
-        "key3": 3.0
-    }
+
+    data = {"key1": 1.0, "key2": 2.0, "key3": 3.0}
 
     result = pu.to_numba_dict(data)
     # The next line fails since os.environ["NUMBA_DISABLE_JIT"] = "1"
@@ -559,6 +555,7 @@ def test_fatigue_stress_setters():
 
 def test_py_bisect():
     """Test py_bisect function"""
+
     def test_func(x):
         return x**2 - 4
 
@@ -575,6 +572,7 @@ def test_py_bisect():
 
 def test_py_newton():
     """Test py_newton function"""
+
     def test_func(x):
         return x**2 - 4
 
@@ -584,6 +582,7 @@ def test_py_newton():
 
 def test_numba_bisect():
     """Test numba_bisect wrapper"""
+
     def test_func(x):
         return x**2 - 4
 
@@ -593,6 +592,7 @@ def test_numba_bisect():
 
 def test_numba_newton():
     """Test numba_newton wrapper"""
+
     def test_func(x):
         return x**2 - 4
 
@@ -602,6 +602,7 @@ def test_numba_newton():
 
 def test_compile_specialized_bisect():
     """Test compile_specialized_bisect function"""
+
     def test_func(x):
         return (x**2 - 4,)
 
@@ -610,14 +611,117 @@ def test_compile_specialized_bisect():
     assert np.isclose(root, 2.0, atol=1e-5)
 
 
+def test_compile_specialized_bisect_many_args():
+    """Test specialized bisection with more than three extra arguments."""
+
+    def test_func(x, arg_1, arg_2, arg_3, arg_4, arg_5):
+        return x - (arg_1 + arg_2 + arg_3 + arg_4 + arg_5)
+
+    compiled_bisect = pu.compile_specialized_bisect(test_func)
+    root = compiled_bisect(
+        0,
+        20,
+        1e-6,
+        100,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+    )
+    assert np.isclose(root, 15.0, atol=1e-5)
+
+
+@pytest.mark.parametrize(
+    "test_func",
+    [
+        lambda x: x**2 - 4,
+        lambda x: (x**2 - 4,),
+        lambda x: np.array([x**2 - 4]),
+        lambda x: [x**2 - 4],
+        lambda x: np.float64(x**2 - 4),
+    ],
+)
+def test_compile_specialized_bisect_scalar_like_returns(test_func):
+    """Test bisection residuals that return scalar-like values."""
+
+    compiled_bisect = pu.compile_specialized_bisect(test_func)
+    root = compiled_bisect(0, 5, tol=1e-6, mxiter=100)
+    assert np.isclose(root, 2.0, atol=1e-5)
+
+
+@pytest.mark.parametrize(
+    "test_func",
+    [
+        lambda x: (x**2 - 4, x),
+        lambda x: np.array([x**2 - 4, x]),
+        lambda x: [x**2 - 4, x],
+    ],
+)
+def test_compile_specialized_bisect_rejects_non_scalar_returns(test_func):
+    """Test bisection rejects residuals that return multiple values."""
+
+    compiled_bisect = pu.compile_specialized_bisect(test_func)
+    with pytest.raises((TypeError, nb.core.errors.TypingError)):
+        compiled_bisect(0, 5, tol=1e-6, mxiter=100)
+
+
+def test_compile_specialized_bisect_uses_numba_dispatcher(monkeypatch):
+    """Test bisection uses a numba dispatcher when JIT is enabled."""
+
+    monkeypatch.delenv("NUMBA_DISABLE_JIT", raising=False)
+    monkeypatch.setattr(pu.nb.config, "DISABLE_JIT", False)
+    pu.compile_specialized_bisect.cache_clear()
+
+    def test_func(x):
+        return (x**2 - 4,)
+
+    compiled_bisect = pu.compile_specialized_bisect(test_func)
+    root = compiled_bisect(0, 5, tol=1e-6, mxiter=100)
+
+    assert compiled_bisect.__class__.__name__ == "CPUDispatcher"
+    assert np.isclose(root, 2.0, atol=1e-5)
+
+    pu.compile_specialized_bisect.cache_clear()
+
+
+def test_numba_bisect_accepts_specialized_function():
+    """Test numba_bisect does not recompile specialized bisection functions."""
+
+    def test_func(x, arg_1, arg_2, arg_3, arg_4, arg_5):
+        return x - (arg_1 + arg_2 + arg_3 + arg_4 + arg_5)
+
+    compiled_bisect = pu.compile_specialized_bisect(test_func)
+    root = pu.numba_bisect(
+        compiled_bisect,
+        0,
+        20,
+        1e-6,
+        100,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+    )
+    assert np.isclose(root, 15.0, atol=1e-5)
+
+
 def test_compile_specialized_newton():
     """Test compile_specialized_newton function"""
+
     def test_func(x):
         return x**2 - 4
 
     compiled_newton = pu.compile_specialized_newton(test_func)
     root = compiled_newton(x0=1.0, tol=1e-6, mxiter=100)
     assert np.isclose(root, 2.0, atol=1e-5)
+
+
+def test_warmup_numba():
+    """Test warmup_numba compiles supported numba call paths."""
+
+    pu.warmup_numba()
 
 
 def test_custom_formatter():
@@ -629,8 +733,13 @@ def test_custom_formatter():
 
     # Test DEBUG level
     record_debug = logging.LogRecord(
-        name="test", level=logging.DEBUG, pathname="test.py",
-        lineno=1, msg="Debug message", args=(), exc_info=None
+        name="test",
+        level=logging.DEBUG,
+        pathname="test.py",
+        lineno=1,
+        msg="Debug message",
+        args=(),
+        exc_info=None,
     )
     formatted_debug = formatter.format(record_debug)
     assert "Debug message" in formatted_debug
@@ -638,8 +747,13 @@ def test_custom_formatter():
 
     # Test INFO level
     record_info = logging.LogRecord(
-        name="test", level=logging.INFO, pathname="test.py",
-        lineno=1, msg="Info message", args=(), exc_info=None
+        name="test",
+        level=logging.INFO,
+        pathname="test.py",
+        lineno=1,
+        msg="Info message",
+        args=(),
+        exc_info=None,
     )
     formatted_info = formatter.format(record_info)
     assert "Info message" in formatted_info
@@ -647,8 +761,13 @@ def test_custom_formatter():
 
     # Test WARNING level
     record_warning = logging.LogRecord(
-        name="test", level=logging.WARNING, pathname="test.py",
-        lineno=1, msg="Warning message", args=(), exc_info=None
+        name="test",
+        level=logging.WARNING,
+        pathname="test.py",
+        lineno=1,
+        msg="Warning message",
+        args=(),
+        exc_info=None,
     )
     formatted_warning = formatter.format(record_warning)
     assert "Warning message" in formatted_warning
@@ -656,8 +775,13 @@ def test_custom_formatter():
 
     # Test ERROR level
     record_error = logging.LogRecord(
-        name="test", level=logging.ERROR, pathname="test.py",
-        lineno=1, msg="Error message", args=(), exc_info=None
+        name="test",
+        level=logging.ERROR,
+        pathname="test.py",
+        lineno=1,
+        msg="Error message",
+        args=(),
+        exc_info=None,
     )
     formatted_error = formatter.format(record_error)
     assert "Error message" in formatted_error
@@ -665,8 +789,13 @@ def test_custom_formatter():
 
     # Test CRITICAL level
     record_critical = logging.LogRecord(
-        name="test", level=logging.CRITICAL, pathname="test.py",
-        lineno=1, msg="Critical message", args=(), exc_info=None
+        name="test",
+        level=logging.CRITICAL,
+        pathname="test.py",
+        lineno=1,
+        msg="Critical message",
+        args=(),
+        exc_info=None,
     )
     formatted_critical = formatter.format(record_critical)
     assert "Critical message" in formatted_critical
@@ -789,7 +918,9 @@ def test_fatigue_stress_bin_properties():
     """Test FatigueStress bin-related properties"""
     counts = np.array([1.0, 2.0, 3.0])
     values = np.array([10.0, 20.0, 30.0])
-    fs = pu.FatigueStress(_counts=counts, _values=values, bin_width=5.0, _bin_lb=5.0, _bin_ub=35.0)
+    fs = pu.FatigueStress(
+        _counts=counts, _values=values, bin_width=5.0, _bin_lb=5.0, _bin_ub=35.0
+    )
 
     # Test bin_edges
     edges = fs.bin_edges
@@ -820,7 +951,9 @@ def test_plot_damage_accumulation():
     cumsum_pm_dmg = np.array([0.05, 0.2, 0.5, 0.8, 1.1])
     limit_damage = 1.0
 
-    fig, ax = pu._plot_damage_accumulation(cumsum_nl_dmg, cumsum_pm_dmg, limit_damage)
+    fig, ax = pu._plot_damage_accumulation(
+        cumsum_nl_dmg, cumsum_pm_dmg, limit_damage
+    )
     assert isinstance(fig, plt.Figure)
     assert isinstance(ax, plt.Axes)
     plt.close(fig)
@@ -895,5 +1028,7 @@ def test_json_encoders():
 
     # Test in actual JSON encoding
     data = {"array": arr}
-    json_str = json.dumps(data, default=lambda x: pu.JSON_ENCODERS.get(type(x), str)(x))
+    json_str = json.dumps(
+        data, default=lambda x: pu.JSON_ENCODERS.get(type(x), str)(x)
+    )
     assert "[1, 2, 3]" in json_str

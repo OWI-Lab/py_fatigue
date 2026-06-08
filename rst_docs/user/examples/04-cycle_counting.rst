@@ -261,7 +261,7 @@ the cumulative (or non-cumulative) rainflow matric both for `cc` and `cc_dct`:
     cc.plot_histogram(fig=fig, ax=axs[1][0], plot_type="counts-range-cumsum", s=30)
     cc_dct.plot_histogram(fig=fig, ax=axs[1][1], plot_type="counts-range",
                           marker='s', s=20,
-                          cmap=matplotlib.cm.get_cmap("gnuplot2"))  # chg cmap
+                          cmap=plt.get_cmap("gnuplot2"))  # chg cmap
     axs[1][1].set_xscale("log")
     axs[1][0].set_xscale("log")
     plt.show()

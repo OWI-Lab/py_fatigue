@@ -6,8 +6,11 @@ and classes.
 
 # Packages from the Python Standard Library
 from __future__ import annotations
+from contextlib import redirect_stdout
 from dataclasses import dataclass
-from functools import wraps
+from functools import lru_cache, wraps
+from importlib import import_module
+from io import StringIO
 from types import FunctionType
 from typing import (
     Any,
@@ -25,6 +28,7 @@ from typing import (
 )
 import copy
 import logging
+import os
 
 # Packages from non-standard libraries
 # from pydantic.fields import ModelField
@@ -32,6 +36,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numba as nb
 import numpy as np
+from numba.extending import overload
+
+NUMBA_SPECIALIZED_ATTR = "__py_fatigue_numba_specialized__"
 
 
 # Decorator
@@ -613,7 +620,7 @@ class TypedArray(np.ndarray, Generic[DType]):
 
 def to_numba_dict(
     data: dict, key_type: type = str, val_type: type = float
-) -> nb.types.DictType:
+) -> Any:
     """Converts a dictionary to a numba typed dict, provided the output
     key and value types.
 
@@ -631,13 +638,22 @@ def to_numba_dict(
     nb.types.DictType
         The numba typed dictionary.
     """
+    filtered_items = {
+        key: value
+        for key, value in data.items()
+        if isinstance(value, val_type) and isinstance(key, key_type)
+    }
+    if (
+        getattr(nb.config, "DISABLE_JIT", False)
+        or os.environ.get("NUMBA_DISABLE_JIT") == "1"
+    ):
+        return filtered_items
+
     dct = nb.typed.Dict.empty(
-        key_type=nb.types.string,
-        value_type=nb.float64,
+        key_type=nb.types.unicode_type,
+        value_type=nb.types.float64,
     )
-    for key, value in data.items():
-        if not isinstance(value, val_type) or not isinstance(key, key_type):
-            continue
+    for key, value in filtered_items.items():
         dct[key] = value
     return dct
 
@@ -735,18 +751,88 @@ def calc_slope_intercept(
 #     return nb.njit()(python_bisect)
 
 
+def scalarize_numba_result(value):
+    """Normalize scalar-like numba residual returns to a float."""
+
+    return value
+
+
+# pylint: disable-next=unreachable
+@nb.njit(nb.float64())
+def raise_non_scalar_numba_result():
+    """Raise the scalar residual error from nopython code."""
+
+    raise TypeError("Compiled function must return a scalar value")
+    return 0.0  # pylint: disable=unreachable
+
+
+@overload(scalarize_numba_result)
+# pylint: disable-next=too-many-return-statements
+def scalarize_numba_result_overload(value):
+    """Compile scalar-like residual return normalization."""
+
+    if isinstance(value, nb.types.Number):
+
+        def scalar_impl(value):
+            return float(value)
+
+        return scalar_impl
+    if isinstance(value, nb.types.UniTuple) and value.count == 1:
+
+        def unituple_scalar_impl(value):
+            return float(value[0])
+
+        return unituple_scalar_impl
+    if isinstance(value, nb.types.UniTuple):
+
+        def unituple_reject_impl(value):
+            if len(value) != 1:
+                return raise_non_scalar_numba_result()
+            return float(value[0])
+
+        return unituple_reject_impl
+    if isinstance(value, nb.types.Tuple) and len(value) == 1:
+
+        def tuple_scalar_impl(value):
+            return float(value[0])
+
+        return tuple_scalar_impl
+    if isinstance(value, nb.types.Tuple):
+
+        def tuple_reject_impl(value):
+            if len(value) != 1:
+                return raise_non_scalar_numba_result()
+            return float(value[0])
+
+        return tuple_reject_impl
+    if isinstance(value, nb.types.Array):
+
+        def array_impl(value):
+            if value.size != 1:
+                raise TypeError("Compiled function must return a scalar value")
+            return float(value.flat[0])
+
+        return array_impl
+    if isinstance(value, (nb.types.List, nb.types.ListType)):
+
+        def list_impl(value):
+            if len(value) != 1:
+                raise TypeError("Compiled function must return a scalar value")
+            return float(value[0])
+
+        return list_impl
+    return None
+
+
+@lru_cache(maxsize=None)
 def compile_specialized_bisect(fun):
     """
     Returns a compiled bisection implementation for `f`.
     """
     compiled_f = nb.njit()(fun)
 
-    def python_bisect(a, b, tol, mxiter, *args):
+    def python_bisect_compat(a, b, tol, mxiter, *args):
         its = 0
-        len_args = len(args)
-
-        if len_args > 3:
-            raise ValueError("Too many extra arguments for compiled function")
 
         def ensure_scalar(value):
             if isinstance(value, (tuple, list)):
@@ -766,15 +852,7 @@ def compile_specialized_bisect(fun):
             return value
 
         def evaluate(point):
-            if len_args == 0:
-                result = compiled_f(point)
-            elif len_args == 1:
-                result = compiled_f(point, args[0])
-            elif len_args == 2:
-                result = compiled_f(point, args[0], args[1])
-            else:
-                result = compiled_f(point, args[0], args[1], args[2])
-            return ensure_scalar(result)
+            return ensure_scalar(compiled_f(point, *args))
 
         fa = evaluate(a)
         fb = evaluate(b)
@@ -799,9 +877,44 @@ def compile_specialized_bisect(fun):
             fc = evaluate(c)
         return c
 
-    return python_bisect
+    if (
+        getattr(nb.config, "DISABLE_JIT", False)
+        or os.environ.get("NUMBA_DISABLE_JIT") == "1"
+    ):
+        setattr(python_bisect_compat, NUMBA_SPECIALIZED_ATTR, True)
+        return python_bisect_compat
+
+    def python_bisect(a, b, tol, mxiter, *args):
+        its = 0
+        left = float(a)
+        right = float(b)
+        fa = scalarize_numba_result(compiled_f(left, *args))
+        fb = scalarize_numba_result(compiled_f(right, *args))
+
+        if abs(fa) < tol:
+            return left
+        if abs(fb) < tol:
+            return right
+
+        c = (left + right) / 2.0
+        fc = scalarize_numba_result(compiled_f(c, *args))
+
+        while abs(fc) > tol and its < mxiter:
+            its += 1
+            if fa * fc < 0:
+                right = c
+                fb = fc
+            else:
+                left = c
+                fa = fc
+            c = (left + right) / 2.0
+            fc = scalarize_numba_result(compiled_f(c, *args))
+        return c
+
+    return nb.njit()(python_bisect)
 
 
+@lru_cache(maxsize=None)
 def compile_specialized_newton(fun):
     """
     Returns a compiled Newton–Raphson implementation for f that accepts extra
@@ -882,7 +995,9 @@ def numba_bisect(fun, a, b, tol, mxiter, *args):
     """
     A wrapper that compiles `f` if it is a regular Python function.
     """
-    if isinstance(fun, FunctionType):
+    if isinstance(fun, FunctionType) and not getattr(
+        fun, NUMBA_SPECIALIZED_ATTR, False
+    ):
         jit_bisect_func = compile_specialized_bisect(fun)
         return jit_bisect_func(a, b, tol, mxiter, *args)
     return fun(a, b, tol, mxiter, *args)
@@ -893,10 +1008,126 @@ def numba_newton(fun, x0, tol, mxiter, *args):
     A wrapper that compiles f if it is a regular Python function and calls the
     Newton–Raphson routine with extra arguments.
     """
-    if isinstance(fun, FunctionType):
+    if isinstance(fun, FunctionType) and not getattr(
+        fun, NUMBA_SPECIALIZED_ATTR, False
+    ):
         jit_newton_func = compile_specialized_newton(fun)
         return jit_newton_func(x0, tol, mxiter, *args)
     return fun(x0, tol, mxiter, *args)
+
+
+def warmup_numba() -> None:
+    """Compile the common numba dispatchers for the current Python process.
+
+    This function is intentionally opt-in. Calling it can take noticeable time,
+    but it moves first-call compilation cost to application startup. Functions
+    decorated with ``cache=True`` can also reuse numba's disk cache in later
+    processes; jitclasses and dynamically specialized root finders still need an
+    in-process warmup.
+    """
+
+    if (
+        getattr(nb.config, "DISABLE_JIT", False)
+        or os.environ.get("NUMBA_DISABLE_JIT") == "1"
+    ):
+        return
+
+    rainflow_module = import_module(
+        ".cycle_count.rainflow", package=__package__
+    )
+    crack_growth_module = import_module(
+        ".damage.crack_growth", package=__package__
+    )
+    stress_life_module = import_module(
+        ".damage.stress_life", package=__package__
+    )
+    cylinder_module = import_module(".geometry.cylinder", package=__package__)
+    crack_growth_curve_module = import_module(
+        ".material.crack_growth_curve", package=__package__
+    )
+    sn_curve_module = import_module(".material.sn_curve", package=__package__)
+    mean_stress_module = import_module(
+        ".mean_stress.corrections", package=__package__
+    )
+
+    findcross = rainflow_module.findcross
+    findtp = rainflow_module.findtp
+    calc_crack_growth = crack_growth_module.CalcCrackGrowth
+    get_sif = crack_growth_module.get_sif
+    calc_theil_sn_damage = stress_life_module.calc_theil_sn_damage
+    find_sn_curve_intersection = stress_life_module.find_sn_curve_intersection
+    f_hol_cyl_01 = cylinder_module.f_hol_cyl_01
+    paris_curve_cls = crack_growth_curve_module.ParisCurve
+    sn_curve_cls = sn_curve_module.SNCurve
+    goodman_correction = mean_stress_module.goodman_haigh_mean_stress_correction
+
+    sn_curve = sn_curve_cls([3.0, 5.0], [12.0, 15.0], endurance=1e9)
+    stress_range = np.ascontiguousarray([90.0, 120.0, 180.0], dtype=np.float64)
+    cycles = np.ascontiguousarray([1e5, 1e6, 1e7], dtype=np.float64)
+    sn_curve.get_cycles(stress_range)
+    sn_curve.get_stress(cycles)
+
+    paris_curve = paris_curve_cls(
+        slope=[2.88, 5.1],
+        intercept=[1e-16, 1e-20],
+        threshold=20.0,
+        critical=2_000.0,
+    )
+    sif_range = np.ascontiguousarray([20.0, 100.0, 1_000.0], dtype=np.float64)
+    growth_rate = np.ascontiguousarray([1e-10, 1e-8, 1e-6], dtype=np.float64)
+    paris_curve.get_growth_rate(sif_range)
+    paris_curve.get_sif(growth_rate)
+
+    signal = np.ascontiguousarray([0.0, 1.0, -1.0, 2.0, -0.5], dtype=np.float64)
+    findcross(signal)
+    findtp(signal)
+
+    geometry = to_numba_dict(
+        {
+            "initial_depth": 1.0,
+            "outer_diameter": 100.0,
+            "thickness": 10.0,
+            "height": 200.0,
+            "width_to_depth_ratio": 2.0,
+        }
+    )
+    f_hol_cyl_01(1.0, geometry)
+    get_sif(100.0, 1.0, "HOL_CYL_01", geometry)
+
+    inf_geometry = to_numba_dict({"initial_depth": 1.0})
+    with redirect_stdout(StringIO()):
+        calc_crack_growth(
+            stress_range,
+            np.ones_like(stress_range),
+            np.ascontiguousarray([3.0], dtype=np.float64),
+            np.ascontiguousarray([1e-12], dtype=np.float64),
+            0.0,
+            1e9,
+            "INF_SUR_00",
+            inf_geometry,
+        )
+
+    calc_theil_sn_damage(stress_range, np.ones_like(stress_range), sn_curve)
+    find_sn_curve_intersection(
+        sn_curve.slope,
+        sn_curve.intercept,
+        sn_curve.endurance,
+        100.0,
+        0.0,
+        1e3,
+        1e9,
+    )
+
+    amp_in = np.ascontiguousarray([50.0, 100.0], dtype=np.float64)
+    mean_in = np.ascontiguousarray([0.0, 20.0], dtype=np.float64)
+    r_out = np.ascontiguousarray([-1.0, 0.0], dtype=np.float64)
+    goodman_correction(
+        amp_in,
+        mean_in,
+        r_out,
+        1_000.0,
+        3.0,
+    )
 
 
 def _plot_damage_accumulation(  # pragma: no cover
@@ -952,14 +1183,16 @@ class CustomFormatter(logging.Formatter):
     italic = "\033[3m"
     reset = "\033[0m"
     level = "\033[1m%(levelname)-8s → \033[22m"
+    lineofile = "\033[3m%(filename)s:%(lineno)d\033[0m - "
+    newline = "\n"
     message = "%(message)s"
 
     FORMATS = {
         logging.DEBUG: grey + "🐞 " + level + italic + message + reset,
         logging.INFO: blue + "ℹ️ " + level + italic + message + reset,
-        logging.WARNING: yellow + "⚠️ " + level + italic + message + reset,
-        logging.ERROR: red + "⛔ " + level + italic + message + reset,
-        logging.CRITICAL: red + "🆘 " + level + bold + italic + message + reset,
+        logging.WARNING: yellow + "⚠️ " + level + newline + lineofile + italic + newline +message + reset,
+        logging.ERROR: red + "⛔ " + level + newline + lineofile + italic + newline +message + reset,
+        logging.CRITICAL: red + "🆘 " + level + newline + lineofile + bold + italic + newline +message + reset,
     }
 
     def format(self, record):

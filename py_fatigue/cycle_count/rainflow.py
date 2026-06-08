@@ -205,7 +205,7 @@ def findcross_indices(xn: Any) -> np.ndarray:
     return ind[:idx]
 
 
-@njit(int64(int64[:], int8[:]))
+@njit(int64(int64[:], int8[:]), cache=True)
 def _findcross(ind, y):
     """Return indices to zero up and downcrossings of a vector
 
