@@ -1064,7 +1064,7 @@ def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
     numpy.ndarray: Array of calculated cycles to failure.
     """
     assert intercept.size > 0 and intercept.size == slope.size
-    assert np.nanmin(cycles) >= 0
+    assert np.min(cycles) > 0
 
     log_cycles = np.log10(cycles)
     log_endurance = np.log10(endurance)
@@ -1095,7 +1095,7 @@ def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
         if idx[i] <= 0:
             max_i = (intercept[0] - log_cycles[i]) / slope[0]
         elif idx[i] > nr_knees:
-            max_i = (log_endurance - log_cycles[i]) / slope[-1]
+            max_i = (intercept[-1] - log_cycles[i]) / slope[-1]
         else:
             max_i = (intercept[idx[i]] - log_cycles[i]) / slope[idx[i]]
         the_stress[i] = 10**max_i

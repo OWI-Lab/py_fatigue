@@ -11,6 +11,12 @@ import pytest
 nb.config.DISABLE_JIT = True
 
 from py_fatigue import SNCurve
+from py_fatigue.material.sn_curve import (
+    _calc_cycles,
+    _calc_cycles_2,
+    _calc_stress,
+    _calc_stress_2,
+)
 
 # Just to stress out the SN curve class...
 # exotic SN curve with 2 knees and endurance values.
@@ -343,6 +349,113 @@ def test_endurance_behavior():
     with pytest.raises(ValueError) as ve:
         _ = SNCurve([3, 5, 8], [10.970, 13.617, 14.3], endurance=1e9)
     assert "Endurance" in ve.value.args[0]
+
+
+@pytest.mark.parametrize("sn", [DNV_B1C, DNV_B1A, EXOTIC])
+def test_fast_kernels_match_legacy_for_representative_ranges(sn):
+    stress_values = np.unique(np.hstack([0.0, np.logspace(-8, 3, 400)]))
+    cycle_values = np.logspace(0.1, 14, 400)
+    if np.isfinite(sn.endurance):
+        endurance_stress = np.asarray(sn.get_stress(sn.endurance))[0]
+        cycle_values = np.sort(
+            np.unique(
+                np.hstack(
+                    [
+                        cycle_values,
+                        np.array([0.99 * sn.endurance, sn.endurance, np.inf]),
+                    ]
+                )
+            )
+        )
+        stress_values = np.sort(
+            np.unique(
+                np.hstack(
+                    [
+                        stress_values,
+                        np.array(
+                            [
+                                endurance_stress * (1 - 1e-12),
+                                endurance_stress,
+                                endurance_stress * (1 + 1e-12),
+                            ]
+                        ),
+                    ]
+                )
+            )
+        )
+
+    np.testing.assert_allclose(
+        _calc_cycles(stress_values, sn.slope, sn.intercept, sn.endurance),
+        _calc_cycles_2(stress_values, sn.slope, sn.intercept, sn.endurance),
+        rtol=1e-12,
+        atol=0,
+    )
+    np.testing.assert_allclose(
+        _calc_stress(cycle_values, sn.slope, sn.intercept, sn.endurance),
+        _calc_stress_2(cycle_values, sn.slope, sn.intercept, sn.endurance),
+        rtol=1e-12,
+        atol=0,
+    )
+
+
+@pytest.mark.parametrize("sn", [DNV_B1A, EXOTIC])
+def test_fast_kernels_match_legacy_around_knees(sn):
+    knee_stress = sn.get_knee_stress()
+    knee_cycles = sn.get_knee_cycles()
+
+    stress_values = np.sort(
+        np.unique(
+            np.hstack(
+                [
+                    knee_stress * (1 - 1e-12),
+                    knee_stress,
+                    knee_stress * (1 + 1e-12),
+                ]
+            )
+        )
+    )
+    cycle_values = np.sort(
+        np.unique(
+            np.hstack(
+                [
+                    knee_cycles * (1 - 1e-12),
+                    knee_cycles,
+                    knee_cycles * (1 + 1e-12),
+                ]
+            )
+        )
+    )
+
+    np.testing.assert_allclose(
+        _calc_cycles(stress_values, sn.slope, sn.intercept, sn.endurance),
+        _calc_cycles_2(stress_values, sn.slope, sn.intercept, sn.endurance),
+        rtol=1e-12,
+        atol=0,
+    )
+    np.testing.assert_allclose(
+        _calc_stress(cycle_values, sn.slope, sn.intercept, sn.endurance),
+        _calc_stress_2(cycle_values, sn.slope, sn.intercept, sn.endurance),
+        rtol=1e-12,
+        atol=0,
+    )
+
+
+def test_fast_stress_kernel_preserves_legacy_input_validation():
+    for invalid_cycles in [0.0, -1.0, np.nan]:
+        with pytest.raises(AssertionError):
+            _calc_stress(
+                np.array([invalid_cycles, 1.0]),
+                DNV_B1A.slope,
+                DNV_B1A.intercept,
+                DNV_B1A.endurance,
+            )
+        with pytest.raises(AssertionError):
+            _calc_stress_2(
+                np.array([invalid_cycles, 1.0]),
+                DNV_B1A.slope,
+                DNV_B1A.intercept,
+                DNV_B1A.endurance,
+            )
 
 
 def test_plotly():
