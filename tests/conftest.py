@@ -7,7 +7,7 @@ from distutils import dir_util
 
 logger = logging.getLogger(__name__)
 
-VERSION: str = "2.1.0"
+VERSION: str = "2.1.1"
 
 # Keep plotting enabled by default unless tests/tasks explicitly disable it.
 os.environ.setdefault("PY_FATIGUE_TEST_NO_PLOTS", "0")
