@@ -5,6 +5,8 @@ import warnings
 import numba as nb
 import numpy as np
 import pytest
+from py_fatigue.material.sn_curve import _calc_cycles, _calc_stress
+from py_fatigue.material.sn_curve import jit_sn_curve_residuals, sn_curve_residuals
 
 # os.environ["NUMBA_DISABLE_JIT"] = "1"
 
@@ -243,15 +245,15 @@ def test_knee_point_calculation():
         DNV_B1A.get_knee_stress(), 106.91, significant=2
     )
     np.testing.assert_approx_equal(
-        DNV_B1A.get_knee_stress(),
-        DNV_B1A.get_stress(DNV_B1A.get_knee_cycles()),
+        DNV_B1A.get_knee_stress()[0],
+        DNV_B1A.get_stress(DNV_B1A.get_knee_cycles())[0],
         significant=2,
     )
     np.testing.assert_approx_equal(
-        DNV_B1A.get_knee_stress(), DNV_B1A.get_stress(1e7), significant=2
+        DNV_B1A.get_knee_stress()[0], DNV_B1A.get_stress(1e7)[0], significant=2
     )
     np.testing.assert_approx_equal(
-        DNV_B1A.get_knee_cycles(), DNV_B1A.get_cycles(106.91), significant=2
+        DNV_B1A.get_knee_cycles()[0], DNV_B1A.get_cycles(106.91)[0], significant=2
     )
     # knee assertions on trilinear SN curve + endurance
     assert not EXOTIC.linear
@@ -326,9 +328,9 @@ def test_endurance_behavior():
     """
     # endurance assertions on trilinear SN curve + endurance
     for cyc in [2.134e11, 1e12, 2e12, 1e13, 2e13]:
-        assert EXOTIC.get_stress(2.134e11) == EXOTIC.get_stress(cyc)
+        assert EXOTIC.get_stress(2.134e11)[0] == EXOTIC.get_stress(cyc)[0]
         np.testing.assert_approx_equal(
-            EXOTIC.get_stress(cyc), 4.64, significant=2
+            EXOTIC.get_stress(cyc)[0], 4.64, significant=2
         )  # above endurance cycles always same stress is returned
     assert (
         EXOTIC.get_cycles(4.64) == np.inf
@@ -356,7 +358,7 @@ def test_plotly():
     assert np.round(EXOTIC.get_stress(np.inf), 4) == np.round(data[0].y[-1], 4)
     assert np.any(np.isin(EXOTIC.get_knee_cycles(), data[0].x))
     assert np.any(
-        np.in1d(np.round(EXOTIC.get_knee_stress(), 4), np.round(data[0].y, 4))
+        np.isin(np.round(EXOTIC.get_knee_stress(), 4), np.round(data[0].y, 4))
     )
     assert 200 in data[1].x
     assert 60 in data[1].y
@@ -396,9 +398,9 @@ def test_plot():
     assert np.round(EXOTIC.get_stress(np.inf), 4) == np.round(
         sn_curve_stress[-1], 4
     )
-    assert np.any(np.in1d(EXOTIC.get_knee_cycles(), sn_curve_cycles))
+    assert np.any(np.isin(EXOTIC.get_knee_cycles(), sn_curve_cycles))
     assert np.any(
-        np.in1d(
+        np.isin(
             np.round(EXOTIC.get_knee_stress(), 4), np.round(sn_curve_stress, 4)
         )
     )
@@ -460,6 +462,93 @@ def test_from_knee_points():
         assert sn_knee.unit == sn.unit
         assert sn_knee.color == sn.color
         assert sn_knee.name == sn.name
+
+
+def _kernel(fn):
+    """Return python-callable implementation for numba kernels."""
+    return getattr(fn, "py_func", fn)
+
+
+@pytest.mark.parametrize("sn", [DNV_B1C, DNV_B1A, EXOTIC])
+def test_cycles_kernel_boundary_regression(sn):
+    kernel = _kernel(_calc_cycles)
+
+    stress_values = [1e-12, sn.get_stress(1e4)[0], sn.get_stress(1e7)[0]]
+    stress_values.extend(list(sn.get_knee_stress()))
+    stress_values.extend([s * (1 - 1e-12) for s in sn.get_knee_stress()])
+    stress_values.extend([s * (1 + 1e-12) for s in sn.get_knee_stress()])
+    if sn.endurance < np.inf:
+        end_stress = sn.get_stress(sn.endurance)[0]
+        stress_values.extend(
+            [
+                end_stress,
+                end_stress * (1 - 1e-12),
+                end_stress * (1 + 1e-12),
+            ]
+        )
+    stress = np.asarray(stress_values, dtype=np.float64)
+
+    kernel_out = kernel(stress, sn.slope, sn.intercept, sn.endurance)
+    api_out = sn.get_cycles(stress)
+    np.testing.assert_allclose(kernel_out, api_out, rtol=1e-11, atol=0.0)
+
+    zero_stress = np.array([0.0], dtype=np.float64)
+    kernel_zero = kernel(zero_stress, sn.slope, sn.intercept, sn.endurance)
+    api_zero = sn.get_cycles(zero_stress)
+    np.testing.assert_allclose(kernel_zero, api_zero, rtol=0.0, atol=0.0)
+
+    with pytest.raises(AssertionError):
+        kernel(np.array([-1.0]), sn.slope, sn.intercept, sn.endurance)
+    with pytest.raises(AssertionError):
+        _ = sn.get_cycles(-1)
+
+
+@pytest.mark.parametrize("sn", [DNV_B1C, DNV_B1A, EXOTIC])
+def test_stress_kernel_boundary_regression(sn):
+    kernel = _kernel(_calc_stress)
+
+    cycle_values = [1e-12, 1e4, 1e7]
+    cycle_values.extend(list(sn.get_knee_cycles()))
+    cycle_values.extend([c * (1 - 1e-12) for c in sn.get_knee_cycles()])
+    cycle_values.extend([c * (1 + 1e-12) for c in sn.get_knee_cycles()])
+    if sn.endurance < np.inf:
+        cycle_values.extend(
+            [
+                sn.endurance,
+                sn.endurance * (1 - 1e-12),
+                sn.endurance * (1 + 1e-12),
+            ]
+        )
+
+    cycles = np.asarray(cycle_values, dtype=np.float64)
+    kernel_out = kernel(cycles, sn.slope, sn.intercept, sn.endurance)
+    api_out = sn.get_stress(cycles)
+    np.testing.assert_allclose(kernel_out, api_out, rtol=1e-11, atol=0.0)
+
+    with pytest.raises(AssertionError):
+        kernel(np.array([0.0]), sn.slope, sn.intercept, sn.endurance)
+    with pytest.raises(AssertionError):
+        _ = sn.get_stress(0)
+
+    with pytest.raises(AssertionError):
+        kernel(np.array([-1.0]), sn.slope, sn.intercept, sn.endurance)
+    with pytest.raises(AssertionError):
+        _ = sn.get_stress(-1)
+
+
+def test_sn_curve_residual_aliases():
+    """Test backwards-compatible residual aliases."""
+
+    assert callable(sn_curve_residuals)
+    assert callable(jit_sn_curve_residuals)
+    assert sn_curve_residuals(
+        1.0,
+        np.array([1.0]),
+        np.array([0.0]),
+        np.inf,
+        0.0,
+        1.0,
+    ) == pytest.approx(0.0)
 
 
 nb.config.DISABLE_JIT = False

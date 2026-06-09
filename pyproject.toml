@@ -23,16 +23,18 @@ classifiers=["Development Status :: 5 - Production/Stable",
              "Programming Language :: Python :: 3.11",
              "Programming Language :: Python :: 3.12",
              "Programming Language :: Python :: 3.13",
+             "Programming Language :: Python :: 3.14",
              "Topic :: Database"]
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<3.15"
 
 dependencies = [
     "numpy>=1.24",
     "plotly",
     "pandas>2.2",
-    "numba>=0.61,<0.62",
+    "numba>=0.61,<0.66; python_version < '3.14'",
+    "numba>=0.65,<0.66; python_version >= '3.14'",
     "matplotlib",
     "pydantic<3.0.0",
 ]
@@ -52,6 +54,7 @@ dev = [
     "hypothesis>=6.14.0",
     "notebook>=6.4",
     "rich>=13.9.4",
+    "rich-argparse>=1.8.0",
     "jsbeautifier>=1.15.4",
 ]
 docs = [

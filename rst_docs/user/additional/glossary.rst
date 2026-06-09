@@ -273,7 +273,7 @@ Glossary
       See :term:`residuals<Residuals>`.
 
    SHM
-      `Stuctural health monitoring <en.wikipedia.org/wiki/Structural_health_monitoring>`_.
+      `Structural health monitoring <https://en.wikipedia.org/wiki/Structural_health_monitoring>`_.
 
    Timestamp
       A timestamp is a time information that is associated with a particular
@@ -310,8 +310,7 @@ Glossary
       we also have to deal with gaps in the data. Even if the ambition were to 
       concatenate everything, we would still make errors as such.
 
-      `Marsh *et al.* <https://www.sciencedirect.com/science/article/pii/S0142112315003333>`_
-      have introduced a brilliant approach that significantly 
+      Marsh *et al.* have introduced a brilliant approach that significantly
       reduces calculation time without losing accuracy in the final spectrum 
       histogram, as it can retrieve all the hysteresis cycles caused by LFFD without 
       needing the a-priori signal concatenation. We have modified the approach to 

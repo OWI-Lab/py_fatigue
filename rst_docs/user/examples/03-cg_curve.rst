@@ -114,11 +114,10 @@ a. Definition of multiple Paris' laws
 -------------------------------------
 
 .. note::
-    In this example we define four SN curves for free corrosion as per 
-    `DNVGL-RP-C203 <shorturl.at/ipBKL>`_ and plot them using
-    `matplotlib <https://matplotlib.org>`_ and `plotly <https://plotly.com>`_. 
-    We additionally define a random gaussian stress range-cycles history to 
-    plot against the SN curves defined.
+    In this example we define four Paris curves for free corrosion as per
+    DNVGL-RP-C203 and plot them using `matplotlib <https://matplotlib.org>`_
+    and `plotly <https://plotly.com>`_. We additionally define a random
+    Gaussian stress range-cycles history to plot against the curves defined.
 
 .. code-block:: python
     :linenos:

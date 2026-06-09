@@ -86,19 +86,31 @@ class TestDNVGLMeanStressCorrection:
 
     @given(
         mean_stress=hy.lists(
-            hy.floats(min_value=-1000, max_value=1000, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=20
+            hy.floats(
+                min_value=-1000,
+                max_value=1000,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=20,
         ),
         stress_amp=hy.lists(
-            hy.floats(min_value=1, max_value=1000, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=20
-        )
+            hy.floats(
+                min_value=1,
+                max_value=1000,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=20,
+        ),
     )
     def test_property_based_dnvgl_08(self, mean_stress, stress_amp):
         """Property-based test for DNVGL with detail_factor=0.8."""
         if len(mean_stress) != len(stress_amp):
-            mean_stress = mean_stress[:min(len(mean_stress), len(stress_amp))]
-            stress_amp = stress_amp[:min(len(mean_stress), len(stress_amp))]
+            mean_stress = mean_stress[: min(len(mean_stress), len(stress_amp))]
+            stress_amp = stress_amp[: min(len(mean_stress), len(stress_amp))]
 
         mean_stress = np.array(mean_stress)
         stress_amp = np.array(stress_amp)
@@ -120,19 +132,31 @@ class TestDNVGLMeanStressCorrection:
 
     @given(
         mean_stress=hy.lists(
-            hy.floats(min_value=-1000, max_value=1000, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=20
+            hy.floats(
+                min_value=-1000,
+                max_value=1000,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=20,
         ),
         stress_amp=hy.lists(
-            hy.floats(min_value=1, max_value=1000, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=20
-        )
+            hy.floats(
+                min_value=1,
+                max_value=1000,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=20,
+        ),
     )
     def test_property_based_dnvgl_06(self, mean_stress, stress_amp):
         """Property-based test for DNVGL with detail_factor=0.6."""
         if len(mean_stress) != len(stress_amp):
-            mean_stress = mean_stress[:min(len(mean_stress), len(stress_amp))]
-            stress_amp = stress_amp[:min(len(mean_stress), len(stress_amp))]
+            mean_stress = mean_stress[: min(len(mean_stress), len(stress_amp))]
+            stress_amp = stress_amp[: min(len(mean_stress), len(stress_amp))]
 
         mean_stress = np.array(mean_stress)
         stress_amp = np.array(stress_amp)
@@ -166,7 +190,9 @@ class TestDNVGLMeanStressCorrection:
         result = dnvgl_mean_stress_correction(
             np.array([0]), np.array([50]), detail_factor=0.8
         )
-        assert result[0] < 100  # Should be less than 2*amplitude for mixed loading
+        assert (
+            result[0] < 100
+        )  # Should be less than 2*amplitude for mixed loading
         assert result[0] >= 80  # But at least detail_factor * 2 * amplitude
 
         # Very small amplitude with high tensile mean
@@ -218,7 +244,9 @@ class TestWalkerMeanStressCorrection:
         np.testing.assert_allclose(result_1, stress_amplitude, rtol=1e-10)
 
     @given(
-        gamma=hy.floats(min_value=0.0, max_value=1.0, allow_nan=False, allow_infinity=False)
+        gamma=hy.floats(
+            min_value=0.0, max_value=1.0, allow_nan=False, allow_infinity=False
+        )
     )
     def test_gamma_range(self, gamma):
         """Test gamma parameter in valid range."""
@@ -258,19 +286,31 @@ class TestWalkerMeanStressCorrection:
 
     @given(
         mean_stress=hy.lists(
-            hy.floats(min_value=-500, max_value=500, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=10
+            hy.floats(
+                min_value=-500,
+                max_value=500,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=10,
         ),
         stress_amp=hy.lists(
-            hy.floats(min_value=1, max_value=500, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=10
-        )
+            hy.floats(
+                min_value=1,
+                max_value=500,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=10,
+        ),
     )
     def test_property_based_walker(self, mean_stress, stress_amp):
         """Property-based test for Walker correction."""
         if len(mean_stress) != len(stress_amp):
-            mean_stress = mean_stress[:min(len(mean_stress), len(stress_amp))]
-            stress_amp = stress_amp[:min(len(mean_stress), len(stress_amp))]
+            mean_stress = mean_stress[: min(len(mean_stress), len(stress_amp))]
+            stress_amp = stress_amp[: min(len(mean_stress), len(stress_amp))]
 
         mean_stress = np.array(mean_stress)
         stress_amp = np.array(stress_amp)
@@ -322,19 +362,31 @@ class TestSWTMeanStressCorrection:
 
     @given(
         mean_stress=hy.lists(
-            hy.floats(min_value=-500, max_value=500, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=10
+            hy.floats(
+                min_value=-500,
+                max_value=500,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=10,
         ),
         stress_amp=hy.lists(
-            hy.floats(min_value=1, max_value=500, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=10
-        )
+            hy.floats(
+                min_value=1,
+                max_value=500,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=10,
+        ),
     )
     def test_property_based_swt(self, mean_stress, stress_amp):
         """Property-based test for SWT correction."""
         if len(mean_stress) != len(stress_amp):
-            mean_stress = mean_stress[:min(len(mean_stress), len(stress_amp))]
-            stress_amp = stress_amp[:min(len(mean_stress), len(stress_amp))]
+            mean_stress = mean_stress[: min(len(mean_stress), len(stress_amp))]
+            stress_amp = stress_amp[: min(len(mean_stress), len(stress_amp))]
 
         mean_stress = np.array(mean_stress)
         stress_amp = np.array(stress_amp)
@@ -362,7 +414,10 @@ class TestGoodmanHaighMeanStressCorrection:
             amp_in, mean_in, r_out, ult_s, correction_exponent
         )
 
-        assert amp_out.shape == (1, 3)  # r_out as scalar creates (1, len(amp_in))
+        assert amp_out.shape == (
+            1,
+            3,
+        )  # r_out as scalar creates (1, len(amp_in))
         assert mean_out.shape == (1, 3)
         assert np.all(amp_out >= 0)
         assert np.all(np.isfinite(amp_out))
@@ -394,11 +449,37 @@ class TestGoodmanHaighMeanStressCorrection:
         )
 
         # For r_out = -1, mean_out should be zeros
-        np.testing.assert_allclose(mean_out[0], np.zeros_like(amp_in), rtol=1e-10)
+        np.testing.assert_allclose(
+            mean_out[0], np.zeros_like(amp_in), rtol=1e-10
+        )
 
         # Analytical solution: amp_out = amp_in / (1 - (mean_in / ult_s)^n)
-        expected_amp_out = amp_in / (1 - (mean_in / ult_s) ** correction_exponent)
+        expected_amp_out = amp_in / (
+            1 - (mean_in / ult_s) ** correction_exponent
+        )
         np.testing.assert_allclose(amp_out[0], expected_amp_out, rtol=1e-6)
+
+    def test_goodman_non_reversed_load_ratio_analytical_solution(self):
+        """Test Goodman correction with non-fully-reversed output ratios."""
+        amp_in = np.array([80.7335222, 189.5302955, 258.9631694])
+        mean_in = np.array([13.33359442, 122.13036772, 52.69749382])
+        r_out = np.array([-3.0, 0.0])
+        ult_s = 900.0
+
+        amp_out, mean_out = goodman_haigh_mean_stress_correction(
+            amp_in, mean_in, r_out, ult_s, correction_exponent=1.0
+        )
+
+        r_in = (mean_in - amp_in) / (mean_in + amp_in)
+        for idx, r_out_val in enumerate(r_out):
+            expected_amp = (
+                (1 - ((1 + r_in) / (1 - r_in) * amp_in / ult_s)) / amp_in
+                + ((1 + r_out_val) / (1 - r_out_val) / ult_s)
+            ) ** -1
+            expected_mean = expected_amp * (1 + r_out_val) / (1 - r_out_val)
+            np.testing.assert_allclose(amp_out[idx], expected_amp, rtol=1e-12)
+            np.testing.assert_allclose(mean_out[idx], expected_mean, rtol=1e-12)
+            assert np.all(amp_out[idx] >= 0)
 
     def test_different_correction_exponents(self):
         """Test different correction exponents (Goodman=1, Gerber=2)."""
@@ -514,25 +595,47 @@ class TestGoodmanHaighMeanStressCorrection:
         initial_guess = np.array([120, 180])
 
         amp_out, mean_out = goodman_haigh_mean_stress_correction(
-            amp_in, mean_in, r_out, ult_s, correction_exponent,
-            initial_guess=initial_guess
+            amp_in,
+            mean_in,
+            r_out,
+            ult_s,
+            correction_exponent,
+            initial_guess=initial_guess,
         )
 
         assert amp_out.shape == (1, 2)
 
     @given(
         amp_in=hy.lists(
-            hy.floats(min_value=10, max_value=200, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=3
+            hy.floats(
+                min_value=10,
+                max_value=200,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=3,
         ),
         mean_in=hy.lists(
-            hy.floats(min_value=-50, max_value=50, allow_nan=False, allow_infinity=False),
-            min_size=1, max_size=3
+            hy.floats(
+                min_value=-50,
+                max_value=50,
+                allow_nan=False,
+                allow_infinity=False,
+            ),
+            min_size=1,
+            max_size=3,
         ),
-        ult_s=hy.floats(min_value=800, max_value=2000, allow_nan=False, allow_infinity=False),
-        correction_exponent=hy.floats(min_value=1.0, max_value=2.0, allow_nan=False, allow_infinity=False)
+        ult_s=hy.floats(
+            min_value=800, max_value=2000, allow_nan=False, allow_infinity=False
+        ),
+        correction_exponent=hy.floats(
+            min_value=1.0, max_value=2.0, allow_nan=False, allow_infinity=False
+        ),
     )
-    def test_property_based_goodman_haigh(self, amp_in, mean_in, ult_s, correction_exponent):
+    def test_property_based_goodman_haigh(
+        self, amp_in, mean_in, ult_s, correction_exponent
+    ):
         """Property-based test for Goodman-Haigh correction."""
         if len(amp_in) != len(mean_in):
             min_len = min(len(amp_in), len(mean_in))
@@ -605,7 +708,11 @@ class TestIntegration:
         zero_mean = np.array([0])
         small_amp = np.array([1e-6])
 
-        for correction in [dnvgl_mean_stress_correction, walker_mean_stress_correction, swt_mean_stress_correction]:
+        for correction in [
+            dnvgl_mean_stress_correction,
+            walker_mean_stress_correction,
+            swt_mean_stress_correction,
+        ]:
             if correction == dnvgl_mean_stress_correction:
                 result = correction(zero_mean, small_amp, detail_factor=0.8)
             else:

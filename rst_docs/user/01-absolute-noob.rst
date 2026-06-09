@@ -241,11 +241,11 @@ Cycle-count matrix
   import matplotlib.pyplot as plt
   fig, axs = plt.subplots(1, 2, figsize=(12, 4.5))
   cycle_count.plot_histogram(fig=fig, ax=axs[0], plot_type="mean-range",
-                             marker="d", s=2, cmap=mpl.cm.get_cmap("coolwarm"))
+                             marker="d", s=2, cmap=plt.get_cmap("coolwarm"))
   axs[0].set_title("Cycle-count from signal")
   cycle_count_d.plot_histogram(fig=fig, ax=axs[1], plot_type="mean-range",
                                marker="s", s=10, edgecolors="#222",
-                               cmap=mpl.cm.get_cmap("coolwarm"), linewidth=0.25)
+                               cmap=plt.get_cmap("coolwarm"), linewidth=0.25)
   axs[1].set_title("Cycle-count from matrix")
   plt.show()
 

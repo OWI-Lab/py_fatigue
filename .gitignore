@@ -106,3 +106,5 @@ uv.lock
 **data/
 
 pkg_graph.*
+
+/notebooks/tutorials-repository/

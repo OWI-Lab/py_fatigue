@@ -18,7 +18,6 @@ from ..utils import split, to_numba_dict
 from ..geometry.generic import AbstractCrackGeometry
 from ..geometry.cylinder import f_hol_cyl_01
 
-
 try:
     # delete the accessor to avoid warning
     del pd.DataFrame.cg  # type: ignore
@@ -538,9 +537,9 @@ class CrackGrowth:
     def __init__(self, pandas_obj):
         # self._validate(pandas_obj)
         self._obj = pandas_obj
-        self.cg_curve = None
-        self.crack_geometry = None
-        self.final_cycles = None
+        self.cg_curve = pandas_obj.attrs.get("cg_curve")
+        self.crack_geometry = pandas_obj.attrs.get("crack_geometry")
+        self.final_cycles = pandas_obj.attrs.get("final_cycles")
 
     @staticmethod
     def _validate(obj):
@@ -629,6 +628,11 @@ class CrackGrowth:
             geometry,
         )
 
+        self._obj.attrs["cg_curve"] = cg_curve
+        self._obj.attrs["crack_geometry"] = crack_geometry
+        self._obj.attrs["final_cycles"] = cg_.final_cycles
+        self.cg_curve = cg_curve
+        self.crack_geometry = crack_geometry
         self._obj.final_cycles = cg_.final_cycles
         self.final_cycles = cg_.final_cycles
 

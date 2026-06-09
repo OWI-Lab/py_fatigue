@@ -126,9 +126,9 @@ def _build_input_data_from_json(  # noqa: C901
 ) -> dict:
     """Function returning the same data it receives"""
     data = _assess_json_keys(data)
-    the_hist = np.empty(0)
-    range_bin_centers = np.empty(0)
-    mean_bin_centers = np.empty(0)
+    the_hist: Any = np.empty(0)
+    range_bin_centers: Any = np.empty(0)
+    mean_bin_centers: Any = np.empty(0)
     if "hist" not in data:
         data["hist"] = []
     if (
@@ -2004,6 +2004,8 @@ def pbar_sum(cc_list: Sequence[CycleCount]) -> CycleCount:
     """
 
     if len(cc_list) == 1:
+        if hasattr(cc_list, "iloc"):
+            return cc_list.iloc[0]  # type: ignore[return-value]
         return cc_list[0]
 
     chunk_size = int(np.sqrt(len(cc_list)))

@@ -43,7 +43,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v5
     - name: Set up Python
-      run: uv python install 3.13
+      run: uv python install 3.14
     - name: Bump version
       run: |
         uv run bumpversion.py ${{ github.event.inputs.bumptype }}

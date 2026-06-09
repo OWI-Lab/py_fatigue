@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Utilities for the cycle count module."""
+
 # pragma: no cover
 
 from __future__ import annotations
@@ -105,7 +106,8 @@ def aggregate_cc(  # pragma: no cover
         The time window to cluster the dataframe by. It must be a valid pandas
         date offset frequency string or 'all'.
         For all the frequency string aliases offered by pandas, see:
-        `pandas-timeseries.html#dateoffset-objects <shorturl.at/dgrwW>`_.
+        `pandas timeseries offsets
+        <https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#dateoffset-objects>`_.
     save_residuals : bool, optional
         If True, the residuals sequences of each aggregated CycleCount are
         saved
@@ -154,9 +156,15 @@ def aggregate_cc(  # pragma: no cover
 
     # Retrieving the low-frequency fatigue dynamics on the aggregated dataframe
     print("\33[36m4. Retrieving LFFD on aggregated \33[1mdf\33[22m.\33[0m")
-    df_agg_rr = df_agg.applymap(
-        partial(solve_lffd, rainflow_method=rainflow_method)
-    )
+    map_cycles = getattr(df_agg, "map", None)
+    if map_cycles is None:
+        df_agg_rr = df_agg.applymap(
+            partial(solve_lffd, rainflow_method=rainflow_method)
+        )
+    else:
+        df_agg_rr = map_cycles(
+            partial(solve_lffd, rainflow_method=rainflow_method)
+        )
 
     cc_cols: list[str] = [
         col for col in df_agg_rr.columns if col.startswith("CC_")
@@ -287,13 +295,23 @@ def calc_aggregated_damage(  # pragma: no cover
     cc_cols: list[str] = [col for col in df.columns if col.startswith("CC_")]
     damages = pd.DataFrame()
     for _, sn_curve in sn.items():
-        df_1 = df[cc_cols].applymap(
-            lambda x, sk=sn_curve: np.sum(
-                get_pm(cycle_count=x, sn_curve=sk)
-                if isinstance(x, CycleCount)
-                else 0
+        map_cycles = getattr(df[cc_cols], "map", None)
+        if map_cycles is None:
+            df_1 = df[cc_cols].applymap(
+                lambda x, sk=sn_curve: np.sum(
+                    get_pm(cycle_count=x, sn_curve=sk)
+                    if isinstance(x, CycleCount)
+                    else 0
+                )
             )
-        )
+        else:
+            df_1 = map_cycles(
+                lambda x, sk=sn_curve: np.sum(
+                    get_pm(cycle_count=x, sn_curve=sk)
+                    if isinstance(x, CycleCount)
+                    else 0
+                )
+            )
         df_1["sn_curve"] = f"m={sn_curve.slope}"
         damages = pd.concat([damages, df_1])
         del df_1

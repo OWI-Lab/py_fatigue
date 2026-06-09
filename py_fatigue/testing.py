@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, cast
 import warnings
 
 import numpy as np
@@ -46,7 +46,10 @@ def get_sampled_time(
         warnings.formatwarning = py_fatigue_formatwarning
         warnings.warn(w_msg, UserWarning)
 
-    return np.arange(start, start + duration, 1 / fs)
+    return cast(
+        np.ndarray[Any, np.dtype[np.float64]],
+        np.arange(start, start + duration, 1 / fs),
+    )
 
 
 def get_random_data(

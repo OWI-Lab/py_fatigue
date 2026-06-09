@@ -1,5 +1,7 @@
 """Test tasks."""  # pylint: disable=R0801
 
+import shutil
+
 from invoke import task
 
 from .colors import Color, colorize
@@ -28,6 +30,7 @@ def run(c_r, test=None, pytest_args="-v -W ignore::UserWarning"):
         test_command = f" {test}"
 
     _command = (
+        "MPLBACKEND=Agg PY_FATIGUE_TEST_NO_PLOTS=1 "
         f"pytest {pytest_args} "
         f"--cov={c_r.project_slug} --cov-report=term:skip-covered "
         f"--cov-report=html --cov-report=html:{COV_DOC_BUILD_DIR} {test_command}"
@@ -45,6 +48,16 @@ def coverage(c_r):
     COV_PORT = c_r.start_port + 2  # pylint: disable=C0103
 
     if SYSTEM in [OperatingSystem.LINUX, OperatingSystem.MAC]:
+        if shutil.which("screen") is None:
+            print(
+                colorize(
+                    "screen is not installed; skipping coverage webserver. "
+                    "Use `python -m http.server --directory "
+                    f"{COV_DOC_BUILD_DIR} {COV_PORT}` to serve manually.",
+                    color=Color.WARNING,
+                )
+            )
+            return
         _command = (
             f"screen -d -S {COV_SCREEN_NAME} "
             "-m python -m http.server --bind localhost "
@@ -86,9 +99,12 @@ def stop(c_r):
             "\nStopping coverage server...\n", color=Color.HEADER, bold=True
         )
         print(tmp_str)
-        _command = f"kill $(lsof -ti:{COV_PORT})"
+        _command = (
+            f"pids=$(lsof -ti:{COV_PORT}); "
+            'if [ -n "$pids" ]; then kill $pids; fi'
+        )
         print(f"{colorize('>>> ' + _command, color=Color.OKBLUE)}\n")
-        c_r.run(_command)
+        c_r.run(_command, warn=True)
 
     elif SYSTEM == OperatingSystem.WINDOWS:
         print(
@@ -113,7 +129,6 @@ def stop(c_r):
 def all(
     c_r, test=None, pytest_args="-v -W ignore::UserWarning"
 ):  # pylint: disable=W0622
-    """Run all tests and start coverage report webserver."""
+    """Run all tests."""
     stop(c_r)
     run(c_r, test, pytest_args)
-    coverage(c_r)

@@ -27,7 +27,7 @@ from ..material.sn_curve import (
     SNCurve,
 )
 from ..styling import py_fatigue_formatwarning
-from ..utils import make_axes, numba_bisect, _plot_damage_accumulation
+from ..utils import make_axes, _plot_damage_accumulation
 
 try:
     # delete the accessor to avoid warning
@@ -55,12 +55,6 @@ class PalmgrenMiner:
         """Validate the input DataFrame. Raise an error if the input
         DataFrame does not contain the right columns.
         """
-        if {
-            "cycles_to_failure",
-        }.issubset(obj.columns):
-            e_msg = "'cycles_to_failure' already calculated"
-            raise AttributeError(e_msg)
-
         if not {"count_cycle", "mean_stress", "stress_range"}.issubset(
             obj.columns
         ):
@@ -86,6 +80,9 @@ class PalmgrenMiner:
                 f"sn_curve ({sn_curve.unit}) do not match."
             )
             raise ValueError(e_msg)
+        if {"cycles_to_failure"}.issubset(self._obj.columns):
+            e_msg = "'cycles_to_failure' already calculated"
+            raise AttributeError(e_msg)
         self._obj.sn_curve = sn_curve
         self.sn_curve = sn_curve
         self._obj["cycles_to_failure"] = sn_curve.get_cycles(
@@ -1184,8 +1181,8 @@ def find_sn_curve_intersection(
     endurance: float,
     weight: float,
     res_stress: float,
-    n_min: float,
-    n_max: float,
+    n_min: float = 1e0,
+    n_max: float = 1e10,
     tol=1e-6,
 ):
     """
@@ -1236,8 +1233,7 @@ def find_sn_curve_intersection(
     ValueError
         If the bisection method fails to find a solution.
     """
-    return numba_bisect(
-        __jit_sn_curve_residuals,
+    return __jit_sn_curve_residuals(
         n_min,
         n_max,
         tol,
@@ -1258,6 +1254,12 @@ def find_sn_curve_intersection(
     #     1000,
     #     slope, intercept, endurance, weight, res_stress
     # )
+
+
+def find_sn_curve_intersection_2(*args, **kwargs):
+    """Backwards-compatible alias for the current SN intersection solver."""
+
+    return find_sn_curve_intersection(*args, **kwargs)
 
 
 @nb.njit(
@@ -1497,3 +1499,19 @@ def calc_theil_sn_damage(
     return tuple((label, *tup) for tup, label in zip(hist_dict.values(),
                                                       hist_dict.keys()))
     # fmt: on
+
+
+def calc_theil_cycles_to_failure(
+    stress_range,
+    count_cycle,
+    sn_curve: SNCurve,
+    to_failure: bool = False,
+):
+    """Backwards-compatible alias for the current Theil SN helper."""
+
+    return calc_theil_sn_damage(
+        stress_range,
+        count_cycle,
+        sn_curve,
+        to_failure=to_failure,
+    )

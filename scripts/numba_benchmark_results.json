@@ -1,0 +1,326 @@
+{
+  "inventory": [
+    {
+      "file": "py_fatigue/cycle_count/rainflow.py",
+      "line": 209,
+      "kind": "FunctionDef",
+      "name": "_findcross",
+      "mechanism": "@njit(int64(int64[:], int8[:]), cache=True)"
+    },
+    {
+      "file": "py_fatigue/damage/crack_growth.py",
+      "line": 47,
+      "kind": "ClassDef",
+      "name": "CalcCrackGrowth",
+      "mechanism": "@jitclass(spec)"
+    },
+    {
+      "file": "py_fatigue/damage/crack_growth.py",
+      "line": 333,
+      "kind": "FunctionDef",
+      "name": "get_geometry_factor",
+      "mechanism": "@nb.njit(nb.float64(nb.float64, nb.types.unicode_type, nb.types.DictType(nb.types.unicode_type, nb.float64)), fastmath=True, cache=True)"
+    },
+    {
+      "file": "py_fatigue/damage/crack_growth.py",
+      "line": 360,
+      "kind": "FunctionDef",
+      "name": "get_sif",
+      "mechanism": "@nb.njit(nb.types.UniTuple(nb.float64, 2)(nb.float64, nb.float64, nb.types.unicode_type, nb.types.DictType(nb.types.unicode_type, nb.float64)), fastmath=True, cache=True)"
+    },
+    {
+      "file": "py_fatigue/damage/stress_life.py",
+      "line": 1269,
+      "kind": "FunctionDef",
+      "name": "_calc_theil_sn_damage",
+      "mechanism": "@nb.njit(fastmath=True, cache=True)"
+    },
+    {
+      "file": "py_fatigue/geometry/cylinder.py",
+      "line": 246,
+      "kind": "FunctionDef",
+      "name": "f_hol_cyl_01",
+      "mechanism": "@nb.njit(nb.float64(nb.float64, nb.types.DictType(nb.types.unicode_type, nb.float64)), cache=True, fastmath=True)"
+    },
+    {
+      "file": "py_fatigue/material/crack_growth_curve.py",
+      "line": 1077,
+      "kind": "FunctionDef",
+      "name": "get_array_min",
+      "mechanism": "@nb.njit(cache=True)"
+    },
+    {
+      "file": "py_fatigue/material/crack_growth_curve.py",
+      "line": 1093,
+      "kind": "FunctionDef",
+      "name": "_calc_growth_rate",
+      "mechanism": "@nb.njit(fastmath=False, cache=True)"
+    },
+    {
+      "file": "py_fatigue/material/crack_growth_curve.py",
+      "line": 1139,
+      "kind": "FunctionDef",
+      "name": "_calc_sif",
+      "mechanism": "@nb.njit(fastmath=False, cache=True)"
+    },
+    {
+      "file": "py_fatigue/material/sn_curve.py",
+      "line": 956,
+      "kind": "FunctionDef",
+      "name": "get_sn_array_min",
+      "mechanism": "@nb.njit(cache=True)"
+    },
+    {
+      "file": "py_fatigue/material/sn_curve.py",
+      "line": 972,
+      "kind": "FunctionDef",
+      "name": "_calc_cycles",
+      "mechanism": "@nb.njit(fastmath=False, cache=True)"
+    },
+    {
+      "file": "py_fatigue/material/sn_curve.py",
+      "line": 996,
+      "kind": "FunctionDef",
+      "name": "_calc_cycles_2",
+      "mechanism": "@nb.njit(fastmath=False, cache=True)"
+    },
+    {
+      "file": "py_fatigue/material/sn_curve.py",
+      "line": 1051,
+      "kind": "FunctionDef",
+      "name": "_calc_stress",
+      "mechanism": "@nb.njit(fastmath=False, cache=True)"
+    },
+    {
+      "file": "py_fatigue/material/sn_curve.py",
+      "line": 1078,
+      "kind": "FunctionDef",
+      "name": "_calc_stress_2",
+      "mechanism": "@nb.njit(fastmath=False, cache=True)"
+    },
+    {
+      "file": "py_fatigue/material/sn_curve.py",
+      "line": 1183,
+      "kind": "Assign",
+      "name": "__jit_sn_curve_residuals",
+      "mechanism": "compile_specialized_bisect"
+    },
+    {
+      "file": "py_fatigue/mean_stress/corrections.py",
+      "line": 423,
+      "kind": "Call",
+      "name": "numba_newton",
+      "mechanism": "generic wrapper call"
+    },
+    {
+      "file": "py_fatigue/mean_stress/corrections.py",
+      "line": 582,
+      "kind": "Assign",
+      "name": "__jit_goodman_equation",
+      "mechanism": "compile_specialized_newton"
+    },
+    {
+      "file": "py_fatigue/utils.py",
+      "line": 762,
+      "kind": "FunctionDef",
+      "name": "raise_non_scalar_numba_result",
+      "mechanism": "@nb.njit(nb.float64())"
+    },
+    {
+      "file": "py_fatigue/utils.py",
+      "line": 1001,
+      "kind": "Assign",
+      "name": "jit_bisect_func",
+      "mechanism": "compile_specialized_bisect"
+    },
+    {
+      "file": "py_fatigue/utils.py",
+      "line": 1014,
+      "kind": "Assign",
+      "name": "jit_newton_func",
+      "mechanism": "compile_specialized_newton"
+    }
+  ],
+  "results": [
+    {
+      "group": "bisect-wrapper",
+      "name": "current numba_bisect(py_func)",
+      "calls": 8,
+      "seconds": 1.2343996786512434e-05,
+      "per_call_ms": 0.0015429995983140543,
+      "speedup_vs_group_base": null,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "bisect-wrapper",
+      "name": "hoisted compile_specialized_bisect",
+      "calls": 8,
+      "seconds": 6.1780010582879186e-06,
+      "per_call_ms": 0.0007722501322859898,
+      "speedup_vs_group_base": 1.9980567614103437,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "bisect-wrapper",
+      "name": "pure Python py_bisect",
+      "calls": 8,
+      "seconds": 9.328400483354926e-05,
+      "per_call_ms": 0.011660500604193658,
+      "speedup_vs_group_base": 0.13232704586963617,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "newton-wrapper",
+      "name": "current numba_newton(py_func)",
+      "calls": 8,
+      "seconds": 1.6310994396917522e-05,
+      "per_call_ms": 0.0020388742996146902,
+      "speedup_vs_group_base": null,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "newton-wrapper",
+      "name": "hoisted compile_specialized_newton",
+      "calls": 8,
+      "seconds": 8.942995918914676e-06,
+      "per_call_ms": 0.0011178744898643345,
+      "speedup_vs_group_base": 1.823884808268707,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "newton-wrapper",
+      "name": "pure Python py_newton",
+      "calls": 8,
+      "seconds": 4.595100472215563e-05,
+      "per_call_ms": 0.005743875590269454,
+      "speedup_vs_group_base": 0.3549649130751879,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "SNCurve.get_cycles",
+      "calls": 8,
+      "seconds": 0.0033126759954029694,
+      "per_call_ms": 0.4140844994253712,
+      "speedup_vs_group_base": null,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "SNCurve.get_stress",
+      "calls": 8,
+      "seconds": 0.0035862310032825917,
+      "per_call_ms": 0.44827887541032396,
+      "speedup_vs_group_base": 0.9237207509418025,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "ParisCurve.get_growth_rate",
+      "calls": 8,
+      "seconds": 0.010180105993640609,
+      "per_call_ms": 1.2725132492050761,
+      "speedup_vs_group_base": 0.32540682753915906,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "ParisCurve.get_sif",
+      "calls": 8,
+      "seconds": 0.017416592003428377,
+      "per_call_ms": 2.177074000428547,
+      "speedup_vs_group_base": 0.19020230793434698,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "rainflow.findcross",
+      "calls": 8,
+      "seconds": 0.0010041150089818984,
+      "per_call_ms": 0.1255143761227373,
+      "speedup_vs_group_base": 3.299100168577092,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "rainflow.findtp",
+      "calls": 8,
+      "seconds": 0.0013474489969667047,
+      "per_call_ms": 0.1684311246208381,
+      "speedup_vs_group_base": 2.4584796922631313,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "f_hol_cyl_01",
+      "calls": 8,
+      "seconds": 2.6398993213661015e-05,
+      "per_call_ms": 0.003299874151707627,
+      "speedup_vs_group_base": 125.48493681526907,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "crack_growth.get_sif",
+      "calls": 8,
+      "seconds": 4.6574990847148e-05,
+      "per_call_ms": 0.0058218738558935,
+      "speedup_vs_group_base": 71.12563921428703,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "CalcCrackGrowth construction",
+      "calls": 8,
+      "seconds": 0.005733437996241264,
+      "per_call_ms": 0.716679749530158,
+      "speedup_vs_group_base": 0.5777817772817458,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "calc_theil_sn_damage",
+      "calls": 8,
+      "seconds": 0.00019102801161352545,
+      "per_call_ms": 0.02387850145169068,
+      "speedup_vs_group_base": 17.341310143063964,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "goodman_haigh_mean_stress_correction",
+      "calls": 1,
+      "seconds": 0.0008232050022343174,
+      "per_call_ms": 0.8232050022343174,
+      "speedup_vs_group_base": 4.024120342334907,
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "group": "direct-dispatchers",
+      "name": "find_sn_curve_intersection",
+      "calls": 1,
+      "seconds": 6.591700366698205e-05,
+      "per_call_ms": 0.06591700366698205,
+      "speedup_vs_group_base": 50.25525753777996,
+      "status": "ok",
+      "note": ""
+    }
+  ]
+}

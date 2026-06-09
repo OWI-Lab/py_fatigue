@@ -1,3 +1,14 @@
+Unreleased
+----------
+- **perf(numba)**: cache the generic Numba root-finder specializations, add
+  opt-in `warmup_numba()`, and enable disk caching on the direct Numba kernels.
+- **build(numba)**: widen Python < 3.14 support to Numba 0.61 through 0.65
+  without gaps, while keeping Python 3.14 on Numba 0.65.
+- **fix(compatibility)**: add Pandas 3.x compatibility fixes in the
+  cycle-count aggregation helpers and notebook examples.
+- **docs(numba)**: refresh the Numba speedup report, repair broken docs links,
+  and update the tutorial notebooks so they execute on Python 3.13 and 3.14.
+
 2.0.4
 ------
 - **bump(patch)**: Bump version to 2.0.4 [skip ci]

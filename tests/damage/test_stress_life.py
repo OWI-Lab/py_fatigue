@@ -4,13 +4,13 @@ r"""The following tests are meant to assess the correct behavior of the
 damage calculation methods in the stress-life approach.
 """
 
-
 # Standard imports
 import datetime as dt
 import os
 import sys
 
 # Non-standard imports
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
@@ -18,6 +18,8 @@ from hypothesis import given, settings
 from hypothesis import strategies as hy
 
 import py_fatigue.damage as damage
+import py_fatigue.damage.stress_life as sl
+
 # Local imports
 from py_fatigue import CycleCount, SNCurve
 from tests.cycle_count.test_cycle_count import CC_RF_1
@@ -173,7 +175,6 @@ class TestPalmgrenMiner:
             cc_obj.unit = "m"
             damage.get_pm(cc_obj, sn_curve)
 
-
     @pytest.mark.parametrize(
         "sn_curve", [(DNV_B1A), (DNV_B1A_END), (DNV_B1W), (DNV_B1C)]
     )
@@ -198,9 +199,7 @@ class TestPalmgrenMiner:
         )
         assert damage_pm == pytest.approx(damage_ref, 1e-12)
 
-    @pytest.mark.parametrize(
-        "cc", [(CC_TS_1), (CC_TS_2), (CC_TS_3), (CC_RF_1)]
-    )
+    @pytest.mark.parametrize("cc", [(CC_TS_1), (CC_TS_2), (CC_TS_3), (CC_RF_1)])
     @pytest.mark.parametrize("exponent", [(3), (4), (5)])
     @pytest.mark.parametrize("eq_cycles", [(1e6), (2e6), (1e7)])
     # fmt: on
@@ -266,7 +265,7 @@ class TestPalmgrenMiner:
             assert "outer_radius must be greater" in ve.value.args[0]
         a_i = np.pi / 4 * (r_o**4 - r_i**4)
         dem = damage.get_dem(r_o, r_i, cc, exponent, eq_cycles)
-        dem_ref = a_i * 1E6 * damage.get_des(cc, exponent, eq_cycles) / r_o
+        dem_ref = a_i * 1e6 * damage.get_des(cc, exponent, eq_cycles) / r_o
         assert dem == pytest.approx(dem_ref, 1e-12)
 
     # fmt: off
@@ -309,10 +308,14 @@ class TestPalmgrenMiner:
         assert df_d.sn_curve == sn_curve
         assert df_d._metadata["name"] == cc_obj.name
         assert df_d._metadata["timestamp"] == cc_obj.timestamp
-        assert df_d._metadata["mean_stress_corrected"] == \
-            cc_obj.mean_stress_corrected
-        assert df_d._metadata["stress_concentration_factor"] == \
-            cc_obj.stress_concentration_factor
+        assert (
+            df_d._metadata["mean_stress_corrected"]
+            == cc_obj.mean_stress_corrected
+        )
+        assert (
+            df_d._metadata["stress_concentration_factor"]
+            == cc_obj.stress_concentration_factor
+        )
         assert df_d._metadata["nr_small_cycles"] == cc_obj.nr_small_cycles
         assert df_d._metadata["lffd_solved"] == cc_obj.lffd_solved
         assert isinstance(df_d, pd.DataFrame)
@@ -327,9 +330,7 @@ class TestPalmgrenMiner:
     @pytest.mark.parametrize(
         "sn_curve", [DNV_B1A, DNV_B1A_END, DNV_B1W, DNV_B1C]
     )
-    @pytest.mark.parametrize(
-        "cc", [CC_TS_1, CC_TS_3]
-    )
+    @pytest.mark.parametrize("cc", [CC_TS_1, CC_TS_3])
     # fmt: on
     def test_miner_pandas_accessor_variable_load(
         self, cc: CycleCount, sn_curve: SNCurve
@@ -353,23 +354,29 @@ class TestPalmgrenMiner:
         assert df_d.sn_curve == sn_curve
         assert df_d._metadata["name"] == cc.name
         assert df_d._metadata["timestamp"] == cc.timestamp
-        assert df_d._metadata["mean_stress_corrected"] == \
-            cc.mean_stress_corrected
-        assert df_d._metadata["stress_concentration_factor"] == \
-            cc.stress_concentration_factor
+        assert (
+            df_d._metadata["mean_stress_corrected"] == cc.mean_stress_corrected
+        )
+        assert (
+            df_d._metadata["stress_concentration_factor"]
+            == cc.stress_concentration_factor
+        )
         assert df_d._metadata["nr_small_cycles"] == cc.nr_small_cycles
         assert df_d._metadata["lffd_solved"] == cc.lffd_solved
         assert isinstance(df_d, pd.DataFrame)
         assert df_d["pm_damage"].sum() == pytest.approx(
             np.sum(damage.get_pm(cc, sn_curve)), 1e-12
         )
+        fig, ax = plt.subplots()
+        df_d.miner.plot_histogram(fig=fig, ax=ax)
+        plt.close(fig)
+        with pytest.raises(AttributeError):
+            df_d.miner.damage(sn_curve)
 
-    @pytest.mark.parametrize(
-        "cc,", [CC_TS_1, CC_TS_3]
-    )
+    @pytest.mark.parametrize("cc,", [CC_TS_1, CC_TS_3])
     @given(
         slope=hy.floats(min_value=3, max_value=20),
-        n_eq=hy.floats(min_value=1E5, max_value=1e10),
+        n_eq=hy.floats(min_value=1e5, max_value=1e10),
     )
     # fmt: on
     def test_des_pandas_accessor_variable_load(
@@ -394,28 +401,28 @@ class TestPalmgrenMiner:
         assert isinstance(df, pd.DataFrame)
         assert df._metadata["name"] == cc.name
         assert df._metadata["timestamp"] == cc.timestamp
-        assert df._metadata["mean_stress_corrected"] == \
-            cc.mean_stress_corrected
-        assert df._metadata["stress_concentration_factor"] == \
-            cc.stress_concentration_factor
+        assert df._metadata["mean_stress_corrected"] == cc.mean_stress_corrected
+        assert (
+            df._metadata["stress_concentration_factor"]
+            == cc.stress_concentration_factor
+        )
         assert df._metadata["nr_small_cycles"] == cc.nr_small_cycles
         assert df._metadata["lffd_solved"] == cc.lffd_solved
         assert isinstance(df, pd.DataFrame)
-        assert df.miner.des(slope=slope, equivalent_cycles=n_eq) == \
-            pytest.approx(
-                damage.get_des(cc, slope, equivalent_cycles=n_eq), 1e-12
-            )
+        assert df.miner.des(
+            slope=slope, equivalent_cycles=n_eq
+        ) == pytest.approx(
+            damage.get_des(cc, slope, equivalent_cycles=n_eq), 1e-12
+        )
 
-    @pytest.mark.parametrize(
-        "cc,", [CC_TS_1, CC_TS_3]
-    )
+    @pytest.mark.parametrize("cc,", [CC_TS_1, CC_TS_3])
     @given(
         slope=hy.floats(min_value=3, max_value=20),
-        n_eq=hy.floats(min_value=1E5, max_value=1e10),
+        n_eq=hy.floats(min_value=1e5, max_value=1e10),
     )
     @pytest.mark.parametrize(
         "r_i, r_o",
-        [(3, 3.5), (4000, 4100), pytest.param(2, 1, marks=pytest.mark.xfail)]
+        [(3, 3.5), (4000, 4100), pytest.param(2, 1, marks=pytest.mark.xfail)],
     )
     # fmt: on
     def test_dem_pandas_accessor_variable_load(
@@ -444,10 +451,11 @@ class TestPalmgrenMiner:
         assert isinstance(df, pd.DataFrame)
         assert df._metadata["name"] == cc.name
         assert df._metadata["timestamp"] == cc.timestamp
-        assert df._metadata["mean_stress_corrected"] == \
-            cc.mean_stress_corrected
-        assert df._metadata["stress_concentration_factor"] == \
-            cc.stress_concentration_factor
+        assert df._metadata["mean_stress_corrected"] == cc.mean_stress_corrected
+        assert (
+            df._metadata["stress_concentration_factor"]
+            == cc.stress_concentration_factor
+        )
         assert df._metadata["nr_small_cycles"] == cc.nr_small_cycles
         assert df._metadata["lffd_solved"] == cc.lffd_solved
         assert isinstance(df, pd.DataFrame)
@@ -455,23 +463,23 @@ class TestPalmgrenMiner:
             outer_radius=r_o,
             inner_radius=r_i,
             slope=slope,
-            equivalent_cycles=n_eq
+            equivalent_cycles=n_eq,
         ) == pytest.approx(
             damage.get_dem(
                 outer_radius=r_o,
                 inner_radius=r_i,
                 cycle_count=cc,
                 slope=slope,
-                equivalent_cycles=n_eq
+                equivalent_cycles=n_eq,
             ),
-            1e-12
+            1e-12,
         )
 
-class TestGassner:
-    """Test the shift factor calculation related with the Gassner curve
-    """
 
-        # fmt: off
+class TestGassner:
+    """Test the shift factor calculation related with the Gassner curve"""
+
+    # fmt: off
     @settings(deadline=None)
     @pytest.mark.parametrize(
         "sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C,
@@ -499,6 +507,7 @@ class TestGassner:
             The length of the history to use.
         """
         import py_fatigue as pf
+
         time_reversals = [peak * (-1) ** _ for _ in range(len_hist)]
         cc_obj = pf.CycleCount.from_timeseries(
             time_reversals,
@@ -515,26 +524,34 @@ class TestGassner:
         assert df_g.sn_curve == sn_curve
         assert df_g._metadata["name"] == cc_obj.name
         assert df_g._metadata["timestamp"] == cc_obj.timestamp
-        assert df_g._metadata["mean_stress_corrected"] == \
-            cc_obj.mean_stress_corrected
-        assert df_g._metadata["stress_concentration_factor"] == \
-            cc_obj.stress_concentration_factor
+        assert (
+            df_g._metadata["mean_stress_corrected"]
+            == cc_obj.mean_stress_corrected
+        )
+        assert (
+            df_g._metadata["stress_concentration_factor"]
+            == cc_obj.stress_concentration_factor
+        )
         assert df_g._metadata["nr_small_cycles"] == cc_obj.nr_small_cycles
         assert df_g._metadata["lffd_solved"] == cc_obj.lffd_solved
         assert isinstance(df_g, pd.DataFrame)
         assert df_g["shift_factor"].sum() == pytest.approx(1, 1e-12)
 
+    @pytest.mark.parametrize("cc", [CC_TS_1, CC_TS_3])
     @pytest.mark.parametrize(
-        "cc", [CC_TS_1, CC_TS_3]
-    )
-    @pytest.mark.parametrize(
-        "sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C,
-                     pytest.param(DNV_B1A, marks=pytest.mark.xfail)
-        ]
+        "sn_curve",
+        [
+            DNV_B1C,
+            DNV_C_C,
+            DNV_E_C,
+            pytest.param(DNV_B1A, marks=pytest.mark.xfail),
+        ],
     )
     # fmt: on
     def test_g_pandas_accessor_variable_load(
-        self, cc: CycleCount, sn_curve: SNCurve,
+        self,
+        cc: CycleCount,
+        sn_curve: SNCurve,
     ):
         """Test the Gassner shift factor that has to be less than one
         for variable amplitude stress histories.
@@ -551,19 +568,24 @@ class TestGassner:
         assert isinstance(df, pd.DataFrame)
         assert df._metadata["name"] == cc.name
         assert df._metadata["timestamp"] == cc.timestamp
-        assert df._metadata["mean_stress_corrected"] == \
-            cc.mean_stress_corrected
-        assert df._metadata["stress_concentration_factor"] == \
-            cc.stress_concentration_factor
+        assert df._metadata["mean_stress_corrected"] == cc.mean_stress_corrected
+        assert (
+            df._metadata["stress_concentration_factor"]
+            == cc.stress_concentration_factor
+        )
         assert df._metadata["nr_small_cycles"] == cc.nr_small_cycles
         assert df._metadata["lffd_solved"] == cc.lffd_solved
         assert df["shift_factor"].sum() < 1
 
+
 @pytest.mark.parametrize("sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C, DNV_B1A])
-@pytest.mark.parametrize("load", [
-    [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3],
-    [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1]
-])
+@pytest.mark.parametrize(
+    "load",
+    [
+        [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3],
+        [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1],
+    ],
+)
 @pytest.mark.parametrize("base_exponent", [0.99, 1, 1.01])
 def test_leve_damage_rule(load: list, sn_curve: SNCurve, base_exponent: float):
     """Test the nonlinear damage calculation.
@@ -585,7 +607,7 @@ def test_leve_damage_rule(load: list, sn_curve: SNCurve, base_exponent: float):
         name="Test_CC",
     )
     d_nl = damage.get_nonlinear_damage(
-        'leve', cc, sn_curve, base_exponent=base_exponent
+        "leve", cc, sn_curve, base_exponent=base_exponent
     )
     d_l = np.sum(damage.get_pm(cc, sn_curve))
     if base_exponent == 1:
@@ -594,6 +616,7 @@ def test_leve_damage_rule(load: list, sn_curve: SNCurve, base_exponent: float):
         assert d_nl[-1] > d_l
     if base_exponent > 1:
         assert d_nl[-1] < d_l
+
 
 @pytest.mark.parametrize("sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C, DNV_B1A])
 @pytest.mark.parametrize("rule", ["pavlou", "manson", "si jian"])
@@ -650,10 +673,12 @@ class TestDamageExponents:
     )
     def test_calc_damage_exponents_no_kwargs(self, damage_rule):
         """Test the _calc_damage_exponents function with no kwargs."""
-        stress_range = np.array([100., 200., 300.])
+        stress_range = np.array([100.0, 200.0, 300.0])
         if "manson" in damage_rule:
             with pytest.raises(ValueError, match="sn_curve must be provided"):
-                damage.stress_life._calc_damage_exponents(damage_rule, stress_range)
+                damage.stress_life._calc_damage_exponents(
+                    damage_rule, stress_range
+                )
         else:
             if damage_rule == "pavlou":
                 with pytest.warns(UserWarning, match="base_exponent"):
@@ -699,7 +724,10 @@ class TestDamageExponents:
         base_exponent = 0.5
         sn_curve = SNCurve([3, 5, 7], [10.970, 13.617, 16])
         exponents = damage.stress_life._calc_damage_exponents(
-            "manson", stress_range, sn_curve=sn_curve, base_exponent=base_exponent
+            "manson",
+            stress_range,
+            sn_curve=sn_curve,
+            base_exponent=base_exponent,
         )
         assert isinstance(exponents, np.ndarray)
         assert np.allclose(
@@ -717,14 +745,20 @@ class TestDamageExponents:
             "leve", stress_range, base_exponent=base_exponent
         )
         assert isinstance(exponents, np.ndarray)
-        assert np.allclose(exponents, base_exponent * np.ones(len(stress_range)))
+        assert np.allclose(
+            exponents, base_exponent * np.ones(len(stress_range))
+        )
 
     def test_calc_damage_exponents_si_jian(self):
         """Test the _calc_damage_exponents function with si jian rule."""
         stress_range = np.array([100, 200, 300])
-        exponents = damage.stress_life._calc_damage_exponents("si jian", stress_range)
+        exponents = damage.stress_life._calc_damage_exponents(
+            "si jian", stress_range
+        )
         assert isinstance(exponents, np.ndarray)
-        assert np.allclose(exponents, damage.stress_life.calc_si_jian_exponents(stress_range))
+        assert np.allclose(
+            exponents, damage.stress_life.calc_si_jian_exponents(stress_range)
+        )
 
     def test_calc_damage_exponents_unknown_rule(self):
         """Test the _calc_damage_exponents function with unknown rule."""
@@ -732,15 +766,19 @@ class TestDamageExponents:
         with pytest.raises(ValueError, match="Unknown damage rule: unknown"):
             damage.stress_life._calc_damage_exponents("unknown", stress_range)
 
+
 @pytest.mark.parametrize("sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C, DNV_B1A])
-@pytest.mark.parametrize("load", [
-    [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3],
-    [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1]
-])
-@pytest.mark.parametrize("damage_bands", [
-    [0, 0.2, 0.4, 0.6, 0.8, 1],
-    [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1]
-])
+@pytest.mark.parametrize(
+    "load",
+    [
+        [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3],
+        [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1],
+    ],
+)
+@pytest.mark.parametrize(
+    "damage_bands",
+    [[0, 0.2, 0.4, 0.6, 0.8, 1], [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1]],
+)
 def test_nonlinear_damage_dca(
     load: list, sn_curve: SNCurve, damage_bands: list
 ):
@@ -765,15 +803,19 @@ def test_nonlinear_damage_dca(
         name="Test_CC",
     )
     d_nl, _, _, _ = damage.stress_life.get_nonlinear_damage_with_dca(
-        'pavlou', cc, sn_curve, np.asarray(damage_bands)
+        "pavlou", cc, sn_curve, np.asarray(damage_bands)
     )
     assert isinstance(d_nl, np.ndarray)
 
+
 @pytest.mark.parametrize("sn_curve", [DNV_B1C, DNV_C_C, DNV_E_C, DNV_B1A])
-@pytest.mark.parametrize("load", [
-    [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3],
-    [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1]
-])
+@pytest.mark.parametrize(
+    "load",
+    [
+        [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 3, -3, 3, -3, 3, -3, 3, -3],
+        [3, -3, 3, -3, 3, -3, 3, -3, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1],
+    ],
+)
 def test_theil_damage_rule(load: list, sn_curve: SNCurve):
     """Test the nonlinear damage calculation with Theil's method.
 
@@ -794,7 +836,18 @@ def test_theil_damage_rule(load: list, sn_curve: SNCurve):
         name="Test_CC",
     )
     d_nl, _, _, _ = damage.stress_life.get_nonlinear_damage_with_dca(
-        'theil', cc, sn_curve, damage_bands=np.array([0, 0.2, 0.4, 0.6, 0.8, 1])
+        "theil", cc, sn_curve, damage_bands=np.array([0, 0.2, 0.4, 0.6, 0.8, 1])
     )
     assert isinstance(d_nl, np.ndarray)
 
+
+def test_compatibility_aliases(monkeypatch):
+    """Test backwards-compatible aliases added for compatibility."""
+
+    monkeypatch.setattr(sl, "calc_theil_sn_damage", lambda *args, **kwargs: "direct")
+    monkeypatch.setattr(
+        sl, "find_sn_curve_intersection", lambda *args, **kwargs: 123.456
+    )
+
+    assert sl.calc_theil_cycles_to_failure(1, 2, DNV_B1A) == "direct"
+    assert sl.find_sn_curve_intersection_2(1, 2, 3, 4, 5) == 123.456
