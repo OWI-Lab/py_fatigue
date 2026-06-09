@@ -388,8 +388,10 @@ def test_to_numba_dict():
     data = {"key1": 1.0, "key2": 2.0, "key3": 3.0}
 
     result = pu.to_numba_dict(data)
-    # The next line fails since os.environ["NUMBA_DISABLE_JIT"] = "1"
-    if os.getenv("NUMBA_DISABLE_JIT") != "1":
+    expect_plain_dict = (
+        os.getenv("NUMBA_DISABLE_JIT") == "1" or nb.config.DISABLE_JIT
+    )
+    if not expect_plain_dict:
         assert isinstance(result, (nb.typed.Dict, nb.typed.typeddict.Dict))
     else:
         assert isinstance(result, dict)
@@ -409,7 +411,10 @@ def test_to_numba_dict_with_invalid_types():
     }
 
     result = pu.to_numba_dict(data)
-    if os.getenv("NUMBA_DISABLE_JIT") != "1":
+    expect_plain_dict = (
+        os.getenv("NUMBA_DISABLE_JIT") == "1" or nb.config.DISABLE_JIT
+    )
+    if not expect_plain_dict:
         assert isinstance(result, (nb.typed.Dict, nb.typed.typeddict.Dict))
     else:
         assert isinstance(result, dict)

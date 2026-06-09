@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 
 VERSION: str = "2.1.0"
 
+# Keep plotting enabled by default unless tests/tasks explicitly disable it.
+os.environ.setdefault("PY_FATIGUE_TEST_NO_PLOTS", "0")
+
 # Add custom options to pytest. Here we define the addition of an 'url' argument
 # so you could run `pytest --url <url>` to specify an external url to check real time
 # api calls for instance.
