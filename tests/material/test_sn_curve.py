@@ -244,15 +244,15 @@ def test_knee_point_calculation():
         DNV_B1A.get_knee_stress(), 106.91, significant=2
     )
     np.testing.assert_approx_equal(
-        DNV_B1A.get_knee_stress(),
-        DNV_B1A.get_stress(DNV_B1A.get_knee_cycles()),
+        DNV_B1A.get_knee_stress()[0],
+        DNV_B1A.get_stress(DNV_B1A.get_knee_cycles())[0],
         significant=2,
     )
     np.testing.assert_approx_equal(
-        DNV_B1A.get_knee_stress(), DNV_B1A.get_stress(1e7), significant=2
+        DNV_B1A.get_knee_stress()[0], DNV_B1A.get_stress(1e7)[0], significant=2
     )
     np.testing.assert_approx_equal(
-        DNV_B1A.get_knee_cycles(), DNV_B1A.get_cycles(106.91), significant=2
+        DNV_B1A.get_knee_cycles()[0], DNV_B1A.get_cycles(106.91)[0], significant=2
     )
     # knee assertions on trilinear SN curve + endurance
     assert not EXOTIC.linear
@@ -327,9 +327,9 @@ def test_endurance_behavior():
     """
     # endurance assertions on trilinear SN curve + endurance
     for cyc in [2.134e11, 1e12, 2e12, 1e13, 2e13]:
-        assert EXOTIC.get_stress(2.134e11) == EXOTIC.get_stress(cyc)
+        assert EXOTIC.get_stress(2.134e11)[0] == EXOTIC.get_stress(cyc)[0]
         np.testing.assert_approx_equal(
-            EXOTIC.get_stress(cyc), 4.64, significant=2
+            EXOTIC.get_stress(cyc)[0], 4.64, significant=2
         )  # above endurance cycles always same stress is returned
     assert (
         EXOTIC.get_cycles(4.64) == np.inf
@@ -357,7 +357,7 @@ def test_plotly():
     assert np.round(EXOTIC.get_stress(np.inf), 4) == np.round(data[0].y[-1], 4)
     assert np.any(np.isin(EXOTIC.get_knee_cycles(), data[0].x))
     assert np.any(
-        np.in1d(np.round(EXOTIC.get_knee_stress(), 4), np.round(data[0].y, 4))
+        np.isin(np.round(EXOTIC.get_knee_stress(), 4), np.round(data[0].y, 4))
     )
     assert 200 in data[1].x
     assert 60 in data[1].y
@@ -397,9 +397,9 @@ def test_plot():
     assert np.round(EXOTIC.get_stress(np.inf), 4) == np.round(
         sn_curve_stress[-1], 4
     )
-    assert np.any(np.in1d(EXOTIC.get_knee_cycles(), sn_curve_cycles))
+    assert np.any(np.isin(EXOTIC.get_knee_cycles(), sn_curve_cycles))
     assert np.any(
-        np.in1d(
+        np.isin(
             np.round(EXOTIC.get_knee_stress(), 4), np.round(sn_curve_stress, 4)
         )
     )

@@ -384,6 +384,9 @@ class ParisCurve(AbstractCrackGrowthCurve):
 
     """
 
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
+
     def __init__(
         self,
         slope: Union[int, float, list, np.ndarray],
