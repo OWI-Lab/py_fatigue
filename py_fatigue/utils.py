@@ -1190,9 +1190,34 @@ class CustomFormatter(logging.Formatter):
     FORMATS = {
         logging.DEBUG: grey + "🐞 " + level + italic + message + reset,
         logging.INFO: blue + "ℹ️ " + level + italic + message + reset,
-        logging.WARNING: yellow + "⚠️ " + level + newline + lineofile + italic + newline +message + reset,
-        logging.ERROR: red + "⛔ " + level + newline + lineofile + italic + newline +message + reset,
-        logging.CRITICAL: red + "🆘 " + level + newline + lineofile + bold + italic + newline +message + reset,
+        logging.WARNING: yellow
+        + "⚠️ "
+        + level
+        + newline
+        + lineofile
+        + italic
+        + newline
+        + message
+        + reset,
+        logging.ERROR: red
+        + "⛔ "
+        + level
+        + newline
+        + lineofile
+        + italic
+        + newline
+        + message
+        + reset,
+        logging.CRITICAL: red
+        + "🆘 "
+        + level
+        + newline
+        + lineofile
+        + bold
+        + italic
+        + newline
+        + message
+        + reset,
     }
 
     def format(self, record):

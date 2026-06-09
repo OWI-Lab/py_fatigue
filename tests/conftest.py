@@ -57,3 +57,14 @@ def datadir(tmpdir, request):
         dir_util.copy_tree(test_dir, str(tmpdir))
 
     return tmpdir
+
+
+@pytest.fixture(autouse=True)
+def disable_plot_show(monkeypatch):
+    """Disable interactive plot rendering for task-based test runs."""
+    if os.getenv("PY_FATIGUE_TEST_NO_PLOTS") != "1":
+        return
+
+    import matplotlib.pyplot as plt
+
+    monkeypatch.setattr(plt, "show", lambda *args, **kwargs: None)

@@ -422,7 +422,7 @@ def findrfc_astm(tp: np.ndarray, t: Optional[np.ndarray] = None) -> np.ndarray:
 
 
 def _extract_cycles_from_sequence(
-    seq: List[Tuple[float, Optional[float], int]]
+    seq: List[Tuple[float, Optional[float], int]],
 ) -> Tuple[List[Dict[str, Any]], List[Tuple[float, Optional[float], int]]]:
     """
     Internal 4-point extraction following Amzallag et al. (1994).
@@ -474,7 +474,7 @@ def _extract_cycles_from_sequence(
 
 
 def _duplicate_and_select_crossing_cycles(
-    residue_seq: List[Tuple[float, Optional[float], int]]
+    residue_seq: List[Tuple[float, Optional[float], int]],
 ) -> List[Dict[str, Any]]:
     """
     Decompose residue by duplication and select cycles crossing boundary.
@@ -507,7 +507,7 @@ def _duplicate_and_select_crossing_cycles(
 
 
 def _process_residue(
-    residue_seq: List[Tuple[float, Optional[float], int]]
+    residue_seq: List[Tuple[float, Optional[float], int]],
 ) -> Tuple[List[Dict[str, Any]], List[Tuple[float, Optional[float], int]]]:
     """
     Fully decompose residue by iterative duplication until stable.
