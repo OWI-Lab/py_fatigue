@@ -5,6 +5,7 @@ import warnings
 import numba as nb
 import numpy as np
 import pytest
+from py_fatigue.material.sn_curve import _calc_cycles, _calc_stress
 
 # os.environ["NUMBA_DISABLE_JIT"] = "1"
 
@@ -460,6 +461,78 @@ def test_from_knee_points():
         assert sn_knee.unit == sn.unit
         assert sn_knee.color == sn.color
         assert sn_knee.name == sn.name
+
+
+def _kernel(fn):
+    """Return python-callable implementation for numba kernels."""
+    return getattr(fn, "py_func", fn)
+
+
+@pytest.mark.parametrize("sn", [DNV_B1C, DNV_B1A, EXOTIC])
+def test_cycles_kernel_boundary_regression(sn):
+    kernel = _kernel(_calc_cycles)
+
+    stress_values = [1e-12, sn.get_stress(1e4)[0], sn.get_stress(1e7)[0]]
+    stress_values.extend(list(sn.get_knee_stress()))
+    stress_values.extend([s * (1 - 1e-12) for s in sn.get_knee_stress()])
+    stress_values.extend([s * (1 + 1e-12) for s in sn.get_knee_stress()])
+    if sn.endurance < np.inf:
+        end_stress = sn.get_stress(sn.endurance)[0]
+        stress_values.extend(
+            [
+                end_stress,
+                end_stress * (1 - 1e-12),
+                end_stress * (1 + 1e-12),
+            ]
+        )
+    stress = np.asarray(stress_values, dtype=np.float64)
+
+    kernel_out = kernel(stress, sn.slope, sn.intercept, sn.endurance)
+    api_out = sn.get_cycles(stress)
+    np.testing.assert_allclose(kernel_out, api_out, rtol=1e-11, atol=0.0)
+
+    zero_stress = np.array([0.0], dtype=np.float64)
+    kernel_zero = kernel(zero_stress, sn.slope, sn.intercept, sn.endurance)
+    api_zero = sn.get_cycles(zero_stress)
+    np.testing.assert_allclose(kernel_zero, api_zero, rtol=0.0, atol=0.0)
+
+    with pytest.raises(AssertionError):
+        kernel(np.array([-1.0]), sn.slope, sn.intercept, sn.endurance)
+    with pytest.raises(AssertionError):
+        _ = sn.get_cycles(-1)
+
+
+@pytest.mark.parametrize("sn", [DNV_B1C, DNV_B1A, EXOTIC])
+def test_stress_kernel_boundary_regression(sn):
+    kernel = _kernel(_calc_stress)
+
+    cycle_values = [1e-12, 1e4, 1e7]
+    cycle_values.extend(list(sn.get_knee_cycles()))
+    cycle_values.extend([c * (1 - 1e-12) for c in sn.get_knee_cycles()])
+    cycle_values.extend([c * (1 + 1e-12) for c in sn.get_knee_cycles()])
+    if sn.endurance < np.inf:
+        cycle_values.extend(
+            [
+                sn.endurance,
+                sn.endurance * (1 - 1e-12),
+                sn.endurance * (1 + 1e-12),
+            ]
+        )
+
+    cycles = np.asarray(cycle_values, dtype=np.float64)
+    kernel_out = kernel(cycles, sn.slope, sn.intercept, sn.endurance)
+    api_out = sn.get_stress(cycles)
+    np.testing.assert_allclose(kernel_out, api_out, rtol=1e-11, atol=0.0)
+
+    with pytest.raises(AssertionError):
+        kernel(np.array([0.0]), sn.slope, sn.intercept, sn.endurance)
+    with pytest.raises(AssertionError):
+        _ = sn.get_stress(0)
+
+    with pytest.raises(AssertionError):
+        kernel(np.array([-1.0]), sn.slope, sn.intercept, sn.endurance)
+    with pytest.raises(AssertionError):
+        _ = sn.get_stress(-1)
 
 
 nb.config.DISABLE_JIT = False

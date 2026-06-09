@@ -690,12 +690,12 @@ class SNCurve(AbstractSNCurve):
         #     axis=1
         # ), self.endurance)
 
-        calc_cycles = _calc_cycles_2
+        calc_cycles = _calc_cycles
         if (
             getattr(nb.config, "DISABLE_JIT", False)
             or os.environ.get("NUMBA_DISABLE_JIT") == "1"
         ):
-            calc_cycles = _calc_cycles_2.py_func
+            calc_cycles = getattr(_calc_cycles, "py_func", _calc_cycles)
         return calc_cycles(
             stress_range, self.slope, self.intercept, self.endurance
         )
@@ -718,12 +718,12 @@ class SNCurve(AbstractSNCurve):
         #         cycles.shape[0],-1),
         #         axis=1
         # ), endurance_stress)
-        calc_stress = _calc_stress_2
+        calc_stress = _calc_stress
         if (
             getattr(nb.config, "DISABLE_JIT", False)
             or os.environ.get("NUMBA_DISABLE_JIT") == "1"
         ):
-            calc_stress = _calc_stress_2.py_func
+            calc_stress = getattr(_calc_stress, "py_func", _calc_stress)
         return calc_stress(cycles, self.slope, self.intercept, self.endurance)
 
     def n(  # pylint: disable=invalid-name
@@ -970,30 +970,6 @@ def get_sn_array_min(values):  # pragma: no cover
     # parallel=True,
 )
 def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
-    # pylint: disable=not-an-iterable
-    assert intercept.size > 0 and intercept.size == slope.size
-    assert get_sn_array_min(stress) >= 0
-    log10 = np.log(10)
-    the_cycles = np.empty(stress.size)
-    for i in nb.prange(stress.size):
-        log_stress = np.log(stress[i])
-        max_i = intercept[0] * log10 - slope[0] * log_stress
-        for j in range(1, len(intercept)):
-            value = intercept[j] * log10 - slope[j] * log_stress
-            max_i = max(max_i, value)
-        the_cycles[i] = np.exp(max_i)
-    if endurance < np.inf:
-        the_cycles[the_cycles > endurance] = np.inf
-    return the_cycles
-
-
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=False,
-    cache=True,
-    # parallel=True,
-)
-def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
     """
     Calculate the number of cycles to failure for given stress levels.
 
@@ -1049,33 +1025,6 @@ def _calc_cycles_2(stress, slope, intercept, endurance):  # pragma: no cover
     # parallel=True,
 )
 def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
-    # pylint: disable=not-an-iterable
-    assert intercept.size > 0 and intercept.size == slope.size
-    assert get_sn_array_min(cycles) > 0
-    log10 = np.log(10)
-    the_stress = np.empty(cycles.size)
-    for i in nb.prange(cycles.size):
-        log_cycles = np.log(cycles[i])
-        max_i = (intercept[0] * log10 - log_cycles) / slope[0]
-        for j in range(1, len(intercept)):
-            value = (intercept[j] * log10 - log_cycles) / slope[j]
-            max_i = max(max_i, value)
-        the_stress[i] = np.exp(max_i)
-    if endurance < np.inf:
-        endurance_stress = np.exp(
-            (intercept[-1] * log10 - np.log(endurance)) / slope[-1]
-        )
-        the_stress[the_stress < endurance_stress] = endurance_stress
-    return the_stress
-
-
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=False,
-    # parallel=True,
-    cache=True,
-)
-def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
     """
     Calculate the number of cycles to failure for given stress levels.
 
@@ -1089,7 +1038,7 @@ def _calc_stress_2(cycles, slope, intercept, endurance):  # pragma: no cover
     numpy.ndarray: Array of calculated cycles to failure.
     """
     assert intercept.size > 0 and intercept.size == slope.size
-    assert get_sn_array_min(cycles) >= 0
+    assert get_sn_array_min(cycles) > 0
 
     log_cycles = np.log10(cycles)
     log_endurance = np.log10(endurance)
@@ -1175,7 +1124,7 @@ def __sn_curve_residuals(  # pragma: no cover
     #     res_stress = 0.
     # print(f"np.array([cycles]) = {cycles}, type = {type(cycles)}")
 
-    fail = _calc_stress_2(np.array([cycles]), slope, intercept, endurance)[0]
+    fail = _calc_stress(np.array([cycles]), slope, intercept, endurance)[0]
     return fail - weight * cycles - res_stress
 
 
