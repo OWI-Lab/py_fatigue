@@ -41,6 +41,7 @@ from ..utils import (
     check_iterable,
     check_str,
     compile_specialized_bisect,
+    _as_scalar_coercible_array,
 )
 
 COLOR_LIST = px_colors.qualitative.Alphabet
@@ -629,7 +630,7 @@ class SNCurve(AbstractSNCurve):
                     )
                     for c_k_s, k_s in zip(check_knee_stress, knee_stress)
                 ]
-            return knee_stress
+            return _as_scalar_coercible_array(knee_stress)
         if check_knee is not None:
             raise ValueError("0 knee points expected")
         return np.array([])
@@ -665,7 +666,7 @@ class SNCurve(AbstractSNCurve):
                     )
                     for c_k, k in zip(check_knee, knee)  # type: ignore
                 ]
-            return knee
+            return _as_scalar_coercible_array(knee)
         if check_knee is not None:
             raise ValueError("0 knee points expected")
         return np.array([])

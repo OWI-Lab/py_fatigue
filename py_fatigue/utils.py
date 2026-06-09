@@ -41,6 +41,23 @@ from numba.extending import overload
 NUMBA_SPECIALIZED_ATTR = "__py_fatigue_numba_specialized__"
 
 
+class _ScalarCoercibleArray(np.ndarray):
+    """1-element ndarray that can be converted to float/int like NumPy<2."""
+
+    def __float__(self) -> float:
+        return float(np.asarray(self)[0])
+
+    def __int__(self) -> int:
+        return int(np.asarray(self)[0])
+
+
+def _as_scalar_coercible_array(value: np.ndarray) -> np.ndarray:
+    arr = np.asarray(value)
+    if arr.ndim == 1 and arr.size == 1:
+        return arr.view(_ScalarCoercibleArray)
+    return arr
+
+
 # Decorator
 def ensure_array(method: Callable) -> Callable:
     """Ensures that the input variable of a class method is an array.
@@ -58,12 +75,15 @@ def ensure_array(method: Callable) -> Callable:
 
     @wraps(method)
     def wrapper(self, x):
+        scalar_input = np.isscalar(x)
         if np.isscalar(x):
             xm = np.array([x])
             result = method(self, xm)
         else:
             xm = np.asarray(x)
             result = method(self, xm)
+        if scalar_input and isinstance(result, np.ndarray):
+            return _as_scalar_coercible_array(result)
         return result
 
     return wrapper
