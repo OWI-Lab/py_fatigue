@@ -18,6 +18,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as hy
 
 import py_fatigue.damage as damage
+import py_fatigue.damage.stress_life as sl
 
 # Local imports
 from py_fatigue import CycleCount, SNCurve
@@ -838,3 +839,15 @@ def test_theil_damage_rule(load: list, sn_curve: SNCurve):
         "theil", cc, sn_curve, damage_bands=np.array([0, 0.2, 0.4, 0.6, 0.8, 1])
     )
     assert isinstance(d_nl, np.ndarray)
+
+
+def test_compatibility_aliases(monkeypatch):
+    """Test backwards-compatible aliases added for compatibility."""
+
+    monkeypatch.setattr(sl, "calc_theil_sn_damage", lambda *args, **kwargs: "direct")
+    monkeypatch.setattr(
+        sl, "find_sn_curve_intersection", lambda *args, **kwargs: 123.456
+    )
+
+    assert sl.calc_theil_cycles_to_failure(1, 2, DNV_B1A) == "direct"
+    assert sl.find_sn_curve_intersection_2(1, 2, 3, 4, 5) == 123.456

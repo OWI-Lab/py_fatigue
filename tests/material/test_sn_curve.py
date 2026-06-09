@@ -6,6 +6,7 @@ import numba as nb
 import numpy as np
 import pytest
 from py_fatigue.material.sn_curve import _calc_cycles, _calc_stress
+from py_fatigue.material.sn_curve import jit_sn_curve_residuals, sn_curve_residuals
 
 # os.environ["NUMBA_DISABLE_JIT"] = "1"
 
@@ -533,6 +534,21 @@ def test_stress_kernel_boundary_regression(sn):
         kernel(np.array([-1.0]), sn.slope, sn.intercept, sn.endurance)
     with pytest.raises(AssertionError):
         _ = sn.get_stress(-1)
+
+
+def test_sn_curve_residual_aliases():
+    """Test backwards-compatible residual aliases."""
+
+    assert callable(sn_curve_residuals)
+    assert callable(jit_sn_curve_residuals)
+    assert sn_curve_residuals(
+        1.0,
+        np.array([1.0]),
+        np.array([0.0]),
+        np.inf,
+        0.0,
+        1.0,
+    ) == pytest.approx(0.0)
 
 
 nb.config.DISABLE_JIT = False

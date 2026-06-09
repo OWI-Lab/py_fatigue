@@ -1206,6 +1206,20 @@ class TestCycleCount:
         """Test pbar_sum function."""
         from py_fatigue.cycle_count.cycle_count import pbar_sum
 
+        class _IlocWrapper:
+            def __init__(self, value):
+                self._value = value
+
+            def __getitem__(self, index):
+                return self._value
+
+        class _PbarSumFrameLike:
+            def __init__(self, value):
+                self.iloc = _IlocWrapper(value)
+
+            def __len__(self):
+                return 1
+
         # Single element
         result = pbar_sum([CC_TS_1])
         assert result == CC_TS_1
@@ -1219,6 +1233,10 @@ class TestCycleCount:
         cc_list_with_none = [CC_TS_1, None, CC_TS_2]
         result = pbar_sum(cc_list_with_none)
         assert isinstance(result, CycleCount)
+
+        # DataFrame/Series-like input with iloc
+        result = pbar_sum(_PbarSumFrameLike(CC_TS_1))
+        assert result == CC_TS_1
 
     def test_mean_stress_correction_edge_cases(self) -> None:
         """Test mean stress correction edge cases."""

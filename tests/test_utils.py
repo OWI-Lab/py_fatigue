@@ -17,6 +17,7 @@ import pytest
 from hypothesis import given, strategies as hy
 from numpy.typing import ArrayLike
 
+import py_fatigue
 # Project imports
 import py_fatigue.utils as pu
 
@@ -722,6 +723,31 @@ def test_warmup_numba():
     """Test warmup_numba compiles supported numba call paths."""
 
     pu.warmup_numba()
+
+
+def test_package_lazy_exports_and_scalar_coercion():
+    """Test package-level lazy exports and scalar-coercible array behavior."""
+
+    from py_fatigue import SNCurve
+
+    assert callable(py_fatigue.warmup_numba)
+    assert hasattr(py_fatigue.crack_growth, "get_crack_growth")
+
+    curve = SNCurve(
+        [4, 5],
+        [15.117, 17.146],
+        norm="DNVGL-RP-C203",
+        environment="Air",
+        curve="B1",
+    )
+
+    stress = curve.get_stress(1e7)
+    cycles = curve.get_cycles(106.91)
+
+    assert isinstance(stress, np.ndarray)
+    assert isinstance(cycles, np.ndarray)
+    assert float(stress) == pytest.approx(106.91, rel=1e-2)
+    assert int(cycles) == 10_021_360
 
 
 def test_custom_formatter():
