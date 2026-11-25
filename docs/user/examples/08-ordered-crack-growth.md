@@ -1,5 +1,9 @@
 # Ordered plate crack propagation
 
+[Open the rendered marimo example](../../ordered_crack_growth.html) to compare
+both plate geometries using the same two load blocks. To edit and rerun it
+locally, use `uv run marimo edit notebooks/ordered_crack_growth.py`.
+
 Use `simulate_crack_growth` for an ordered sequence of tensile membrane load
 blocks. Each block carries a minimum stress, a maximum stress, and a fractional
 cycle count. Preserve the order in which the blocks occur. A binned cycle count

@@ -16,3 +16,5 @@ uv run python notebooks/development_guide.py
 ```
 
 [View the rendered development notebook](../../development_guide.html).
+
+See [ordered plate crack propagation](08-ordered-crack-growth.md) for the second notebook.

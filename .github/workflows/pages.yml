@@ -25,7 +25,7 @@ jobs:
         run: rustup toolchain install stable --profile minimal
       - name: Install the project
         run: uv sync --group dev --group docs
-      - name: Build Zensical and export the notebook
+      - name: Build Zensical from docs and export the example notebooks
         env:
           MPLBACKEND: Agg
         run: uv run invoke docs.build

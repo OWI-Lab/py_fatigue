@@ -3,7 +3,7 @@ site_name = "Py-Fatigue"
 site_url = "https://owi-lab.github.io/py_fatigue/"
 repo_url = "https://github.com/OWI-Lab/py_fatigue"
 repo_name = "OWI-Lab/py_fatigue"
-docs_dir = "rst_docs"
+docs_dir = "docs"
 site_dir = "_build/docs"
 use_directory_urls = false
 extra_javascript = [
@@ -18,6 +18,7 @@ _static/css/
 nav = [
   { Home = "index.md" },
   { "Getting started" = "user/01-absolute-noob.md" },
+  { Architecture = "architecture.md" },
   { "User guide" = [
     "user/02-user-guide.md",
     "user/examples/01-notebook_setup.md",

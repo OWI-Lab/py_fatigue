@@ -14,13 +14,15 @@ def clean(context):
 
 @task
 def build(context):
-    """Build the documentation and export the development notebook."""
+    """Build the documentation and export the example notebooks."""
     context.run("zensical build")
-    destination = Path(DOCS_BUILD_DIR) / "development_guide.html"
-    context.run(
-        "marimo export html notebooks/development_guide.py "
-        f'-o "{destination}" --force'
-    )
+    for name in ("development_guide", "ordered_crack_growth"):
+        destination = Path(DOCS_BUILD_DIR) / f"{name}.html"
+        context.run(
+            f"marimo export html notebooks/{name}.py "
+            f'-o "{destination}" --force'
+        )
+
 
 
 @task(default=True)

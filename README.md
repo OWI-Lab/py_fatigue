@@ -54,6 +54,7 @@ the repository root.
 ```bash
 uv sync --group dev
 uv run marimo edit notebooks/development_guide.py
+uv run marimo edit notebooks/ordered_crack_growth.py
 ```
 
 ## Upgrading from 2.x
