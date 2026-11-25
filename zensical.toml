@@ -7,11 +7,11 @@ docs_dir = "rst_docs"
 site_dir = "_build/docs"
 use_directory_urls = false
 extra_javascript = [
+  "_static/js/custom.js",
   "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",
 ]
 exclude_docs = """
 _static/css/
-_static/js/
 *.xcf
 """
 
