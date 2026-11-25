@@ -1,16 +1,12 @@
 # from hypothesis import  given, strategies as hy
-import os
 import warnings
 
-import numba as nb
 import numpy as np
 import pytest
 from py_fatigue.material.sn_curve import _calc_cycles, _calc_stress
-from py_fatigue.material.sn_curve import jit_sn_curve_residuals, sn_curve_residuals
+from py_fatigue.material.sn_curve import sn_curve_residuals
 
-# os.environ["NUMBA_DISABLE_JIT"] = "1"
 
-nb.config.DISABLE_JIT = True
 
 from py_fatigue import SNCurve
 
@@ -464,14 +460,9 @@ def test_from_knee_points():
         assert sn_knee.name == sn.name
 
 
-def _kernel(fn):
-    """Return python-callable implementation for numba kernels."""
-    return getattr(fn, "py_func", fn)
-
-
 @pytest.mark.parametrize("sn", [DNV_B1C, DNV_B1A, EXOTIC])
 def test_cycles_kernel_boundary_regression(sn):
-    kernel = _kernel(_calc_cycles)
+    kernel = _calc_cycles
 
     stress_values = [1e-12, sn.get_stress(1e4)[0], sn.get_stress(1e7)[0]]
     stress_values.extend(list(sn.get_knee_stress()))
@@ -505,7 +496,7 @@ def test_cycles_kernel_boundary_regression(sn):
 
 @pytest.mark.parametrize("sn", [DNV_B1C, DNV_B1A, EXOTIC])
 def test_stress_kernel_boundary_regression(sn):
-    kernel = _kernel(_calc_stress)
+    kernel = _calc_stress
 
     cycle_values = [1e-12, 1e4, 1e7]
     cycle_values.extend(list(sn.get_knee_cycles()))
@@ -540,7 +531,6 @@ def test_sn_curve_residual_aliases():
     """Test backwards-compatible residual aliases."""
 
     assert callable(sn_curve_residuals)
-    assert callable(jit_sn_curve_residuals)
     assert sn_curve_residuals(
         1.0,
         np.array([1.0]),
@@ -549,6 +539,3 @@ def test_sn_curve_residual_aliases():
         0.0,
         1.0,
     ) == pytest.approx(0.0)
-
-
-nb.config.DISABLE_JIT = False

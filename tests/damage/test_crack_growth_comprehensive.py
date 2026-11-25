@@ -3,7 +3,7 @@
 r"""Comprehensive tests for the damage.crack_growth module.
 
 This module tests all classes and functions in the crack growth module:
-- CalcCrackGrowth numba JIT class
+- CalcCrackGrowth class
 - get_crack_growth function
 - CrackGrowth pandas DataFrame accessor
 """
@@ -26,7 +26,6 @@ from py_fatigue.damage.crack_growth import (
     CalcCrackGrowth,
     get_crack_growth
 )
-from py_fatigue.utils import to_numba_dict
 import py_fatigue.geometry as geometry
 import py_fatigue.material as material
 from py_fatigue import CycleCount, ParisCurve
@@ -37,7 +36,7 @@ if not PROJECT_PATH in sys.path:
 
 
 class TestCalcCrackGrowth:
-    """Test the CalcCrackGrowth numba JIT class."""
+    """Test the CalcCrackGrowth class."""
 
     def setup_method(self):
         """Set up test fixtures."""
@@ -49,7 +48,7 @@ class TestCalcCrackGrowth:
         self.threshold = 5.0
         self.critical = 50.0
         self.crack_type = "INF_SUR_00"
-        self.crack_geometry = to_numba_dict({"initial_depth": 1.0, "_id": "INF_SUR_00"})
+        self.crack_geometry = {"initial_depth": 1.0, "_id": "INF_SUR_00"}
 
     def test_calc_crack_growth_initialization(self):
         """Test basic initialization of CalcCrackGrowth."""
@@ -211,8 +210,8 @@ class TestCalcCrackGrowth:
 
     def test_calc_crack_growth_with_different_geometries(self):
         """Test CalcCrackGrowth with different initial crack depths."""
-        geometry1 = to_numba_dict({"initial_depth": 0.5, "_id": "INF_SUR_00"})
-        geometry2 = to_numba_dict({"initial_depth": 2.0, "_id": "INF_SUR_00"})
+        geometry1 = {"initial_depth": 0.5, "_id": "INF_SUR_00"}
+        geometry2 = {"initial_depth": 2.0, "_id": "INF_SUR_00"}
 
         calc1 = CalcCrackGrowth(
             self.stress_range,
@@ -596,7 +595,7 @@ class TestIntegration:
         threshold = 5.0  # MPa√m
         critical = 50.0  # MPa√m
         crack_type = "INF_SUR_00"
-        crack_geometry = to_numba_dict({"initial_depth": 1e-3, "_id": "INF_SUR_00"})  # 1mm initial crack
+        crack_geometry = {"initial_depth": 1e-3, "_id": "INF_SUR_00"}  # 1mm initial crack
 
         calc = CalcCrackGrowth(
             stress_range,

@@ -3,14 +3,12 @@
 # pylint: disable=missing-function-docstring
 
 # Standard imports
-import os
 import unittest
 from contextlib import nullcontext
 from typing import Any, List, Callable, Tuple
 from unittest.mock import Mock
 
 # Non-standard imports
-import numba as nb
 import numpy as np
 import matplotlib.pyplot as plt
 import pytest
@@ -21,7 +19,6 @@ import py_fatigue
 # Project imports
 import py_fatigue.utils as pu
 
-os.environ["NUMBA_DISABLE_JIT"] = "1"
 
 
 @hy.composite
@@ -381,48 +378,6 @@ def test_make_axes():
         pu.make_axes(fig="not_a_figure")
 
 
-def test_to_numba_dict():
-    """Test to_numba_dict function"""
-    import numba as nb
-
-    data = {"key1": 1.0, "key2": 2.0, "key3": 3.0}
-
-    result = pu.to_numba_dict(data)
-    expect_plain_dict = (
-        os.getenv("NUMBA_DISABLE_JIT") == "1" or nb.config.DISABLE_JIT
-    )
-    if not expect_plain_dict:
-        assert isinstance(result, (nb.typed.Dict, nb.typed.typeddict.Dict))
-    else:
-        assert isinstance(result, dict)
-    assert result["key1"] == 1.0
-    assert result["key2"] == 2.0
-    assert result["key3"] == 3.0
-
-
-def test_to_numba_dict_with_invalid_types():
-    """Test to_numba_dict with invalid types"""
-    import numba as nb
-
-    data = {
-        "key1": 1.0,
-        "key2": "invalid",  # Wrong type - will be skipped
-        123: 3.0,  # Wrong key type - will be skipped
-    }
-
-    result = pu.to_numba_dict(data)
-    expect_plain_dict = (
-        os.getenv("NUMBA_DISABLE_JIT") == "1" or nb.config.DISABLE_JIT
-    )
-    if not expect_plain_dict:
-        assert isinstance(result, (nb.typed.Dict, nb.typed.typeddict.Dict))
-    else:
-        assert isinstance(result, dict)
-    assert result["key1"] == 1.0
-    assert "key2" not in result  # Should be skipped
-    assert len(result) == 1  # Only valid entries
-
-
 def test_compare_function():
     """Test compare function"""
     # Test with equal values
@@ -586,156 +541,11 @@ def test_py_newton():
     assert np.isclose(root, 2.0, atol=1e-5)
 
 
-def test_numba_bisect():
-    """Test numba_bisect wrapper"""
-
-    def test_func(x):
-        return x**2 - 4
-
-    root = pu.numba_bisect(test_func, 0, 5, tol=1e-6, mxiter=100)
-    assert np.isclose(root, 2.0, atol=1e-5)
-
-
-def test_numba_newton():
-    """Test numba_newton wrapper"""
-
-    def test_func(x):
-        return x**2 - 4
-
-    root = pu.numba_newton(test_func, x0=1.0, tol=1e-6, mxiter=100)
-    assert np.isclose(root, 2.0, atol=1e-5)
-
-
-def test_compile_specialized_bisect():
-    """Test compile_specialized_bisect function"""
-
-    def test_func(x):
-        return (x**2 - 4,)
-
-    compiled_bisect = pu.compile_specialized_bisect(test_func)
-    root = compiled_bisect(0, 5, tol=1e-6, mxiter=100)
-    assert np.isclose(root, 2.0, atol=1e-5)
-
-
-def test_compile_specialized_bisect_many_args():
-    """Test specialized bisection with more than three extra arguments."""
-
-    def test_func(x, arg_1, arg_2, arg_3, arg_4, arg_5):
-        return x - (arg_1 + arg_2 + arg_3 + arg_4 + arg_5)
-
-    compiled_bisect = pu.compile_specialized_bisect(test_func)
-    root = compiled_bisect(
-        0,
-        20,
-        1e-6,
-        100,
-        1.0,
-        2.0,
-        3.0,
-        4.0,
-        5.0,
-    )
-    assert np.isclose(root, 15.0, atol=1e-5)
-
-
-@pytest.mark.parametrize(
-    "test_func",
-    [
-        lambda x: x**2 - 4,
-        lambda x: (x**2 - 4,),
-        lambda x: np.array([x**2 - 4]),
-        lambda x: [x**2 - 4],
-        lambda x: np.float64(x**2 - 4),
-    ],
-)
-def test_compile_specialized_bisect_scalar_like_returns(test_func):
-    """Test bisection residuals that return scalar-like values."""
-
-    compiled_bisect = pu.compile_specialized_bisect(test_func)
-    root = compiled_bisect(0, 5, tol=1e-6, mxiter=100)
-    assert np.isclose(root, 2.0, atol=1e-5)
-
-
-@pytest.mark.parametrize(
-    "test_func",
-    [
-        lambda x: (x**2 - 4, x),
-        lambda x: np.array([x**2 - 4, x]),
-        lambda x: [x**2 - 4, x],
-    ],
-)
-def test_compile_specialized_bisect_rejects_non_scalar_returns(test_func):
-    """Test bisection rejects residuals that return multiple values."""
-
-    compiled_bisect = pu.compile_specialized_bisect(test_func)
-    with pytest.raises((TypeError, nb.core.errors.TypingError)):
-        compiled_bisect(0, 5, tol=1e-6, mxiter=100)
-
-
-def test_compile_specialized_bisect_uses_numba_dispatcher(monkeypatch):
-    """Test bisection uses a numba dispatcher when JIT is enabled."""
-
-    monkeypatch.delenv("NUMBA_DISABLE_JIT", raising=False)
-    monkeypatch.setattr(pu.nb.config, "DISABLE_JIT", False)
-    pu.compile_specialized_bisect.cache_clear()
-
-    def test_func(x):
-        return (x**2 - 4,)
-
-    compiled_bisect = pu.compile_specialized_bisect(test_func)
-    root = compiled_bisect(0, 5, tol=1e-6, mxiter=100)
-
-    assert compiled_bisect.__class__.__name__ == "CPUDispatcher"
-    assert np.isclose(root, 2.0, atol=1e-5)
-
-    pu.compile_specialized_bisect.cache_clear()
-
-
-def test_numba_bisect_accepts_specialized_function():
-    """Test numba_bisect does not recompile specialized bisection functions."""
-
-    def test_func(x, arg_1, arg_2, arg_3, arg_4, arg_5):
-        return x - (arg_1 + arg_2 + arg_3 + arg_4 + arg_5)
-
-    compiled_bisect = pu.compile_specialized_bisect(test_func)
-    root = pu.numba_bisect(
-        compiled_bisect,
-        0,
-        20,
-        1e-6,
-        100,
-        1.0,
-        2.0,
-        3.0,
-        4.0,
-        5.0,
-    )
-    assert np.isclose(root, 15.0, atol=1e-5)
-
-
-def test_compile_specialized_newton():
-    """Test compile_specialized_newton function"""
-
-    def test_func(x):
-        return x**2 - 4
-
-    compiled_newton = pu.compile_specialized_newton(test_func)
-    root = compiled_newton(x0=1.0, tol=1e-6, mxiter=100)
-    assert np.isclose(root, 2.0, atol=1e-5)
-
-
-def test_warmup_numba():
-    """Test warmup_numba compiles supported numba call paths."""
-
-    pu.warmup_numba()
-
-
 def test_package_lazy_exports_and_scalar_coercion():
     """Test package-level lazy exports and scalar-coercible array behavior."""
 
     from py_fatigue import SNCurve
 
-    assert callable(py_fatigue.warmup_numba)
     assert hasattr(py_fatigue.crack_growth, "get_crack_growth")
 
     curve = SNCurve(

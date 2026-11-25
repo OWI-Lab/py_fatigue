@@ -18,7 +18,6 @@ from typing import (
 import abc
 import io
 import itertools
-import os
 import warnings
 
 # Non-standard "from" imports
@@ -28,19 +27,18 @@ from plotly.express import colors as px_colors
 import matplotlib.figure
 import matplotlib.axis
 import matplotlib.pyplot as plt
-import numba as nb
 import numpy as np
 import plotly.graph_objs as go
 import plotly.io as pio
 
 # py_fatigue imports
+from .._rust import evaluate_curve, sn_intersection
 from ..utils import (
     make_axes,
     calc_slope_intercept,
     ensure_array,
     check_iterable,
     check_str,
-    compile_specialized_bisect,
     _as_scalar_coercible_array,
 )
 
@@ -675,29 +673,7 @@ class SNCurve(AbstractSNCurve):
     def get_cycles(
         self, stress_range: int | float | list | np.ndarray
     ) -> float | np.ndarray:
-        # m, a = self.slope, self.intercept
-        # # List comprehension approach
-        # np.minimum(np.max(
-        #     [10 ** _a * np.power(stress_range.astype(float), -_m) \
-        #         for _m, _a in zip(m, a)],
-        #     axis=0
-        # ), self.endurance)
-        # # Numpy broadcasting approach
-        # np.minimum(np.max(
-        #     np.power(10, a) * np.power(
-        #         stress_range.astype(float)[:, None], -m
-        #     ).reshape(
-        #         v1.shape[0],-1),
-        #     axis=1
-        # ), self.endurance)
-
-        calc_cycles = _calc_cycles
-        if (
-            getattr(nb.config, "DISABLE_JIT", False)
-            or os.environ.get("NUMBA_DISABLE_JIT") == "1"
-        ):
-            calc_cycles = getattr(_calc_cycles, "py_func", _calc_cycles)
-        return calc_cycles(
+        return _calc_cycles(
             stress_range, self.slope, self.intercept, self.endurance
         )
 
@@ -705,27 +681,7 @@ class SNCurve(AbstractSNCurve):
     def get_stress(
         self, cycles: int | float | list | np.ndarray
     ) -> float | np.ndarray:
-        # m, a = self.slope, self.intercept
-        # endurance_stress = np.power(10 ** a / self.endurance, 1 / m)
-        # # List comprehension approach
-        # np.maximum(np.max(
-        #     [10 ** _a / cycles, -_m) \
-        #         for _m, _a in zip(m, a)],
-        #     axis=0
-        # ), endurance_stress)
-        # # Numpy broadcasting approach
-        # np.maximum(np.max(
-        #     np.power(10 ** a / cycles.astype(float)[:, None], 1 / m).reshape(
-        #         cycles.shape[0],-1),
-        #         axis=1
-        # ), endurance_stress)
-        calc_stress = _calc_stress
-        if (
-            getattr(nb.config, "DISABLE_JIT", False)
-            or os.environ.get("NUMBA_DISABLE_JIT") == "1"
-        ):
-            calc_stress = getattr(_calc_stress, "py_func", _calc_stress)
-        return calc_stress(cycles, self.slope, self.intercept, self.endurance)
+        return _calc_stress(cycles, self.slope, self.intercept, self.endurance)
 
     def n(  # pylint: disable=invalid-name
         self, sigma: int | float | list | np.ndarray
@@ -953,131 +909,42 @@ class SNCurve(AbstractSNCurve):
         return fig, ax
 
 
-@nb.njit(cache=True)
-def get_sn_array_min(values):  # pragma: no cover
+def get_sn_array_min(values):
     """Return the minimum value of a one-dimensional array."""
-
-    min_value = values[0]
-    for i in range(1, values.size):
-        if np.isnan(values[i]) or values[i] < min_value:
-            min_value = values[i]
-    return min_value
+    return np.min(values)
 
 
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=False,
-    cache=True,
-    # parallel=True,
-)
-def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
-    """
-    Calculate the number of cycles to failure for given stress levels.
-
-    Parameters:
-    stress (numpy.ndarray): Array of stress values.
-    slope (numpy.ndarray): Array of slope values.
-    intercept (numpy.ndarray): Array of intercept values.
-    endurance (float): Endurance limit.
-
-    Returns:
-    numpy.ndarray: Array of calculated cycles to failure.
-    """
-    assert intercept.size > 0 and intercept.size == slope.size
-    assert get_sn_array_min(stress) >= 0
-
-    log_stress = np.log10(stress)
+def sn_parameters(slope, intercept, endurance, inverse):
+    """Prepare the piecewise boundaries used for S–N curve evaluation."""
+    slopes = np.ascontiguousarray(slope, dtype=float)
+    intercepts = np.ascontiguousarray(intercept, dtype=float)
+    assert slopes.size == intercepts.size and slopes.size > 0
+    stress_knees = np.diff(intercepts) / np.diff(slopes)
     log_endurance = np.log10(endurance)
-    log_knee_stress = np.empty(intercept.size - 1)
-    if intercept.size > 1:
-        for i in nb.prange(intercept.size - 1):  # pylint: disable=E1133
-            log_knee_stress[i] = (intercept[i + 1] - intercept[i]) / (
-                slope[i + 1] - slope[i]
-            )
+    end_log_stress = (intercepts[-1] - log_endurance) / slopes[-1]
+    if inverse:
+        cycle_knees = intercepts[:-1] - slopes[:-1] * stress_knees
+        knees = np.r_[1.0, cycle_knees, log_endurance]
+    else:
+        knees = np.r_[intercepts[0] / slopes[0], stress_knees, end_log_stress]
+    if not (np.all(knees[1:] >= knees[:-1]) or np.all(knees[1:] <= knees[:-1])):
+        raise ValueError("bins must be monotonically increasing or decreasing")
+    limits = (endurance, 10**end_log_stress if np.isfinite(endurance) else 0.0)
+    return slopes, intercepts, knees, limits
 
-    log_knee_stress = np.concatenate(
-        (
-            np.array([(intercept[0] - 0) / slope[0]]),
-            log_knee_stress,
-            np.array([(intercept[-1] - log_endurance) / slope[-1]]),
-        )
+
+def _calc_cycles(stress, slope, intercept, endurance):
+    return evaluate_curve(
+        0, np.ascontiguousarray(stress, dtype=float),
+        *sn_parameters(slope, intercept, endurance, inverse=False),
     )
-    idx = np.digitize(log_stress, log_knee_stress, right=False) - 1
-    the_cycles = np.empty(stress.size)
-    nr_knees = intercept.size - 1
-    for i in nb.prange(stress.size):  # pylint: disable=E1133
-        if idx[i] <= 0:
-            max_i = intercept[0] - slope[0] * log_stress[i]
-        elif idx[i] > nr_knees:
-            max_i = intercept[-1] - slope[-1] * log_stress[i]
-        else:
-            max_i = intercept[idx[i]] - slope[idx[i]] * log_stress[i]
-        the_cycles[i] = 10**max_i
-
-    if endurance < np.inf:
-        the_cycles[the_cycles > endurance] = np.inf
-    return the_cycles
 
 
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=False,
-    cache=True,
-    # parallel=True,
-)
-def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
-    """
-    Calculate the number of cycles to failure for given stress levels.
-
-    Parameters:
-    stress (numpy.ndarray): Array of stress values.
-    slope (numpy.ndarray): Array of slope values.
-    intercept (numpy.ndarray): Array of intercept values.
-    endurance (float): Endurance limit.
-
-    Returns:
-    numpy.ndarray: Array of calculated cycles to failure.
-    """
-    assert intercept.size > 0 and intercept.size == slope.size
-    assert get_sn_array_min(cycles) > 0
-
-    log_cycles = np.log10(cycles)
-    log_endurance = np.log10(endurance)
-    log_knee_stress = np.empty(intercept.size - 1)
-    log_knee_cycles = np.empty(intercept.size - 1)
-    if intercept.size > 1:
-        for i in nb.prange(intercept.size - 1):  # pylint: disable=E1133
-            log_knee_stress[i] = (intercept[i + 1] - intercept[i]) / (
-                slope[i + 1] - slope[i]
-            )
-            log_knee_cycles[i] = intercept[i] - slope[i] * log_knee_stress[i]
-
-    log_knee_stress = np.concatenate(
-        (
-            np.array([(intercept[0] - 0) / slope[0]]),
-            log_knee_stress,
-            np.array([(intercept[-1] - log_endurance) / slope[-1]]),
-        )
+def _calc_stress(cycles, slope, intercept, endurance):
+    return evaluate_curve(
+        1, np.ascontiguousarray(cycles, dtype=float),
+        *sn_parameters(slope, intercept, endurance, inverse=True),
     )
-    log_knee_cycles = np.concatenate(
-        (np.array([1]), log_knee_cycles, np.array([log_endurance]))
-    )
-    endurance_stress = 10 ** log_knee_stress[-1]
-    idx = np.digitize(log_cycles, log_knee_cycles, right=False) - 1
-    the_stress = np.empty(cycles.size)
-    nr_knees = intercept.size - 1
-    for i in nb.prange(cycles.size):  # pylint: disable=E1133
-        if idx[i] <= 0:
-            max_i = (intercept[0] - log_cycles[i]) / slope[0]
-        elif idx[i] > nr_knees:
-            max_i = (log_endurance - log_cycles[i]) / slope[-1]
-        else:
-            max_i = (intercept[idx[i]] - log_cycles[i]) / slope[idx[i]]
-        the_stress[i] = 10**max_i
-
-    if endurance < np.inf:
-        the_stress[the_stress < endurance_stress] = endurance_stress
-    return the_stress
 
 
 def _sn_curve_data_points(sn: SNCurve) -> tuple:
@@ -1129,9 +996,14 @@ def __sn_curve_residuals(  # pragma: no cover
     return fail - weight * cycles - res_stress
 
 
-# Create a jitted bisection function specialized for root_func
-__jit_sn_curve_residuals = compile_specialized_bisect(__sn_curve_residuals)
+def solve_sn_curve_residuals(
+    left, right, tol, iterations, slope, intercept, endurance, stress, weight
+):
+    """Solve for the intersection of the S–N curve and a linear stress path."""
+    return sn_intersection(
+        *sn_parameters(slope, intercept, endurance, inverse=True),
+        (stress, weight), (left, right), (tol, iterations),
+    )
 
-# Backwards-compatible aliases used by older notebooks.
+
 sn_curve_residuals = __sn_curve_residuals
-jit_sn_curve_residuals = __jit_sn_curve_residuals

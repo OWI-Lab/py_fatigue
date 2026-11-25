@@ -2,13 +2,13 @@
 from typing import Dict, Optional
 
 import matplotlib
-import numba as nb
 import numpy as np
 from pydantic import PositiveFloat, validator
 from pydantic.dataclasses import dataclass
 
 # Local imports
 from .. import utils as pfu
+from .._rust import hollow_cylinder_factor
 from .generic import AbstractCrackGeometry
 
 
@@ -236,123 +236,21 @@ class Cylinder(AbstractCrackGeometry):
         )
 
 
-@nb.njit(
-    nb.float64(
-        nb.float64, nb.types.DictType(nb.types.unicode_type, nb.float64)
-    ),
-    cache=True,
-    fastmath=True,
-)
-def f_hol_cyl_01(  # pragma: no cover
-    crack_depth: float,
-    crack_geometry: Dict[str, float],
-):
-    """Calculate the crack geometry factor for a hollow cylinder with
-    an external crack.
+def cylinder_dimensions(
+    geometry: Dict[str, float],
+) -> tuple[float, float, float]:
+    """Extract the dimensions used by the hollow-cylinder solution."""
+    return (
+        geometry["outer_diameter"],
+        geometry["thickness"],
+        geometry["width_to_depth_ratio"],
+    )
 
-    Parameters
-    ----------
-    crack_depth : float
-        The crack depth.
-    outer_diameter : float
-        The outer diameter of the part.
-    thickness : float
-        The thickness of the part.
-    height : float
-        The height of the part.
 
-    Returns
-    -------
-    float
-        The crack size factor.
-    """
+def f_hol_cyl_01(crack_depth: float, crack_geometry: Dict[str, float]) -> float:
+    """Calculate the factor for an external crack in a hollow cylinder."""
     if crack_depth >= crack_geometry["thickness"]:
         return 0.0
-    outer_diameter: float = crack_geometry["outer_diameter"]
-    thickness: float = crack_geometry["thickness"]
-    width_to_depth_ratio: float = crack_geometry["width_to_depth_ratio"]
-    crack_width: float = crack_depth * width_to_depth_ratio
-    outer_radius: float = outer_diameter / 2
-    inner_radius: float = outer_radius - thickness
-    # raise NotImplementedError
-    # crack angle
-    alpha: float = crack_width / outer_radius
-    c_v: float = outer_radius * np.sin(alpha)
-    a_h: float = crack_depth - outer_radius * (1 - np.cos(alpha))
-    # radius of crack-front arc
-    crack_radius: float = (c_v**2 + a_h**2) / (2 * a_h)
-    # angle of crack-front arc
-    beta: float = np.arcsin(c_v / crack_radius)
-    # areas
-    # * circular ring
-    area_0: float = np.pi * (outer_radius**2 - inner_radius**2)
-    # * external circular segment
-    area_1: float = (alpha - np.sin(2 * alpha) / 2) * outer_radius**2
-    # internal circular segment
-    area_2: float = (beta - np.sin(2 * beta) / 2) * crack_radius**2
-    # * net crack area
-    area_net: float = area_0 - area_1 - area_2
-    # centroids of the circular segments
-    x_1: float = (
-        -4
-        * outer_radius
-        * np.sin(alpha) ** 3
-        / (3 * (2 * alpha - np.sin(2 * alpha)))
+    return hollow_cylinder_factor(
+        crack_depth, cylinder_dimensions(crack_geometry)
     )
-    x_2: float = (
-        4
-        * crack_radius
-        * np.sin(beta) ** 3
-        / (3 * (2 * beta - np.sin(2 * beta)))
-        - outer_radius * np.cos(alpha)
-        - crack_radius * np.cos(beta)
-    )
-    # location of the net section centroid
-    q_x: float = -(area_1 * x_1 + area_2 * x_2) / area_net
-    # moments of inertia
-    # * circular ring
-    i_0: float = (
-        np.pi / 4 * (outer_radius**4 - inner_radius**4) + area_0 * q_x**2
-    )
-    # * external circular segment
-    i_1: float = (outer_radius**4) / 4 * (
-        alpha
-        - np.sin(4 * alpha) / 4
-        - (16 * np.sin(alpha) ** 6)
-        / (9 * (alpha - np.sin(alpha) * np.cos(alpha)))
-    ) + area_1 * (q_x - x_1) ** 2
-    # * internal circular segment
-    i_2: float = (
-        crack_radius**4
-        / 4
-        * (
-            beta
-            - np.sin(4 * beta) / 4
-            - (16 * np.sin(beta) ** 6)
-            / (9 * (beta - np.sin(beta) * np.cos(beta)))
-        )
-        + area_2 * (q_x - x_2) ** 2
-    )
-    # * net area moment of inertia
-    i_net: float = i_0 - i_1 - i_2
-    # net section stress center
-    epsilon: float = 0.1
-    # * loc a
-    x_a: float = -(
-        outer_radius * np.cos(alpha) + q_x
-    ) + epsilon * outer_radius * (1 + np.cos(alpha))
-    # # * loc b
-    # x_b: float = (outer_radius - q_x) - epsilon * outer_radius * \
-    # (1 + np.cos(alpha))
-    # net section stress geometry factors
-    # geometry factors
-    # # * net section stress factor on sigma_0
-    # g_0: float = area_0 / area_net - area_0 * q_x * x_a / i_net
-    # * net section stress factor on sigma_1
-    g_1: float = (
-        -np.pi
-        * (outer_radius**4 - inner_radius**4)
-        * x_a
-        / (4 * outer_radius * i_net)
-    )
-    return g_1

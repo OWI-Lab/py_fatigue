@@ -12,7 +12,6 @@ from typing import Any, List, Optional, Tuple, Union
 # Standard imports
 import abc
 import io
-import os
 
 # import itertools
 # import warnings
@@ -24,13 +23,13 @@ import os
 import matplotlib.figure
 import matplotlib.axis
 import matplotlib.pyplot as plt
-import numba as nb
 import numpy as np
 
 # import plotly.graph_objs as go
 # import plotly.io as pio
 
 # py_fatigue imports
+from .._rust import evaluate_curve
 from ..utils import make_axes, calc_slope_intercept
 from ..material.sn_curve import (
     _set_color,
@@ -38,8 +37,6 @@ from ..material.sn_curve import (
     _check_param_couple_types,
     ensure_array,
 )
-
-NUMBA_VERSION_INFO = tuple(int(part) for part in nb.__version__.split(".")[:2])
 
 
 class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
@@ -1065,162 +1062,41 @@ class WalkerCurve(ParisCurve):
         return self.__intercept * self.walker_correction
 
 
-@nb.njit(cache=True)
-def get_array_min(values):  # pragma: no cover
+def get_array_min(values):
     """Return the minimum value of a one-dimensional array."""
-
-    min_value = values[0]
-    for i in range(1, values.size):
-        if np.isnan(values[i]) or values[i] < min_value:
-            min_value = values[i]
-    return min_value
+    return np.min(values)
 
 
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=False,
-    cache=True,
-    # parallel=True,
-)
-def _calc_growth_rate_numba(
-    sif, slope, intercept, threshold, critical
-):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
-    # pylint: disable=not-an-iterable
+def _calc_growth_rate(sif, slope, intercept, threshold, critical):
     assert intercept.size > 0 and intercept.size == slope.size
-    assert get_array_min(sif) >= 0
     assert 0 <= threshold < critical <= np.inf
-
-    e_msg = (
-        "Knee(s) are not ordered."
-        + "\nCheck the definitions of slope, intercept, threshold, critical."
+    knees = (intercept[:-1] / intercept[1:]) ** (1 / np.diff(slope))
+    assert np.all(np.diff(knees) > 0), "Knee(s) are not ordered."
+    return evaluate_curve(
+        2, np.ascontiguousarray(sif, dtype=float),
+        np.ascontiguousarray(slope, dtype=float),
+        np.ascontiguousarray(intercept, dtype=float),
+        np.ascontiguousarray(knees, dtype=float), (threshold, critical),
     )
-    if intercept.size > 1:
-        prev_knee = (intercept[0] / intercept[1]) ** (1 / (slope[1] - slope[0]))
-        for i in range(1, intercept.size - 1):
-            knee = (intercept[i] / intercept[i + 1]) ** (
-                1 / (slope[i + 1] - slope[i])
-            )
-            assert knee > prev_knee, e_msg
-            prev_knee = knee
-    the_growth_rate = sif.copy()
-    for i in nb.prange(sif.size):
-        if sif[i] < threshold:  # below threshold
-            the_growth_rate[i] = 0
-            continue
-        if sif[i] > critical or sif[i] == np.inf:
-            the_growth_rate[i] = np.inf
-            continue
-        idx = 0
-        for j in range(intercept.size - 1):
-            knee = (intercept[j] / intercept[j + 1]) ** (
-                1 / (slope[j + 1] - slope[j])
-            )
-            if sif[i] >= knee:
-                idx = j + 1
-        the_growth_rate[i] = intercept[idx] * sif[i] ** slope[idx]
-
-    return the_growth_rate
 
 
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=False,
-    cache=True,
-    # parallel=True,
-)
-def _calc_sif_numba(
-    growth_rate, slope, intercept, threshold, critical
-):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
-    # pylint: disable=not-an-iterable
+def _calc_sif(growth_rate, slope, intercept, threshold, critical):
     assert intercept.size > 0 and intercept.size == slope.size
-    assert get_array_min(growth_rate) >= 0
     assert 0 <= threshold < critical <= np.inf
-
-    lower_bound = intercept[0] * (0.9999999999999999 * threshold) ** slope[0]
-    upper_bound = intercept[-1] * (critical / 0.9999999999999999) ** slope[-1]
-    e_msg = (
+    denominator = np.diff(slope)
+    knees = intercept[:-1] ** (slope[1:] / denominator) / (
+        intercept[1:] ** (slope[:-1] / denominator)
+    )
+    lower = intercept[0] * (0.9999999999999999 * threshold) ** slope[0]
+    upper = intercept[-1] * (critical / 0.9999999999999999) ** slope[-1]
+    assert np.all(np.diff(np.r_[lower, knees, upper]) > 0), (
         "Knee(s) not in between threshold and critical SIF."
-        + "\nCheck the definitions of slope, intercept, threshold, critical."
     )
-    if intercept.size > 1:
-        prev_growth_rate = lower_bound
-        for i in range(intercept.size - 1):
-            m_i = slope[i + 1] / (slope[i + 1] - slope[i])
-            m_i_p_1 = slope[i] / (slope[i + 1] - slope[i])
-            knee_growth_rate = intercept[i] ** m_i / intercept[i + 1] ** m_i_p_1
-            assert knee_growth_rate > prev_growth_rate, e_msg
-            prev_growth_rate = knee_growth_rate
-        assert upper_bound > prev_growth_rate, e_msg
-    else:
-        assert upper_bound > lower_bound, e_msg
-
-    the_sif = growth_rate.copy()
-    for i in nb.prange(growth_rate.size):
-        if growth_rate[i] < lower_bound:  # below threshold
-            the_sif[i] = threshold
-            continue
-        if growth_rate[i] >= upper_bound:  # above threshold
-            the_sif[i] = critical
-            continue
-        idx = 0
-        for j in range(intercept.size - 1):
-            m_i = slope[j + 1] / (slope[j + 1] - slope[j])
-            m_i_p_1 = slope[j] / (slope[j + 1] - slope[j])
-            knee_growth_rate = intercept[j] ** m_i / intercept[j + 1] ** m_i_p_1
-            if growth_rate[i] >= knee_growth_rate:
-                idx = j + 1
-        the_sif[i] = (growth_rate[i] / intercept[idx]) ** (1 / slope[idx])
-
-    return the_sif
-
-
-def use_python_crack_growth_kernels() -> bool:
-    """Return whether crack-growth kernels should bypass Numba dispatch."""
-
-    return (
-        NUMBA_VERSION_INFO <= (0, 61)
-        or getattr(nb.config, "DISABLE_JIT", False)
-        or os.environ.get("NUMBA_DISABLE_JIT") == "1"
-    )
-
-
-def _calc_growth_rate(
-    sif, slope, intercept, threshold, critical
-):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
-    if use_python_crack_growth_kernels():
-        return _calc_growth_rate_numba.py_func(
-            sif,
-            slope,
-            intercept,
-            threshold,
-            critical,
-        )
-    return _calc_growth_rate_numba(
-        sif,
-        slope,
-        intercept,
-        threshold,
-        critical,
-    )
-
-
-def _calc_sif(
-    growth_rate, slope, intercept, threshold, critical
-):  # pragma: no cover  # noqa: E501  # pylint: disable=C0301
-    if use_python_crack_growth_kernels():
-        return _calc_sif_numba.py_func(
-            growth_rate,
-            slope,
-            intercept,
-            threshold,
-            critical,
-        )
-    return _calc_sif_numba(
-        growth_rate,
-        slope,
-        intercept,
-        threshold,
-        critical,
+    return evaluate_curve(
+        3, np.ascontiguousarray(growth_rate, dtype=float),
+        np.ascontiguousarray(slope, dtype=float),
+        np.ascontiguousarray(intercept, dtype=float),
+        np.ascontiguousarray(knees, dtype=float), (threshold, critical),
     )
 
 

@@ -14,14 +14,12 @@ from contextlib import nullcontext
 from typing import Any, Union, Callable, Tuple
 from unittest.mock import Mock
 
-import os
 import pytest
 import warnings
 
 # Non-standard imports
 import numpy as np
 
-os.environ["NUMBA_DISABLE_JIT"] = "1"
 import py_fatigue.cycle_count.rainflow as rf
 from py_fatigue.cycle_count.histogram import binned_rainflow
 
@@ -471,6 +469,3 @@ def test_fourpoint_residuals_oscillate_on_constant_signal() -> None:
 
     assert set(lengths) == {2, 3}
     assert any(a != b for a, b in zip(lengths, lengths[1:]))
-
-
-os.environ["NUMBA_DISABLE_JIT"] = "0"

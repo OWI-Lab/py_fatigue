@@ -74,11 +74,8 @@ target/
 # Spyder
 .spyproject/
 
-# Jupyter NB Checkpoints
-**/.ipynb_checkpoints
-
-# Jupyter migrated
-**/.jupyter
+# marimo state
+**/__marimo__/
 
 # Mac OS-specific storage files
 .DS_Store

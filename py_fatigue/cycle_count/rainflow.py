@@ -32,7 +32,7 @@ from typing import Any, Dict, List, Tuple, Optional, Union
 
 # non-standard imports
 import numpy as np
-from numba import njit, int64, int8
+from .._rust import find_crossings
 
 __all__ = [
     "rainflow",
@@ -200,61 +200,7 @@ def findextrema(x: np.ndarray) -> np.ndarray:
 
 def findcross_indices(xn: Any) -> np.ndarray:
     """Return indices to zero up and downcrossings of a vector"""
-    ind = np.empty(len(xn), dtype=np.int64)
-    idx = _findcross(ind, xn)
-    return ind[:idx]
-
-
-@njit(int64(int64[:], int8[:]), cache=True)
-def _findcross(ind, y):
-    """Return indices to zero up and downcrossings of a vector
-
-    Parameters
-    ----------
-    ind : int64[:]
-        Indices of the turning points of the rainflow filter
-    y : int8[:]
-        The data
-
-    Returns
-    -------
-    np.ndarray
-        The number of indices
-    """
-    ix, dcross, start, v = 0, 0, 0, 0
-    n = len(y)
-    if n == 0:
-        return ix
-    if y[0] < v:
-        dcross = -1  # first is a up-crossing
-    elif y[0] > v:
-        dcross = 1  # first is a down-crossing
-    elif y[0] == v:
-        # Find out what type of crossing we have next time..
-        for i in range(1, n):
-            start = i
-            if y[i] < v:
-                ind[ix] = i - 1  # first crossing is a down crossing
-                ix += 1
-                dcross = -1  # The next crossing is a up-crossing
-                break
-            if y[i] > v:
-                ind[ix] = i - 1  # first crossing is a up-crossing
-                ix += 1
-                dcross = 1  # The next crossing is a down-crossing
-                break
-
-    for i in range(start, n - 1):
-        # if (dcross == -1 and y[i] <= v and v < y[i + 1]) or (
-        #     dcross == 1 and v <= y[i] and y[i + 1] < v
-        # ):
-        if (dcross == -1 and y[i] <= v < y[i + 1]) or (
-            dcross == 1 and y[i + 1] < v <= y[i]
-        ):
-            ind[ix] = i
-            ix += 1
-            dcross = -dcross
-    return ix
+    return find_crossings(np.ascontiguousarray(xn, dtype=np.int8))
 
 
 # -------------------------------------------------------------------------

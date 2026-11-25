@@ -3,12 +3,9 @@
 
 import pytest
 import numpy as np
-import numba as nb
-from numba.core.errors import TypingError
 from py_fatigue.material.crack_growth_curve import ParisCurve, WalkerCurve
 from py_fatigue.material.crack_growth_curve import _calc_growth_rate, _calc_sif
 
-nb.config.DISABLE_JIT = True
 
 
 def test_pure_paris_curve():
@@ -93,17 +90,6 @@ def test_paris_curve_initialization():
         rtol=1e-2,
     )
 
-    with pytest.raises(TypingError):
-        assert (
-            _calc_growth_rate(
-                threshold - 1e-2,
-                pc.slope,
-                pc.intercept,
-                pc.threshold,
-                pc.critical,
-            )
-            == 0
-        )
     assert (
         _calc_growth_rate(
             np.array([threshold - 1e-2]),
@@ -115,17 +101,6 @@ def test_paris_curve_initialization():
         == 0
     )
 
-    with pytest.raises(TypingError):
-        assert (
-            _calc_growth_rate(
-                critical + 1e-2,
-                pc.slope,
-                pc.intercept,
-                pc.threshold,
-                pc.critical,
-            )
-            == np.inf
-        )
     assert (
         _calc_growth_rate(
             np.array([critical + 1e-2]),
@@ -321,17 +296,6 @@ def test_walker_curve_initialization():
         rtol=1e-2,
     )
 
-    with pytest.raises(TypingError):
-        assert (
-            _calc_growth_rate(
-                wc.threshold - 1e-2,
-                wc.slope,
-                wc.intercept,
-                wc.threshold,
-                wc.critical,
-            )
-            == 0
-        )
     assert (
         _calc_growth_rate(
             np.array([wc.threshold - 1e-2]),
@@ -343,17 +307,6 @@ def test_walker_curve_initialization():
         == 0
     )
 
-    with pytest.raises(TypingError):
-        assert (
-            _calc_growth_rate(
-                critical + 1e-2,
-                wc.slope,
-                wc.intercept,
-                wc.threshold,
-                wc.critical,
-            )
-            == np.inf
-        )
     assert (
         _calc_growth_rate(
             np.array([critical + 1e-2]),
@@ -529,6 +482,3 @@ def test_walker_curve_change_exponent():
     assert np.allclose(
         wc.get_knee_growth_rate(), pc.get_knee_growth_rate(), rtol=1e-2
     )
-
-
-nb.config.DISABLE_JIT = False

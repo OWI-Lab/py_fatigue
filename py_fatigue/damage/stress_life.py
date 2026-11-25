@@ -15,15 +15,15 @@ import warnings
 import matplotlib
 import matplotlib.axes
 import matplotlib.pyplot as plt
-import numba as nb
 import numpy as np
 import pandas as pd
 
 # py-fatigue imports
 from ..cycle_count.cycle_count import CycleCount
+from .._rust import theil_history
 from ..material.sn_curve import (
     _check_param_couple_types,
-    __jit_sn_curve_residuals,
+    solve_sn_curve_residuals,
     SNCurve,
 )
 from ..styling import py_fatigue_formatwarning
@@ -1233,7 +1233,7 @@ def find_sn_curve_intersection(
     ValueError
         If the bisection method fails to find a solution.
     """
-    return __jit_sn_curve_residuals(
+    return solve_sn_curve_residuals(
         n_min,
         n_max,
         tol,
@@ -1262,10 +1262,6 @@ def find_sn_curve_intersection_2(*args, **kwargs):
     return find_sn_curve_intersection(*args, **kwargs)
 
 
-@nb.njit(
-    fastmath=True,
-    cache=True,
-)
 def _calc_theil_sn_damage(stress_range, count_cycle, cycles_to_failure):
     """
     Calculate the cycles to failure using the Theil's method for variable
@@ -1350,28 +1346,18 @@ def _calc_theil_sn_damage(stress_range, count_cycle, cycles_to_failure):
       to failure.
     """
 
-    history = []
-
-    # Start at 0 cycles and 0 stress range
-    n_cumsum = 0.0
-    stress_range_cumsum = 0.0  # effective stress range at the block end
-
-    # Process predetermined blocks (blocks 1 to L-1)
-    w_ij = np.divide(stress_range, cycles_to_failure)
-    for i in nb.prange(stress_range.size):  # pylint: disable=E1133
-        current_stress_range = stress_range_cumsum - w_ij[i] * n_cumsum
-        num_points = int(np.ceil(count_cycle[i]))
-        n_end = n_cumsum + count_cycle[i]
-        n_segment = np.logspace(
-            np.log10(n_cumsum + 1), np.log10(n_end), num_points
-        )
-        stress_range_segment = w_ij[i] * n_segment + current_stress_range
-        # label = f"Block {i+1} (r={stress_range[i]} MPa)"
-        history.append((n_segment, stress_range_segment))
-        n_cumsum = n_end
-        stress_range_cumsum = w_ij[i] * n_cumsum + current_stress_range
-
-    return history, stress_range_cumsum, n_cumsum
+    sizes = [int(np.ceil(count)) for count in count_cycle]
+    if any(size < 0 for size in sizes):
+        raise ValueError("Theil segment size cannot be negative")
+    cycles, effective, final_stress, final_cycles = theil_history(
+        np.ascontiguousarray(stress_range, dtype=float),
+        np.ascontiguousarray(count_cycle, dtype=float),
+        np.ascontiguousarray(cycles_to_failure, dtype=float),
+        sizes,
+    )
+    cuts = np.cumsum(sizes)[:-1]
+    history = list(zip(np.split(cycles, cuts), np.split(effective, cuts)))
+    return history if sizes else [], final_stress, final_cycles
 
 
 def calc_theil_sn_damage(

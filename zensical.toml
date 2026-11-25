@@ -1,0 +1,88 @@
+[project]
+site_name = "Py-Fatigue"
+site_url = "https://owi-lab.github.io/py_fatigue/"
+repo_url = "https://github.com/OWI-Lab/py_fatigue"
+repo_name = "OWI-Lab/py_fatigue"
+docs_dir = "rst_docs"
+site_dir = "_build/docs"
+use_directory_urls = false
+extra_javascript = [
+  "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",
+]
+exclude_docs = """
+_static/css/
+_static/js/
+*.xcf
+"""
+
+nav = [
+  { Home = "index.md" },
+  { "Getting started" = "user/01-absolute-noob.md" },
+  { "User guide" = [
+    "user/02-user-guide.md",
+    "user/examples/01-notebook_setup.md",
+    "user/examples/02-sn_curve.md",
+    "user/examples/03-cg_curve.md",
+    "user/examples/04-cycle_counting.md",
+    "user/examples/05-cycle_count_sum.md",
+    "user/examples/06-mean_stress.md",
+    "user/examples/07-damage.md",
+    "user/examples/08-ordered-crack-growth.md",
+    "user/additional/01-index.md",
+    "user/additional/glossary.md",
+    "user/additional/relevant_guidelines.md",
+  ] },
+  { "API reference" = [
+    "api/01-index.md",
+    { "Cycle count" = [
+      "api/cycle_count/cycle_count.md", "api/cycle_count/cycle_count_.md",
+      "api/cycle_count/histogram.md", "api/cycle_count/rainflow.md",
+      "api/cycle_count/utils.md",
+    ] },
+    { "Material" = [
+      "api/material/material.md", "api/material/sn_curve.md",
+      "api/material/crack_growth_curve.md",
+    ] },
+    { "Geometry" = [
+      "api/geometry/geometry.md", "api/geometry/generic.md",
+      "api/geometry/cylinder.md",
+    ] },
+    { "Stress" = [
+      "api/stress/stress.md", "api/stress/stress_range.md",
+      "api/stress/mean_stress.md",
+    ] },
+    { "Damage" = [
+      "api/damage/damage.md", "api/damage/stress_life.md",
+      "api/damage/crack_growth.md",
+    ] },
+    "api/styling.md", "api/testing.md", "api/utils.md",
+  ] },
+  { Changelog = "changelog.md" },
+]
+
+[project.theme]
+favicon = "owi-lab.ico"
+logo = "_static/_img/owi-lab-small.png"
+
+[project.markdown_extensions.pymdownx.arithmatex]
+generic = true
+
+[project.markdown_extensions.pymdownx.superfences]
+
+[project.markdown_extensions.tables]
+
+[project.markdown_extensions.def_list]
+
+[project.markdown_extensions.admonition]
+
+[project.markdown_extensions.footnotes]
+
+[project.markdown_extensions.attr_list]
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["."]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "numpy"
+show_source = false
+show_root_heading = true

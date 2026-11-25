@@ -1,1 +1,1 @@
-A default Sphinx project; see sphinx-doc.org for details
+Build this documentation from the repository root with uv run invoke docs.build.

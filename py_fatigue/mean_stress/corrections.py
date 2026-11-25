@@ -14,7 +14,8 @@ import numpy as np
 
 # from scipy.optimize import fsolve
 
-from ..utils import make_axes, compile_specialized_newton, numba_newton
+from .._rust import solve_goodman
+from ..utils import make_axes
 from ..styling import py_fatigue_formatwarning
 
 warnings.formatwarning = py_fatigue_formatwarning
@@ -296,8 +297,8 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
     * :math:`n` is the correction exponent.
 
     The solver is based on the Newton-Raphson method, which is implemented
-    internally at :func:`py_fatigue.utils.numba_newton`,
-    :func:`py_fatigue.utils.compile_specialized_newton`, and
+    internally at the native solver,
+    the Newton iteration, and
     :func:`py_fatigue.mean_stress.corrections.__goodman_equation`.
 
     Parameters
@@ -320,8 +321,8 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
 
     See Also
     --------
-    :func:`py_fatigue.utils.numba_newton`,
-    :func:`py_fatigue.utils.compile_specialized_newton`
+    the native solver,
+    the Newton iteration
 
     Raises
     ------
@@ -422,8 +423,7 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
             # Solve the implicit equation using fsolve
             # fmt: off
             if mean_in[i] + amp_in[i] > 0:
-                sol = numba_newton(__jit_goodman_equation, initial_guess[i],
-                                    1E-6, 1000, amp_in[i], r_in[i],
+                sol = solve_goodman(initial_guess[i], amp_in[i], r_in[i],
                                     r_out_val, ult_s, correction_exponent)
                 # sol = fsolve(__goodman_equation, x0=initial_guess[i],
                 #              args=(amp_in[i], r_in[i], r_out_val, ult_s,
@@ -579,6 +579,3 @@ def __goodman_equation(
             amp_out_val**(correction_exponent - 1) * trm2**correction_exponent
     # fmt: on
     return lhs - rhs**-1
-
-
-__jit_goodman_equation = compile_specialized_newton(__goodman_equation)
