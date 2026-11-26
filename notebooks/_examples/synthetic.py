@@ -50,13 +50,19 @@ def long_case_view(
     return mo.vstack(
         [
             mo.md(f"## Long synthetic signal\n\n{description}"),
-            mo.ui.tabs(
-                {
-                    "Static": fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(fig).render_embed(), height=height
-                    ),
-                }
-            ),
+            plot_views(fig, height=height),
         ]
+    )
+
+
+def plot_views(figure: Figure, *, height: str | None = None) -> mo.Html:
+    """Display a figure as Matplotlib and as an interactive ECharts plot."""
+    return mo.ui.tabs(
+        {
+            "Static": figure,
+            "ECharts": mo.iframe(
+                to_echarts(figure).render_embed(),
+                height=height or f"{400 * len(figure.axes) + 40}px",
+            ),
+        }
     )

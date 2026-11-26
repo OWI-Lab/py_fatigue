@@ -2,6 +2,10 @@
 
 This section contains some examples of damage calculations using the stress-life approach.
 
+The [tube in bending tutorial](../../tutorials/10-tubular_stress_life.html)
+starts with a tube section and a moment history, then connects rainflow
+counting, mean-stress correction and equivalent loads to Miner damage.
+
 The module `py_fatigue.damage.stress_life` contains all the damage models related to the stress-life approach.
 
 The simplest and most common damage model is the Palmgren-Miner (`py_fatigue.damage.stress_life.calc_pm`, `py_fatigue.damage.stress_life.get_pm`) model.

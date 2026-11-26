@@ -8,10 +8,13 @@ from notebooks._examples.afgrow import (
     MERC3_FINAL_LENGTH,
     MERC3_INITIAL_LENGTH,
     MERC3_PUBLISHED_CYCLES,
+    crack_history,
     fac1_totals,
     merc3_beta_histories,
     merc3_constant_beta,
+    paris_reference_cycles,
 )
+from py_fatigue import ParisCurve
 
 
 def test_merc3_constant_beta_life() -> None:
@@ -49,3 +52,20 @@ def test_fac1_mode_i_superposition(source: str) -> None:
     np.testing.assert_allclose(
         fac1_totals()[source], FAC1_SIF[source][2], atol=0.015, rtol=0
     )
+
+
+def test_paris_growth_under_proportionally_scaled_loads() -> None:
+    """At constant reference K, each cycle makes a known crack increment."""
+    length = np.array([0.1, 1.1])
+    curve = ParisCurve(slope=2.0, intercept=0.125)
+    reference = paris_reference_cycles(length, np.array([2.0, 2.0]), curve)
+    np.testing.assert_allclose(reference, [0.0, 2.0])
+
+    fractions = np.array([0.5, 1.0, 0.5, 1.0, 1.0])
+    history, reached = crack_history(length, reference, fractions, 2.0)
+    assert reached
+    np.testing.assert_allclose(history, [0.1, 0.225, 0.725, 0.85, 1.1])
+
+    history, reached = crack_history(length, reference, fractions[:3], 2.0)
+    assert not reached
+    np.testing.assert_allclose(history, [0.1, 0.225, 0.725, 0.85])

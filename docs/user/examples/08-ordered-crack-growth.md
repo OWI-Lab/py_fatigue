@@ -1,5 +1,10 @@
 # Ordered plate crack propagation
 
+The [plate crack tutorial](../../tutorials/30-ordered_plate_crack_growth.html)
+follows a through crack and a surface crack from their initial profiles to
+their final dimensions, using a NASGRO material fit and the same tensile
+load history for both cases.
+
 [Open lesson 33](../../33-ordered_crack_growth.html) to compare
 both plate geometries using the same ordered load blocks. The plots align
 applied stress, crack dimensions, and peak stress intensity on cumulative

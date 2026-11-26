@@ -80,27 +80,64 @@ def merc3_constant_beta(
     return float(exact_cycles), result
 
 
-def merc3_beta_histories(
+def merc3_geometry_factors(
     length: NDArray[np.float64],
-) -> dict[str, tuple[NDArray[np.float64], NDArray[np.float64]]]:
-    """Return beta and cumulative cycles on the supplied crack-length grid."""
+) -> dict[str, NDArray[np.float64]]:
+    """Interpolate the reference and perturbed MERC-3 geometry factors."""
     source_length, source_beta = MERC3_DIGITIZED.T
     # Hold the last digitized beta to the published end length of 1.25 in.
     beta = np.interp(length, source_length, source_beta)
-    factors = {
+    return {
         "Reference": beta,
         "Increase large β": beta * np.interp(beta, [1, 3], [1, 1.1]),
         "Increase small β": beta * np.interp(beta, [1, 3], [1.1, 1]),
     }
+
+
+def paris_reference_cycles(
+    length: NDArray[np.float64],
+    delta_k: NDArray[np.float64],
+    curve: ParisCurve,
+) -> NDArray[np.float64]:
+    """Integrate the reciprocal Paris rate over the crack-length grid."""
+    rate = curve.get_growth_rate(delta_k)
+    if np.any(~np.isfinite(rate)) or np.any(rate <= 0):
+        raise ValueError("The reference history needs finite positive rates.")
+    inverse = 1 / rate
+    increments = np.diff(length) * (inverse[:-1] + inverse[1:]) / 2
+    return np.r_[0.0, np.cumsum(increments)]
+
+
+def crack_history(
+    length: NDArray[np.float64],
+    reference_cycles: NDArray[np.float64],
+    load_fraction: NDArray[np.float64],
+    exponent: float,
+) -> tuple[NDArray[np.float64], bool]:
+    """Invert a reference Paris history for proportionally scaled loads.
+
+    This applies to a single-slope Paris law with no threshold, toughness
+    limit, or load interaction. Return the history through the first
+    cycle that reaches the final grid length, or through the whole
+    spectrum if it ends first.
+    """
+    equivalent = np.r_[0.0, np.cumsum(load_fraction**exponent)]
+    first_crossing = np.searchsorted(equivalent, reference_cycles[-1])
+    return (
+        np.interp(equivalent[: first_crossing + 1], reference_cycles, length),
+        first_crossing < equivalent.size,
+    )
+
+
+def merc3_beta_histories(
+    length: NDArray[np.float64],
+) -> dict[str, tuple[NDArray[np.float64], NDArray[np.float64]]]:
+    """Return beta and cumulative cycles on the supplied crack-length grid."""
     curve = ParisCurve(MERC3_EXPONENT, MERC3_COEFFICIENT, unit_string="ksi √in")
     histories = {}
-    for case, factor in factors.items():
+    for case, factor in merc3_geometry_factors(length).items():
         delta_k = MERC3_STRESS_RANGE * factor * np.sqrt(np.pi * length)
-        cycles_per_inch = 1 / curve.get_growth_rate(delta_k)
-        increments = (
-            np.diff(length) * (cycles_per_inch[:-1] + cycles_per_inch[1:]) / 2
-        )
-        histories[case] = factor, np.r_[0.0, np.cumsum(increments)]
+        histories[case] = factor, paris_reference_cycles(length, delta_k, curve)
     return histories
 
 
