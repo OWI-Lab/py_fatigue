@@ -15,11 +15,14 @@ import sys
 import pytest
 
 # Packages from non-standard libraries
+import matplotlib.pyplot as plt
+import numpy as np
 from pydantic import ValidationError
 from hypothesis import given, strategies as hy
 
 # Local imports
 import py_fatigue.geometry as geometry
+from py_fatigue.geometry import TabulatedGeometryFactor
 from py_fatigue.geometry.generic import (
     kwargs_only,
     CrackGeometryMixin,
@@ -336,3 +339,43 @@ class TestIntegration:
         assert not hasattr(geo, 'count_cycle')
         assert not hasattr(geo, 'final_cycles')
         assert not hasattr(geo, 'final_depth')
+
+
+@pytest.mark.parametrize(
+    ("initial_depth", "depths", "factors", "message"),
+    [
+        (1.0, [1.0], [1.2], "at least two depth and factor pairs"),
+        (1.0, [1.0, 3.0], [1.2], "at least two depth and factor pairs"),
+        (1.0, [1.0, 1.0], [1.2, 1.4], "Depths must increase"),
+        (1.0, [1.0, 3.0], [1.2, np.inf], "positive and finite"),
+        (0.5, [1.0, 3.0], [1.2, 1.4], "Initial depth"),
+        (3.0, [1.0, 3.0], [1.2, 1.4], "Initial depth"),
+    ],
+)
+def test_tabulated_geometry_rejects_invalid_input(
+    initial_depth: float, depths: list[float], factors: list[float], message: str
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        TabulatedGeometryFactor(initial_depth, depths, factors)
+
+
+def test_tabulated_geometry_plot_marks_initial_depth() -> None:
+    depths = np.array([1.0, 2.0, 3.0])
+    factors = np.array([1.2, 1.3, 1.4])
+    table = TabulatedGeometryFactor(1.5, depths, factors)
+    factors[0] = 0.0
+    assert not table.depths.flags.writeable
+    assert not table.factors.flags.writeable
+
+    fig, ax = table.plot()
+    try:
+        curve, marker = ax.get_lines()
+        np.testing.assert_array_equal(curve.get_xdata(), depths)
+        np.testing.assert_array_equal(curve.get_ydata(), [1.2, 1.3, 1.4])
+        np.testing.assert_array_equal(marker.get_xdata(), [1.5, 1.5])
+        assert [text.get_text() for text in ax.get_legend().get_texts()] == [
+            "Tabulated factor",
+            "Initial depth",
+        ]
+    finally:
+        plt.close(fig)

@@ -102,10 +102,21 @@ def test_from_sep005_multiple_channels_and_records() -> None:
             "start_timestamp": "2019/01/01 00:00:00 +0000",
             "start_timestamp_format": "%Y/%m/%d %H:%M:%S %z",
         },
+        {
+            "name": "Flange",
+            "data": stress * 1e6,
+            "fs": 50,
+            "start_timestamp": TIMESTAMP_1,
+        },
     ]
     expected = CycleCount.from_timeseries(stress, range_bin_width=0.5)
     counts = CycleCount.from_sep005(records, range_bin_width=0.5)
-    assert [count.name for count in counts] == ["North", "South", "Brace"]
+    assert [count.name for count in counts] == [
+        "North",
+        "South",
+        "Brace",
+        "Flange",
+    ]
     for count in counts:
         assert count.unit == "MPa"
         assert count.timestamp == TIMESTAMP_1
@@ -127,6 +138,7 @@ def test_from_sep005_multiple_channels_and_records() -> None:
         ({"fs": 0}, "positive fs"),
         ({"time": [0, 1]}, "one increasing time"),
         ({"time": [0, 1, 2, 2, 3]}, "one increasing time"),
+        ({"data": [0, 20, 3j, 40, 0]}, "real stress samples"),
         ({"data": [0, 20, np.inf, 40, 0]}, "samples must be finite"),
         ({"data": [0, 0, 0, 0, 0]}, "contains no rainflow cycles"),
     ],
@@ -137,6 +149,35 @@ def test_from_sep005_rejects_invalid_stress_history(
     record = {"data": [0, 20, 3, 40, 0], "fs": 20, **metadata}
     with pytest.raises(ValueError, match=message):
         CycleCount.from_sep005(record)
+
+
+@pytest.mark.parametrize(
+    ("metadata", "message"),
+    [
+        ({"start_timestamp": 123456}, "start_timestamp must be a date-time"),
+        ({"channel_name": [1]}, "channel names must be strings"),
+    ],
+)
+def test_from_sep005_rejects_invalid_channel_metadata(
+    metadata: dict, message: str
+) -> None:
+    record = {"data": SIGNAL_1, "fs": 20, **metadata}
+    with pytest.raises(TypeError, match=message):
+        CycleCount.from_sep005(record)
+
+
+def test_from_sep005_rejects_non_mapping_records() -> None:
+    with pytest.raises(TypeError, match="Each SEP005 signal must be a mapping"):
+        CycleCount.from_sep005([{"data": SIGNAL_1, "fs": 20}, SIGNAL_2])
+
+
+@pytest.mark.parametrize("override", [{"unit": "MPa"}, {"time": [0]}])
+def test_from_sep005_requires_units_and_sampling_in_record(
+    override: dict,
+) -> None:
+    record = {"data": SIGNAL_1, "fs": 20, "unit_str": "Pa"}
+    with pytest.raises(TypeError, match="Specify units and sample times"):
+        CycleCount.from_sep005(record, **override)
 
 
 def test_from_pyexsi_and_sep005_feed_paris_growth() -> None:
