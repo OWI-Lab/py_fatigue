@@ -686,3 +686,61 @@ class TestIntegration:
         # The DataFrame approach should have stored the final_cycles
         assert hasattr(result_df.cg, 'final_cycles')
         assert result_df.cg.final_cycles > 0
+
+@pytest.mark.parametrize(
+    "stress, expected_rate",
+    [(1.0, 0.0), (2.0, 4e-6 * np.pi), (3.0, 9e-6 * np.pi),
+     (4.0, 16e-6 * np.pi), (5.0, np.inf), (6.0, np.inf)],
+)
+def test_legacy_growth_rate_boundaries(stress, expected_rate):
+    root_pi = np.sqrt(np.pi)
+    calculation = CalcCrackGrowth(
+        np.array([1.0]), np.array([1.0]), np.array([2.0]),
+        np.array([1e-6]), 2 * root_pi, 5 * root_pi,
+        "INF_SUR_00", {"initial_depth": 1.0},
+    )
+    rate, _, _ = calculation.calc_growth_rate(stress, 1.0)
+    assert rate == pytest.approx(expected_rate)
+
+
+@pytest.mark.parametrize(
+    "stress_unit, curve_unit, compatible",
+    [
+        ("MPa", "MPa √mm", True),
+        ("MPa", "MPa*sqrt(m)", True),
+        ("ksi", "ksi √in", True),
+        ("Pa", "MPa √mm", False),
+        ("MPa", "MPa / √mm", False),
+        ("MPa", "MPa √mm / s", False),
+    ],
+)
+def test_legacy_crack_growth_unit_contract(stress_unit, curve_unit, compatible):
+    cycles = CycleCount(
+        stress_range=np.array([1.0]), mean_stress=np.array([0.0]),
+        count_cycle=np.array([1.0]), unit=stress_unit,
+    )
+    curve = ParisCurve(2.0, 1e-6, unit_string=curve_unit)
+    crack = geometry.InfiniteSurface(initial_depth=1.0)
+    if compatible:
+        assert not get_crack_growth(cycles, curve, crack).failure
+    else:
+        with pytest.raises(ValueError, match="not compatible"):
+            get_crack_growth(cycles, curve, crack)
+
+
+def test_legacy_growth_agrees_with_consistently_scaled_length_units():
+    cycles = CycleCount(
+        stress_range=np.array([10.0, 10.0]), mean_stress=np.zeros(2),
+        count_cycle=np.ones(2), unit="MPa",
+    )
+    # With a quadratic Paris law, scaling length also scales delta K squared.
+    mm = get_crack_growth(
+        cycles, ParisCurve(2.0, 1e-6, unit_string="MPa √mm"),
+        geometry.InfiniteSurface(initial_depth=2.0),
+    )
+    m = get_crack_growth(
+        cycles, ParisCurve(2.0, 1e-6, unit_string="MPa √m"),
+        geometry.InfiniteSurface(initial_depth=0.002),
+    )
+    assert mm.crack_depth[1] > mm.crack_depth[0]
+    np.testing.assert_allclose(mm.crack_depth, 1000 * m.crack_depth)

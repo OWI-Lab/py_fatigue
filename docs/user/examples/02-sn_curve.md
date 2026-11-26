@@ -15,7 +15,7 @@ where:
 
 !!! note "Note"
 
-    In this example we define four SN curves for free corrosion as per DNVGL-RP-C203 and plot them using [matplotlib](https://matplotlib.org) and [plotly](https://plotly.com). We additionally define a random Gaussian stress range-cycles history to plot against the SN curves defined.
+    In this example we define four SN curves for free corrosion as per DNVGL-RP-C203 and plot them using [matplotlib](https://matplotlib.org) and [ECharts](https://pyecharts.org/). We additionally define a random Gaussian stress range-cycles history to plot against the SN curves defined.
 
 ``` {.python linenos=""}
 #SN curves definition
@@ -124,32 +124,21 @@ plt.legend()
 
 ![image](../../_static/_img/sn_curve_1.png)
 
-Reformat SN curve names for plotly
+### Interactive ECharts view
 
-``` {.python linenos=""}
-b1_c.format_name(html_format=True)
-c_c.format_name( html_format=True)
-e_c.format_name( html_format=True)
-w3_c.format_name(html_format=True)
+Reuse the figure above to keep the four curves and the example data in
+one chart.
+
+```python
+from py_fatigue.plotting import to_echarts
+
+to_echarts(fig).render("sn-curves.html")
 ```
 
-Plotly
-
-``` {.python linenos=""}
-# Plot
-data, layout = b1_c.plotly(
-    cycles=cumulative_cycles,
-    stress_range=stress_range_bins,
-    dataset_name="Example data"
-)
-data.extend(c_c.plotly()[0])
-data.extend(e_c.plotly()[0])
-data.extend(w3_c.plotly()[0])
-fig = go.Figure(data=data, layout=layout)
-fig.show()
-```
-
-![image](../../_static/_img/sn_curve_2.png)
+For one curve, use `b1_c.echarts(cycles=cumulative_cycles,
+stress_range=stress_range_bins, dataset_name="Example data")`. The
+`echarts()` method replaces `plotly()` and returns a pyecharts chart
+with `render()` and `render_embed()` methods.
 
 ## b. SN curves methods
 

@@ -181,6 +181,8 @@ def make_axes(
     TypeError
         If fig is not a matplotlib.figure.Figure instance
     """
+    if fig is None and ax is not None:
+        return ax.figure, ax
     if fig is None:
         fig, axes = plt.subplots()
     else:

@@ -258,20 +258,65 @@ fn nasgro(parameters: [f64; 9]) -> Nasgro {
     }
 }
 
-fn plate(half_width: f64, thickness: Option<f64>) -> Plate {
-    match thickness {
-        Some(thickness) => Plate::Surface {
+type PlateSection<'a> = (&'a str, f64, Option<f64>, Option<[f64; 2]>);
+
+fn plate(section: PlateSection<'_>) -> PyResult<Plate> {
+    match section {
+        ("TC01", half_width, None, None) => Ok(Plate::Center { half_width }),
+        ("TC02", width, None, None) => Ok(Plate::Edge { width }),
+        ("SC07", diameter, None, None) => Ok(Plate::SurfaceRoundBar { diameter }),
+        ("SC05", inner_radius, Some(thickness), None) => Ok(Plate::SurfaceExternalPipe {
+            inner_radius,
+            thickness,
+        }),
+        ("SC08", minor, Some(major), None) => Ok(Plate::SurfaceRolledThread { minor, major }),
+        ("SC11", width, Some(thickness), Some([hole_diameter, count])) => {
+            Ok(Plate::SurfaceHoleBore {
+                width,
+                thickness,
+                hole_diameter,
+                count,
+            })
+        }
+        ("TC06", radius, Some(thickness), None) => Ok(Plate::SphereThrough { radius, thickness }),
+        ("TC07", radius, Some(thickness), None) => {
+            Ok(Plate::AxialCylinderThrough { radius, thickness })
+        }
+        ("TC08", radius, Some(thickness), Some([length, poisson])) => {
+            Ok(Plate::CircumferentialCylinderThrough {
+                radius,
+                thickness,
+                length,
+                poisson,
+            })
+        }
+        ("SC01", half_width, Some(thickness), None) => Ok(Plate::Surface {
             half_width,
             thickness,
-        },
-        None => Plate::Center { half_width },
+        }),
+        _ => Err(growth_error(GrowthError::Geometry)),
     }
 }
 
 fn growth_error(error: GrowthError) -> PyErr {
     match error {
-        GrowthError::Budget => pyo3::exceptions::PyRuntimeError::new_err(
-            "crack growth exhausted the step budget or cycle resolution",
+        GrowthError::TrialBudget {
+            block,
+            cycles,
+            limit,
+        } => pyo3::exceptions::PyRuntimeError::new_err(format!(
+            "Crack growth exhausted the {limit}-trial budget in load block {block} \
+                 after {cycles} cumulative cycles. Increase max_trials to continue."
+        )),
+        GrowthError::CycleResolution { block, cycles } => {
+            pyo3::exceptions::PyRuntimeError::new_err(format!(
+                "The next crack-growth step is too small to advance the cycle count \
+                 after {cycles} cumulative cycles in load block {block}. \
+                 Check the load-block cycle counts and solver tolerances."
+            ))
+        }
+        GrowthError::HistoryCapacity => pyo3::exceptions::PyMemoryError::new_err(
+            "Crack-growth history exceeds its allocated capacity",
         ),
         GrowthError::NonFinite => pyo3::exceptions::PyArithmeticError::new_err(
             "crack growth produced a non-finite numerical result",
@@ -281,10 +326,21 @@ fn growth_error(error: GrowthError) -> PyErr {
 }
 
 #[pyfunction]
-fn plate_factors(half_width: f64, thickness: Option<f64>, initial: [f64; 2]) -> PyResult<[f64; 2]> {
-    plate(half_width, thickness)
+fn plate_factors(section: PlateSection<'_>, initial: [f64; 2]) -> PyResult<[f64; 2]> {
+    plate(section)?
         .factors(initial)
         .ok_or_else(|| growth_error(GrowthError::Geometry))
+}
+
+#[pyfunction]
+fn plate_net_section_stress(
+    section: PlateSection<'_>,
+    sizes: [f64; 2],
+    stress: f64,
+) -> PyResult<f64> {
+    plate(section)?
+        .net_section_stress(sizes, stress)
+        .map_err(growth_error)
 }
 
 #[pyfunction]
@@ -294,16 +350,24 @@ fn nasgro_rate(parameters: [f64; 9], length: f64, k_min: f64, k_max: f64) -> PyR
         .map_err(growth_error)
 }
 
+#[pyfunction]
+fn nasgro_long_crack_rate(parameters: [f64; 9], k_min: f64, k_max: f64) -> PyResult<f64> {
+    nasgro(parameters)
+        .rate_for_length(None, k_min, k_max)
+        .map_err(growth_error)
+}
+
 type PointData = (f64, [f64; 2], [f64; 2], [f64; 2], usize);
 
 #[pyfunction]
 fn ordered_growth(
-    section: (f64, Option<f64>),
+    section: PlateSection<'_>,
     initial: [f64; 2],
     parameters: [f64; 9],
     schedule: Vec<[f64; 3]>,
     controls: (f64, f64, f64, usize),
 ) -> PyResult<(Vec<PointData>, &'static str)> {
+    let plate = plate(section)?;
     let loads: Vec<_> = schedule
         .into_iter()
         .map(|[minimum, maximum, cycles]| Load {
@@ -321,14 +385,14 @@ fn ordered_growth(
     };
     let capacity = max_trials
         .checked_add(loads.len())
-        .ok_or_else(|| growth_error(GrowthError::Budget))?;
+        .ok_or_else(|| growth_error(GrowthError::HistoryCapacity))?;
     let mut output = Vec::new();
     output
         .try_reserve_exact(capacity)
         .map_err(|_| PyMemoryError::new_err("could not allocate crack history"))?;
     output.resize(capacity, crack_growth::Point::default());
     let (written, stop) = crack_growth::simulate(
-        plate(section.0, section.1),
+        plate,
         initial,
         nasgro(parameters),
         &loads,
@@ -366,6 +430,8 @@ fn _rust(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(solve_goodman, module)?)?;
     module.add_function(wrap_pyfunction!(theil_history, module)?)?;
     module.add_function(wrap_pyfunction!(plate_factors, module)?)?;
+    module.add_function(wrap_pyfunction!(plate_net_section_stress, module)?)?;
     module.add_function(wrap_pyfunction!(nasgro_rate, module)?)?;
+    module.add_function(wrap_pyfunction!(nasgro_long_crack_rate, module)?)?;
     module.add_function(wrap_pyfunction!(ordered_growth, module)?)
 }

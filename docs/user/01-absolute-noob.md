@@ -7,7 +7,7 @@ Welcome to the absolute beginner's guide to py-fatigue! If you have comments or 
 py-fatigue was originally part of the DYNAwind suite of tools for wind turbine structural health monitoring and analysis. The tool has been detached from the project and now relies on the following PyPi packages only:
 
 - [numpy]{.title-ref}
-- [plotly]{.title-ref}
+- [pyecharts]{.title-ref}
 - [pandas]{.title-ref}
 - [matplotlib]{.title-ref}
 - [pydantic]{.title-ref}
@@ -32,6 +32,52 @@ To access py-fatigue and its functions import it in your Python code like this:
 
 ``` python
 import py_fatigue as pf
+```
+
+## Static and interactive plots
+
+Use `.plot()` for a Matplotlib figure and axes, or `.echarts()` for an
+interactive chart. Both methods take the same domain inputs, such as the
+intensity samples to evaluate a NASGRO curve.
+
+| Object | What its plot shows |
+| --- | --- |
+| `CycleCount` | Rainflow histogram. Use `plot_type` to select the axes. |
+| `SNCurve`, `ParisCurve`, `WalkerCurve`, `NasgroCurve` | The material curve, including any supplied measurement overlay for S–N, Paris, or Walker curves. |
+| Plate, cylinder and infinite-surface geometries | A sketch using the dimensions supplied to the geometry. |
+| `CalcCrackGrowth` from `get_crack_growth` | Crack depth recorded at the start of each legacy step. |
+| `GrowthResult` from `simulate_crack_growth` | Accepted crack dimensions against cumulative cycles. |
+| `df.miner` and `df.gassner` | Contributions by stress range after calculating Miner damage or Gassner shift factors. |
+
+```python
+from py_fatigue import SNCurve
+
+curve = SNCurve(slope=3, intercept=12.0)
+fig, ax = curve.plot()
+fig.savefig("sn-curve.png")
+curve.echarts().render("sn-curve.html")
+```
+
+For material curves, pass `scale="loglog"`, `scale="semilogx"`, or
+`scale="semilogy"` to either method. The semilog options put the x or y axis
+on a logarithmic scale, respectively. S–N, Paris, and Walker curves default
+to log–log. NASGRO defaults to a logarithmic growth-rate axis.
+
+Use `to_echarts(fig)` from `py_fatigue.plotting` when you have composed
+several plots into an existing figure. Pass `to_echarts(ax)` for a single
+panel. The HTML includes hover, zoom, reset and PNG export, and loads
+ECharts from the pyecharts CDN.
+
+For calculations that display a mean stress correction figure, pass a
+callback to `plot` to receive the figure and render it separately.
+
+```python
+from py_fatigue.plotting import to_echarts
+
+def save_interactive(fig):
+    to_echarts(fig).render("mean-stress.html")
+
+corrected = cycle_count.mean_stress_correction(plot=save_interactive)
 ```
 
 ## How to use py-fatigue

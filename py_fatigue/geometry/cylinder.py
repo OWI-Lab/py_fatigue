@@ -40,7 +40,7 @@ class HollowCylinder(AbstractCrackGeometry):
     >>> #        └────────────────────────────────────────┘
     >>> #
 
-    Parameters
+    Attributes
     ----------
     initial_depth : float
         The initial depth of the crack.
@@ -114,7 +114,9 @@ class HollowCylinder(AbstractCrackGeometry):
         ax: Optional[matplotlib.axes.Axes] = None,
         **kwargs: dict,
     ) -> tuple:  # pragma: no cover
-        """Plot the crack front on a hollow cylinder.
+        """Draw the hollow cylinder cross-section and crack.
+
+        For an internal crack, the line indicates depth from the inner wall.
 
         Parameters
         ----------
@@ -132,13 +134,23 @@ class HollowCylinder(AbstractCrackGeometry):
         ax : matplotlib.axes.Axes
         """
 
-        if self.crack_position == "internal":
-            raise NotImplementedError(
-                "Plotting of internal crack not implemented"
-            )
+        if self.crack_position == "external":
+            return self._plot_external_crack(fig=fig, ax=ax, **kwargs)
 
-        # case crack_position external
-        return self._plot_external_crack(depth=None, fig=fig, ax=ax, **kwargs)
+        fig, axes = pfu.make_axes(fig, ax)
+        outer_radius = self.outer_diameter / 2
+        inner_radius = outer_radius - self.thickness
+        radii = (outer_radius, inner_radius)
+        angles = np.linspace(0, 2 * np.pi, 101)
+        for radius in radii:
+            axes.plot(radius * np.cos(angles), radius * np.sin(angles), c="k")
+        axes.plot(
+            [inner_radius, inner_radius + self.initial_depth], [0, 0],
+            c="firebrick", label="Internal crack depth", **kwargs,
+        )
+        axes.set(aspect="equal", title="Hollow cylinder cross-section")
+        axes.legend()
+        return fig, axes
 
     def _plot_external_crack(
         self,
@@ -217,6 +229,26 @@ class Cylinder(AbstractCrackGeometry):
     diameter: PositiveFloat
     height: PositiveFloat
     _id = property(lambda _: "FUL_CYL_00")
+
+    def plot(
+        self,
+        fig: Optional[matplotlib.figure.Figure] = None,
+        ax: Optional[matplotlib.axes.Axes] = None,
+    ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        """Draw the full cylinder's diameter and height in a side view."""
+        fig, axes = pfu.make_axes(fig, ax)
+        radius = self.diameter / 2
+        axes.plot(
+            [-radius, radius, radius, -radius, -radius],
+            [0, 0, self.height, self.height, 0],
+        )
+        axes.set(
+            xlabel="Position across diameter",
+            ylabel="Height",
+            title="Solid cylinder side view",
+            aspect="equal",
+        )
+        return fig, axes
 
     def __post_init__(self):  # pragma: no cover
         if not all((self.diameter, self.height)) > 0.0:

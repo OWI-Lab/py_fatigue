@@ -40,7 +40,7 @@ Paris' law is considered valid within the range $\Delta K_{th} < \Delta K < \Del
 
 !!! note "Note"
 
-    In this example we define four Paris curves for free corrosion as per DNVGL-RP-C203 and plot them using [matplotlib](https://matplotlib.org) and [plotly](https://plotly.com). We additionally define a random Gaussian stress range-cycles history to plot against the curves defined.
+    In this example we define four Paris curves for free corrosion as per DNVGL-RP-C203 and plot them using [matplotlib](https://matplotlib.org) and [ECharts](https://pyecharts.org/). We additionally define a random Gaussian stress range-cycles history to plot against the curves defined.
 
 ``` {.python linenos=""}
 # Paris' laws constants
@@ -77,7 +77,15 @@ axs[1].legend()
 plt.show()
 ```
 
-![image](../../_static/_img/paris-curves.png)
+![Paris curves for free corrosion](../../_static/_img/paris-curves.png)
+
+To explore both panels interactively, render the figure in ECharts.
+
+```python
+from py_fatigue.plotting import to_echarts
+
+to_echarts(fig).render("paris-curves.html")
+```
 
 ## b. Mean stress effect on Paris' law
 

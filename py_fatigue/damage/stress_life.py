@@ -14,7 +14,6 @@ import warnings
 # Packages from external libraries
 import matplotlib
 import matplotlib.axes
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -26,6 +25,7 @@ from ..material.sn_curve import (
     solve_sn_curve_residuals,
     SNCurve,
 )
+from ..plotting import PlotMixin
 from ..styling import py_fatigue_formatwarning
 from ..utils import make_axes, _plot_damage_accumulation
 
@@ -40,7 +40,7 @@ warnings.formatwarning = py_fatigue_formatwarning
 
 
 @pd.api.extensions.register_dataframe_accessor("miner")
-class PalmgrenMiner:
+class PalmgrenMiner(PlotMixin):
     """Accessor for the Palmgren-Miner damage model."""
 
     def __init__(self, pandas_obj):
@@ -161,6 +161,24 @@ class PalmgrenMiner:
             equivalent_cycles,
         )
 
+    def plot(
+        self,
+        fig: matplotlib.figure.Figure | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+    ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        """Plot calculated Miner damage contributions by stress range."""
+        if "pm_damage" not in self._obj:
+            raise ValueError("Call damage(sn_curve) before plotting.")
+        fig, ax = make_axes(fig, ax)
+        ax.scatter(self._obj.stress_range, self._obj.pm_damage)
+        metadata = self._obj._metadata
+        unit = metadata.get("unit") if isinstance(metadata, dict) else None
+        ax.set(
+            xlabel=f"Stress range ({unit})" if unit else "Stress range",
+            ylabel="Miner damage contribution",
+        )
+        return fig, ax
+
     def plot_histogram(
         self,
         fig: Optional[matplotlib.figure.Figure] = None,
@@ -204,7 +222,7 @@ class PalmgrenMiner:
         )
         ax.set_xlabel("# of cycles")
         ax.set_ylabel("Stress range, MPa")
-        cbar = plt.colorbar(im, ax=ax)
+        cbar = fig.colorbar(im, ax=ax)
         cbar.set_label(cbar_label, rotation=270)
         cbar.ax.get_yaxis().labelpad = 10
         return fig, ax
@@ -218,7 +236,7 @@ except AttributeError:
 
 
 @pd.api.extensions.register_dataframe_accessor("gassner")
-class Gassner:
+class Gassner(PlotMixin):
     """Accessor for the Gassner shift factor for variable amplitude."""
 
     def __init__(self, pandas_obj):
@@ -231,12 +249,6 @@ class Gassner:
         """Validate the input DataFrame. Raise an error if the input
         DataFrame does not contain the right columns.
         """
-        if {
-            "shift_factor",
-        }.issubset(obj.columns):
-            e_msg = "'shift_factor' already calculated"
-            raise AttributeError(e_msg)
-
         if not {"count_cycle", "mean_stress", "stress_range"}.issubset(
             obj.columns
         ):
@@ -279,6 +291,8 @@ class Gassner:
         DataFrame
             The DataFrame with the shift factor per sample.
         """
+        if "shift_factor" in self._obj:
+            raise AttributeError("'shift_factor' already calculated")
         assert sn_curve.linear, "The SN curve must be linear"
         self._obj.sn_curve = sn_curve
         self.sn_curve = sn_curve
@@ -289,6 +303,20 @@ class Gassner:
             np.divide(stress_amp, max_amp), self.sn_curve.slope
         )
         return self._obj
+
+
+    def plot(
+        self,
+        fig: matplotlib.figure.Figure | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+    ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        """Plot calculated Gassner shift factor contributions by stress range."""
+        if "shift_factor" not in self._obj:
+            raise ValueError("Call g(sn_curve) before plotting.")
+        fig, ax = make_axes(fig, ax)
+        ax.scatter(self._obj.stress_range, self._obj.shift_factor)
+        ax.set(xlabel="Stress range", ylabel="Shift factor contribution")
+        return fig, ax
 
 
 def calc_pm(

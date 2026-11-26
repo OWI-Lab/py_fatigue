@@ -1,9 +1,51 @@
 use std::f64::consts::PI;
 
+mod surface;
+use surface::{bore_factors, external_pipe_factors, rolled_thread_factor};
+
 #[derive(Clone, Copy)]
 pub enum Plate {
-    Center { half_width: f64 },
-    Surface { half_width: f64, thickness: f64 },
+    Center {
+        half_width: f64,
+    },
+    Edge {
+        width: f64,
+    },
+    Surface {
+        half_width: f64,
+        thickness: f64,
+    },
+    SurfaceRoundBar {
+        diameter: f64,
+    },
+    SurfaceExternalPipe {
+        inner_radius: f64,
+        thickness: f64,
+    },
+    SurfaceRolledThread {
+        minor: f64,
+        major: f64,
+    },
+    SurfaceHoleBore {
+        width: f64,
+        thickness: f64,
+        hole_diameter: f64,
+        count: f64,
+    },
+    SphereThrough {
+        radius: f64,
+        thickness: f64,
+    },
+    AxialCylinderThrough {
+        radius: f64,
+        thickness: f64,
+    },
+    CircumferentialCylinderThrough {
+        radius: f64,
+        thickness: f64,
+        length: f64,
+        poisson: f64,
+    },
 }
 
 #[derive(Clone, Copy)]
@@ -55,7 +97,16 @@ pub enum GrowthError {
     Load,
     Material,
     Controls,
-    Budget,
+    HistoryCapacity,
+    TrialBudget {
+        block: usize,
+        cycles: f64,
+        limit: usize,
+    },
+    CycleResolution {
+        block: usize,
+        cycles: f64,
+    },
     NonFinite,
 }
 
@@ -73,6 +124,9 @@ impl Plate {
                 let factor = (PI * a / (PI * a / (2.0 * half_width)).cos()).sqrt();
                 Some([factor, 0.0])
             }
+            Self::Edge { width } if positive(a) && positive(width) && a / width <= 0.8 => {
+                Some([edge_factor(a, width), 0.0])
+            }
             Self::Surface {
                 half_width,
                 thickness,
@@ -86,9 +140,181 @@ impl Plate {
             {
                 Some(surface_factors(a, c, thickness, half_width))
             }
+            Self::SurfaceRoundBar { diameter }
+                if positive(a) && positive(diameter) && a < diameter / 2.0 =>
+            {
+                Some([round_bar_tension_factor(a, diameter), 0.0])
+            }
+            Self::SurfaceExternalPipe {
+                inner_radius,
+                thickness,
+            } => external_pipe_factors(a, c, inner_radius, thickness),
+            Self::SurfaceRolledThread { minor, major } => {
+                Some([rolled_thread_factor(a, minor, major)?, 0.0])
+            }
+            Self::SurfaceHoleBore {
+                width,
+                thickness,
+                hole_diameter,
+                count,
+            } => bore_factors(
+                c,
+                a,
+                thickness / 2.0,
+                width / 2.0,
+                hole_diameter / 2.0,
+                count,
+            ),
+            Self::SphereThrough { radius, thickness } => {
+                let lambda = shell_parameter(a, radius, thickness)?;
+                (lambda <= 3.0 && a / radius < PI).then(|| {
+                    [
+                        PI.sqrt() * a.sqrt() * (1.0 + 3.0 * lambda.powf(1.9)).powf(0.4),
+                        0.0,
+                    ]
+                })
+            }
+            Self::AxialCylinderThrough { radius, thickness } => {
+                let lambda = shell_parameter(a, radius, thickness)?;
+                (lambda <= 10.0).then(|| {
+                    let bulging =
+                        (1.0 + 0.52 * lambda + (1.29 - 0.074 * lambda) * lambda.powi(2)).sqrt();
+                    [PI.sqrt() * a.sqrt() * bulging, 0.0]
+                })
+            }
+            Self::CircumferentialCylinderThrough {
+                radius,
+                thickness,
+                length,
+                poisson,
+            } => {
+                let factor = circumferential_tension_factor(a, radius, thickness, length, poisson)?;
+                Some([factor, 0.0])
+            }
             _ => None,
         }
     }
+
+    pub fn net_section_stress(self, sizes: [f64; 2], stress: f64) -> Result<f64, GrowthError> {
+        if !stress.is_finite() || stress < 0.0 {
+            return Err(GrowthError::Load);
+        }
+        if self.factors(sizes).is_none() {
+            return Err(GrowthError::Geometry);
+        }
+        let [a, c] = sizes;
+        let factor = match self {
+            Self::Center { half_width } => 1.0 / (1.0 - a / half_width),
+            Self::Edge { width } => {
+                let crack = a / width;
+                let ligament = 1.0 - crack;
+                1.0 / ligament + 3.0 * crack * (1.0 - 2.0 * 0.13) / ligament.powi(2)
+            }
+            Self::Surface {
+                half_width,
+                thickness,
+            } => surface_net_section_factor(a / thickness, c / half_width),
+            Self::SurfaceRoundBar { .. }
+            | Self::SurfaceExternalPipe { .. }
+            | Self::SurfaceRolledThread { .. }
+            | Self::SurfaceHoleBore { .. }
+            | Self::SphereThrough { .. }
+            | Self::AxialCylinderThrough { .. }
+            | Self::CircumferentialCylinderThrough { .. } => return Err(GrowthError::Geometry),
+        };
+        let value = stress * factor;
+        if !value.is_finite() || !positive(factor) {
+            return Err(GrowthError::NonFinite);
+        }
+        Ok(value)
+    }
+}
+
+// NASA CR-4706, pp. A-27 and A-36. Use the mid-wall radius.
+fn shell_parameter(a: f64, radius: f64, thickness: f64) -> Option<f64> {
+    if !positive(a) || !positive(radius) || !positive(thickness) || thickness / radius >= 2.0 {
+        return None;
+    }
+    Some(a / (radius.sqrt() * thickness.sqrt()))
+}
+
+// Forman et al., DTD Handbook Table 11.3.13, axial tension component.
+fn circumferential_tension_factor(
+    a: f64,
+    radius: f64,
+    thickness: f64,
+    length: f64,
+    poisson: f64,
+) -> Option<f64> {
+    shell_parameter(a, radius, thickness)?;
+    let alpha = a / radius;
+    let minimum_length_ratio = 2.0 * (radius / thickness).sqrt();
+    if !positive(length)
+        || radius / thickness < 10.0
+        || length / radius < minimum_length_ratio
+        || !(poisson > -1.0 && poisson < 0.5)
+        || alpha >= 3.0 * PI / 4.0
+    {
+        return None;
+    }
+    let k = (thickness / radius).sqrt() / (12.0 * (1.0 - poisson.powi(2))).sqrt().sqrt();
+    let b = alpha / (2.0 * k);
+    let beta = if b <= 1.0 {
+        1.0 + (PI / 16.0 - 0.0293 * b) * b.powi(2)
+    } else {
+        // Sanders' interpolation uses b outside the inner radical.
+        (8.0_f64.sqrt() * b / PI).sqrt() + (0.179 / b).powf(0.885)
+    };
+    let delta = if alpha == 0.0 {
+        0.0
+    } else {
+        let cot = alpha.tan().recip();
+        let root_two = 2.0_f64.sqrt();
+        let h_over_alpha =
+            root_two / (alpha / ((PI - alpha) / root_two).tan() + root_two * (alpha * cot));
+        h_over_alpha * (1.0 - alpha * cot) / 2.0
+    };
+    // Substitute b = alpha/(2k) into I0/(2π alpha) before evaluation.
+    let f_squared = beta.powi(2) + (8.0_f64.sqrt() / PI) * b * delta * (2.0 + delta);
+    let factor = PI.sqrt() * a.sqrt() * f_squared.sqrt();
+    positive(factor).then_some(factor)
+}
+
+// USAF Damage Tolerant Design Handbook, Table 11.3.13, solid round bar in tension.
+fn round_bar_tension_factor(depth: f64, diameter: f64) -> f64 {
+    let beta = PI / 2.0 * (depth / diameter);
+    let tan_ratio = if beta == 0.0 { 1.0 } else { beta.tan() / beta };
+    let correction = (0.92 * 2.0 / PI) * tan_ratio.sqrt() / beta.cos();
+    let shape = 0.752 + 1.286 * beta + 0.37 * (1.0 - beta.sin()).powi(3);
+    correction * shape * PI.sqrt() * depth.sqrt()
+}
+
+// Tada's uniform tension solution, NASA NTRS 20240000858 equation (1).
+fn edge_factor(a: f64, width: f64) -> f64 {
+    let fraction = a / width;
+    let angle = PI / 2.0 * fraction;
+    let tan_ratio = if angle == 0.0 {
+        1.0
+    } else {
+        angle.tan() / angle
+    };
+    a.sqrt()
+        * (PI * tan_ratio).sqrt()
+        * (0.752 + 2.02 * fraction + 0.37 * (1.0 - angle.sin()).powi(3))
+        / angle.cos()
+}
+
+// Appendix B, SC01, with the area and inertia divided by Wt and Wt³.
+fn surface_net_section_factor(depth: f64, half_span: f64) -> f64 {
+    let removed = PI / 4.0 * depth * half_span;
+    let crack_centroid = 4.0 * depth / (3.0 * PI);
+    let centroid = (0.5 - removed * crack_centroid) / (1.0 - removed);
+    let offset = centroid - crack_centroid;
+    let ellipse_inertia = (0.25 - 16.0 / (9.0 * PI.powi(2))) * depth.powi(2);
+    let inertia =
+        1.0 / 12.0 + (centroid - 0.5).powi(2) - removed * (ellipse_inertia + offset.powi(2));
+    let fiber = (1.0 - 0.13) * centroid.max(1.0 - centroid);
+    1.0 / (1.0 - removed) + removed * offset * fiber / inertia
 }
 
 // Newman and Raju, NASA TP-1578, equations 2–10, tension component only.
@@ -130,11 +356,19 @@ impl Nasgro {
     }
 
     pub fn growth_rate(self, length: f64, k_min: f64, k_max: f64) -> Result<f64, GrowthError> {
+        self.rate_for_length(Some(length), k_min, k_max)
+    }
+
+    pub(crate) fn rate_for_length(
+        self,
+        length: Option<f64>,
+        k_min: f64,
+        k_max: f64,
+    ) -> Result<f64, GrowthError> {
         if !self.valid() {
             return Err(GrowthError::Material);
         }
-        if !positive(length)
-            || !k_min.is_finite()
+        if !k_min.is_finite()
             || k_min < 0.0
             || !positive(k_max)
             || k_min >= k_max
@@ -142,12 +376,17 @@ impl Nasgro {
         {
             return Err(GrowthError::Load);
         }
+        // NASGRO 3.0 uses 0.0015 in (0.0381 mm) as the intrinsic crack length.
+        let length_factor = match length {
+            Some(length) if positive(length) => (length / (length + 0.0381)).sqrt(),
+            Some(_) => return Err(GrowthError::Load),
+            None => 1.0,
+        };
         let delta = k_max - k_min;
         let ratio = k_min / k_max;
         let (a0, opening) = self.opening(ratio);
         let closure = (1.0 - opening) / (1.0 - ratio);
-        // NASGRO 3.0 uses 0.0015 in (0.0381 mm) as the intrinsic crack length.
-        let threshold = self.threshold_zero * (length / (length + 0.0381)).sqrt()
+        let threshold = self.threshold_zero * length_factor
             / (closure / (1.0 - a0)).powf(1.0 + self.threshold_fanning * ratio);
         if self.p > 0.0 && delta <= threshold {
             return Ok(0.0);
@@ -263,7 +502,7 @@ impl Integration<'_> {
         let slot = self
             .output
             .get_mut(self.written)
-            .ok_or(GrowthError::Budget)?;
+            .ok_or(GrowthError::HistoryCapacity)?;
         *slot = Point {
             cycles: self.elapsed,
             sizes: self.sizes,
@@ -288,7 +527,10 @@ impl Integration<'_> {
                 return Ok(None);
             }
             if !positive(step) || self.elapsed + step == self.elapsed {
-                return Err(GrowthError::Budget);
+                return Err(GrowthError::CycleResolution {
+                    block: index + 1,
+                    cycles: self.elapsed,
+                });
             }
             self.trials += 1;
             match step_trial(
@@ -320,7 +562,11 @@ impl Integration<'_> {
         if remaining == 0.0 {
             Ok(None)
         } else {
-            Err(GrowthError::Budget)
+            Err(GrowthError::TrialBudget {
+                block: index + 1,
+                cycles: self.elapsed,
+                limit: self.control.max_trials,
+            })
         }
     }
 }

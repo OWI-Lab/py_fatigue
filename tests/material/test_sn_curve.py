@@ -1,4 +1,5 @@
 # from hypothesis import  given, strategies as hy
+import json
 import warnings
 
 import numpy as np
@@ -343,23 +344,25 @@ def test_endurance_behavior():
     assert "Endurance" in ve.value.args[0]
 
 
-def test_plotly():
-    """Asserting that plotly behaves as expected."""
-    # endurance assertions on trilinear SN curve + endurance
-    data, layout = EXOTIC.plotly(cycles=200, stress_range=60)
-    assert EXOTIC.endurance in data[0].x
-    assert np.round(EXOTIC.get_stress(EXOTIC.endurance), 4) == np.round(
-        data[0].y[-1], 4
+def test_echarts():
+    """Show the curve knees, endurance and optional overlay on log axes."""
+    chart = EXOTIC.echarts(cycles=200, stress_range=60, dataset_name="History")
+    options = json.loads(chart.dump_options_with_quotes())
+    cycles, stress = np.asarray(options["series"][0]["data"]).T
+    assert EXOTIC.endurance in cycles
+    assert stress[-1] == pytest.approx(EXOTIC.get_stress(EXOTIC.endurance))
+    assert stress[-1] == pytest.approx(EXOTIC.get_stress(np.inf))
+    assert np.all(np.isin(EXOTIC.get_knee_cycles(), cycles))
+    assert np.all(
+        np.isin(np.round(EXOTIC.get_knee_stress(), 4), np.round(stress, 4))
     )
-    assert np.round(EXOTIC.get_stress(np.inf), 4) == np.round(data[0].y[-1], 4)
-    assert np.any(np.isin(EXOTIC.get_knee_cycles(), data[0].x))
-    assert np.any(
-        np.isin(np.round(EXOTIC.get_knee_stress(), 4), np.round(data[0].y, 4))
-    )
-    assert 200 in data[1].x
-    assert 60 in data[1].y
-    assert layout.xaxis.title.text == "Number of cycles"
-    assert EXOTIC.unit in layout.yaxis.title.text
+    assert options["series"][1]["data"] == [[200, 60]]
+    assert options["series"][1]["name"] == "History"
+    x_axis, = options["xAxis"]
+    y_axis, = options["yAxis"]
+    assert x_axis["name"] == "Number of cycles"
+    assert EXOTIC.unit in y_axis["name"]
+    assert x_axis["type"] == y_axis["type"] == "log"
 
 
 def test_format_name():
@@ -380,7 +383,7 @@ def test_format_name():
 
 
 def test_plot():
-    """Asserting that plotly behaves as expected."""
+    """Show the curve knees, endurance and optional overlay in Matplotlib."""
     # endurance assertions on trilinear SN curve + endurance
     _, ax = EXOTIC.plot(cycles=200, stress_range=60)
     sn_curve_cycles = ax.lines[0].get_xdata()

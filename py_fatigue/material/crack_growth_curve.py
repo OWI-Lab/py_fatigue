@@ -16,20 +16,16 @@ import io
 # import itertools
 # import warnings
 
-# Non-standard "from" imports
-# from plotly.express import colors as px_colors
-
 # Non-standard imports
 import matplotlib.figure
 import matplotlib.axis
 import matplotlib.pyplot as plt
 import numpy as np
 
-# import plotly.graph_objs as go
-# import plotly.io as pio
 
 # py_fatigue imports
 from .._rust import evaluate_curve
+from ..plotting import PlotMixin, _CurveScale, _plot_curve
 from ..utils import make_axes, calc_slope_intercept
 from ..material.sn_curve import (
     _set_color,
@@ -323,7 +319,7 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
         """
 
 
-class ParisCurve(AbstractCrackGrowthCurve):
+class ParisCurve(AbstractCrackGrowthCurve, PlotMixin):
     """Define a crack growth curve inthe form of Paris' law that can
     have an arbitrary number of slopes/intercepts as well as a
     threshold and critical stress intensity factor. For example:
@@ -821,6 +817,8 @@ class ParisCurve(AbstractCrackGrowthCurve):
         dataset_color: str = "#000",
         fig: Optional[matplotlib.figure.Figure] = None,
         ax: Optional[matplotlib.axes.Axes] = None,  # type: ignore
+        *,
+        scale: _CurveScale = "loglog",
         **kwargs: Any,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
         """Use matplotlib to plot the Paris' law and a da/dN vs ΔK
@@ -849,6 +847,8 @@ class ParisCurve(AbstractCrackGrowthCurve):
             figure object, by default None
         ax : matplotlib.axes.Axes, optional
             axis object, by default None
+        scale : {"loglog", "semilogx", "semilogy"}, optional
+            Axis scales, by default "loglog".
         **kwargs : Any, optional
             additional keyword arguments
 
@@ -860,17 +860,18 @@ class ParisCurve(AbstractCrackGrowthCurve):
         fig, ax = make_axes(fig, ax)
         sif_plot, growth_rate_plot = _paris_curve_data_points(self)
 
-        # plt.figure(figsize=(6, 2.5))
-        ax.loglog(  # type: ignore
+        _plot_curve(
+            ax,
             sif_plot,
             growth_rate_plot,
+            scale,
             label=self.name,
             color=self.color,
             **kwargs,
         )
         if sif is not None and growth_rate is not None:
             sif, growth_rate = _check_param_couple_types(sif, growth_rate)
-            ax.loglog(  # type: ignore
+            ax.plot(  # type: ignore
                 sif,
                 growth_rate,
                 label=dataset_name,
@@ -880,7 +881,7 @@ class ParisCurve(AbstractCrackGrowthCurve):
                 markersize=4,
             )
 
-        plt.grid(which="both", linestyle=":")
+        ax.grid(which="both", linestyle=":")
         ax.set_xlabel(f"SIF range (ΔK), {self.unit}")  # type: ignore
         if "√" in self.unit:
             split_unit = self.unit.split("√")

@@ -3,16 +3,20 @@ damage models related to the crack growth approach.
 """
 
 # Packages from the Python Standard Library
+import re
 from typing import Dict, Tuple, Type, TypeVar
 
 # Packages from third party libraries
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 import numpy as np
 import pandas as pd
 
 # Local packages
 from ..cycle_count.cycle_count import CycleCount
 from ..material.crack_growth_curve import ParisCurve
-from ..utils import split
+from ..plotting import PlotMixin
+from ..utils import make_axes, split
 from ..geometry.generic import AbstractCrackGeometry
 from ..geometry.cylinder import cylinder_dimensions, f_hol_cyl_01
 from .._rust import legacy_growth
@@ -26,7 +30,7 @@ except AttributeError:
 ACG = TypeVar("ACG", bound=AbstractCrackGeometry)
 
 
-class CalcCrackGrowth:  # pragma: no cover
+class CalcCrackGrowth(PlotMixin):  # pragma: no cover
     """Crack growth object. This object is used to calculate the crack
     growth rate and the crack size. The class has been implemented
     using a Rust kernel to speed up the calculations.
@@ -139,6 +143,23 @@ class CalcCrackGrowth:  # pragma: no cover
             return "Crack growth object: to failure."
         return "Crack growth object: to maximum number of cycles - no failure."
 
+    def plot(
+        self, fig: Figure | None = None, ax: Axes | None = None
+    ) -> tuple[Figure, Axes]:
+        """Plot the crack depth recorded at the start of each legacy step.
+
+        Depths use the same length unit as the supplied geometry.
+        """
+        fig, ax = make_axes(fig, ax)
+        count = len(self.crack_depth)
+        cycles = np.r_[0.0, np.cumsum(self.count_cycle[:count])][:count]
+        ax.plot(cycles, self.crack_depth, marker="o" if count == 1 else None)
+        ax.set(xlabel="Cycles at start of step", ylabel="Crack depth")
+        ax.ticklabel_format(axis="y", useOffset=False)
+        if not count:
+            ax.set_title("No recorded crack depths")
+        return fig, ax
+
     @property
     def size(self) -> int:
         """Size of the problem."""
@@ -211,7 +232,7 @@ class CalcCrackGrowth:  # pragma: no cover
         knees = self.get_knees_sif
         if sif < self.threshold:
             the_growth_rate = 0.0
-        if sif > self.critical:
+        elif sif >= self.critical:
             the_growth_rate = np.inf
         else:
             idx = np.digitize(np.asarray([sif]), knees, right=True) - 1
@@ -408,11 +429,21 @@ def get_crack_growth(  # pragma: no cover
     -------
     CalcCrackGrowth
         The crack growth calculation object
+    Notes
+    -----
+    Use matching stress units for the cycle count and the curve. For
+    example, use MPa with MPa √mm and supply crack dimensions in mm.
+    The solver uses the input values directly without converting units.
     """
     # Handle the stress ranges and cycle counts as they might be clustered
     # in a matrix and we need to iterate over single or "little" cycles
     # within the same stress range block
-    if cycle_count.unit not in cg_curve.unit:
+    intensity_unit = re.fullmatch(
+        r"(Pa|kPa|MPa|GPa|psi|ksi)\s*(?:[·*]\s*)?"
+        r"(?:√\s*(?:mm|cm|m|in)|sqrt\(\s*(?:mm|cm|m|in)\s*\))",
+        cg_curve.unit.strip(),
+    )
+    if intensity_unit is None or cycle_count.unit.strip() != intensity_unit[1]:
         e_msg = (
             f"Cycle count unit ({cycle_count.unit}) and crack growth "
             f"curve unit ({cg_curve.unit}) are not compatible."

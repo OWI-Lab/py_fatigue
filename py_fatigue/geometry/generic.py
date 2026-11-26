@@ -3,10 +3,14 @@ import abc
 from functools import wraps
 
 # Packages from non-standard libraries
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from pydantic.dataclasses import dataclass
 from pydantic.types import PositiveFloat
 
 # Local imports
+from ..plotting import PlotMixin
+from ..utils import make_axes
 
 
 def kwargs_only(cls):
@@ -47,7 +51,7 @@ class CrackGeometryMixin:
     # final_cycles_: Optional[PositiveFloat] = None
 
 
-class AbstractCrackGeometry(CrackGeometryMixin, metaclass=abc.ABCMeta):
+class AbstractCrackGeometry(CrackGeometryMixin, PlotMixin, metaclass=abc.ABCMeta):
     """Abstract class to initalise and store the crack geometry data."""
 
     def __str__(self) -> str:
@@ -136,13 +140,25 @@ class InfiniteSurface(AbstractCrackGeometry):
     """Class to initalise and store the crack geometry data on a
     flat infinite surface, as per standard Paris' law.
 
-    Parameters
+    Attributes
     ----------
     initial_depth : float
         The initial depth of the crack.
     """
 
     _id = property(lambda _: "INF_SUR_00")
+
+    def plot(
+        self, fig: Figure | None = None, ax: Axes | None = None
+    ) -> tuple[Figure, Axes]:
+        """Draw a depth-only schematic of the crack at the infinite surface."""
+        fig, ax = make_axes(fig, ax)
+        ax.plot([0, 0], [0, self.initial_depth], "o-", color="firebrick")
+        ax.set(ylabel="Depth from surface", title="Infinite surface crack")
+        ax.xaxis.set_visible(False)
+        if not ax.yaxis_inverted():
+            ax.invert_yaxis()
+        return fig, ax
 
     # @property
     # def geometry_factor(self) -> np.ndarray:

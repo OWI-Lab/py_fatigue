@@ -16,13 +16,11 @@ def clean(context):
 def build(context):
     """Build the documentation and export the example notebooks."""
     context.run("zensical build")
-    for name in ("development_guide", "ordered_crack_growth"):
-        destination = Path(DOCS_BUILD_DIR) / f"{name}.html"
+    for notebook in sorted(Path("notebooks").glob("*.py")):
+        destination = Path(DOCS_BUILD_DIR) / notebook.with_suffix(".html").name
         context.run(
-            f"marimo export html notebooks/{name}.py "
-            f'-o "{destination}" --force'
+            f'marimo export html "{notebook}" -o "{destination}" --force'
         )
-
 
 
 @task(default=True)

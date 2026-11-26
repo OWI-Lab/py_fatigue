@@ -24,9 +24,9 @@ The main features of Py-Fatigue are:
 - crack propagation analysis through the combination of the Paris' law and multiple crack geometries
 - and more...
 
-Py-Fatigue 3 uses a Rust numerical extension with [``numpy``](https://numpy.org/) and [``pandas``](https://pandas.pydata.org/), for the analytical part, and [``matplotlib``](https://matplotlib.org/) as well as [``plotly``](https://plotly.com/python/) for the plotting part.
+Py-Fatigue 3 uses a Rust numerical extension with [``numpy``](https://numpy.org/) and [``pandas``](https://pandas.pydata.org/), for the analytical part, and [``matplotlib``](https://matplotlib.org/) as well as [``pyecharts``](https://pyecharts.org/) for the plotting part.
 
-Therefore, it is highly recommended to have a look at the documentation of these packages as well.
+Examples in marimo offer **Static** (Matplotlib) and **ECharts** views. Pass a Matplotlib figure to `py_fatigue.plotting.to_echarts(fig)` to get an interactive chart, or call `sn_curve.echarts()` for a single S–N curve.
 
 ## Installation requirements
 
@@ -46,16 +46,28 @@ Py-Fatigue can be installed via pip:
 pip install py_fatigue
 ```
 
-## Development notebook
+## Example notebooks
 
-Use Python 3.11 or newer for marimo and the documentation. Install Rust and the development dependencies, then open the guide from
-the repository root.
+Use Python 3.11 or newer for marimo and the documentation. Install Rust and
+the development dependencies, then open the notebooks from the repository root.
 
 ```bash
 uv sync --group dev
-uv run marimo edit notebooks/development_guide.py
-uv run marimo edit notebooks/ordered_crack_growth.py
+uv run marimo edit notebooks
 ```
+
+Start with `00-development_guide.py` or pick a lesson from the
+[numbered notebook index](docs/user/examples/01-notebook_setup.md).
+
+## Build the documentation locally
+
+```bash
+uv sync --group dev --group docs
+uv run --no-sync invoke docs.build
+```
+
+Open `_build/docs/index.html` for the architecture guide, API reference,
+and rendered examples.
 
 ## Upgrading from 2.x
 

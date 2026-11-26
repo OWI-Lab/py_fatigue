@@ -20,19 +20,16 @@ import io
 import itertools
 import warnings
 
-# Non-standard "from" imports
-from plotly.express import colors as px_colors
-
 # Non-standard imports
 import matplotlib.figure
 import matplotlib.axis
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objs as go
-import plotly.io as pio
+from pyecharts.charts import Line
 
 # py_fatigue imports
 from .._rust import evaluate_curve, sn_intersection
+from ..plotting import _CurveScale, _plot_curve, to_echarts
 from ..utils import (
     make_axes,
     calc_slope_intercept,
@@ -42,9 +39,13 @@ from ..utils import (
     _as_scalar_coercible_array,
 )
 
-COLOR_LIST = px_colors.qualitative.Alphabet
-PLOTLY_FONT_FAMILY = "Roboto"
-pio.templates.default = "none"
+COLOR_LIST = [
+    "#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356",
+    "#16FF32", "#F7E1A0", "#E2E2E2", "#1CBE4F", "#C4451C", "#DEA0FD",
+    "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E",
+    "#1CFFCE", "#2ED9FF", "#B10DA1", "#C075A6", "#FC1CBF", "#B00068",
+    "#FBE426", "#FA0087",
+]
 __all__ = ["SNCurve"]
 
 
@@ -445,23 +446,18 @@ class SNCurve(AbstractSNCurve):
     -------
 
     >>> from py_fatigue import SNCurve
-    >>> import numpy as np
-
-    First we create an SN curve with the following properties:
-
     >>> w3a = SNCurve(
-    >>>     [3, 5],
-    >>>     [10.970, 13.617],
-    >>>     norm='DNVGL-RP-C203',
-    >>>     curve='W3',
-    >>>     environment='Air',
-    >>> )
+    ...     [3, 5],
+    ...     [10.970, 13.617],
+    ...     norm="DNVGL-RP-C203",
+    ...     curve="W3",
+    ...     environment="Air",
+    ... )
 
-    Then we can plot the SN curve defined using plotly
+    Plot the S–N curve in Matplotlib or save an interactive HTML chart.
 
-    >>> data, layout = w3a.plotly()
-    >>> fig = go.Figure(data=data, layout=layout)
-    >>> fig.show
+    >>> fig, ax = w3a.plot()
+    >>> chart = w3a.echarts()
     """
 
     def _repr_svg_(self) -> str:
@@ -739,103 +735,47 @@ class SNCurve(AbstractSNCurve):
         )
         return self.get_stress(n)
 
-    def plotly(
+    def echarts(
         self,
         cycles: list | None = None,
         stress_range: list | None = None,
         dataset_name: str | None = None,
         dataset_color: str = "#000",
-    ) -> Tuple[list, dict]:
-        """Use plotly to plot the SN curve and a stress-cycles history dataset.
-
-        Example
-        -------
-
-        Use plotly to plot the SN curve
-
-        >>> data, layout = sncurve.plotly()
-        >>> fig = go.Figure(data=data, layout=layout)
-        >>> fig.show
+        *,
+        scale: _CurveScale = "loglog",
+    ) -> Line:
+        """Plot the S–N curve and optional stress history in ECharts.
 
         Parameters
         ----------
-        cycles : list, optional
-            number of cycles value(s) in the dataset,
-            by default None
-        stress_range : list, optional
-            :term:`Stress range(s)<Stress ranges>` in the dataset,
-            by default None
+        cycles, stress_range : array_like, optional
+            Paired cycle counts and stress ranges to overlay.
         dataset_name : str, optional
-            history dataset name, by default None
+            Label for the stress history.
         dataset_color : str, optional
-            history dataset color, by default "#000"
+            Color for the stress history.
+        scale : {"loglog", "semilogx", "semilogy"}, optional
+            Axis scales, by default "loglog".
 
         Returns
         -------
-        Tuple[list, dict]
-            data, layout
+        pyecharts.charts.Line
+            Interactive chart. Call `render()` to write it to HTML.
+
+        Examples
+        --------
+        >>> sn = SNCurve(slope=3, intercept=12.0)
+        >>> chart = sn.echarts(cycles=[1000], stress_range=[100])
+        >>> chart.options["series"][1]["data"]
+        [[1000.0, 100.0]]
         """
-
-        n_plot = np.asarray(
-            [10**_ * np.linspace(1, 10, 10) for _ in range(4, 9)]
-        ).reshape(1, 50)[0]
-        if self.endurance < np.inf:
-            n_plot = np.sort(
-                np.append(
-                    n_plot, np.array([self.endurance, 10 * self.endurance])
-                )
-            )
-        if not self.linear:
-            n_plot = np.sort(
-                np.append(n_plot, np.array(self.get_knee_cycles()))
-            )
-        sigma_plot = self.get_stress(n_plot)
-        data = [
-            go.Scattergl(
-                x=n_plot,
-                y=sigma_plot,
-                name=self.name,
-                line={"color": self.color, "width": 1},
-            )
-        ]
-
-        if cycles is not None and stress_range is not None:
-            cycles, stress_range = _check_param_couple_types(
-                cycles,
-                stress_range,
-            )
-            data.append(
-                go.Scattergl(
-                    x=cycles,
-                    y=stress_range,
-                    name=dataset_name,
-                    mode="lines+markers",
-                    line={"color": dataset_color, "width": 1},
-                    marker={"color": dataset_color, "size": 4},
-                )
-            )
-        layout = go.Layout(
-            xaxis={
-                "title": "Number of cycles",
-                "type": "log",
-                "tickformat": ".0f",
-            },
-            yaxis={
-                "title": "Stress range, " + self.unit,
-                "type": "log",
-                "tickformat": ".0f",
-            },
-            font={"family": PLOTLY_FONT_FAMILY, "size": 14, "color": "#000"},
-            legend={
-                "font": {
-                    "family": PLOTLY_FONT_FAMILY,
-                    "size": 12,
-                    "color": "#000",
-                }
-            },
+        fig, ax = self.plot(
+            cycles, stress_range, dataset_name, dataset_color, scale=scale
         )
-
-        return data, layout
+        try:
+            return to_echarts(ax)
+        finally:
+            plt.close(fig)
 
     def plot(
         self,
@@ -845,15 +785,16 @@ class SNCurve(AbstractSNCurve):
         dataset_color: str = "#000",
         fig: matplotlib.figure.Figure | None = None,
         ax: matplotlib.axes.Axes | None = None,
+        *,
+        scale: _CurveScale = "loglog",
         **kwargs: Any,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
-        """Use plotly to plot the SN curve and a stress-cycles history dataset.
+        """Plot the S–N curve and optional stress history in Matplotlib.
 
         Example
         -------
 
-        Use plotly to plot the SN curve
-
+        >>> sncurve = SNCurve(slope=3, intercept=12.0)
         >>> fig, ax = sncurve.plot()
 
         Parameters
@@ -872,6 +813,8 @@ class SNCurve(AbstractSNCurve):
             figure object, by default None
         ax : matplotlib.axes.Axes, optional
             axis object, by default None
+        scale : {"loglog", "semilogx", "semilogy"}, optional
+            Axis scales, by default "loglog".
         **kwargs : Any, optional
             additional keyword arguments
 
@@ -883,16 +826,21 @@ class SNCurve(AbstractSNCurve):
         fig, ax = make_axes(fig, ax)
         n_plot, sigma_plot = _sn_curve_data_points(self)
 
-        # plt.figure(figsize=(6, 2.5))
-        ax.loglog(
-            n_plot, sigma_plot, label=self.name, color=self.color, **kwargs
+        _plot_curve(
+            ax,
+            n_plot,
+            sigma_plot,
+            scale,
+            label=self.name,
+            color=self.color,
+            **kwargs,
         )
         if cycles is not None and stress_range is not None:
             cycles, stress_range = _check_param_couple_types(
                 cycles,
                 stress_range,
             )
-            ax.loglog(
+            ax.plot(
                 cycles,
                 stress_range,
                 label=dataset_name,
@@ -902,7 +850,7 @@ class SNCurve(AbstractSNCurve):
                 markersize=4,
             )
 
-        plt.grid(which="both", linestyle=":")
+        ax.grid(which="both", linestyle=":")
         ax.set_xlabel("Number of cycles")
         ax.set_ylabel("Stress range, " + self.unit)
 
