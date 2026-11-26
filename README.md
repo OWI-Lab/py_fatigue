@@ -13,7 +13,9 @@
   <img src="https://owi-lab.github.io/py_fatigue/_static/_img/py-fatigue-logo-with-name.png" alt="py-fatigue logo" width="height"/>
 </p>
 
-Py-Fatigue is a Python package for cycle-counting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel. Full documentation can be found [**here**](https://owi-lab.github.io/py_fatigue/).
+Py-Fatigue is a Python package for cycle-counting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel.
+
+[Stable documentation](https://owi-lab.github.io/py_fatigue/) · [3.0.0rc1 documentation](https://owi-lab.github.io/py_fatigue/3.0.0rc1/)
 
 The main features of Py-Fatigue are:
 - a powerful cycle-counting implementation based on the ASTM E1049-85 rainflow method that retrieves the main class of the package: ``CycleCount``
@@ -21,30 +23,30 @@ The main features of Py-Fatigue are:
 - easy applicability of multiple mean stress effect correction models
 - implementation of low-frequency fatigue recovery when "summing" multiple ``CycleCount`` instances
 - fatigue analysis through the combination of SN curves and multiple damage accumulation models
-- crack propagation analysis through the combination of the Paris' law and multiple crack geometries
+- crack growth with Paris curves and ordered-load NASGRO analyses for multiple geometries
 - and more...
 
 Py-Fatigue 3 uses a Rust numerical extension with [``numpy``](https://numpy.org/) and [``pandas``](https://pandas.pydata.org/), for the analytical part, and [``matplotlib``](https://matplotlib.org/) as well as [``pyecharts``](https://pyecharts.org/) for the plotting part.
 
 Examples in marimo offer **Static** (Matplotlib) and **ECharts** views. Pass a Matplotlib figure to `py_fatigue.plotting.to_echarts(fig)` to get an interactive chart, or call `sn_curve.echarts()` for a single S–N curve.
 
-## Installation requirements
+## Installation
 
-> [!IMPORTANT]  
-> Py-Fatigue `v1.*.*` is hosted on branch `main` and requires Python [3.8, 3.9, 3.10].
->
-> Py-Fatigue `v2.*.*` is hosted on branch `develop` and is compatible with Python [3.10, 3.11, 3.12, 3.13].
->
-> Py-Fatigue 3 targets 64-bit CPython 3.10–3.14.
-> Installing from source requires Rust. Platform wheels include the native extension.
-
-### Installation
-
-Py-Fatigue can be installed via pip:
+### Stable release
 
 ```bash
-pip install py_fatigue
+pip install py-fatigue
 ```
+
+### Py-Fatigue 3 release candidate
+
+```bash
+pip install py-fatigue==3.0.0rc1
+```
+
+The release candidate supports 64-bit CPython 3.10–3.14. Platform wheels
+include the Rust extension. Source builds require Rust.
+[3.0.0rc1 on PyPI](https://pypi.org/project/py-fatigue/3.0.0rc1/)
 
 ## Example notebooks
 
