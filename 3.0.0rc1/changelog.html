@@ -1,0 +1,2669 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://owi-lab.github.io/py_fatigue/3.0.0rc1/changelog.html">
+      
+      
+      
+      
+        <link rel="prev" href="./api/utils.html">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="./owi-lab.ico">
+      <meta name="generator" content="zensical-0.1.3">
+    
+    
+      
+        <title>Changelog - Py-Fatigue</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.e2cf241e.min.css">
+      
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./index.html" title="Py-Fatigue" class="md-header__button md-logo" aria-label="Py-Fatigue" data-md-component="logo">
+      
+  <img src="./_static/_img/owi-lab-small.png" alt="Py-Fatigue">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Py-Fatigue
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/OWI-Lab/py_fatigue" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    OWI-Lab/py_fatigue
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./index.html" title="Py-Fatigue" class="md-nav__button md-logo" aria-label="Py-Fatigue" data-md-component="logo">
+      
+  <img src="./_static/_img/owi-lab-small.png" alt="Py-Fatigue">
+
+    </a>
+    Py-Fatigue
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/OWI-Lab/py_fatigue" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    OWI-Lab/py_fatigue
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/01-absolute-noob.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Architecture
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  User guide
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  User guide
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/02-user-guide.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  User guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/01-notebook_setup.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Run the example notebooks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/02-sn_curve.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2. SN curve
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/03-cg_curve.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  3. Crack growth curve
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/04-cycle_counting.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  4. CycleCount definition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/05-cycle_count_sum.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  5. CycleCount sum
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/06-mean_stress.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  6. Mean stress effect
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/07-damage.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  7. Stress-Life damage calculation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/08-ordered-crack-growth.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Ordered plate crack propagation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/additional/01-index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Glossary and guidelines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/additional/glossary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Glossary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/additional/relevant_guidelines.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Relevant guidelines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  API reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  API reference
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/01-index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  API index
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cycle count
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Cycle count
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/cycle_count/cycle_count.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cycle_count
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/cycle_count/cycle_count_.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cycle_count
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/cycle_count/histogram.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  histogram
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/cycle_count/rainflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  rainflow
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/cycle_count/utils.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  utils
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Material
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Material
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/material/material.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  material
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/material/sn_curve.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  sn_curve
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/material/crack_growth_curve.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  crack_growth_curve
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Geometry
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Geometry
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/geometry/geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  geometry
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/geometry/generic.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  generic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/geometry/cylinder.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cylinder
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stress
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Stress
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/stress/stress.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  stress
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/stress/stress_range.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  stress_range
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/stress/mean_stress.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  mean_stress
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_6" id="__nav_5_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Damage
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Damage
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/damage/damage.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  damage
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/damage/stress_life.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  stress_life
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/damage/crack_growth.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  crack_growth
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/styling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  styling
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/testing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  testing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./api/utils.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  utils
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Changelog
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="changelog.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Changelog
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#300rc1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3.0.0rc1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#204" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.4
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#203" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.3
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#202" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#201" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#200" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#140" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.4.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#134" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.4
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#133" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.3
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#132" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#131" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#130" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#122" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#121" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#120" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#112" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.1.2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.1.1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#110" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.1.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1020" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.20
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1019" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.19
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1018" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.18
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1016" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.16
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1015" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.15
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1014" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.14
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1013" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.13
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1012" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.12
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1011" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.11
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1010" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.10
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#108" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.8
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#106" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.6
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#105" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.5
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#100" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#300rc1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3.0.0rc1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#204" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.4
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#203" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.3
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#202" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#201" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#200" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.0.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#140" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.4.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#134" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.4
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#133" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.3
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#132" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#131" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#130" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.3.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#122" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#121" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#120" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.2.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#112" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.1.2
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.1.1
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#110" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.1.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1020" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.20
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1019" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.19
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1018" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.18
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1016" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.16
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1015" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.15
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1014" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.14
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1013" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.13
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1012" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.12
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1011" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.11
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1010" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.10
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#108" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.8
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#106" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.6
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#105" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.5
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#100" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1.0.0
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+  <h1>Changelog</h1>
+
+<h2 id="300rc1">3.0.0rc1</h2>
+<p>This release candidate moves numerical kernels to Rust and adds ordered
+NASGRO crack growth for plate, shell, bar, thread, and plate-hole geometries.
+See the <a href="user/examples/08-ordered-crack-growth.html">crack-growth guide</a> for
+the supported loads and limits of each solution.</p>
+<p>The documentation uses Zensical. The <a href="user/examples/01-notebook_setup.html">marimo examples</a>
+provide Matplotlib and ECharts views, synthetic histories, and comparisons
+with the AFGROW handbook.</p>
+<p>Install this candidate explicitly with <code>pip install py-fatigue==3.0.0rc1</code>.</p>
+<h2 id="204">2.0.4</h2>
+<ul>
+<li>bump(patch): Bump version to 2.0.4 [skip ci]</li>
+<li>ci(pages): Pages compiled only from develop branch.</li>
+<li>feat(cycle-count): Add <code>CycleCount.summary()</code> method to print a summary of the CycleCount object.</li>
+<li>test(improve): Improve test coverage throughout the package.</li>
+</ul>
+<h2 id="203">2.0.3</h2>
+<ul>
+<li>bump(patch): Bump version to 2.0.3 [skip ci]</li>
+<li>ci(pages): Pages compiled only from develop branch.</li>
+<li>fix(threshold-and-critical-growth-rate): Now threshold and critical growth rate calculation returns a float always.</li>
+</ul>
+<h2 id="202">2.0.2</h2>
+<ul>
+<li>bump(patch): Bump version to 2.0.2 [skip ci]</li>
+<li>ci(pages): Pages compiled only from develop branch.</li>
+<li>fix(endurance-stress): Now endurance stress calculation returns a float always.</li>
+<li>fix(gitignore): Ignore .jupyter folder.</li>
+<li>feat(crack-growth): Split Paris curve into Paris and Walker curves for clarity.</li>
+<li>docs(README): Fix flake and Goodman correction docstring.</li>
+<li>docs(README): Improve README.</li>
+<li>chore(tasks): Run invoke notebook task without token.</li>
+<li>docs(README): Add py-fatigue logo to README.</li>
+</ul>
+<h2 id="201">2.0.1</h2>
+<ul>
+<li>bump(patch): Bump version to 2.0.1 [skip ci]</li>
+<li>chore(qa): Fix flake line length.</li>
+<li>build(pyproject): Relax numpy constraint. Increase Pandas constraint.</li>
+<li>ci(templates): Update issue templates.</li>
+<li>ci(pages): Push to pages also from develop and releases.</li>
+</ul>
+<h2 id="200">2.0.0</h2>
+<ul>
+<li>bump(major): Bump version to 2.0.0 [skip ci]</li>
+<li>test.</li>
+<li>bump(revert): Revert to 1.4.0 to publish on PyPI.</li>
+<li>bump(revert): Revert to 1.4.0.</li>
+<li>ci(python): Fix CI/CD for Python &gt;= 3.10.</li>
+<li>fix(qa): Quality assessment passes.</li>
+<li>feat(python-support): First commit for Issue #10. (Test pass, qa needs fix)</li>
+</ul>
+<h2 id="140">1.4.0</h2>
+<ul>
+<li>bump(minor): Bump version to 1.4.0 [skip ci]</li>
+<li>feat(mean-stress): Add generic Goodman-Haigh correction.</li>
+<li>fix(cycle_count): Bug when plotting min-max histogram.</li>
+<li>docs(home): Improve docs appearance.</li>
+<li>docs(stress-life): Fix on calc_nonlinear_damage_with_dca.</li>
+<li>docs(changelog): Add changelog.</li>
+</ul>
+<h2 id="134">1.3.4</h2>
+<ul>
+<li>ci(pages): Embed pages in CI/CD pipeline</li>
+</ul>
+<h2 id="133">1.3.3</h2>
+<ul>
+<li>bump(patch): Bump version to 1.3.3 [skip ci]</li>
+<li>ci(pipeline): Merge release/v1.3.3 to main [skip ci]</li>
+<li>chore(change-log): Update change log</li>
+</ul>
+<h2 id="132">1.3.2</h2>
+<ul>
+<li>bump(patch): Bump version to 1.3.2 [skip ci]</li>
+<li>ci(pipeline): Merge release/v1.3.2 to main [skip ci]</li>
+<li>test(material): Increase coverage</li>
+<li>test(nonlinear): Add few tests on Theil and Pavlou (DCA) stress-life methods</li>
+</ul>
+<h2 id="131">1.3.1</h2>
+<ul>
+<li>bump(patch): Bump version to 1.3.1 [skip ci]</li>
+<li>ci(pipeline): Merge release/v1.3.1 to main [skip ci]</li>
+</ul>
+<h2 id="130">1.3.0</h2>
+<ul>
+<li>bump(minor): Bump version to 1.3.0 [skip ci]</li>
+<li>ci(pipeline): Merge release/v1.3.0 to main [skip ci]</li>
+<li>Merge pull request #9 from OWI-Lab/feature/#8-pavlou-non-linear-damage-accumulation-model</li>
+<li>feat(nonlinear): Add Theil and Pavlou (DCA) stress-life methods</li>
+<li>feat(stress_life): Add calc_nonlinear_damage_with_dca function</li>
+</ul>
+<h2 id="122">1.2.2</h2>
+<ul>
+<li>bump(patch): Bump version to 1.2.2 [skip ci]</li>
+<li>ci(pipeline): Merge release/v1.2.2 to main [skip ci]</li>
+<li>chore(notebooks): Move notebooks to Binder Repo</li>
+<li>Merge branch 'main' of https://github.com/OWI-Lab/py_fatigue</li>
+<li>docs(binder): Add badge</li>
+</ul>
+<h2 id="121">1.2.1</h2>
+<ul>
+<li>bump(patch): Bump version to 1.2.1 [skip ci]</li>
+<li>ci(pipeline): Merge release/v1.2.1 to main [skip ci]</li>
+<li>ci(bump): Add bump step to cicd pipeline [skip ci]</li>
+<li>chore(relative-imports): Edit relative imports</li>
+</ul>
+<h2 id="120">1.2.0</h2>
+<ul>
+<li>bump(minor): 1.2.0 &lt;- 1.1.2</li>
+<li>ci(uv): Add uv integration in cd</li>
+<li>ci(uv): Add uv integration in pages</li>
+<li>ci(uv): Add uv integration in ci</li>
+<li>docs(material): Upgraded Paris and SN curve definition</li>
+<li>feat(material): Upgraded Paris and SN curve definition</li>
+</ul>
+<h2 id="112">1.1.2</h2>
+<ul>
+<li>bump(patch): 1.1.2</li>
+<li>Update pages.yml</li>
+<li>docs(pipeline): Add pipeline #4</li>
+</ul>
+<h2 id="111">1.1.1</h2>
+<ul>
+<li>bump(patch): 1.1.1</li>
+<li>docs(pipeline): Add pipeline #3</li>
+<li>docs(pipeline): Add pipeline #2</li>
+<li>docs(pipeline): Add pipeline</li>
+</ul>
+<h2 id="110">1.1.0</h2>
+<ul>
+<li>fix(gitignore): Add docs folder</li>
+<li>fix(pyproject): Fix CI pipeline</li>
+<li>fix(pyproject): Fix dependencies. Max py must be 3.10 because of numba 0.56. From numba 0.57 onwards, support for py 3.8 has been dropped</li>
+<li>fix(qa): Remove mypy for now since new version gives issues</li>
+<li>Add test for support from 3.8 to 3.13</li>
+<li>Drop poetry + multiple fixes</li>
+</ul>
+<h2 id="1020">1.0.20</h2>
+<ul>
+<li>fix(dev): Fixed unwanted pylint update in pyproject.toml that broke quality assessment</li>
+<li>doc(dev): #6 Run sphinx-build (inv docs)</li>
+<li>ver(dev): Bumpversion patch 1.0.20</li>
+<li>doc(dev): #6 Fixed error in get_des and get_dem documentation</li>
+</ul>
+<h2 id="1019">1.0.19</h2>
+<ul>
+<li>new(doc): Updated documentation for version 1.0.19</li>
+<li>new(usr): Improved badges</li>
+</ul>
+<h2 id="1018">1.0.18</h2>
+<ul>
+<li>new(doc): Updated documentation for version 1.0.18</li>
+<li>bumpversion 1.0.18</li>
+<li>Update README.md</li>
+<li>Update cd.yml</li>
+</ul>
+<h2 id="1016">1.0.16</h2>
+<ul>
+<li>bumpversion 1.0.16</li>
+<li>fix(usr): Added check on CycleCounts having different units being added</li>
+<li>fix(doc): Run sphinx</li>
+<li>fix(usr): Run quality assessment</li>
+</ul>
+<h2 id="1015">1.0.15</h2>
+<ul>
+<li>bumpversion 1.0.15</li>
+<li>fix(usr): Added unit to cycle_count.from_rainflow and to cycle_count.from_timeseries !wip</li>
+</ul>
+<h2 id="1014">1.0.14</h2>
+<ul>
+<li>bumpversion 1.0.14</li>
+<li>new(pkg): Edited README.md</li>
+<li>new(pkg): Edited workflow</li>
+</ul>
+<h2 id="1013">1.0.13</h2>
+<ul>
+<li>bumpversion 1.0.13</li>
+<li>new(pkg): Added badges to README.md</li>
+<li>new(pkg): Updated coverage.yml</li>
+<li>new(pkg): Added coverage.yml</li>
+</ul>
+<h2 id="1012">1.0.12</h2>
+<ul>
+<li>bumpversion 1.0.12</li>
+<li>new(pkg): Added build without publish !wip</li>
+<li>fix(dev): Misc changes !wip</li>
+<li>fix(pkg): Publish runs only on branches main and release*</li>
+<li>fix(dev): Run quality assessment before publishing</li>
+</ul>
+<h2 id="1011">1.0.11</h2>
+<ul>
+<li>bumpversion 1.0.11</li>
+<li>new(usr): Added save_residuals bool flag to aggregate_cc to speed up analysis !wip</li>
+</ul>
+<h2 id="1010">1.0.10</h2>
+<ul>
+<li>bumpversion 1.0.10</li>
+<li>fix(dev): Solved some circular imports</li>
+<li>new(usr): Added function calc_aggregated_damage to pf.cycle_count.utils !wip</li>
+<li>new(usr): Release 1.0.9</li>
+</ul>
+<h2 id="108">1.0.8</h2>
+<ul>
+<li>bumpversion 1.0.8</li>
+<li>new(dev): Added an aggregation function !wip</li>
+<li>fix(dev): Fixed case where error is thrown if no hist key is available in rainflow !bugfix</li>
+</ul>
+<h2 id="106">1.0.6</h2>
+<ul>
+<li>bumpversion 1.0.6 !bumpversion</li>
+<li>new(usr): #6.0 Added unit property to cyclecount !feature</li>
+<li>new(usr): #5.0 Added statistical moments to cyclecount !feature</li>
+</ul>
+<h2 id="105">1.0.5</h2>
+<ul>
+<li>bumpversion 1.0.5</li>
+<li>fix(dev): #4.0 Substituted pietrodantuono with OWI-Lab links</li>
+<li>Ownership transferred to OWI-Lab</li>
+</ul>
+<h2 id="100">1.0.0</h2>
+<ul>
+<li>bumpversion 1.0.0</li>
+<li>new(dev): #1.0 First commit !wip</li>
+<li>new(dev): #0.0 Initial commit !wip</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":".","features":[],"redirect":null,"search":"./assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="./assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
+      
+        <script src="./_static/js/custom.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

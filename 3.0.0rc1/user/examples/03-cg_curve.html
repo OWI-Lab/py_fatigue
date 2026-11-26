@@ -1,0 +1,1991 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://owi-lab.github.io/py_fatigue/3.0.0rc1/user/examples/03-cg_curve.html">
+      
+      
+      
+      
+        <link rel="prev" href="./02-sn_curve.html">
+      
+      
+        <link rel="next" href="./04-cycle_counting.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../owi-lab.ico">
+      <meta name="generator" content="zensical-0.1.3">
+    
+    
+      
+        <title>3. Crack growth curve - Py-Fatigue</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e2cf241e.min.css">
+      
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../index.html" title="Py-Fatigue" class="md-header__button md-logo" aria-label="Py-Fatigue" data-md-component="logo">
+      
+  <img src="../../_static/_img/owi-lab-small.png" alt="Py-Fatigue">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Py-Fatigue
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              3. Crack growth curve
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/OWI-Lab/py_fatigue" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    OWI-Lab/py_fatigue
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Py-Fatigue" class="md-nav__button md-logo" aria-label="Py-Fatigue" data-md-component="logo">
+      
+  <img src="../../_static/_img/owi-lab-small.png" alt="Py-Fatigue">
+
+    </a>
+    Py-Fatigue
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/OWI-Lab/py_fatigue" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    OWI-Lab/py_fatigue
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-absolute-noob.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Architecture
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  User guide
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  User guide
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-user-guide.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  User guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./01-notebook_setup.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Run the example notebooks
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./02-sn_curve.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2. SN curve
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  3. Crack growth curve
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="03-cg_curve.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  3. Crack growth curve
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-definition-of-multiple-paris-laws" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Definition of multiple Paris' laws
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-mean-stress-effect-on-paris-law" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. Mean stress effect on Paris' law
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c-paris-law-curve-interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        c. Paris' law curve interpolation
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./04-cycle_counting.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  4. CycleCount definition
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./05-cycle_count_sum.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  5. CycleCount sum
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./06-mean_stress.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  6. Mean stress effect
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./07-damage.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  7. Stress-Life damage calculation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./08-ordered-crack-growth.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Ordered plate crack propagation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../additional/01-index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Glossary and guidelines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../additional/glossary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Glossary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../additional/relevant_guidelines.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Relevant guidelines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  API reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  API reference
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/01-index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  API index
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cycle count
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Cycle count
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cycle_count/cycle_count.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cycle_count
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cycle_count/cycle_count_.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cycle_count
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cycle_count/histogram.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  histogram
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cycle_count/rainflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  rainflow
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/cycle_count/utils.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  utils
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Material
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Material
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/material/material.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  material
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/material/sn_curve.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  sn_curve
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/material/crack_growth_curve.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  crack_growth_curve
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Geometry
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Geometry
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/geometry/geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  geometry
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/geometry/generic.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  generic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/geometry/cylinder.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cylinder
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Stress
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Stress
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stress/stress.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  stress
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stress/stress_range.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  stress_range
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stress/mean_stress.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  mean_stress
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_6" id="__nav_5_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Damage
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Damage
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/damage/damage.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  damage
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/damage/stress_life.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  stress_life
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/damage/crack_growth.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  crack_growth
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/styling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  styling
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/testing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  testing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/utils.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  utils
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Changelog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-definition-of-multiple-paris-laws" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Definition of multiple Paris' laws
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-mean-stress-effect-on-paris-law" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. Mean stress effect on Paris' law
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c-paris-law-curve-interpolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        c. Paris' law curve interpolation
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 Crack curve growth id="3.">3. Crack growth curve</h1>
+<p>Crack growth curve equations have been extensively studied since the '50s of the last century, almost in conjunction with the first catastrophic accident of the first jet transportation aircraft, the De Havilland Comet 1 (1954), where the propagation of fatigue cracks in the upper fuselage panels, starting from the sharp corner of the top rectangular</p>
+<p>windows brought 35 deaths. As Frost and Dugdale already pointed out in 1958, the cylindrical specimens were the protagonists of the first half of the 20th century in the panorama of fatigue, and this typology of specimens makes really complex the study of crack growth, meaning that no special attention up to that moment was given to crack growth testing of sheet specimens. Secondly, Frost and Dugdale observed that "In aircraft structures the 'fail-safe' design philosophy requires the structure to be constructed in such a way that fatigue cracks do not cause catastrophic failure before corrective measures can be taken". The first scientist that emphasized the necessity to have polished surfaces to minimize the hotspots from where a crack can propagate is Griffith who extended the theorem of minimum potential energy to the phenomena of rupture of elastic solids. Griffith's work was motivated by Inglis' linear elastic solution for the stress around an elliptical hole asymptotically loaded in tension, from which he predicted that the stress would go to infinite as the ratio between the minor and major axis goes to zero. Griffith's theory provides correct predictions as long as brittle materials, such as glass or ceramics, are considered. Starting from the pioneering work of Griffith, Berto and Lazzarin provided an exhaustive overview of local approaches for the description of brittle and quasi-brittle fracture of engineering materials. Anyway, since in structural materials there is almost always some inelastic deformations around the crack faces, Griffith's hypothesis of linear elastic medium in structural metals application becomes highly unrealistic. For this reason, the first crack growth equation relating the stress with the crack growth rate (i.e. the crack length increment per cycle) did not make use of the elastic energy approach. The formulation dates 1953 and has been proposed by Head; it is based on Inglis' solution and the final simplified form of the crack growth equation is</p>
+<div class="arithmatex">\[\frac{da}{dN} = \phi \left( \Delta \sigma, \sigma_{Y} , \sigma'_{f} \right)
+    \cdot a^{\frac{3}{2}} \cdot t_{p}^{\frac{3}{2}}\]</div>
+<p>Where <span class="arithmatex">\(N\)</span> is the number of cycles, <span class="arithmatex">\(\phi(\sigma)\)</span> is (asymptotically) a linear function of the stress, yielding, and strength, <span class="arithmatex">\(a\)</span> is the half crack size, and <span class="arithmatex">\(t_p\)</span> is the thickness of the plastic zone ahead of the crack tip. Frost and Dugdale argued that <span class="arithmatex">\(t_p\)</span> is not a constant independent of crack length and derived the exponential model for crack propagation, seldom used up to nowadays</p>
+<div class="arithmatex">\[\begin{aligned}
+\begin{align}
+\begin{cases}
+\frac{da}{dN} &amp;= k_{FD} \left( (\Delta \sigma)^3 \right) \cdot a \\
+\ln\left(\frac{a}{a_i}\right) &amp;= k_{FD} \left( (\Delta \sigma)^3 \right) \cdot N \\
+\end{cases}
+\end{align}
+\end{aligned}\]</div>
+<p>In which ai is the initial size of the crack and kFD is an experimental quantity depending on the cubic power of the remote stress range <span class="arithmatex">\(\Delta \sigma\)</span>. During WWII, a group of researchers of the U.S. Naval Research Labs headed by George Rankine Irwin realized that plasticity plays an important role in in fracture mechanics. On this purpose, Griffith's energy formulation was modified in order to make it account for plasticity, too, i.e. the energy release was redefined by adding a plastic dissipation term. Another major achievement of Irwin's work is certainly the relation between the energy release rate <span class="arithmatex">\(\hat{G}\)</span> and the stress intensity factor in opening mode <span class="arithmatex">\(K_I\)</span>:</p>
+<div class="arithmatex">\[\hat{G} = K_I^2 / E^{\star}\]</div>
+<p>where <span class="arithmatex">\(E^{\star}=E\)</span> for plain stress or <span class="arithmatex">\(E/(1-\nu^2)\)</span> for plane strain. The critical stress intensity factor is the value of <span class="arithmatex">\(K\)</span> beyond which a crack starts to propagate and is addressed as fracture toughness <span class="arithmatex">\(K_C\)</span>. Namely, the toughness is the resistance to fracture of a material, it is a material property and is defined as the stress intensity factor required for a crack to advance from length a to a C. The fracture toughness values have been grouped by material family by Ashby and are shown here below.</p>
+<p><img alt="image" src="../../_static/_img/toughness-yielding.png" /></p>
+<p>Few years later, in 1963, Paris and Erdogan published a work substantiated by many experimental tests where they postulated, differently from Head or Frost and Dugdale, that the crack growth is described by a power law of the stress intensity factor, viz.</p>
+<div class="arithmatex">\[\frac{da}{dN} = C \left( \Delta K \right)^m\]</div>
+<p>At the time of publication, the authors were uncertain on the value of the exponent m, in fact there is a famous statement in their paper saying: <em>"The authors are hesitant but cannot resist the temptation to draw the straight line slope 1/4 through the data..."</em>. Therefore, the so-called Paris' law, or Paris-Erdogan law, has been formulated in principle with fixed m=4. Indeed, as evident from the figure here below (from Ashby's book), the majority of engineering alloys is concentrated in the neighborhood of m=4, and this may have tricked the authors.</p>
+<p><img alt="image" src="../../_static/_img/paris-slope-ashby.png" /></p>
+<p>Paris' law is considered valid within the range <span class="arithmatex">\(\Delta K_{th} &lt; \Delta K &lt; \Delta K_{cr}\)</span>, where <span class="arithmatex">\(\Delta K_{cr}\)</span> is the critical stress intensity factor range which depends on the toughness as <span class="arithmatex">\(\Delta K_{cr} = (1-R)K_{Ic}\)</span>, with R load ratio, and <span class="arithmatex">\(\Delta K_{th}\)</span> is the threshold value below which the crack should not propagate.</p>
+<h2 id="a-definition-of-multiple-paris-laws">a. Definition of multiple Paris' laws</h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this example we define four Paris curves for free corrosion as per DNVGL-RP-C203 and plot them using <a href="https://matplotlib.org">matplotlib</a> and <a href="https://pyecharts.org/">ECharts</a>. We additionally define a random Gaussian stress range-cycles history to plot against the curves defined.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Paris' laws constants</span>
+<span class="n">SIF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2500</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+<span class="n">SLOPE_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.88</span><span class="p">,</span> <span class="mf">8.16</span><span class="p">])</span>
+<span class="n">INTERCEPT_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.21E-16</span><span class="p">,</span> <span class="mf">3.98E-29</span><span class="p">])</span>
+<span class="n">SLOPE_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">8.16</span><span class="p">,</span> <span class="mf">2.88</span><span class="p">])</span>
+<span class="n">INTERCEPT_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.21E-26</span><span class="p">,</span> <span class="mf">3.98E-13</span><span class="p">])</span>
+<span class="n">SLOPE_3</span> <span class="o">=</span> <span class="mf">8.16</span>
+<span class="n">INTERCEPT_3</span> <span class="o">=</span> <span class="mf">1.21E-26</span>
+<span class="n">THRESHOLD</span> <span class="o">=</span> <span class="mf">75.</span>
+<span class="n">CRITICAL</span> <span class="o">=</span> <span class="mf">2000.</span>
+
+<span class="c1"># Paris' curves definition</span>
+<span class="n">pc_1</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE_1</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT_1</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">"The norm"</span><span class="p">,</span>
+                    <span class="n">environment</span><span class="o">=</span><span class="s2">"Environment"</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">"nr. 1"</span><span class="p">)</span>
+<span class="n">pc_2</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE_1</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT_1</span><span class="p">,</span><span class="n">threshold</span><span class="o">=</span><span class="n">THRESHOLD</span><span class="p">,</span>
+                    <span class="n">critical</span><span class="o">=</span><span class="n">CRITICAL</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">"The norm"</span><span class="p">,</span>
+                    <span class="n">environment</span><span class="o">=</span><span class="s2">"Environment"</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">"nr. 2"</span><span class="p">)</span>
+<span class="n">pc_3</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE_3</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT_3</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">"The norm"</span><span class="p">,</span>
+                 <span class="n">environment</span><span class="o">=</span><span class="s2">"Environment"</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">"nr. 3"</span><span class="p">)</span>
+<span class="n">pc_4</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE_2</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT_2</span><span class="p">,</span><span class="n">threshold</span><span class="o">=</span><span class="n">THRESHOLD</span><span class="p">,</span>
+                    <span class="n">critical</span><span class="o">=</span><span class="n">CRITICAL</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">"The norm"</span><span class="p">,</span>
+                    <span class="n">environment</span><span class="o">=</span><span class="s2">"Environment"</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="s2">"nr. 4"</span><span class="p">)</span>
+
+<span class="c1"># Plotting</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">pc_1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span>
+<span class="n">pc_3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span>
+<span class="n">pc_2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span>
+<span class="n">pc_4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="Paris curves for free corrosion" src="../../_static/_img/paris-curves.png" /></p>
+<p>To explore both panels interactively, render the figure in ECharts.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">py_fatigue.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_echarts</span>
+
+<span class="n">to_echarts</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s2">"paris-curves.html"</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="b-mean-stress-effect-on-paris-law">b. Mean stress effect on Paris' law</h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function has been added from version 1.2.0.</p>
+</div>
+<p>In the following years there have been many attempts to generalize Paris' law, mainly to account for mean stress effect, crack closure and near threshold/near failure modelling. The simplest model of Paris' law for mean stress effect has been proposed in 1970 by Walker:</p>
+<div class="arithmatex">\[\frac{da}{dN} = C_0 \left( \frac{\Delta K}{(1-R)^{1-\gamma}}\right)^m\]</div>
+<p>With <span class="arithmatex">\(\gamma\)</span> being Walker exponent, <span class="arithmatex">\(R\)</span> the load ratio, and <span class="arithmatex">\(C_0\)</span> being the intercept at <span class="arithmatex">\(R=0\)</span>.</p>
+<p>Input:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Paris's law with Walker correction constants</span>
+<span class="n">SLOPE</span> <span class="o">=</span> <span class="mf">4.</span>
+<span class="n">INTERCEPT</span> <span class="o">=</span> <span class="mf">1.21E-16</span>
+<span class="n">WALKER_EXPONENT</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">LOAD_RATIOS</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
+<span class="n">THRESHOLDS</span> <span class="o">=</span> <span class="mf">75.</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">WALKER_EXPONENT</span><span class="p">)</span>
+<span class="n">CRITICAL</span> <span class="o">=</span> <span class="mf">2000.</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">WALKER_EXPONENT</span><span class="p">)</span>
+
+<span class="c1"># Walker's curve definition</span>
+
+<span class="n">walker_curves</span> <span class="o">=</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">ParisCurve</span><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="n">SLOPE</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">INTERCEPT</span><span class="p">,</span>
+                               <span class="n">walker_exponent</span><span class="o">=</span><span class="n">WALKER_EXPONENT</span><span class="p">,</span>
+                               <span class="n">threshold</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">critical</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">load_ratio</span><span class="o">=</span><span class="n">l</span><span class="p">,</span>
+                               <span class="n">norm</span><span class="o">=</span><span class="s2">"The norm"</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s2">"Environment"</span><span class="p">,</span>
+                               <span class="n">curve</span><span class="o">=</span><span class="sa">f</span><span class="s2">"load_ratio=</span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">LOAD_RATIOS</span><span class="p">,</span> <span class="n">THRESHOLDS</span><span class="p">,</span> <span class="n">CRITICAL</span><span class="p">)]</span>
+
+<span class="c1"># Plotting</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">walker_curves</span><span class="p">:</span>
+    <span class="n">pc</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p>corr_inter = intercept / (1 - load_ratio) ** (slope / (1 - walker_exponent))</p>
+<p>Output:</p>
+<p><img alt="image" src="../../_static/_img/paris-curves_2.png" /></p>
+<h2 id="c-paris-law-curve-interpolation">c. Paris' law curve interpolation</h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function has been added from version 1.2.0.</p>
+</div>
+<p>It is now possible to build a piecewise Paris' law curve by interpolating between a set of \"knee points\". The class method :py<code>pyfatigue.crack.ParisCurve.from_knee_points</code> will enforce the piecewise curve to pass through the given points.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The function does not perform a curve fit, but rather enforces the curve to pass through the given points. Therefore, the number of knee points should be at least equal to the number of segments plus one.</p>
+<div class="arithmatex">\[\frac{da}{dN} = C \left( \Delta K \right)^m\]</div>
+<p>in log-coordinate system, the equation becomes</p>
+<div class="arithmatex">\[\log \left( \frac{da}{dN} \right) = \log C + m \log \Delta K\]</div>
+<p>directly retrieving the well-known linear equation <span class="arithmatex">\(Y = M \cdot X + Q\)</span>, where <span class="arithmatex">\(M=m\)</span> and <span class="arithmatex">\(Q=\log C\)</span>.</p>
+</div>
+<p>Input:</p>
+<div class="highlight"><pre><span></span><code>knee_points = """
+   29, 6.93e-14
+   30, 8.64e-13
+   35, 4.98e-12
+   50, 2.50e-11
+   72, 1.44e-10
+  800, 1.18e-6
+1_200, 1.87e-5
+1_300, 3.10e-4
+"""
+# Convert the string data to a list of lists
+knee_points_list = [list(map(float, line.split(',')))
+                    for line in knee_points.strip().split('\n')]
+knee_points_list = np.array(knee_points_list)
+
+c_fkp = pf.ParisCurve.from_knee_points(knee_sif=knee_points_list[:,0],
+                                       knee_growth_rate=knee_points_list[:,1],
+                                       norm="Simil-NASGRO",
+                                       environment="N/A", curve="Interpolated")
+# Plotting
+fig, ax = plt.subplots(1,1)
+c_fkp.plot(fig=fig, ax=ax)
+ax.legend(prop={'size': 8})
+plt.show()
+</code></pre></div>
+<p>Output:</p>
+<p><img alt="image" src="../../_static/_img/paris-curves_3.png" /></p>
+<p>Applying the Walker correction to the interpolated curve:</p>
+<div class="highlight"><pre><span></span><code># SLOPE = 4.
+# INTERCEPT = 1.21E-16
+SLOPES = c_fkp.slope
+INTERCEPTS = c_fkp.intercept
+THRESHOLD = c_fkp.threshold
+CRITICAL = c_fkp.critical
+WALKER_EXPONENT = 0.5
+LOAD_RATIOS = [0, 0.1, 0.5, 0.7]
+THRESHOLDS = THRESHOLD * (1 - np.array(LOAD_RATIOS)) ** (1 - WALKER_EXPONENT)
+CRITICALS = CRITICAL * (1 - np.array(LOAD_RATIOS)) ** (1 - WALKER_EXPONENT)
+
+# Walker's curve definition
+
+walker_curves = [pf.ParisCurve(slope=SLOPES, intercept=INTERCEPTS,
+                                walker_exponent=WALKER_EXPONENT,
+                                threshold=t, critical=c, load_ratio=l,
+                                norm="The norm", environment="Environment",
+                                curve=f"load_ratio={l}")
+                 for l, t, c in zip(LOAD_RATIOS, THRESHOLDS, CRITICALS)]
+
+# Plotting
+fig, ax = plt.subplots(1,1)
+for pc in walker_curves:
+    pc.plot(fig=fig, ax=ax)
+ax.legend(prop={'size': 8})
+plt.show()
+</code></pre></div>
+<p>Output:</p>
+<p><img alt="image" src="../../_static/_img/paris-curves_4.png" /></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":[],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
+      
+        <script src="../../_static/js/custom.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
