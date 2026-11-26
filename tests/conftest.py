@@ -3,11 +3,11 @@ import pytest
 import sys
 import os
 import json
-from distutils import dir_util
+from shutil import copytree
 
 logger = logging.getLogger(__name__)
 
-VERSION: str = "2.1.1"
+VERSION: str = "3.0.0-rc.1"
 
 # Keep plotting enabled by default unless tests/tasks explicitly disable it.
 os.environ.setdefault("PY_FATIGUE_TEST_NO_PLOTS", "0")
@@ -57,7 +57,7 @@ def datadir(tmpdir, request):
     test_dir, _ = os.path.splitext(filename)
 
     if os.path.isdir(test_dir):
-        dir_util.copy_tree(test_dir, str(tmpdir))
+        copytree(test_dir, str(tmpdir), dirs_exist_ok=True)
 
     return tmpdir
 

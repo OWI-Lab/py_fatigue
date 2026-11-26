@@ -5,16 +5,18 @@ classes.
 """
 
 from __future__ import annotations
-from typing import cast
+from typing import Callable, cast
 import logging
 import warnings
 
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
 
 # from scipy.optimize import fsolve
 
-from ..utils import make_axes, compile_specialized_newton, numba_newton
+from .._rust import solve_goodman
+from ..utils import make_axes
 from ..styling import py_fatigue_formatwarning
 
 warnings.formatwarning = py_fatigue_formatwarning
@@ -24,7 +26,7 @@ def dnvgl_mean_stress_correction(
     mean_stress: np.ndarray,
     stress_amplitude: np.ndarray,
     detail_factor: float | int = 0.8,
-    plot: bool = False,
+    plot: bool | Callable[[Figure], None] = False,
 ) -> np.ndarray:
     """Calculates the mean stress correction according to par.
     2.5 of DNVGL-RP-C203, which includes
@@ -69,9 +71,9 @@ def dnvgl_mean_stress_correction(
     detail_factor : float, optional
         mean stress attenuation factor (:math:`p`), defaults to 0.8
         in welded connections without significant residual stresses.
-    plot : bool, optional
-        If True, the mean stress correction is plotted, defaults to
-        False.
+    plot : bool or callable, optional
+        Use True for a Matplotlib plot or pass a function that receives the
+        figure. Defaults to False.
 
     Returns
     -------
@@ -104,7 +106,7 @@ def dnvgl_mean_stress_correction(
     # NOTE: next plot has been included for testing purposes
     if plot:  # pragma: no cover
         # from matplotlib.ticker import MaxNLocator
-        _, axes = make_axes()
+        fig, axes = make_axes()
         xp, yp = zip(*sorted(zip(min_stress / max_stress, f_m)))
         axes.plot(
             xp,
@@ -125,6 +127,8 @@ def dnvgl_mean_stress_correction(
         axes.spines["right"].set_visible(False)
         axes.spines["top"].set_visible(False)
         axes.set_xlim((-20, 20))
+        if callable(plot):
+            plot(fig)
 
     return stress_range_corr
 
@@ -133,7 +137,7 @@ def walker_mean_stress_correction(
     mean_stress: np.ndarray,
     stress_amplitude: np.ndarray,
     gamma: float = 0.5,
-    plot: bool = False,
+    plot: bool | Callable[[Figure], None] = False,
 ) -> np.ndarray:
     """Calculates the mean stress correction according to Walker model.
 
@@ -158,9 +162,9 @@ def walker_mean_stress_correction(
         The stress amplitude of the fatigue test (:math:`\\sigma_{amp}`).
     gamma : float, optional
         The gamma Walker exponent (:math:`\\gamma`), defaults to 0.5.
-    plot : bool, optional
-        If True, the mean stress correction is plotted, defaults to
-        False.
+    plot : bool or callable, optional
+        Use True for a Matplotlib plot or pass a function that receives the
+        figure. Defaults to False.
 
     Returns
     -------
@@ -177,7 +181,7 @@ def walker_mean_stress_correction(
     # NOTE: next plot has been included for testing purposes
     if plot:  # pragma: no cover
         # from matplotlib.ticker import MaxNLocator
-        _, axes = make_axes()
+        fig, axes = make_axes()
         xp, yp = zip(*sorted(zip(2 * stress_amplitude, stress_range_corr)))
         axes.plot(
             xp,
@@ -197,6 +201,8 @@ def walker_mean_stress_correction(
         axes.set_ylabel("MSC stress range, $\\Delta \\sigma_{MSC}$")
         axes.spines["right"].set_visible(False)
         axes.spines["top"].set_visible(False)
+        if callable(plot):
+            plot(fig)
 
     return stress_range_corr
 
@@ -204,7 +210,7 @@ def walker_mean_stress_correction(
 def swt_mean_stress_correction(
     mean_stress: np.ndarray,
     stress_amplitude: np.ndarray,
-    plot: bool = False,
+    plot: bool | Callable[[Figure], None] = False,
 ) -> np.ndarray:
     """Calculates the mean stress correction according to
     Smith-Watson-Topper model. It is equivalent to the Walker model
@@ -228,9 +234,9 @@ def swt_mean_stress_correction(
         The mean stress of the fatigue test (:math:`\\sigma_{mean}`).
     stress_amplitude : np.ndarray
         The stress amplitude of the fatigue test (:math:`\\sigma_{amp}`).
-    plot : bool, optional
-        If True, the mean stress correction is plotted, defaults to
-        False.
+    plot : bool or callable, optional
+        Use True for a Matplotlib plot or pass a function that receives the
+        figure. Defaults to False.
 
     Returns
     -------
@@ -250,7 +256,7 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
     ult_s: float,
     correction_exponent: float,
     initial_guess: np.ndarray | None = None,
-    plot: bool = False,
+    plot: bool | Callable[[Figure], None] = False,
     logger: logging.Logger | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
@@ -296,8 +302,8 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
     * :math:`n` is the correction exponent.
 
     The solver is based on the Newton-Raphson method, which is implemented
-    internally at :func:`py_fatigue.utils.numba_newton`,
-    :func:`py_fatigue.utils.compile_specialized_newton`, and
+    internally at the native solver,
+    the Newton iteration, and
     :func:`py_fatigue.mean_stress.corrections.__goodman_equation`.
 
     Parameters
@@ -312,6 +318,9 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
         Ultimate strength of the material.
     correction_exponent : float
         Mean stress correction exponent (n).
+    plot : bool or callable, optional
+        Use True for a Matplotlib plot or pass a function that receives the
+        figure. Defaults to False.
 
     Returns
     -------
@@ -320,8 +329,8 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
 
     See Also
     --------
-    :func:`py_fatigue.utils.numba_newton`,
-    :func:`py_fatigue.utils.compile_specialized_newton`
+    the native solver,
+    the Newton iteration
 
     Raises
     ------
@@ -422,8 +431,7 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
             # Solve the implicit equation using fsolve
             # fmt: off
             if mean_in[i] + amp_in[i] > 0:
-                sol = numba_newton(__jit_goodman_equation, initial_guess[i],
-                                    1E-6, 1000, amp_in[i], r_in[i],
+                sol = solve_goodman(initial_guess[i], amp_in[i], r_in[i],
                                     r_out_val, ult_s, correction_exponent)
                 # sol = fsolve(__goodman_equation, x0=initial_guess[i],
                 #              args=(amp_in[i], r_in[i], r_out_val, ult_s,
@@ -512,7 +520,10 @@ def goodman_haigh_mean_stress_correction(  # pylint: disable=R0912,R0915 # noqa:
             fig.legend(handles, labels, bbox_to_anchor=(0.5, -0.05),
                        loc='upper center', ncol=4)
         # fmt: on
-        plt.show()
+        if callable(plot):
+            plot(fig)
+        else:
+            plt.show()
     return amp_out, mean_out
 
 
@@ -579,6 +590,3 @@ def __goodman_equation(
             amp_out_val**(correction_exponent - 1) * trm2**correction_exponent
     # fmt: on
     return lhs - rhs**-1
-
-
-__jit_goodman_equation = compile_specialized_newton(__goodman_equation)

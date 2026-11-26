@@ -4,6 +4,8 @@ on:
     branches: [main, develop]
   pull_request:
   workflow_call:
+  schedule:
+    - cron: '17 4 * * *'
 
 jobs:
   ci:
@@ -22,8 +24,10 @@ jobs:
         enable-cache: true
     - name: Set up Python
       run: uv python install
+    - name: Install Rust
+      run: rustup toolchain install stable --profile minimal
     - name: Install the project
-      run: uv sync --group dev
+      run: uv sync --no-default-groups --group dev
     # Run tests
     - name: Run Pytest
       run: echo "Running Pytest" && uv run pytest --cov=./py_fatigue --cov-report=xml:./coverage/reports/coverage.xml --cov-report=term-missing
@@ -54,3 +58,23 @@ jobs:
         verbose: true # optional (default = false)
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  rust:
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v5
+      with:
+        python-version: "3.14"
+    - name: Install Rust lint tools
+      run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+    - name: Format check
+      run: cargo +stable fmt --all --check
+    - name: Test numerical core
+      run: cargo +stable test --locked
+    - name: Analyze core and bindings
+      run: |
+        cargo +stable clippy --locked --all-targets -- -D warnings
+        PYO3_PYTHON="$(uv python find 3.14)" cargo +stable clippy --locked --all-targets --all-features -- -D warnings

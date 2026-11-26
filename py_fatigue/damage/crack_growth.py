@@ -3,20 +3,23 @@ damage models related to the crack growth approach.
 """
 
 # Packages from the Python Standard Library
+import re
 from typing import Dict, Tuple, Type, TypeVar
 
 # Packages from third party libraries
-from numba.experimental import jitclass
-import numba as nb
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 import numpy as np
 import pandas as pd
 
 # Local packages
 from ..cycle_count.cycle_count import CycleCount
 from ..material.crack_growth_curve import ParisCurve
-from ..utils import split, to_numba_dict
+from ..plotting import PlotMixin
+from ..utils import make_axes, split
 from ..geometry.generic import AbstractCrackGeometry
-from ..geometry.cylinder import f_hol_cyl_01
+from ..geometry.cylinder import cylinder_dimensions, f_hol_cyl_01
+from .._rust import legacy_growth
 
 try:
     # delete the accessor to avoid warning
@@ -26,28 +29,11 @@ except AttributeError:
 
 ACG = TypeVar("ACG", bound=AbstractCrackGeometry)
 
-spec = [
-    ("stress_range", nb.float64[::1]),
-    ("count_cycle", nb.float64[:]),
-    ("slope", nb.float64[::1]),
-    ("intercept", nb.float64[::1]),
-    ("threshold", nb.float64),
-    ("critical", nb.float64),
-    ("crack_type", nb.types.string),
-    ("crack_geometry", nb.types.DictType(nb.types.unicode_type, nb.float64)),
-    ("crack_depth", nb.float64[::1]),
-    ("sif", nb.float64[::1]),
-    ("geometry_factor", nb.float64[::1]),
-    ("final_cycles", nb.float64),
-    ("failure", nb.boolean),
-]
 
-
-@jitclass(spec)
-class CalcCrackGrowth:  # pragma: no cover
+class CalcCrackGrowth(PlotMixin):  # pragma: no cover
     """Crack growth object. This object is used to calculate the crack
     growth rate and the crack size. The class has been implemented
-    using the Numba library to speed up the calculations.
+    using a Rust kernel to speed up the calculations.
 
     The crack size is numerically integrated over the crack growth
     curve. In this example we will consider the Paris' law, but the
@@ -157,6 +143,23 @@ class CalcCrackGrowth:  # pragma: no cover
             return "Crack growth object: to failure."
         return "Crack growth object: to maximum number of cycles - no failure."
 
+    def plot(
+        self, fig: Figure | None = None, ax: Axes | None = None
+    ) -> tuple[Figure, Axes]:
+        """Plot the crack depth recorded at the start of each legacy step.
+
+        Depths use the same length unit as the supplied geometry.
+        """
+        fig, ax = make_axes(fig, ax)
+        count = len(self.crack_depth)
+        cycles = np.r_[0.0, np.cumsum(self.count_cycle[:count])][:count]
+        ax.plot(cycles, self.crack_depth, marker="o" if count == 1 else None)
+        ax.set(xlabel="Cycles at start of step", ylabel="Crack depth")
+        ax.ticklabel_format(axis="y", useOffset=False)
+        if not count:
+            ax.set_title("No recorded crack depths")
+        return fig, ax
+
     @property
     def size(self) -> int:
         """Size of the problem."""
@@ -181,7 +184,7 @@ class CalcCrackGrowth:  # pragma: no cover
             cg_crv_size - 1, dtype=np.float64
         )  # pylint: disable=E1133, C0301
         if cg_crv_size > 1:  # pylint: disable=E1133, C0301
-            for i in nb.prange(cg_crv_size - 1):  # pylint: disable=E1133, C0301
+            for i in range(cg_crv_size - 1):  # pylint: disable=E1133, C0301
                 knees_sif[i] = (self.intercept[i] / self.intercept[i + 1]) ** (
                     1 / (self.slope[i + 1] - self.slope[i])
                 )
@@ -229,7 +232,7 @@ class CalcCrackGrowth:  # pragma: no cover
         knees = self.get_knees_sif
         if sif < self.threshold:
             the_growth_rate = 0.0
-        if sif > self.critical:
+        elif sif >= self.critical:
             the_growth_rate = np.inf
         else:
             idx = np.digitize(np.asarray([sif]), knees, right=True) - 1
@@ -274,62 +277,33 @@ class CalcCrackGrowth:  # pragma: no cover
             Crack size array, SIF array, geometric factor array, failure flag.
         """
 
-        # Initialisation
-        the_depth = np.empty(self.size + 1, dtype=np.float64)
-        the_depth[0] = self.crack_geometry["initial_depth"]
-        the_sif = np.empty(self.size, dtype=np.float64)
-        the_factor = np.empty(self.size, dtype=np.float64)
-        # Loop
-        for i in nb.prange(self.size):  # pylint: disable=E1133
-            # the_sif[i], the_factor[i] = get_sif(
-            #     self.stress_range[i],
-            #     the_depth[i],
-            #     self.crack_type,
-            #     self.crack_geometry,
-            # )
-            # if the_sif[i] >= self.critical:
-            #     print("Critical SIF reached. Stopping calculation.")
-            #     return the_depth[:i], the_sif[:i], the_factor[:i], True
-            # if the_sif[i] < self.threshold:
-            #     the_depth[i + 1] = the_depth[i]
-            #     continue
-            incr_depth, the_sif[i], the_factor[i] = self.calc_growth_rate(
-                self.stress_range[i], the_depth[i]
+        if self.crack_type not in ("HOL_CYL_01", "INF_SUR_00"):
+            raise NotImplementedError(
+                "Geometric factor not implemented for assigned crack type."
             )
-            cur_depth = the_depth[i] + incr_depth * self.count_cycle[i]
-            if the_factor[i] == 0.0:
-                print(
-                    "Crack depth is greater than or equal to the thickness."
-                    "Stopping calculation."
-                )
-                return the_depth[:i], the_sif[:i], the_factor[:i], True
-            if the_sif[i] >= self.critical:
-                print("Critical SIF reached. Stopping calculation.")
-                return the_depth[:i], the_sif[:i], the_factor[:i], True
-            if the_sif[i] < self.threshold:
-                the_depth[i + 1] = the_depth[i]
-                continue
-            if cur_depth / the_depth[i] > 10:
-                w_msg = (
-                    "Crack size increased by more than 10x in the"
-                    + " last iteration. Stopping calculation."
-                )
-                print(w_msg)
-                return the_depth[:i], the_sif[:i], the_factor[:i], True
-            the_depth[i + 1] = cur_depth
-        print("Fatigue spectrum applied w/o failure. Stopping calculation")
-        return the_depth[:-1], the_sif, the_factor, False
+        dimensions = (
+            cylinder_dimensions(self.crack_geometry)
+            if self.crack_type == "HOL_CYL_01"
+            else None
+        )
+        crack_depth, sif, factor, message = legacy_growth(
+            (
+                np.ascontiguousarray(self.stress_range, dtype=float),
+                np.ascontiguousarray(self.count_cycle, dtype=float),
+            ),
+            (
+                np.ascontiguousarray(self.slope, dtype=float),
+                np.ascontiguousarray(self.intercept, dtype=float),
+                np.ascontiguousarray(self.get_knees_sif[1:-1], dtype=float),
+                (self.threshold, self.critical),
+            ),
+            self.crack_geometry["initial_depth"],
+            dimensions,
+        )
+        print(message)
+        return crack_depth, sif, factor, len(crack_depth) < self.size
 
 
-@nb.njit(
-    nb.float64(
-        nb.float64,
-        nb.types.unicode_type,
-        nb.types.DictType(nb.types.unicode_type, nb.float64),
-    ),
-    fastmath=True,
-    cache=True,
-)
 def get_geometry_factor(  # pragma: no cover
     crack_depth: float,
     crack_type: str,
@@ -347,21 +321,11 @@ def get_geometry_factor(  # pragma: no cover
     raise NotImplementedError(e_msg)
 
 
-@nb.njit(
-    nb.types.UniTuple(nb.float64, 2)(
-        nb.float64,
-        nb.float64,
-        nb.types.unicode_type,
-        nb.types.DictType(nb.types.unicode_type, nb.float64),
-    ),
-    fastmath=True,
-    cache=True,
-)
 def get_sif(  # pragma: no cover
     stress_: float,
     crack_depth_: float,
     crack_type: str,
-    crack_geometry: Dict[list, float],
+    crack_geometry: Dict[str, float],
 ) -> Tuple[float, float]:
     """Get the SIF value given the stress and the crack size. The
     method calculates the SIF value according to the following
@@ -389,6 +353,15 @@ def get_sif(  # pragma: no cover
     """
     y_1 = get_geometry_factor(crack_depth_, crack_type, crack_geometry)
     return stress_ * np.sqrt(np.pi * crack_depth_) * y_1, y_1
+
+
+def numeric_geometry(geometry: AbstractCrackGeometry) -> dict[str, float]:
+    """Return the numeric geometry fields exposed by the legacy result."""
+    return {
+        key: value
+        for key, value in vars(geometry).items()
+        if isinstance(value, float)
+    }
 
 
 def get_crack_growth(  # pragma: no cover
@@ -457,11 +430,21 @@ def get_crack_growth(  # pragma: no cover
     -------
     CalcCrackGrowth
         The crack growth calculation object
+    Notes
+    -----
+    Use matching stress units for the cycle count and the curve. For
+    example, use MPa with MPa √mm and supply crack dimensions in mm.
+    The solver uses the input values directly without converting units.
     """
     # Handle the stress ranges and cycle counts as they might be clustered
     # in a matrix and we need to iterate over single or "little" cycles
     # within the same stress range block
-    if cycle_count.unit not in cg_curve.unit:
+    intensity_unit = re.fullmatch(
+        r"(Pa|kPa|MPa|GPa|psi|ksi)\s*(?:[·*]\s*)?"
+        r"(?:√\s*(?:mm|cm|m|in)|sqrt\(\s*(?:mm|cm|m|in)\s*\))",
+        cg_curve.unit.strip(),
+    )
+    if intensity_unit is None or cycle_count.unit.strip() != intensity_unit[1]:
         e_msg = (
             f"Cycle count unit ({cycle_count.unit}) and crack growth "
             f"curve unit ({cg_curve.unit}) are not compatible."
@@ -493,7 +476,7 @@ def get_crack_growth(  # pragma: no cover
     crack_type = str(crack_geometry._id)
     if crack_type not in ["HOL_CYL_01", "INF_SUR_00"]:
         raise ValueError("Unsupported crack geometry")
-    geometry = to_numba_dict(crack_geometry.__dict__)  # type: ignore
+    geometry = numeric_geometry(crack_geometry)  # type: ignore
     cg = CalcCrackGrowth(
         stress_range,
         count_cycle,
@@ -615,7 +598,7 @@ class CrackGrowth:
         crack_type = str(crack_geometry._id)
         if crack_type not in ["HOL_CYL_01", "INF_SUR_00"]:
             raise ValueError("Unsupported crack geometry")
-        geometry = to_numba_dict(crack_geometry.__dict__)  # type: ignore
+        geometry = numeric_geometry(crack_geometry)  # type: ignore
 
         cg_ = CalcCrackGrowth(
             stress_range,

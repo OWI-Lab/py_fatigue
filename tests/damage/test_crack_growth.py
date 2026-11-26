@@ -39,7 +39,6 @@ CC_1B = CycleCount(
     mean_stress=np.array([0]),
 )
 
-os.environ["NUMBA_DISABLE_JIT"] = "0"
 
 class TestCrackGrowth:
     """Test the functions related with the crack growth rules, i.e.:

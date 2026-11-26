@@ -3,7 +3,7 @@ line-length = 80 # Code length, not docstrings
 
 [project]
 name = "py_fatigue"
-version = "2.1.1"
+version = "3.0.0-rc.1"
 description = "Py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
 authors = [
     {name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be"},
@@ -31,10 +31,8 @@ requires-python = ">=3.10,<3.15"
 
 dependencies = [
     "numpy>=1.24",
-    "plotly",
+    "pyecharts>=2.1",
     "pandas>2.2",
-    "numba>=0.61,<0.66; python_version < '3.14'",
-    "numba>=0.65,<0.66; python_version >= '3.14'",
     "matplotlib",
     "pydantic<3.0.0",
 ]
@@ -52,19 +50,15 @@ dev = [
     "coverage>=6.5",
     "invoke>=1.5",
     "hypothesis>=6.14.0",
-    "notebook>=6.4",
+    "marimo; python_version >= '3.11'",
     "rich>=13.9.4",
     "rich-argparse>=1.8.0",
     "jsbeautifier>=1.15.4",
 ]
 docs = [
-    "Sphinx>=7.0",
-    "myst-parser>=0.18",
-    "pydata-sphinx-theme>=0.11.0",
-    "sphinx_design>=0.3.0",
-    "autoclasstoc>=1.5.2",
-    "sphinx-autobuild<=2024.02.04",
-    "sphinx-copybutton>=0.5.2",
+    "zensical>=0.0.66; python_version >= '3.11'",
+    "mkdocstrings[python]; python_version >= '3.11'",
+    "marimo; python_version >= '3.11'",
 ]
 
 [project.urls]
@@ -84,9 +78,35 @@ testpaths = [
 ]
 
 [build-system]
-requires = ["flit_core>=3.8"]
-build-backend = "flit_core.buildapi"
+requires = ["maturin>=1.8,<2"]
+build-backend = "maturin"
+
+[tool.maturin]
+module-name = "py_fatigue._rust"
+python-source = "."
+features = ["python"]
+exclude = ["data/**", "_build/**", "**/__marimo__/**", "uv.lock"]
 
 [tool.uv]
 package = true
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "Cargo.toml" },
+    { file = "Cargo.lock" },
+    { file = "rust/**/*.rs" },
+]
 default-groups = ["dev", "docs"]
+
+[tool.cibuildwheel]
+build = "cp3{10,11,12,13,14}-*"
+skip = "*-musllinux_* *t-*"
+test-command = 'python "{project}/scripts/smoke_wheel.py"'
+
+[tool.cibuildwheel.linux]
+before-all = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"
+environment-pass = ["RUSTUP_HOME", "CARGO_HOME"]
+environment = { PATH = "$HOME/.cargo/bin:$PATH" }
+
+[[tool.cibuildwheel.overrides]]
+select = "*-macosx_x86_64"
+environment = { MACOSX_DEPLOYMENT_TARGET = "10.12" }

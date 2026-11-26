@@ -373,7 +373,7 @@ class TestPalmgrenMiner:
         with pytest.raises(AttributeError):
             df_d.miner.damage(sn_curve)
 
-    @pytest.mark.parametrize("cc,", [CC_TS_1, CC_TS_3])
+    @pytest.mark.parametrize("cc", [CC_TS_1, CC_TS_3])
     @given(
         slope=hy.floats(min_value=3, max_value=20),
         n_eq=hy.floats(min_value=1e5, max_value=1e10),
@@ -415,7 +415,7 @@ class TestPalmgrenMiner:
             damage.get_des(cc, slope, equivalent_cycles=n_eq), 1e-12
         )
 
-    @pytest.mark.parametrize("cc,", [CC_TS_1, CC_TS_3])
+    @pytest.mark.parametrize("cc", [CC_TS_1, CC_TS_3])
     @given(
         slope=hy.floats(min_value=3, max_value=20),
         n_eq=hy.floats(min_value=1e5, max_value=1e10),

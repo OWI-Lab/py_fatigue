@@ -1,7 +1,2 @@
-Data dictionaries, manuals, and all other explanatory materials.
-
--> Sphinx documentation (`rst_docs/` folder) should be a first citizen for
-documentation, so try to centralize most of the information there.
-
--> GitHub's Wiki is a good place for more extensive documentation, but it should
-be a mirror of the Sphinx documentation.
+This folder holds data dictionaries, manuals, and supporting references.
+Project documentation lives in docs/ and is built with Zensical.

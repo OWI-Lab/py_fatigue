@@ -32,11 +32,11 @@ import warnings
 
 # Non-standard imports
 import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from .rainflow import rainflow as calc_rainflow
 from . import histogram as ht
+from ..plotting import PlotMixin
 from .. import utils as pfu
 from ..mean_stress import corrections as msc
 from ..mean_stress import MeanStress
@@ -238,7 +238,7 @@ def _build_input_data_from_json(  # noqa: C901
 
 
 @dataclass(repr=False)
-class CycleCount:
+class CycleCount(PlotMixin):
     """Cycle-counting class.
 
     The class heavily relies on the :mod:`py_fatigue.rainflow` and
@@ -1069,7 +1069,7 @@ class CycleCount:
     def mean_stress_correction(  # pylint: disable=R0912
         self,
         correction_type: str = "DNVGL-RP-C203",
-        plot: bool = False,
+        plot: bool | Callable[[matplotlib.figure.Figure], None] = False,
         enforce_pulsating_load: bool = False,
         **kwargs,
     ) -> "CycleCount":
@@ -1081,8 +1081,9 @@ class CycleCount:
         ----------
         correction_type : str, optional
             Type of mean stress correction, by default "DNVGL-RP-C203"
-        plot : bool, optional
-            Plot the mean stress corrected history, by default False
+        plot : bool or callable, optional
+            Use True for a Matplotlib plot or pass a function that receives
+            the figure. Defaults to False.
         enforce_pulsating_load : bool, optional
             Choosing to enforce load ratio equals zero prior
             correction (useful in legacy analyses), by default False
@@ -1503,11 +1504,13 @@ class CycleCount:
             if plot_type == "min-max"
             else f"Range, {self.unit}"
         )
-        cbar = plt.colorbar(im, ax=axes)
+        cbar = fig.colorbar(im, ax=axes)
         cbar.set_label(cbar_label, rotation=270)
         cbar.ax.get_yaxis().labelpad = 10
 
         return fig, axes
+
+    plot = plot_histogram
 
     def plot_residuals_sequence(
         self,

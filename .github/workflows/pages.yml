@@ -1,34 +1,72 @@
-name: Publish to GitHub Pages
+name: Documentation
 
-on: [push, pull_request, workflow_dispatch, workflow_call]
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish a final release from develop or a release candidate from its tag
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   docs:
     runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.message, '[publish pages]')
+    outputs:
+      directory: ${{ steps.publication.outputs.directory }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+          fetch-depth: 0
+      - name: Check the publication ref and choose its Pages path
+        id: publication
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        shell: bash
+        run: |
+          version=$(cat VERSION)
+          if [[ "$GITHUB_REF" == refs/heads/develop && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "directory=" >> "$GITHUB_OUTPUT"
+          elif [[ "$GITHUB_REF" == "refs/tags/v$version" && "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-rc\.([0-9]+)$ ]]; then
+            git merge-base --is-ancestor HEAD origin/develop
+            directory="${BASH_REMATCH[1]}rc${BASH_REMATCH[2]}"
+            echo "directory=$directory" >> "$GITHUB_OUTPUT"
+            sed -i "/^site_url = /s|\"$|$directory/\"|" zensical.toml
+          else
+            echo "Select develop for a final release or the matching vVERSION tag for a release candidate."
+            exit 1
+          fi
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14"
           enable-cache: true
-      - name: Set up Python
-        run: uv python install
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal
       - name: Install the project
-        run: uv sync --group docs
-      - name: Sphinx build
-        run: |
-          uv run sphinx-build -b  html -d rst_docs/doctrees ./rst_docs _build/docs -E -a
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/develop') }}
+        run: uv sync --group dev --group docs
+      - name: Build Zensical from docs and export the example notebooks
+        env:
+          MPLBACKEND: Agg
+        run: uv run invoke docs.build
+      - uses: actions/upload-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _build/docs
-          force_orphan: true
+          name: documentation
+          path: _build/docs
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    needs: docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: documentation
+          path: site
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          publish_dir: site
+          destination_dir: ${{ needs.docs.outputs.directory }}

@@ -1,0 +1,20 @@
+[package]
+name = "py-fatigue-native"
+version = "0.1.0"
+edition = "2024"
+description = "Native numerical kernels for Py-Fatigue"
+repository = "https://github.com/OWI-Lab/py_fatigue"
+license = "GPL-3.0-only"
+publish = false
+
+[lib]
+name = "_rust"
+path = "rust/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[features]
+python = ["dep:numpy", "dep:pyo3"]
+
+[dependencies]
+numpy = { version = "0.28", optional = true }
+pyo3 = { version = "0.28", features = ["extension-module"], optional = true }

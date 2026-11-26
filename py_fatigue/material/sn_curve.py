@@ -18,35 +18,55 @@ from typing import (
 import abc
 import io
 import itertools
-import os
 import warnings
-
-# Non-standard "from" imports
-from plotly.express import colors as px_colors
 
 # Non-standard imports
 import matplotlib.figure
 import matplotlib.axis
 import matplotlib.pyplot as plt
-import numba as nb
 import numpy as np
-import plotly.graph_objs as go
-import plotly.io as pio
+from pyecharts.charts import Line
 
 # py_fatigue imports
+from .._rust import evaluate_curve, sn_intersection
+from ..plotting import _CurveScale, _plot_curve, to_echarts
 from ..utils import (
     make_axes,
     calc_slope_intercept,
     ensure_array,
     check_iterable,
     check_str,
-    compile_specialized_bisect,
     _as_scalar_coercible_array,
 )
 
-COLOR_LIST = px_colors.qualitative.Alphabet
-PLOTLY_FONT_FAMILY = "Roboto"
-pio.templates.default = "none"
+COLOR_LIST = [
+    "#AA0DFE",
+    "#3283FE",
+    "#85660D",
+    "#782AB6",
+    "#565656",
+    "#1C8356",
+    "#16FF32",
+    "#F7E1A0",
+    "#E2E2E2",
+    "#1CBE4F",
+    "#C4451C",
+    "#DEA0FD",
+    "#FE00FA",
+    "#325A9B",
+    "#FEAF16",
+    "#F8A19F",
+    "#90AD1C",
+    "#F6222E",
+    "#1CFFCE",
+    "#2ED9FF",
+    "#B10DA1",
+    "#C075A6",
+    "#FC1CBF",
+    "#B00068",
+    "#FBE426",
+    "#FA0087",
+]
 __all__ = ["SNCurve"]
 
 
@@ -447,23 +467,18 @@ class SNCurve(AbstractSNCurve):
     -------
 
     >>> from py_fatigue import SNCurve
-    >>> import numpy as np
-
-    First we create an SN curve with the following properties:
-
     >>> w3a = SNCurve(
-    >>>     [3, 5],
-    >>>     [10.970, 13.617],
-    >>>     norm='DNVGL-RP-C203',
-    >>>     curve='W3',
-    >>>     environment='Air',
-    >>> )
+    ...     [3, 5],
+    ...     [10.970, 13.617],
+    ...     norm="DNVGL-RP-C203",
+    ...     curve="W3",
+    ...     environment="Air",
+    ... )
 
-    Then we can plot the SN curve defined using plotly
+    Plot the S–N curve in Matplotlib or save an interactive HTML chart.
 
-    >>> data, layout = w3a.plotly()
-    >>> fig = go.Figure(data=data, layout=layout)
-    >>> fig.show
+    >>> fig, ax = w3a.plot()
+    >>> chart = w3a.echarts()
     """
 
     def _repr_svg_(self) -> str:
@@ -675,29 +690,7 @@ class SNCurve(AbstractSNCurve):
     def get_cycles(
         self, stress_range: int | float | list | np.ndarray
     ) -> float | np.ndarray:
-        # m, a = self.slope, self.intercept
-        # # List comprehension approach
-        # np.minimum(np.max(
-        #     [10 ** _a * np.power(stress_range.astype(float), -_m) \
-        #         for _m, _a in zip(m, a)],
-        #     axis=0
-        # ), self.endurance)
-        # # Numpy broadcasting approach
-        # np.minimum(np.max(
-        #     np.power(10, a) * np.power(
-        #         stress_range.astype(float)[:, None], -m
-        #     ).reshape(
-        #         v1.shape[0],-1),
-        #     axis=1
-        # ), self.endurance)
-
-        calc_cycles = _calc_cycles
-        if (
-            getattr(nb.config, "DISABLE_JIT", False)
-            or os.environ.get("NUMBA_DISABLE_JIT") == "1"
-        ):
-            calc_cycles = getattr(_calc_cycles, "py_func", _calc_cycles)
-        return calc_cycles(
+        return _calc_cycles(
             stress_range, self.slope, self.intercept, self.endurance
         )
 
@@ -705,27 +698,7 @@ class SNCurve(AbstractSNCurve):
     def get_stress(
         self, cycles: int | float | list | np.ndarray
     ) -> float | np.ndarray:
-        # m, a = self.slope, self.intercept
-        # endurance_stress = np.power(10 ** a / self.endurance, 1 / m)
-        # # List comprehension approach
-        # np.maximum(np.max(
-        #     [10 ** _a / cycles, -_m) \
-        #         for _m, _a in zip(m, a)],
-        #     axis=0
-        # ), endurance_stress)
-        # # Numpy broadcasting approach
-        # np.maximum(np.max(
-        #     np.power(10 ** a / cycles.astype(float)[:, None], 1 / m).reshape(
-        #         cycles.shape[0],-1),
-        #         axis=1
-        # ), endurance_stress)
-        calc_stress = _calc_stress
-        if (
-            getattr(nb.config, "DISABLE_JIT", False)
-            or os.environ.get("NUMBA_DISABLE_JIT") == "1"
-        ):
-            calc_stress = getattr(_calc_stress, "py_func", _calc_stress)
-        return calc_stress(cycles, self.slope, self.intercept, self.endurance)
+        return _calc_stress(cycles, self.slope, self.intercept, self.endurance)
 
     def n(  # pylint: disable=invalid-name
         self, sigma: int | float | list | np.ndarray
@@ -783,103 +756,47 @@ class SNCurve(AbstractSNCurve):
         )
         return self.get_stress(n)
 
-    def plotly(
+    def echarts(
         self,
         cycles: list | None = None,
         stress_range: list | None = None,
         dataset_name: str | None = None,
         dataset_color: str = "#000",
-    ) -> Tuple[list, dict]:
-        """Use plotly to plot the SN curve and a stress-cycles history dataset.
-
-        Example
-        -------
-
-        Use plotly to plot the SN curve
-
-        >>> data, layout = sncurve.plotly()
-        >>> fig = go.Figure(data=data, layout=layout)
-        >>> fig.show
+        *,
+        scale: _CurveScale = "loglog",
+    ) -> Line:
+        """Plot the S–N curve and optional stress history in ECharts.
 
         Parameters
         ----------
-        cycles : list, optional
-            number of cycles value(s) in the dataset,
-            by default None
-        stress_range : list, optional
-            :term:`Stress range(s)<Stress ranges>` in the dataset,
-            by default None
+        cycles, stress_range : array_like, optional
+            Paired cycle counts and stress ranges to overlay.
         dataset_name : str, optional
-            history dataset name, by default None
+            Label for the stress history.
         dataset_color : str, optional
-            history dataset color, by default "#000"
+            Color for the stress history.
+        scale : {"loglog", "semilogx", "semilogy"}, optional
+            Axis scales, by default "loglog".
 
         Returns
         -------
-        Tuple[list, dict]
-            data, layout
+        pyecharts.charts.Line
+            Interactive chart. Call `render()` to write it to HTML.
+
+        Examples
+        --------
+        >>> sn = SNCurve(slope=3, intercept=12.0)
+        >>> chart = sn.echarts(cycles=[1000], stress_range=[100])
+        >>> chart.options["series"][1]["data"]
+        [[1000.0, 100.0]]
         """
-
-        n_plot = np.asarray(
-            [10**_ * np.linspace(1, 10, 10) for _ in range(4, 9)]
-        ).reshape(1, 50)[0]
-        if self.endurance < np.inf:
-            n_plot = np.sort(
-                np.append(
-                    n_plot, np.array([self.endurance, 10 * self.endurance])
-                )
-            )
-        if not self.linear:
-            n_plot = np.sort(
-                np.append(n_plot, np.array(self.get_knee_cycles()))
-            )
-        sigma_plot = self.get_stress(n_plot)
-        data = [
-            go.Scattergl(
-                x=n_plot,
-                y=sigma_plot,
-                name=self.name,
-                line={"color": self.color, "width": 1},
-            )
-        ]
-
-        if cycles is not None and stress_range is not None:
-            cycles, stress_range = _check_param_couple_types(
-                cycles,
-                stress_range,
-            )
-            data.append(
-                go.Scattergl(
-                    x=cycles,
-                    y=stress_range,
-                    name=dataset_name,
-                    mode="lines+markers",
-                    line={"color": dataset_color, "width": 1},
-                    marker={"color": dataset_color, "size": 4},
-                )
-            )
-        layout = go.Layout(
-            xaxis={
-                "title": "Number of cycles",
-                "type": "log",
-                "tickformat": ".0f",
-            },
-            yaxis={
-                "title": "Stress range, " + self.unit,
-                "type": "log",
-                "tickformat": ".0f",
-            },
-            font={"family": PLOTLY_FONT_FAMILY, "size": 14, "color": "#000"},
-            legend={
-                "font": {
-                    "family": PLOTLY_FONT_FAMILY,
-                    "size": 12,
-                    "color": "#000",
-                }
-            },
+        fig, ax = self.plot(
+            cycles, stress_range, dataset_name, dataset_color, scale=scale
         )
-
-        return data, layout
+        try:
+            return to_echarts(ax)
+        finally:
+            plt.close(fig)
 
     def plot(
         self,
@@ -889,15 +806,16 @@ class SNCurve(AbstractSNCurve):
         dataset_color: str = "#000",
         fig: matplotlib.figure.Figure | None = None,
         ax: matplotlib.axes.Axes | None = None,
+        *,
+        scale: _CurveScale = "loglog",
         **kwargs: Any,
     ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
-        """Use plotly to plot the SN curve and a stress-cycles history dataset.
+        """Plot the S–N curve and optional stress history in Matplotlib.
 
         Example
         -------
 
-        Use plotly to plot the SN curve
-
+        >>> sncurve = SNCurve(slope=3, intercept=12.0)
         >>> fig, ax = sncurve.plot()
 
         Parameters
@@ -916,6 +834,8 @@ class SNCurve(AbstractSNCurve):
             figure object, by default None
         ax : matplotlib.axes.Axes, optional
             axis object, by default None
+        scale : {"loglog", "semilogx", "semilogy"}, optional
+            Axis scales, by default "loglog".
         **kwargs : Any, optional
             additional keyword arguments
 
@@ -927,16 +847,21 @@ class SNCurve(AbstractSNCurve):
         fig, ax = make_axes(fig, ax)
         n_plot, sigma_plot = _sn_curve_data_points(self)
 
-        # plt.figure(figsize=(6, 2.5))
-        ax.loglog(
-            n_plot, sigma_plot, label=self.name, color=self.color, **kwargs
+        _plot_curve(
+            ax,
+            n_plot,
+            sigma_plot,
+            scale,
+            label=self.name,
+            color=self.color,
+            **kwargs,
         )
         if cycles is not None and stress_range is not None:
             cycles, stress_range = _check_param_couple_types(
                 cycles,
                 stress_range,
             )
-            ax.loglog(
+            ax.plot(
                 cycles,
                 stress_range,
                 label=dataset_name,
@@ -946,138 +871,54 @@ class SNCurve(AbstractSNCurve):
                 markersize=4,
             )
 
-        plt.grid(which="both", linestyle=":")
+        ax.grid(which="both", linestyle=":")
         ax.set_xlabel("Number of cycles")
         ax.set_ylabel("Stress range, " + self.unit)
 
         return fig, ax
 
 
-@nb.njit(cache=True)
-def get_sn_array_min(values):  # pragma: no cover
+def get_sn_array_min(values):
     """Return the minimum value of a one-dimensional array."""
-
-    min_value = values[0]
-    for i in range(1, values.size):
-        if np.isnan(values[i]) or values[i] < min_value:
-            min_value = values[i]
-    return min_value
+    return np.min(values)
 
 
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=False,
-    cache=True,
-    # parallel=True,
-)
-def _calc_cycles(stress, slope, intercept, endurance):  # pragma: no cover
-    """
-    Calculate the number of cycles to failure for given stress levels.
-
-    Parameters:
-    stress (numpy.ndarray): Array of stress values.
-    slope (numpy.ndarray): Array of slope values.
-    intercept (numpy.ndarray): Array of intercept values.
-    endurance (float): Endurance limit.
-
-    Returns:
-    numpy.ndarray: Array of calculated cycles to failure.
-    """
-    assert intercept.size > 0 and intercept.size == slope.size
-    assert get_sn_array_min(stress) >= 0
-
-    log_stress = np.log10(stress)
+def sn_parameters(slope, intercept, endurance, inverse):
+    """Prepare the piecewise boundaries used for S–N curve evaluation."""
+    slopes = np.ascontiguousarray(slope, dtype=float)
+    intercepts = np.ascontiguousarray(intercept, dtype=float)
+    assert slopes.size == intercepts.size and slopes.size > 0
+    stress_knees = np.diff(intercepts) / np.diff(slopes)
     log_endurance = np.log10(endurance)
-    log_knee_stress = np.empty(intercept.size - 1)
-    if intercept.size > 1:
-        for i in nb.prange(intercept.size - 1):  # pylint: disable=E1133
-            log_knee_stress[i] = (intercept[i + 1] - intercept[i]) / (
-                slope[i + 1] - slope[i]
-            )
-
-    log_knee_stress = np.concatenate(
-        (
-            np.array([(intercept[0] - 0) / slope[0]]),
-            log_knee_stress,
-            np.array([(intercept[-1] - log_endurance) / slope[-1]]),
-        )
+    end_log_stress = (intercepts[-1] - log_endurance) / slopes[-1]
+    if inverse:
+        cycle_knees = intercepts[:-1] - slopes[:-1] * stress_knees
+        knees = np.r_[1.0, cycle_knees, log_endurance]
+    else:
+        knees = np.r_[intercepts[0] / slopes[0], stress_knees, end_log_stress]
+    if not (np.all(knees[1:] >= knees[:-1]) or np.all(knees[1:] <= knees[:-1])):
+        raise ValueError("bins must be monotonically increasing or decreasing")
+    limits = (
+        endurance,
+        10 ** end_log_stress if np.isfinite(endurance) else 0.0,
     )
-    idx = np.digitize(log_stress, log_knee_stress, right=False) - 1
-    the_cycles = np.empty(stress.size)
-    nr_knees = intercept.size - 1
-    for i in nb.prange(stress.size):  # pylint: disable=E1133
-        if idx[i] <= 0:
-            max_i = intercept[0] - slope[0] * log_stress[i]
-        elif idx[i] > nr_knees:
-            max_i = intercept[-1] - slope[-1] * log_stress[i]
-        else:
-            max_i = intercept[idx[i]] - slope[idx[i]] * log_stress[i]
-        the_cycles[i] = 10**max_i
-
-    if endurance < np.inf:
-        the_cycles[the_cycles > endurance] = np.inf
-    return the_cycles
+    return slopes, intercepts, knees, limits
 
 
-@nb.njit(
-    # 'float64[::1](float64[::1], float64[::1], float64[::1])',
-    fastmath=False,
-    cache=True,
-    # parallel=True,
-)
-def _calc_stress(cycles, slope, intercept, endurance):  # pragma: no cover
-    """
-    Calculate the number of cycles to failure for given stress levels.
-
-    Parameters:
-    stress (numpy.ndarray): Array of stress values.
-    slope (numpy.ndarray): Array of slope values.
-    intercept (numpy.ndarray): Array of intercept values.
-    endurance (float): Endurance limit.
-
-    Returns:
-    numpy.ndarray: Array of calculated cycles to failure.
-    """
-    assert intercept.size > 0 and intercept.size == slope.size
-    assert get_sn_array_min(cycles) > 0
-
-    log_cycles = np.log10(cycles)
-    log_endurance = np.log10(endurance)
-    log_knee_stress = np.empty(intercept.size - 1)
-    log_knee_cycles = np.empty(intercept.size - 1)
-    if intercept.size > 1:
-        for i in nb.prange(intercept.size - 1):  # pylint: disable=E1133
-            log_knee_stress[i] = (intercept[i + 1] - intercept[i]) / (
-                slope[i + 1] - slope[i]
-            )
-            log_knee_cycles[i] = intercept[i] - slope[i] * log_knee_stress[i]
-
-    log_knee_stress = np.concatenate(
-        (
-            np.array([(intercept[0] - 0) / slope[0]]),
-            log_knee_stress,
-            np.array([(intercept[-1] - log_endurance) / slope[-1]]),
-        )
+def _calc_cycles(stress, slope, intercept, endurance):
+    return evaluate_curve(
+        0,
+        np.ascontiguousarray(stress, dtype=float),
+        *sn_parameters(slope, intercept, endurance, inverse=False),
     )
-    log_knee_cycles = np.concatenate(
-        (np.array([1]), log_knee_cycles, np.array([log_endurance]))
-    )
-    endurance_stress = 10 ** log_knee_stress[-1]
-    idx = np.digitize(log_cycles, log_knee_cycles, right=False) - 1
-    the_stress = np.empty(cycles.size)
-    nr_knees = intercept.size - 1
-    for i in nb.prange(cycles.size):  # pylint: disable=E1133
-        if idx[i] <= 0:
-            max_i = (intercept[0] - log_cycles[i]) / slope[0]
-        elif idx[i] > nr_knees:
-            max_i = (log_endurance - log_cycles[i]) / slope[-1]
-        else:
-            max_i = (intercept[idx[i]] - log_cycles[i]) / slope[idx[i]]
-        the_stress[i] = 10**max_i
 
-    if endurance < np.inf:
-        the_stress[the_stress < endurance_stress] = endurance_stress
-    return the_stress
+
+def _calc_stress(cycles, slope, intercept, endurance):
+    return evaluate_curve(
+        1,
+        np.ascontiguousarray(cycles, dtype=float),
+        *sn_parameters(slope, intercept, endurance, inverse=True),
+    )
 
 
 def _sn_curve_data_points(sn: SNCurve) -> tuple:
@@ -1129,9 +970,16 @@ def __sn_curve_residuals(  # pragma: no cover
     return fail - weight * cycles - res_stress
 
 
-# Create a jitted bisection function specialized for root_func
-__jit_sn_curve_residuals = compile_specialized_bisect(__sn_curve_residuals)
+def solve_sn_curve_residuals(
+    left, right, tol, iterations, slope, intercept, endurance, stress, weight
+):
+    """Solve for the intersection of the S–N curve and a linear stress path."""
+    return sn_intersection(
+        *sn_parameters(slope, intercept, endurance, inverse=True),
+        (stress, weight),
+        (left, right),
+        (tol, iterations),
+    )
 
-# Backwards-compatible aliases used by older notebooks.
+
 sn_curve_residuals = __sn_curve_residuals
-jit_sn_curve_residuals = __jit_sn_curve_residuals

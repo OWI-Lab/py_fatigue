@@ -7,11 +7,10 @@
 [![issues](https://img.shields.io/github/issues/owi-lab/py_fatigue)](https://github.com/OWI-Lab/py_fatigue/issues)
 [![CI/CD](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml/badge.svg)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml)
 [![documentation](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment/badge.svg?label=docs)](https://owi-lab.github.io/py_fatigue/)
-[![Binder Tutorials](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/OWI-Lab/py-fatigue-tutorials/HEAD)
 
 <!-- Insert the py-fatigue logo here -->
 <p align="center">
-  <img src="https://owi-lab.github.io/py_fatigue/_static/py-fatigue-logo-with-name.png" alt="py-fatigue logo" width="height"/>
+  <img src="https://owi-lab.github.io/py_fatigue/_static/_img/py-fatigue-logo-with-name.png" alt="py-fatigue logo" width="height"/>
 </p>
 
 Py-Fatigue is a Python package for cycle-counting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel. Full documentation can be found [**here**](https://owi-lab.github.io/py_fatigue/).
@@ -25,9 +24,9 @@ The main features of Py-Fatigue are:
 - crack propagation analysis through the combination of the Paris' law and multiple crack geometries
 - and more...
 
-Py-Fatigue is heavily based on [``numba``](https://numba.pydata.org/), [``numpy``](https://numpy.org/) and [``pandas``](https://pandas.pydata.org/), for the analytical part, and [``matplotlib``](https://matplotlib.org/) as well as [``plotly``](https://plotly.com/python/) for the plotting part.
+Py-Fatigue 3 uses a Rust numerical extension with [``numpy``](https://numpy.org/) and [``pandas``](https://pandas.pydata.org/), for the analytical part, and [``matplotlib``](https://matplotlib.org/) as well as [``pyecharts``](https://pyecharts.org/) for the plotting part.
 
-Therefore, it is highly recommended to have a look at the documentation of these packages as well.
+Examples in marimo offer **Static** (Matplotlib) and **ECharts** views. Pass a Matplotlib figure to `py_fatigue.plotting.to_echarts(fig)` to get an interactive chart, or call `sn_curve.echarts()` for a single S–N curve.
 
 ## Installation requirements
 
@@ -36,7 +35,8 @@ Therefore, it is highly recommended to have a look at the documentation of these
 >
 > Py-Fatigue `v2.*.*` is hosted on branch `develop` and is compatible with Python [3.10, 3.11, 3.12, 3.13].
 >
-> It is a 64-bit package, hence not compatible with 32-bit Python.
+> Py-Fatigue 3 targets 64-bit CPython 3.10–3.14.
+> Installing from source requires Rust. Platform wheels include the native extension.
 
 ### Installation
 
@@ -45,6 +45,40 @@ Py-Fatigue can be installed via pip:
 ```bash
 pip install py_fatigue
 ```
+
+## Example notebooks
+
+Use Python 3.11 or newer for marimo and the documentation. Install Rust and
+the development dependencies, then open the notebooks from the repository root.
+
+```bash
+uv sync --group dev
+uv run marimo edit notebooks
+```
+
+Start with `00-development_guide.py` or pick a lesson from the
+[numbered notebook index](docs/user/examples/01-notebook_setup.md).
+
+## Build the documentation locally
+
+```bash
+uv sync --group dev --group docs
+uv run --no-sync invoke docs.build
+```
+
+Open `_build/docs/index.html` for the architecture guide, API reference,
+and rendered examples.
+
+## Upgrading from 2.x
+
+Existing fatigue classes, pandas accessors and cycle-count operations retain
+their import paths. Use `py_fatigue.stress_life` and `py_fatigue.crack_growth`
+for domain-specific entry points.
+
+The Rust extension loads without a JIT warmup. Remove calls to `warmup_numba`.
+Use ordinary mappings for geometry inputs and `py_bisect` or `py_newton` for
+Python callback solvers. The Numba dictionary and dispatcher helpers, compiled
+residual alias and JIT settings have been retired.
 
 ## To cite Py-Fatigue
 

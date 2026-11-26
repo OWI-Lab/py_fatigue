@@ -14,18 +14,18 @@ import warnings
 # Packages from external libraries
 import matplotlib
 import matplotlib.axes
-import matplotlib.pyplot as plt
-import numba as nb
 import numpy as np
 import pandas as pd
 
 # py-fatigue imports
 from ..cycle_count.cycle_count import CycleCount
+from .._rust import theil_history
 from ..material.sn_curve import (
     _check_param_couple_types,
-    __jit_sn_curve_residuals,
+    solve_sn_curve_residuals,
     SNCurve,
 )
+from ..plotting import PlotMixin
 from ..styling import py_fatigue_formatwarning
 from ..utils import make_axes, _plot_damage_accumulation
 
@@ -40,7 +40,7 @@ warnings.formatwarning = py_fatigue_formatwarning
 
 
 @pd.api.extensions.register_dataframe_accessor("miner")
-class PalmgrenMiner:
+class PalmgrenMiner(PlotMixin):
     """Accessor for the Palmgren-Miner damage model."""
 
     def __init__(self, pandas_obj):
@@ -161,6 +161,24 @@ class PalmgrenMiner:
             equivalent_cycles,
         )
 
+    def plot(
+        self,
+        fig: matplotlib.figure.Figure | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+    ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        """Plot calculated Miner damage contributions by stress range."""
+        if "pm_damage" not in self._obj:
+            raise ValueError("Call damage(sn_curve) before plotting.")
+        fig, ax = make_axes(fig, ax)
+        ax.scatter(self._obj.stress_range, self._obj.pm_damage)
+        metadata = self._obj._metadata
+        unit = metadata.get("unit") if isinstance(metadata, dict) else None
+        ax.set(
+            xlabel=f"Stress range ({unit})" if unit else "Stress range",
+            ylabel="Miner damage contribution",
+        )
+        return fig, ax
+
     def plot_histogram(
         self,
         fig: Optional[matplotlib.figure.Figure] = None,
@@ -204,7 +222,7 @@ class PalmgrenMiner:
         )
         ax.set_xlabel("# of cycles")
         ax.set_ylabel("Stress range, MPa")
-        cbar = plt.colorbar(im, ax=ax)
+        cbar = fig.colorbar(im, ax=ax)
         cbar.set_label(cbar_label, rotation=270)
         cbar.ax.get_yaxis().labelpad = 10
         return fig, ax
@@ -218,7 +236,7 @@ except AttributeError:
 
 
 @pd.api.extensions.register_dataframe_accessor("gassner")
-class Gassner:
+class Gassner(PlotMixin):
     """Accessor for the Gassner shift factor for variable amplitude."""
 
     def __init__(self, pandas_obj):
@@ -231,12 +249,6 @@ class Gassner:
         """Validate the input DataFrame. Raise an error if the input
         DataFrame does not contain the right columns.
         """
-        if {
-            "shift_factor",
-        }.issubset(obj.columns):
-            e_msg = "'shift_factor' already calculated"
-            raise AttributeError(e_msg)
-
         if not {"count_cycle", "mean_stress", "stress_range"}.issubset(
             obj.columns
         ):
@@ -279,6 +291,8 @@ class Gassner:
         DataFrame
             The DataFrame with the shift factor per sample.
         """
+        if "shift_factor" in self._obj:
+            raise AttributeError("'shift_factor' already calculated")
         assert sn_curve.linear, "The SN curve must be linear"
         self._obj.sn_curve = sn_curve
         self.sn_curve = sn_curve
@@ -289,6 +303,19 @@ class Gassner:
             np.divide(stress_amp, max_amp), self.sn_curve.slope
         )
         return self._obj
+
+    def plot(
+        self,
+        fig: matplotlib.figure.Figure | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+    ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        """Plot Gassner shift factor contributions by stress range."""
+        if "shift_factor" not in self._obj:
+            raise ValueError("Call g(sn_curve) before plotting.")
+        fig, ax = make_axes(fig, ax)
+        ax.scatter(self._obj.stress_range, self._obj.shift_factor)
+        ax.set(xlabel="Stress range", ylabel="Shift factor contribution")
+        return fig, ax
 
 
 def calc_pm(
@@ -1233,7 +1260,7 @@ def find_sn_curve_intersection(
     ValueError
         If the bisection method fails to find a solution.
     """
-    return __jit_sn_curve_residuals(
+    return solve_sn_curve_residuals(
         n_min,
         n_max,
         tol,
@@ -1262,10 +1289,6 @@ def find_sn_curve_intersection_2(*args, **kwargs):
     return find_sn_curve_intersection(*args, **kwargs)
 
 
-@nb.njit(
-    fastmath=True,
-    cache=True,
-)
 def _calc_theil_sn_damage(stress_range, count_cycle, cycles_to_failure):
     """
     Calculate the cycles to failure using the Theil's method for variable
@@ -1350,28 +1373,18 @@ def _calc_theil_sn_damage(stress_range, count_cycle, cycles_to_failure):
       to failure.
     """
 
-    history = []
-
-    # Start at 0 cycles and 0 stress range
-    n_cumsum = 0.0
-    stress_range_cumsum = 0.0  # effective stress range at the block end
-
-    # Process predetermined blocks (blocks 1 to L-1)
-    w_ij = np.divide(stress_range, cycles_to_failure)
-    for i in nb.prange(stress_range.size):  # pylint: disable=E1133
-        current_stress_range = stress_range_cumsum - w_ij[i] * n_cumsum
-        num_points = int(np.ceil(count_cycle[i]))
-        n_end = n_cumsum + count_cycle[i]
-        n_segment = np.logspace(
-            np.log10(n_cumsum + 1), np.log10(n_end), num_points
-        )
-        stress_range_segment = w_ij[i] * n_segment + current_stress_range
-        # label = f"Block {i+1} (r={stress_range[i]} MPa)"
-        history.append((n_segment, stress_range_segment))
-        n_cumsum = n_end
-        stress_range_cumsum = w_ij[i] * n_cumsum + current_stress_range
-
-    return history, stress_range_cumsum, n_cumsum
+    sizes = [int(np.ceil(count)) for count in count_cycle]
+    if any(size < 0 for size in sizes):
+        raise ValueError("Theil segment size cannot be negative")
+    cycles, effective, final_stress, final_cycles = theil_history(
+        np.ascontiguousarray(stress_range, dtype=float),
+        np.ascontiguousarray(count_cycle, dtype=float),
+        np.ascontiguousarray(cycles_to_failure, dtype=float),
+        sizes,
+    )
+    cuts = np.cumsum(sizes)[:-1]
+    history = list(zip(np.split(cycles, cuts), np.split(effective, cuts)))
+    return history if sizes else [], final_stress, final_cycles
 
 
 def calc_theil_sn_damage(
