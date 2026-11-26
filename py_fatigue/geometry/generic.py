@@ -176,7 +176,8 @@ class TabulatedGeometryFactor(AbstractCrackGeometry):
             or not np.all(np.diff(self.depths) > 0)
         ):
             raise ValueError(
-                "Depths must increase and all values must be positive and finite."
+                "Depths must increase and all values must be "
+                "positive and finite."
             )
         if not self.depths[0] <= self.initial_depth < self.depths[-1]:
             raise ValueError(

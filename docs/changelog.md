@@ -1,3 +1,16 @@
+## 3.0.0rc2
+
+- Replace the inherited ASTM rainflow routines with Rust and verify exact
+  agreement with Py-Fatigue 2.1.1 on the rainflow regression checks.
+- Include Rust dependency license notices in the wheels and source archive.
+- Run Paris crack growth with tabulated geometry factors and report a
+  geometry-limit stop at the final tabulated crack dimension.
+- Add [end-to-end marimo tutorials](user/examples/01-notebook_setup.md)
+  for stress-life and crack-growth analysis. Compare Py-Fatigue with the
+  AFGROW handbook's MERC-3, FAC-1, and blend-out repair examples.
+
+Install this candidate explicitly with `pip install py-fatigue==3.0.0rc2`.
+
 ## 3.0.0rc1
 
 This release candidate moves numerical kernels to Rust and adds ordered
