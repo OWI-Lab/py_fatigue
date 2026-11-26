@@ -3,17 +3,16 @@
 Rainflow cycle counting algorithms for fatigue analysis.
 
 Implements:
-- ASTM rainflow (Nieslony's algorithm, standard practice).
+- ASTM E1049 three-point rainflow.
 - Four-point rainflow (Amzallag et al. 1994).
 
 Also includes utilities to find turning points and extrema.
 
 References
 ----------
-[1] WAFO Toolbox https://www.maths.lth.se/matstat/wafo/
-[2] PyWAFO https://github.com/wafo-project/pywafo
-[3] Rychlik (1987), "A new definition of the rainflow cycle counting method"
-[4] Amzallag et al. (1994), "Standardization of the rainflow counting method"
+[1] ASTM E1049, Standard Practices for Cycle Counting in Fatigue
+[2] Rychlik (1987), "A new definition of the rainflow cycle counting method"
+[3] Amzallag et al. (1994), "Standardization of the rainflow counting method"
 
 See also
 ---------
@@ -32,7 +31,7 @@ from typing import Any, Dict, List, Tuple, Optional, Union
 
 # non-standard imports
 import numpy as np
-from .._rust import find_crossings
+from .._rust import astm_cycles, find_crossings
 
 __all__ = [
     "rainflow",
@@ -49,317 +48,97 @@ __all__ = [
 
 
 def findtp(x: np.ndarray) -> np.ndarray:
-    """
-    Return indices to turning points (tp) of ASTM rainflow filtered data.
+    """Return reversal indices with the first and last samples included.
 
-    Parameters
-    ----------
-    x : vector
-        signal to be filtered.
-
-    Returns
-    -------
-    ind : Union[np.ndarray, None]
-        indices to the turning points in the original sequence.
+    Fewer than two interior reversals are treated as an empty sequence,
+    following the cycle-counting convention of Py-Fatigue 2.1.1.
 
     Examples
     --------
-    >>> import matplotlib.pyplot as plt
-    >>> import py_fatigue.wafo.misc as wm
-    >>> t = np.linspace(0,30,500).reshape((-1,1))
-    >>> x = np.hstack((t, np.cos(t) + 0.3 * np.sin(5*t)))
-    >>> x1 = x[0:100,:]
-    >>> itp = wm.findtp(x1[:,1])
-    >>> tp = x1[itp,:]
-    >>> np.allclose(itp, [ 5, 18, 24, 38, 46, 57, 70, 76, 91, 98, 99])
-    True
-
-    >>> a = plt.plot(
-    ... x1[:,0], x1[:,1], tp[:,0], tp[:,1], 'ro')
-    >>> plt.close('all')
-
-    See also
-    ---------
-    findextrema
+    >>> findtp(np.array([0, 3, 1, 5, 0])).tolist()
+    [0, 1, 2, 3, 4]
     """
-
-    ind = findextrema(x)
-
-    if ind.size < 2:
+    reversals = findextrema(x)
+    if reversals.size < 2:
         return np.empty(0, dtype=np.int64)
-
-    # # the Nieslony approach always put the first loading point as the first
-    # # turning point.
-    # add the first turning point is the first of the signal
-    # if ind[0] != 0:
-    #     ind = np.r_[0, ind, len(x) - 1]
-    # else:  # only add the last point of the signal
-    #     ind = np.r_[ind, len(x) - 1]
-    return np.r_[0, ind, len(x) - 1]
+    return np.r_[0, reversals, len(x) - 1]
 
 
-def findcross(x: np.ndarray, v=0.0, kind=None) -> np.ndarray:
+def findcross(
+    x: np.ndarray, v: float = 0.0, kind: str | None = None
+) -> np.ndarray:
+    """Return sample indices just before crossings of level ``v``.
+
+    A plateau at the crossing level belongs to the preceding side, with
+    the last level sample marking the crossing. Use ``"u"`` or ``"d"`` to
+    select a direction, or ``None``, ``"all"`` or ``"du"`` for both.
+
+    Examples
+    --------
+    >>> findcross(np.array([-2, 0, 0, 3, 0, -1])).tolist()
+    [2, 4]
+    >>> findcross(np.array([-2, 0, 0, 3, 0, -1]), kind="d").tolist()
+    [4]
     """
-    Return indices to level v up and/or downcrossings of a vector
-
-    Parameters
-    ----------
-    x : array_like
-        vector with sampled values.
-    v : scalar, real
-        level v.
-    kind : string
-        defines type of crossing returned. Possible options are
-        - 'd'  : downcrossings only
-        - 'u'  : upcrossings only
-        - None : All crossings will be returned
-
-    Returns
-    -------
-    ind : array-like
-        indices to the crossings in the original sequence x.
-
-    Example
-    -------
-    >>> from matplotlib import pyplot as plt
-    >>> import py_fatigue.wafo.misc as wm
-    >>> ones = np.ones
-    >>> np.allclose(findcross([0, 1, -1, 1], 0), [0, 1, 2])
-    True
-    >>> v = 0.75
-    >>> t = np.linspace(0,7*np.pi,250)
-    >>> x = np.sin(t)
-    >>> ind = wm.findcross(x,v) # all crossings
-    >>> np.allclose(ind, [  9,  25,  80,  97, 151, 168, 223, 239])
-    True
-
-    >>> ind2 = wm.findcross(x,v,'u')
-    >>> np.allclose(ind2, [  9,  80, 151, 223])
-    True
-    >>> ind3 = wm.findcross(x,v,'d')
-    >>> np.allclose(ind3, [  25,  97, 168, 239])
-    True
-
-    >>> t0 = plt.plot(t,x,'.',t[ind],x[ind],'r.', t, ones(t.shape)*v)
-    >>> t0 = plt.plot(t[ind2],x[ind2],'o')
-    >>> plt.close('all')
-    """
-    if len(x) > 0 and np.isnan(np.min(x)):
+    if len(x) and np.isnan(np.min(x)):
         raise ValueError("data contain NaN")
-
-    xn = np.array(np.sign(np.atleast_1d(x).ravel() - v), dtype=np.int8)
-    ind = findcross_indices(xn)
-    if ind.size == 0:
+    sides = np.asarray(np.sign(np.atleast_1d(x).ravel() - v), dtype=np.int8)
+    crossings = findcross_indices(sides)
+    if crossings.size == 0:
         warnings.warn(f"No level v = {v:0.5g} crossings found in x")
-        return ind
-
-    if kind not in ("du", "all", None):
-        if kind == "d":  # downcrossings only
-            t_0 = int(
-                xn[ind[0] + 1] > 0  # pylint: disable=unsubscriptable-object
-            )
-            ind = ind[t_0::2]
-        elif kind == "u":  # upcrossings  only
-            t_0 = int(
-                xn[ind[0] + 1] < 0  # pylint: disable=unsubscriptable-object
-            )
-            ind = ind[t_0::2]
-        else:
-            raise ValueError(f"Unknown cycle-crossing definition! ({kind})")
-    return ind
+        return crossings
+    if kind in (None, "all", "du"):
+        return crossings
+    if kind not in ("u", "d"):
+        raise ValueError(f"Unknown cycle-crossing definition! ({kind})")
+    first_is_up = sides[crossings[0] + 1] > 0
+    return crossings[int(first_is_up != (kind == "u")) :: 2]
 
 
 def findextrema(x: np.ndarray) -> np.ndarray:
-    """Return indices to minima and maxima of a vector
-
-    Parameters
-    ----------
-    x : vector with sampled values.
-
-    Returns
-    -------
-    ind : indices to minima and maxima in the original sequence x.
+    """Return indices where consecutive sample differences change sign.
 
     Examples
     --------
-    >>> import numpy as np
-    >>> import matplotlib.pyplot as plt
-    >>> import wafo.misc as wm
-    >>> t = np.linspace(0,7*np.pi,250)
-    >>> x = np.sin(t)
-    >>> ind = wm.findextrema(x)
-    >>> np.allclose(ind, [ 18,  53,  89, 125, 160, 196, 231])
-    True
-
-    >>> a = plt.plot(t,x,'.',t[ind],x[ind],'r.')
-    >>> plt.close('all')
+    >>> findextrema(np.array([1, 3, 3, 0, 4])).tolist()
+    [2, 3]
     """
-    dx = np.diff(np.atleast_1d(x).ravel())
-    return findcross(dx) + 1
+    differences = np.diff(np.atleast_1d(x).ravel())
+    return findcross(differences) + 1
 
 
 def findcross_indices(xn: Any) -> np.ndarray:
-    """Return indices to zero up and downcrossings of a vector"""
+    """Return indices immediately before zero crossings in signed data."""
     return find_crossings(np.ascontiguousarray(xn, dtype=np.int8))
 
 
-# -------------------------------------------------------------------------
-# ASTM rainflow implementation (Nieslony)
-# -------------------------------------------------------------------------
-
-
-def _findrfc3_astm(
-    array_ext: np.ndarray, a: np.ndarray, array_out: np.ndarray
-) -> tuple:
-    """
-    Rainflow without time analysis
-
-    Return [ampl ampl_mean nr_of_cycle]
-
-    By Adam Nieslony
-    Visit the MATLAB Central File Exchange for latest version
-    http://www.mathworks.com/matlabcentral/fileexchange/3026
-    """
-    n = len(array_ext)
-    po = 0
-    # The original rainflow counting by Nieslony, unchanged
-    j = -1
-    c_nr1 = 1
-    for i in range(n):
-        j += 1
-        a[j] = array_ext[i]
-        while j >= 2 and abs(a[j - 1] - a[j - 2]) <= abs(a[j] - a[j - 1]):
-            ampl = abs((a[j - 1] - a[j - 2]) / 2)
-            mean = (a[j - 1] + a[j - 2]) / 2
-            if j == 2:
-                a[0] = a[1]
-                a[1] = a[2]
-                j = 1
-                if ampl > 0:
-                    array_out[po, :] = (ampl, mean, 0.5)
-                    po += 1
-            else:
-                a[j - 2] = a[j]
-                j = j - 2
-                if ampl > 0:
-                    array_out[po, :] = (ampl, mean, 1.0)
-                    po += 1
-                    c_nr1 += 1
-
-    c_nr2 = 1
-    for i in range(j):
-        ampl = abs(a[i] - a[i + 1]) / 2
-        mean = (a[i] + a[i + 1]) / 2
-        if ampl > 0:
-            array_out[po, :] = (ampl, mean, 0.5)
-            po += 1
-            c_nr2 += 1
-    return c_nr1, c_nr2
-
-
-def _findrfc5_astm(
-    array_ext: np.ndarray,
-    array_t: np.ndarray,
-    a: np.ndarray,
-    t: np.ndarray,
-    array_out: np.ndarray,
-) -> tuple:
-    """
-    Rainflow with time analysis
-
-    returns
-    [ampl ampl_mean nr_of_cycle cycle_begin_time cycle_period_time]
-
-    By Adam Nieslony
-    Visit the MATLAB Central File Exchange for latest version
-    http://www.mathworks.com/matlabcentral/fileexchange/3026
-    """
-    n = len(array_ext)
-    po = 0
-    # The original rainflow counting by Nieslony, unchanged
-    j = -1
-    c_nr1 = 1
-    for i in range(n):
-        j += 1
-        a[j] = array_ext[i]
-        t[j] = array_t[i]
-        while (j >= 2) and (abs(a[j - 1] - a[j - 2]) <= abs(a[j] - a[j - 1])):
-            ampl = abs((a[j - 1] - a[j - 2]) / 2)
-            mean = (a[j - 1] + a[j - 2]) / 2
-            period = (t[j - 1] - t[j - 2]) * 2
-            atime = t[j - 2]
-            if j == 2:
-                a[0] = a[1]
-                a[1] = a[2]
-                t[0] = t[1]
-                t[1] = t[2]
-                j = 1
-                if ampl > 0:
-                    array_out[po, :] = (ampl, mean, 0.5, atime, period)
-                    po += 1
-            else:
-                a[j - 2] = a[j]
-                t[j - 2] = t[j]
-                j = j - 2
-                if ampl > 0:
-                    array_out[po, :] = (ampl, mean, 1.0, atime, period)
-                    po += 1
-                    c_nr1 += 1
-
-    c_nr2 = 1
-    for i in range(j):
-        # for (i=0; i<j; i++) {
-        ampl = abs(a[i] - a[i + 1]) / 2
-        mean = (a[i] + a[i + 1]) / 2
-        period = (t[i + 1] - t[i]) * 2
-        atime = t[i]
-        if ampl > 0:
-            array_out[po, :] = (ampl, mean, 0.5, atime, period)
-            po += 1
-            c_nr2 += 1
-    return c_nr1, c_nr2
-
-
 def findrfc_astm(tp: np.ndarray, t: Optional[np.ndarray] = None) -> np.ndarray:
-    """
-    Return rainflow counted cycles
-
-    Nieslony's Matlab implementation of the ASTM standard practice for rainflow
-    counting ported to a Python C module.
+    """Count cycles in a sequence of reversals using ASTM E1049.
 
     Parameters
     ----------
     tp : array-like
-        vector of turning-points (NB! Only values, not sampled times)
+        Reversal values in acquisition order.
     t : array-like, optional
-        vector of sampled times
+        Times at the reversals.
 
     Returns
     -------
-    sig_rfc : array-like
-        array of shape (n,3) or (n, 5) with:
-        sig_rfc[:,0] Cycles amplitude
-        sig_rfc[:,1] Cycles mean value
-        sig_rfc[:,2] Cycle type, half (=0.5) or full (=1.0)
-        sig_rfc[:,3] cycle_begin_time (only if t is given)
-        sig_rfc[:,4] cycle_period_time (only if t is given)
-    """
+    np.ndarray
+        Amplitude, mean and cycle count (0.5 or 1.0) in each row.
+        If ``t`` is provided, the last columns are start time and period.
+        Residual half cycles follow the cycles emitted during the scan.
 
-    y1 = np.atleast_1d(tp).ravel()
-    n = len(y1)
-    a = np.zeros(n)
-    if t is None:
-        sig_rfc = np.zeros((n, 3))
-        cnr = _findrfc3_astm(y1, a, sig_rfc)
-    else:
-        t1 = np.atleast_1d(t).ravel()
-        sig_rfc = np.zeros((n, 5))
-        t2 = np.zeros(n)
-        cnr = _findrfc5_astm(y1, t1, a, t2, sig_rfc)
-    # the sig_rfc was constructed too big in rainflow.rf3, so
-    # reduce the sig_rfc array as done originally by a matlab mex c function
-    # n = len(sig_rfc)
-    return sig_rfc[: n - cnr[0]]
+    Examples
+    --------
+    >>> findrfc_astm(np.array([0, 4, 1, 5])).tolist()
+    [[1.5, 2.5, 1.0], [2.5, 2.5, 0.5]]
+    """
+    values = np.ascontiguousarray(np.ravel(tp), dtype=float)
+    times = (
+        None if t is None else np.ascontiguousarray(np.ravel(t), dtype=float)
+    )
+    return astm_cycles(values, times)
 
 
 # -------------------------------------------------------------------------

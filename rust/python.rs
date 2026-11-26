@@ -1,10 +1,13 @@
-use numpy::{IntoPyArray, PyArray1, PyReadonlyArray1};
-use pyo3::exceptions::{PyAssertionError, PyMemoryError, PyValueError, PyZeroDivisionError};
+use numpy::ndarray::Array2;
+use numpy::{IntoPyArray, PyArray1, PyArray2, PyReadonlyArray1};
+use pyo3::exceptions::{
+    PyAssertionError, PyIndexError, PyMemoryError, PyValueError, PyZeroDivisionError,
+};
 use pyo3::prelude::*;
 
 use crate::crack_growth::{self, Controls, GrowthError, Load, Nasgro, Plate};
 use crate::curves::{self, Curve, CurveKind};
-use crate::legacy_growth::{Geometry, LegacyGrowth, Stop};
+use crate::legacy_growth::{FactorTable, Geometry, LegacyGrowth, Stop};
 use crate::rainflow;
 use crate::stress_life::{self, Goodman, StressLifeError};
 
@@ -23,6 +26,47 @@ fn find_crossings<'py>(
         .map_err(|error| PyValueError::new_err(format!("invalid crossing indices: {error:?}")))?;
     output.truncate(count);
     Ok(output.into_pyarray(py))
+}
+
+#[pyfunction]
+fn astm_cycles<'py>(
+    py: Python<'py>,
+    values: PyReadonlyArray1<'_, f64>,
+    times: Option<PyReadonlyArray1<'_, f64>>,
+) -> PyResult<Bound<'py, PyArray2<f64>>> {
+    let values = values.as_slice()?;
+    let times = times.as_ref().map(PyReadonlyArray1::as_slice).transpose()?;
+    let mut pending = Vec::new();
+    let mut cycles = Vec::new();
+    let allocation_error = |_| PyMemoryError::new_err("could not allocate rainflow workspace");
+    pending
+        .try_reserve_exact(values.len())
+        .map_err(allocation_error)?;
+    cycles
+        .try_reserve_exact(values.len())
+        .map_err(allocation_error)?;
+    pending.resize(values.len(), 0);
+    cycles.resize(values.len(), [0.0; 5]);
+    let count = rainflow::count_astm(values, times, &mut pending, &mut cycles).map_err(
+        |error| match error {
+            rainflow::RainflowError::Times => PyIndexError::new_err("fewer times than reversals"),
+            rainflow::RainflowError::Workspace => {
+                PyValueError::new_err("inconsistent rainflow workspace")
+            }
+        },
+    )?;
+    let columns = if times.is_some() { 5 } else { 3 };
+    cycles.truncate(count);
+    let mut result = cycles.into_flattened();
+    if columns == 3 {
+        for row in 1..count {
+            result.copy_within(5 * row..5 * row + 3, 3 * row);
+        }
+        result.truncate(3 * count);
+    }
+    Array2::from_shape_vec((count, columns), result)
+        .map(|array| array.into_pyarray(py))
+        .map_err(|_| PyValueError::new_err("invalid rainflow result shape"))
 }
 
 #[pyfunction]
@@ -99,7 +143,7 @@ fn hollow_cylinder_factor(depth: f64, dimensions: [f64; 3]) -> f64 {
     cylinder(dimensions).factor(depth)
 }
 
-fn cylinder(dimensions: [f64; 3]) -> Geometry {
+fn cylinder(dimensions: [f64; 3]) -> Geometry<'static> {
     let [diameter, thickness, width_to_depth] = dimensions;
     Geometry::HollowCylinder {
         diameter,
@@ -113,9 +157,11 @@ type GrowthOutput<'py> = (
     Bound<'py, PyArray1<f64>>,
     Bound<'py, PyArray1<f64>>,
     &'static str,
+    &'static str,
 );
 
 #[pyfunction]
+#[pyo3(signature = (loads, curve, initial_depth, dimensions, factor_table = None))]
 fn legacy_growth<'py>(
     py: Python<'py>,
     loads: (PyReadonlyArray1<'_, f64>, PyReadonlyArray1<'_, f64>),
@@ -127,7 +173,18 @@ fn legacy_growth<'py>(
     ),
     initial_depth: f64,
     dimensions: Option<[f64; 3]>,
+    factor_table: Option<(PyReadonlyArray1<'_, f64>, PyReadonlyArray1<'_, f64>)>,
 ) -> PyResult<GrowthOutput<'py>> {
+    let geometry = if let Some((depths, factors)) = factor_table.as_ref() {
+        if dimensions.is_some() {
+            return Err(PyValueError::new_err("select one crack geometry"));
+        }
+        Geometry::Tabulated(
+            FactorTable::new(depths.as_slice()?, factors.as_slice()?).map_err(curve_error)?,
+        )
+    } else {
+        dimensions.map_or(Geometry::Infinite, cylinder)
+    };
     let input = LegacyGrowth {
         stress: loads.0.as_slice()?,
         counts: loads.1.as_slice()?,
@@ -135,7 +192,7 @@ fn legacy_growth<'py>(
         intercepts: curve.1.as_slice()?,
         knees: curve.2.as_slice()?,
         limits: curve.3,
-        geometry: dimensions.map_or(Geometry::Infinite, cylinder),
+        geometry,
         initial_depth,
     };
     let mut output = Vec::new();
@@ -148,17 +205,29 @@ fn legacy_growth<'py>(
         let values: Vec<_> = output[..count].iter().map(|row| row[index]).collect();
         values.into_pyarray(py)
     };
-    let reason = match reason {
-        Stop::Spectrum => "Fatigue spectrum applied w/o failure. Stopping calculation",
-        Stop::Thickness => {
-            "Crack depth is greater than or equal to the thickness.Stopping calculation."
-        }
-        Stop::Critical => "Critical SIF reached. Stopping calculation.",
-        Stop::Increment => {
-            "Crack size increased by more than 10x in the last iteration. Stopping calculation."
-        }
+    let (stop, message) = match reason {
+        Stop::Spectrum => (
+            "spectrum_exhausted",
+            "Fatigue spectrum applied w/o failure. Stopping calculation",
+        ),
+        Stop::Thickness => (
+            "thickness",
+            "Crack depth is greater than or equal to the thickness.Stopping calculation.",
+        ),
+        Stop::Critical => (
+            "critical_sif",
+            "Critical SIF reached. Stopping calculation.",
+        ),
+        Stop::Increment => (
+            "increment",
+            "Crack size increased by more than 10x in the last iteration. Stopping calculation.",
+        ),
+        Stop::GeometryLimit => (
+            "geometry_limit",
+            "Reached the end of the geometry-factor table.",
+        ),
     };
-    Ok((extract(0), extract(1), extract(2), reason))
+    Ok((extract(0), extract(1), extract(2), stop, message))
 }
 
 #[pyfunction]
@@ -423,6 +492,7 @@ fn ordered_growth(
 #[pymodule(gil_used = true)]
 fn _rust(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(find_crossings, module)?)?;
+    module.add_function(wrap_pyfunction!(astm_cycles, module)?)?;
     module.add_function(wrap_pyfunction!(evaluate_curve, module)?)?;
     module.add_function(wrap_pyfunction!(sn_intersection, module)?)?;
     module.add_function(wrap_pyfunction!(hollow_cylinder_factor, module)?)?;

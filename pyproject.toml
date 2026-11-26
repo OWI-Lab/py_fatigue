@@ -13,7 +13,6 @@ classifiers=["Development Status :: 5 - Production/Stable",
              "Environment :: Console",
              "Intended Audience :: Science/Research",
              "Intended Audience :: Information Technology",
-             "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
              "Natural Language :: English",
              "Operating System :: POSIX :: Linux",
              "Programming Language :: Python :: 3",
@@ -26,7 +25,8 @@ classifiers=["Development Status :: 5 - Production/Stable",
              "Programming Language :: Python :: 3.14",
              "Topic :: Database"]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "GPL-3.0-only"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES"]
 requires-python = ">=3.10,<3.15"
 
 dependencies = [
@@ -78,7 +78,7 @@ testpaths = [
 ]
 
 [build-system]
-requires = ["maturin>=1.8,<2"]
+requires = ["maturin>=1.10,<2"]
 build-backend = "maturin"
 
 [tool.maturin]

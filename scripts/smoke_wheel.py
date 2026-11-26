@@ -1,6 +1,6 @@
 """Check public workflows against an installed native distribution."""
 
-from importlib.metadata import requires
+from importlib.metadata import distribution
 from importlib.util import find_spec
 import math
 
@@ -15,9 +15,20 @@ from py_fatigue.cycle_count.rainflow import findcross_indices
 
 import numpy as np
 
+installed = distribution("py-fatigue")
 assert all(
     not dependency.lower().startswith(("numba", "llvmlite"))
-    for dependency in (requires("py-fatigue") or [])
+    for dependency in (installed.requires or [])
+)
+license_files = set(installed.metadata.get_all("License-File", []))
+assert {"LICENSE", "THIRD_PARTY_NOTICES"} <= license_files
+(notice_file,) = [
+    path for path in installed.files or () if path.name == "THIRD_PARTY_NOTICES"
+]
+notices = notice_file.read_text(encoding="utf-8")
+assert notices is not None
+assert (
+    "Toshiki Teramura" in notices and "PyO3 Project and Contributors" in notices
 )
 assert find_spec("numba") is None
 np.testing.assert_array_equal(

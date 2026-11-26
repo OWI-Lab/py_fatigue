@@ -5,6 +5,8 @@ from functools import wraps
 # Packages from non-standard libraries
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+import numpy as np
+from numpy.typing import ArrayLike
 from pydantic.dataclasses import dataclass
 from pydantic.types import PositiveFloat
 
@@ -135,6 +137,64 @@ class AbstractCrackGeometry(
     # def final_cycles(self) -> None:
     #     """Delete the final_cycles."""
     #     del self.final_cycles_
+
+
+class TabulatedGeometryFactor(AbstractCrackGeometry):
+    """One growing crack dimension with measured or computed geometry factors.
+
+    Use with `get_crack_growth`. The solver interpolates the factor
+    linearly, evaluates ΔK = Δσ Y(a) √(πa), and stops at the last depth
+    in the table. Supply depths in the length unit used by the Paris curve.
+
+    Parameters
+    ----------
+    initial_depth : float
+        Initial crack dimension inside the table, below its last depth.
+    depths : array-like
+        Positive, strictly increasing crack dimensions.
+    factors : array-like
+        Positive, dimensionless geometry factors at the supplied depths.
+    """
+
+    _id = property(lambda _: "TABULATED")
+
+    def __init__(
+        self, initial_depth: float, depths: ArrayLike, factors: ArrayLike
+    ) -> None:
+        super().__init__(initial_depth=initial_depth)
+        self.depths = np.array(depths, dtype=float, copy=True)
+        self.factors = np.array(factors, dtype=float, copy=True)
+        if (
+            self.depths.ndim != 1
+            or self.depths.size < 2
+            or self.depths.shape != self.factors.shape
+        ):
+            raise ValueError("Provide at least two depth and factor pairs.")
+        if (
+            not np.all(np.isfinite(self.depths) & (self.depths > 0))
+            or not np.all(np.isfinite(self.factors) & (self.factors > 0))
+            or not np.all(np.diff(self.depths) > 0)
+        ):
+            raise ValueError(
+                "Depths must increase and all values must be positive and finite."
+            )
+        if not self.depths[0] <= self.initial_depth < self.depths[-1]:
+            raise ValueError(
+                "Initial depth must lie below the end of the factor table."
+            )
+        self.depths.setflags(write=False)
+        self.factors.setflags(write=False)
+
+    def plot(
+        self, fig: Figure | None = None, ax: Axes | None = None
+    ) -> tuple[Figure, Axes]:
+        """Plot the supplied geometry factors and mark the initial depth."""
+        fig, ax = make_axes(fig, ax)
+        ax.plot(self.depths, self.factors, label="Tabulated factor")
+        ax.axvline(self.initial_depth, linestyle="--", label="Initial depth")
+        ax.set(xlabel="Crack dimension", ylabel="Geometry factor")
+        ax.legend()
+        return fig, ax
 
 
 @dataclass(repr=False)

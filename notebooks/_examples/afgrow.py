@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 from py_fatigue import CycleCount, ParisCurve
 from py_fatigue.damage import get_crack_growth
 from py_fatigue.damage.crack_growth import CalcCrackGrowth
-from py_fatigue.geometry import InfiniteSurface
+from py_fatigue.geometry import InfiniteSurface, TabulatedGeometryFactor
 
 # Figure MERC-3.1, 7075-T6 Al at R = 0, with lengths in inches.
 MERC3_COEFFICIENT = 2.5e-9
@@ -97,15 +97,31 @@ def merc3_geometry_factors(
 def paris_reference_cycles(
     length: NDArray[np.float64],
     delta_k: NDArray[np.float64],
-    curve: ParisCurve,
+    coefficient: float,
+    exponent: float,
 ) -> NDArray[np.float64]:
-    """Integrate the reciprocal Paris rate over the crack-length grid."""
-    rate = curve.get_growth_rate(delta_k)
+    """Integrate 1 / (C ΔKⁿ) independently of the package solver."""
+    rate = coefficient * delta_k**exponent
     if np.any(~np.isfinite(rate)) or np.any(rate <= 0):
         raise ValueError("The reference history needs finite positive rates.")
     inverse = 1 / rate
     increments = np.diff(length) * (inverse[:-1] + inverse[1:]) / 2
     return np.r_[0.0, np.cumsum(increments)]
+
+
+def native_paris_growth(
+    geometry: TabulatedGeometryFactor,
+    curve: ParisCurve,
+    stress_ranges: NDArray[np.float64],
+) -> CalcCrackGrowth:
+    """Run Py-Fatigue on the handbook inputs, one R = 0 cycle per step."""
+    cycles = CycleCount(
+        stress_range=stress_ranges,
+        mean_stress=stress_ranges / 2,
+        count_cycle=np.ones_like(stress_ranges),
+        unit="ksi",
+    )
+    return get_crack_growth(cycles, curve, geometry)
 
 
 def crack_history(
@@ -133,11 +149,12 @@ def merc3_beta_histories(
     length: NDArray[np.float64],
 ) -> dict[str, tuple[NDArray[np.float64], NDArray[np.float64]]]:
     """Return beta and cumulative cycles on the supplied crack-length grid."""
-    curve = ParisCurve(MERC3_EXPONENT, MERC3_COEFFICIENT, unit_string="ksi √in")
     histories = {}
     for case, factor in merc3_geometry_factors(length).items():
         delta_k = MERC3_STRESS_RANGE * factor * np.sqrt(np.pi * length)
-        histories[case] = factor, paris_reference_cycles(length, delta_k, curve)
+        histories[case] = factor, paris_reference_cycles(
+            length, delta_k, MERC3_COEFFICIENT, MERC3_EXPONENT
+        )
     return histories
 
 

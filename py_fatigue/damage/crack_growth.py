@@ -4,7 +4,7 @@ damage models related to the crack growth approach.
 
 # Packages from the Python Standard Library
 import re
-from typing import Dict, Tuple, Type, TypeVar
+from typing import Tuple
 
 # Packages from third party libraries
 from matplotlib.axes import Axes
@@ -17,7 +17,7 @@ from ..cycle_count.cycle_count import CycleCount
 from ..material.crack_growth_curve import ParisCurve
 from ..plotting import PlotMixin
 from ..utils import make_axes, split
-from ..geometry.generic import AbstractCrackGeometry
+from ..geometry.generic import AbstractCrackGeometry, TabulatedGeometryFactor
 from ..geometry.cylinder import cylinder_dimensions, f_hol_cyl_01
 from .._rust import legacy_growth
 
@@ -26,8 +26,6 @@ try:
     del pd.DataFrame.cg  # type: ignore
 except AttributeError:
     pass
-
-ACG = TypeVar("ACG", bound=AbstractCrackGeometry)
 
 
 class CalcCrackGrowth(PlotMixin):  # pragma: no cover
@@ -139,6 +137,8 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
 
     def __str__(self) -> str:
         """String representation of the object."""
+        if getattr(self, "termination", None) == "geometry_limit":
+            return "Crack growth object: geometry table limit reached."
         if self.failure:
             return "Crack growth object: to failure."
         return "Crack growth object: to maximum number of cycles - no failure."
@@ -277,7 +277,7 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
             Crack size array, SIF array, geometric factor array, failure flag.
         """
 
-        if self.crack_type not in ("HOL_CYL_01", "INF_SUR_00"):
+        if self.crack_type not in ("HOL_CYL_01", "INF_SUR_00", "TABULATED"):
             raise NotImplementedError(
                 "Geometric factor not implemented for assigned crack type."
             )
@@ -286,7 +286,19 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
             if self.crack_type == "HOL_CYL_01"
             else None
         )
-        crack_depth, sif, factor, message = legacy_growth(
+        table = (
+            (
+                np.ascontiguousarray(
+                    self.crack_geometry["depths"], dtype=float
+                ),
+                np.ascontiguousarray(
+                    self.crack_geometry["factors"], dtype=float
+                ),
+            )
+            if self.crack_type == "TABULATED"
+            else None
+        )
+        crack_depth, sif, factor, self.termination, message = legacy_growth(
             (
                 np.ascontiguousarray(self.stress_range, dtype=float),
                 np.ascontiguousarray(self.count_cycle, dtype=float),
@@ -299,9 +311,14 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
             ),
             self.crack_geometry["initial_depth"],
             dimensions,
+            table,
         )
         print(message)
-        return crack_depth, sif, factor, len(crack_depth) < self.size
+        failure = (
+            self.termination != "geometry_limit"
+            and len(crack_depth) < self.size
+        )
+        return crack_depth, sif, factor, failure
 
 
 def get_geometry_factor(  # pragma: no cover
@@ -316,6 +333,13 @@ def get_geometry_factor(  # pragma: no cover
         return f_hol_cyl_01(crack_depth, crack_geometry)
     if crack_type == "INF_SUR_00":
         return 1.0
+    if crack_type == "TABULATED":
+        depths = crack_geometry["depths"]
+        if not depths[0] <= crack_depth <= depths[-1]:
+            raise ValueError(
+                "Crack depth is outside the geometry-factor table."
+            )
+        return float(np.interp(crack_depth, depths, crack_geometry["factors"]))
 
     e_msg = "Geometric factor not implemented for assigned crack type."
     raise NotImplementedError(e_msg)
@@ -325,7 +349,7 @@ def get_sif(  # pragma: no cover
     stress_: float,
     crack_depth_: float,
     crack_type: str,
-    crack_geometry: Dict[str, float],
+    crack_geometry: dict,
 ) -> Tuple[float, float]:
     """Get the SIF value given the stress and the crack size. The
     method calculates the SIF value according to the following
@@ -355,19 +379,28 @@ def get_sif(  # pragma: no cover
     return stress_ * np.sqrt(np.pi * crack_depth_) * y_1, y_1
 
 
-def numeric_geometry(geometry: AbstractCrackGeometry) -> dict[str, float]:
-    """Return the numeric geometry fields exposed by the legacy result."""
-    return {
+def numeric_geometry(
+    geometry: AbstractCrackGeometry,
+) -> dict[str, float | tuple[float, ...]]:
+    """Return the geometry fields consumed by the crack-growth calculation."""
+    fields = {
         key: value
         for key, value in vars(geometry).items()
         if isinstance(value, float)
     }
+    if isinstance(geometry, TabulatedGeometryFactor):
+        return {
+            **fields,
+            "depths": tuple(geometry.depths.tolist()),
+            "factors": tuple(geometry.factors.tolist()),
+        }
+    return fields
 
 
 def get_crack_growth(  # pragma: no cover
     cycle_count: CycleCount,
     cg_curve: ParisCurve,
-    crack_geometry: Type[ACG],
+    crack_geometry: AbstractCrackGeometry,
     express_mode: bool = False,
 ) -> CalcCrackGrowth:
     """Calculate the crack size by numerically integrating the crack growth
@@ -420,7 +453,7 @@ def get_crack_growth(  # pragma: no cover
         Cycle count object.
     cg_curve : py_fatigue.ParisCurve
         The crack growth curve
-    crack_geometry : Type[ACG]
+    crack_geometry : AbstractCrackGeometry
         The initial crack geometry
     express_mode : bool, optional
         If True, the crack growth is calculated using the express mode. This
@@ -474,7 +507,7 @@ def get_crack_growth(  # pragma: no cover
     # Handle the geometry
 
     crack_type = str(crack_geometry._id)
-    if crack_type not in ["HOL_CYL_01", "INF_SUR_00"]:
+    if crack_type not in ("HOL_CYL_01", "INF_SUR_00", "TABULATED"):
         raise ValueError("Unsupported crack geometry")
     geometry = numeric_geometry(crack_geometry)  # type: ignore
     cg = CalcCrackGrowth(
@@ -544,7 +577,7 @@ class CrackGrowth:
     def calc_growth(
         self,
         cg_curve: ParisCurve,
-        crack_geometry: Type[ACG],
+        crack_geometry: AbstractCrackGeometry,
         express_mode: bool = False,
     ):
         """Calculate the crack_propagation of the given crack geometry.
@@ -553,7 +586,7 @@ class CrackGrowth:
         ----------
         cg_curve : py_fatigue.ParisCurve
             The crack growth curve
-        crack_geometry : Type[ACG]
+        crack_geometry : AbstractCrackGeometry
             The initial crack geometry
         express_mode : bool, optional
             If True, the crack propagation runs 'express', by default False
@@ -596,7 +629,7 @@ class CrackGrowth:
 
         # Handle the geometry
         crack_type = str(crack_geometry._id)
-        if crack_type not in ["HOL_CYL_01", "INF_SUR_00"]:
+        if crack_type not in ("HOL_CYL_01", "INF_SUR_00", "TABULATED"):
             raise ValueError("Unsupported crack geometry")
         geometry = numeric_geometry(crack_geometry)  # type: ignore
 

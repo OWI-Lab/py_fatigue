@@ -62,8 +62,9 @@ initial and final crack profiles. Each analysis includes a seeded
 | [10 Tube in bending](../../tutorials/10-tubular_stress_life.html) | Convert bending moments to stress, aggregate rainflow counts, and compare Miner damage and equivalent loads with an S–N curve. |
 | [20 External pipe crack](../../tutorials/20-pipe_paris_growth.html) | Convert axial force to stress and propagate a crack in a hollow cylinder with the Paris law. |
 | [30 Through and surface cracks in a plate](../../tutorials/30-ordered_plate_crack_growth.html) | Compare the crack dimensions, stress intensities, and stop conditions under the same ordered loads. |
-| [40 AFGROW MERC-3 longeron](../../tutorials/40-afgrow_merc3_longeron.html) | Reconstruct the handbook's constant-amplitude life and compare the same geometry-factor cases under variable loads. |
-| [41 AFGROW FAC-1 loaded hole](../../tutorials/41-afgrow_fac1_loaded_hole.html) | Apply the published stress-intensity tables to an illustrative Paris analysis for bypass tension and pin bearing. |
+| [40 AFGROW MERC-3 longeron](../../tutorials/40-afgrow_merc3_longeron.html) | Compare handbook lives, independent integration and Py-Fatigue for three geometry-factor curves. |
+| [41 AFGROW FAC-1 loaded hole](../../tutorials/41-afgrow_fac1_loaded_hole.html) | Check Py-Fatigue against the handbook stress intensities and independently integrate an illustrative crack-growth history. |
+| [42 AFGROW blend-out repair](../../tutorials/42-afgrow_blend_out_repair.html) | Compare the life of a repaired edge crack against the handbook's reported and printed calculations. |
 
 Open the interactive tutorials from the repository root.
 
