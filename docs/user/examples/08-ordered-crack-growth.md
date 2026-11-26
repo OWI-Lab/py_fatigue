@@ -16,7 +16,7 @@ initial and last accepted profiles. [Through cracks · lesson 35](../../35-throu
 
 ## What each new name does
 
-The following API is experimental in the alpha. Each operation can be learned
+The following API is experimental in this release candidate. Each operation can be learned
 independently before running a propagation analysis.
 
 | Name | Inputs and output |

@@ -51,7 +51,9 @@ class CrackGeometryMixin:
     # final_cycles_: Optional[PositiveFloat] = None
 
 
-class AbstractCrackGeometry(CrackGeometryMixin, PlotMixin, metaclass=abc.ABCMeta):
+class AbstractCrackGeometry(
+    CrackGeometryMixin, PlotMixin, metaclass=abc.ABCMeta
+):
     """Abstract class to initalise and store the crack geometry data."""
 
     def __str__(self) -> str:

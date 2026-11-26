@@ -479,7 +479,7 @@ class _ShellThroughCrack(PlotMixin):
     _title: ClassVar[str]
 
     def stress_intensity(self, stress: float) -> float:
-        """Return Mode I intensity in MPa sqrt(mm) from membrane stress in MPa."""
+        """Return Mode I K in MPa sqrt(mm) from membrane stress in MPa."""
         section, sizes, _ = _plate_state(self)
         factor, _ = plate_factors(section, sizes)
         return stress * factor
@@ -621,7 +621,7 @@ def _plot_profiles(
     )
 
 
-def _plate_state(
+def _plate_state(  # pylint: disable=too-many-return-statements
     geometry: (
         _PlateCrack
         | RoundBarSurfaceCrack

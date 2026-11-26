@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish the verified develop snapshot to GitHub Pages
+        description: Publish a final release from develop or a release candidate from its tag
         type: boolean
         default: false
 
@@ -15,8 +15,29 @@ permissions:
 jobs:
   docs:
     runs-on: ubuntu-latest
+    outputs:
+      directory: ${{ steps.publication.outputs.directory }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check the publication ref and choose its Pages path
+        id: publication
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        shell: bash
+        run: |
+          version=$(cat VERSION)
+          if [[ "$GITHUB_REF" == refs/heads/develop && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "directory=" >> "$GITHUB_OUTPUT"
+          elif [[ "$GITHUB_REF" == "refs/tags/v$version" && "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-rc\.([0-9]+)$ ]]; then
+            git merge-base --is-ancestor HEAD origin/develop
+            directory="${BASH_REMATCH[1]}rc${BASH_REMATCH[2]}"
+            echo "directory=$directory" >> "$GITHUB_OUTPUT"
+            sed -i "/^site_url = /s|\"$|$directory/\"|" zensical.toml
+          else
+            echo "Select develop for a final release or the matching vVERSION tag for a release candidate."
+            exit 1
+          fi
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14"
@@ -36,7 +57,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/develop'
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
     needs: docs
     runs-on: ubuntu-latest
     permissions:
@@ -50,3 +71,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: site
+          destination_dir: ${{ needs.docs.outputs.directory }}

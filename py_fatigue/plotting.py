@@ -1,6 +1,7 @@
 """Interactive rendering for Py-Fatigue's Matplotlib plots."""
 
-from typing import Any, Literal, overload
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Literal, overload
 
 from matplotlib.axes import Axes
 from matplotlib.collections import PathCollection
@@ -36,9 +37,8 @@ def _plot_curve(
 class PlotMixin:
     """Give single-panel plot methods an ECharts counterpart."""
 
-    def plot(self, *args: Any, **kwargs: Any) -> tuple[Figure, Axes]:
-        """Draw the static plot."""
-        raise NotImplementedError
+    if TYPE_CHECKING:
+        plot: Callable[..., tuple[Figure, Axes]]
 
     def echarts(self, *args: Any, **kwargs: Any) -> Line:
         """Return a pyecharts chart using the same arguments as `plot()`."""

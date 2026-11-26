@@ -1,3 +1,16 @@
+## 3.0.0rc1
+
+This release candidate moves numerical kernels to Rust and adds ordered
+NASGRO crack growth for plate, shell, bar, thread, and plate-hole geometries.
+See the [crack-growth guide](user/examples/08-ordered-crack-growth.md) for
+the supported loads and limits of each solution.
+
+The documentation uses Zensical. The [marimo examples](user/examples/01-notebook_setup.md)
+provide Matplotlib and ECharts views, synthetic histories, and comparisons
+with the AFGROW handbook.
+
+Install this candidate explicitly with `pip install py-fatigue==3.0.0rc1`.
+
 ## 2.0.4
 - bump(patch): Bump version to 2.0.4 [skip ci]
 - ci(pages): Pages compiled only from develop branch.

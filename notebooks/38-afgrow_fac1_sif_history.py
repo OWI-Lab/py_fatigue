@@ -143,10 +143,5 @@ def long_case(FAC1_CRACK_RATIOS, FAC1_SIF, np, plt):
     )
 
 
-@app.cell
-def _():
-    return
-
-
 if __name__ == "__main__":
     app.run()

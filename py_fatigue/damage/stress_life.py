@@ -304,13 +304,12 @@ class Gassner(PlotMixin):
         )
         return self._obj
 
-
     def plot(
         self,
         fig: matplotlib.figure.Figure | None = None,
         ax: matplotlib.axes.Axes | None = None,
     ) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
-        """Plot calculated Gassner shift factor contributions by stress range."""
+        """Plot Gassner shift factor contributions by stress range."""
         if "shift_factor" not in self._obj:
             raise ValueError("Call g(sn_curve) before plotting.")
         fig, ax = make_axes(fig, ax)

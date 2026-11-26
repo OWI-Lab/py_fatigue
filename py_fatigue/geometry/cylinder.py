@@ -145,8 +145,11 @@ class HollowCylinder(AbstractCrackGeometry):
         for radius in radii:
             axes.plot(radius * np.cos(angles), radius * np.sin(angles), c="k")
         axes.plot(
-            [inner_radius, inner_radius + self.initial_depth], [0, 0],
-            c="firebrick", label="Internal crack depth", **kwargs,
+            [inner_radius, inner_radius + self.initial_depth],
+            [0, 0],
+            c="firebrick",
+            label="Internal crack depth",
+            **kwargs,
         )
         axes.set(aspect="equal", title="Hollow cylinder cross-section")
         axes.legend()

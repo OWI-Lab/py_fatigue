@@ -40,11 +40,32 @@ from ..utils import (
 )
 
 COLOR_LIST = [
-    "#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356",
-    "#16FF32", "#F7E1A0", "#E2E2E2", "#1CBE4F", "#C4451C", "#DEA0FD",
-    "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E",
-    "#1CFFCE", "#2ED9FF", "#B10DA1", "#C075A6", "#FC1CBF", "#B00068",
-    "#FBE426", "#FA0087",
+    "#AA0DFE",
+    "#3283FE",
+    "#85660D",
+    "#782AB6",
+    "#565656",
+    "#1C8356",
+    "#16FF32",
+    "#F7E1A0",
+    "#E2E2E2",
+    "#1CBE4F",
+    "#C4451C",
+    "#DEA0FD",
+    "#FE00FA",
+    "#325A9B",
+    "#FEAF16",
+    "#F8A19F",
+    "#90AD1C",
+    "#F6222E",
+    "#1CFFCE",
+    "#2ED9FF",
+    "#B10DA1",
+    "#C075A6",
+    "#FC1CBF",
+    "#B00068",
+    "#FBE426",
+    "#FA0087",
 ]
 __all__ = ["SNCurve"]
 
@@ -877,20 +898,25 @@ def sn_parameters(slope, intercept, endurance, inverse):
         knees = np.r_[intercepts[0] / slopes[0], stress_knees, end_log_stress]
     if not (np.all(knees[1:] >= knees[:-1]) or np.all(knees[1:] <= knees[:-1])):
         raise ValueError("bins must be monotonically increasing or decreasing")
-    limits = (endurance, 10**end_log_stress if np.isfinite(endurance) else 0.0)
+    limits = (
+        endurance,
+        10 ** end_log_stress if np.isfinite(endurance) else 0.0,
+    )
     return slopes, intercepts, knees, limits
 
 
 def _calc_cycles(stress, slope, intercept, endurance):
     return evaluate_curve(
-        0, np.ascontiguousarray(stress, dtype=float),
+        0,
+        np.ascontiguousarray(stress, dtype=float),
         *sn_parameters(slope, intercept, endurance, inverse=False),
     )
 
 
 def _calc_stress(cycles, slope, intercept, endurance):
     return evaluate_curve(
-        1, np.ascontiguousarray(cycles, dtype=float),
+        1,
+        np.ascontiguousarray(cycles, dtype=float),
         *sn_parameters(slope, intercept, endurance, inverse=True),
     )
 
@@ -950,7 +976,9 @@ def solve_sn_curve_residuals(
     """Solve for the intersection of the S–N curve and a linear stress path."""
     return sn_intersection(
         *sn_parameters(slope, intercept, endurance, inverse=True),
-        (stress, weight), (left, right), (tol, iterations),
+        (stress, weight),
+        (left, right),
+        (tol, iterations),
     )
 
 

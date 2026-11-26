@@ -283,7 +283,8 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
             )
         dimensions = (
             cylinder_dimensions(self.crack_geometry)
-            if self.crack_type == "HOL_CYL_01" else None
+            if self.crack_type == "HOL_CYL_01"
+            else None
         )
         crack_depth, sif, factor, message = legacy_growth(
             (

@@ -2,7 +2,7 @@
 
 ## Current boundaries
 
-Py-Fatigue 3 alpha ships as one Python distribution. Its public classes still
+Py-Fatigue 3 ships as one Python distribution. Its public classes still
 live at their original import paths. Python owns the user interface, binning,
 serialization and plots. Maturin builds the private `py_fatigue._rust`
 extension. PyO3 translates arrays and errors at the boundary. Cargo can test
@@ -72,4 +72,4 @@ revisiting a split into separately distributed packages.
 See the [notebook index](user/examples/01-notebook_setup.md) for short examples
 of the current API and the
 [experimental plate API guide](user/examples/08-ordered-crack-growth.md)
-for the implementation that is available in the alpha.
+for the implementation that is available in this release candidate.

@@ -22,7 +22,6 @@ import matplotlib.axis
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 # py_fatigue imports
 from .._rust import evaluate_curve
 from ..plotting import PlotMixin, _CurveScale, _plot_curve
@@ -1074,10 +1073,12 @@ def _calc_growth_rate(sif, slope, intercept, threshold, critical):
     knees = (intercept[:-1] / intercept[1:]) ** (1 / np.diff(slope))
     assert np.all(np.diff(knees) > 0), "Knee(s) are not ordered."
     return evaluate_curve(
-        2, np.ascontiguousarray(sif, dtype=float),
+        2,
+        np.ascontiguousarray(sif, dtype=float),
         np.ascontiguousarray(slope, dtype=float),
         np.ascontiguousarray(intercept, dtype=float),
-        np.ascontiguousarray(knees, dtype=float), (threshold, critical),
+        np.ascontiguousarray(knees, dtype=float),
+        (threshold, critical),
     )
 
 
@@ -1090,14 +1091,16 @@ def _calc_sif(growth_rate, slope, intercept, threshold, critical):
     )
     lower = intercept[0] * (0.9999999999999999 * threshold) ** slope[0]
     upper = intercept[-1] * (critical / 0.9999999999999999) ** slope[-1]
-    assert np.all(np.diff(np.r_[lower, knees, upper]) > 0), (
-        "Knee(s) not in between threshold and critical SIF."
-    )
+    assert np.all(
+        np.diff(np.r_[lower, knees, upper]) > 0
+    ), "Knee(s) not in between threshold and critical SIF."
     return evaluate_curve(
-        3, np.ascontiguousarray(growth_rate, dtype=float),
+        3,
+        np.ascontiguousarray(growth_rate, dtype=float),
         np.ascontiguousarray(slope, dtype=float),
         np.ascontiguousarray(intercept, dtype=float),
-        np.ascontiguousarray(knees, dtype=float), (threshold, critical),
+        np.ascontiguousarray(knees, dtype=float),
+        (threshold, critical),
     )
 
 
