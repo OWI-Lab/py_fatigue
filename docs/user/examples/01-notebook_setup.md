@@ -50,6 +50,28 @@ History plots sample points for display after the full calculation.
 The examples draw on workflows in the original OWI-Lab tutorials. They use
 self-contained inputs so they can run from this checkout. [OWI-Lab tutorial notebooks](https://github.com/OWI-Lab/py-fatigue-tutorials)
 
+## End-to-end tutorials
+
+Each tutorial defines a material curve, a geometry and a load history, then
+runs the analysis and plots the results. Crack-growth tutorials show the
+initial and final crack profiles. Each analysis includes a seeded
+300,000-cycle load spectrum and explains the outcome.
+
+| Tutorial | Analysis |
+| --- | --- |
+| [10 Tube in bending](../../tutorials/10-tubular_stress_life.html) | Convert bending moments to stress, aggregate rainflow counts, and compare Miner damage and equivalent loads with an S–N curve. |
+| [20 External pipe crack](../../tutorials/20-pipe_paris_growth.html) | Convert axial force to stress and propagate a crack in a hollow cylinder with the Paris law. |
+| [30 Through and surface cracks in a plate](../../tutorials/30-ordered_plate_crack_growth.html) | Compare the crack dimensions, stress intensities, and stop conditions under the same ordered loads. |
+| [40 AFGROW MERC-3 longeron](../../tutorials/40-afgrow_merc3_longeron.html) | Compare handbook lives, independent integration and Py-Fatigue for three geometry-factor curves. |
+| [41 AFGROW FAC-1 loaded hole](../../tutorials/41-afgrow_fac1_loaded_hole.html) | Check Py-Fatigue against the handbook stress intensities and independently integrate an illustrative crack-growth history. |
+| [42 AFGROW blend-out repair](../../tutorials/42-afgrow_blend_out_repair.html) | Compare the life of a repaired edge crack against the handbook's reported and printed calculations. |
+
+Open the interactive tutorials from the repository root.
+
+```bash
+uv run --no-sync marimo edit notebooks/tutorials
+```
+
 Build the local documentation and HTML versions of all notebooks together.
 
 ```bash

@@ -10,7 +10,9 @@ from __future__ import annotations
 import copy
 import datetime as dt
 import itertools
+from collections.abc import Mapping
 from dataclasses import dataclass, field
+from numbers import Real
 from time import sleep
 from types import SimpleNamespace
 from typing import (
@@ -33,6 +35,7 @@ import warnings
 # Non-standard imports
 import matplotlib
 import numpy as np
+from numpy.typing import ArrayLike
 import pandas as pd
 from .rainflow import rainflow as calc_rainflow
 from . import histogram as ht
@@ -51,6 +54,45 @@ warnings.formatwarning = py_fatigue_formatwarning
 NDT = NewType("NDT", dt.datetime)  # non-aware datetime
 ADT = NewType("ADT", dt.datetime)  # timezone aware datetime
 DatetimeLike = TypeVar("DatetimeLike", ADT, NDT)
+
+
+def sep005_sample_times(
+    signal: Mapping[str, Any], sample_count: int
+) -> np.ndarray | None:
+    """Validate SEP005 sampling metadata and return explicit sample times."""
+    time = signal.get("time")
+    if time is None:
+        fs = signal.get("fs")
+        if (
+            not isinstance(fs, Real)
+            or isinstance(fs, bool)
+            or not np.isfinite(fs)
+            or fs <= 0
+        ):
+            raise ValueError("Supply SEP005 time or a positive fs in Hz.")
+        return None
+    time = np.asarray(time)
+    if (
+        time.shape != (sample_count,)
+        or time.dtype.kind not in "fiu"
+        or not np.all(np.isfinite(time))
+        or not np.all(time[1:] > time[:-1])
+    ):
+        raise ValueError("Supply one increasing time per stress sample.")
+    return time
+
+
+def sep005_start_timestamp(signal: Mapping[str, Any]) -> dt.datetime:
+    """Parse the optional SEP005 start timestamp when supplied."""
+    start = signal["start_timestamp"]
+    if isinstance(start, dt.datetime):
+        return start
+    if not isinstance(start, str):
+        raise TypeError("SEP005 start_timestamp must be a date-time.")
+    date_format = signal.get("start_timestamp_format")
+    if date_format:
+        return dt.datetime.strptime(start, date_format)
+    return dt.datetime.fromisoformat(start.replace("Z", "+00:00"))
 
 
 def _assess_json_keys(data: dict) -> dict:
@@ -244,11 +286,13 @@ class CycleCount(PlotMixin):
     The class heavily relies on the :mod:`py_fatigue.rainflow` and
     :mod:`py_fatigue.histogram` modules.
 
-    CycleCount instances should be defined from either of the
-    following two class methods:
+    Create a count from existing rainflow cycles, a stress history, or
+    a timeseries from an external source:
 
         - :func:`~CycleCount.from_rainflow`
         - :func:`~CycleCount.from_timeseries`
+        - :func:`~CycleCount.from_sep005`
+        - :func:`~CycleCount.from_pyexsi`
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -352,6 +396,8 @@ class CycleCount(PlotMixin):
         cc = calc_rainflow(
             data=data, time=time, method=rainflow_method, extended_output=True
         )
+        if cc[0].size == 0:
+            raise ValueError("The stress history contains no rainflow cycles.")
         stress_range = 2 * cc[0][:, 0]
         mean_stress = cc[0][:, 1]
         count_cycle = cc[0][:, 2]
@@ -370,6 +416,142 @@ class CycleCount(PlotMixin):
             "unit": unit,
         }
         return cls(**df)
+
+    @classmethod
+    def from_sep005(
+        cls,
+        signals: Mapping[str, Any] | Sequence[Mapping[str, Any]],
+        **kwargs: Any,
+    ) -> CycleCount | list[CycleCount]:
+        """Rainflow-count stress histories in the SDyPy SEP005 format.
+
+        Parameters
+        ----------
+        signals : mapping or sequence of mappings
+            Each record contains `data` (samples or rows of channels) and
+            `fs` in Hz or an increasing `time` vector in seconds. An empty
+            or absent `quantity` is treated as stress, as are `"s"` and
+            `"stress"`. Supply `unit_str` in Pa, kPa, MPa or GPa. An empty
+            or absent unit means Pa. Use `channel_name` and `unit_str`
+            lists for per-channel metadata, or strings shared by all rows.
+            Supply an ISO 8601 `start_timestamp`, or include a matching
+            `start_timestamp_format` for a custom date-time string.
+        **kwargs
+            Rainflow options passed to `from_timeseries`. Bin settings are
+            in MPa. The `name` and `timestamp` options override metadata.
+
+        Returns
+        -------
+        CycleCount or list of CycleCount
+            One count for a 1D record, or a flat list in input order for
+            2D data or a sequence of records. All counts use MPa.
+
+        Examples
+        --------
+        >>> record = {"data": [0, 2e6, 0, 4e6, 0], "fs": 20, "quantity": "s"}
+        >>> CycleCount.from_sep005(record).unit
+        'MPa'
+        """
+        if "unit" in kwargs or "time" in kwargs:
+            raise TypeError(
+                "Specify units and sample times in the SEP005 data."
+            )
+        if not isinstance(signals, Mapping):
+            counts = []
+            for signal in signals:
+                if not isinstance(signal, Mapping):
+                    raise TypeError("Each SEP005 signal must be a mapping.")
+                result = cls.from_sep005(signal, **kwargs)
+                counts.extend(result if isinstance(result, list) else [result])
+            return counts
+
+        if signals.get("quantity") not in (None, "", "s", "stress"):
+            raise ValueError("The SEP005 quantity must be stress ('s').")
+        data = np.asarray(signals.get("data"))
+        if (
+            data.ndim not in (1, 2)
+            or not data.size
+            or data.dtype.kind not in "fiu"
+        ):
+            raise ValueError("SEP005 data must contain real stress samples.")
+        channels = np.atleast_2d(data)
+        time = sep005_sample_times(signals, channels.shape[1])
+
+        units = signals.get("unit_str")
+        names = signals.get("channel_name")
+        if not isinstance(units, (list, tuple)):
+            units = [units] * len(channels)
+        if not isinstance(names, (list, tuple)):
+            names = [names or signals.get("name")] * len(channels)
+        if len(units) != len(channels) or len(names) != len(channels):
+            raise ValueError("Supply one unit and name per SEP005 channel.")
+
+        if (
+            "timestamp" not in kwargs
+            and signals.get("start_timestamp") is not None
+        ):
+            kwargs["timestamp"] = sep005_start_timestamp(signals)
+
+        to_mpa = {
+            None: 1e-6,
+            "": 1e-6,
+            "Pa": 1e-6,
+            "kPa": 1e-3,
+            "MPa": 1.0,
+            "GPa": 1e3,
+        }
+        counts = []
+        for samples, unit, name in zip(channels, units, names):
+            if not isinstance(unit, (str, type(None))) or unit not in to_mpa:
+                raise ValueError(
+                    "SEP005 stress units must be Pa, kPa, MPa or GPa."
+                )
+            if name is not None and not isinstance(name, str):
+                raise TypeError("SEP005 channel names must be strings.")
+            stress = samples.astype(float, copy=False) * to_mpa[unit]
+            if not np.all(np.isfinite(stress)):
+                raise ValueError("SEP005 stress samples must be finite.")
+            options = {"name": name, **kwargs}
+            counts.append(cls.from_timeseries(stress, time=time, **options))
+        return counts[0] if data.ndim == 1 else counts
+
+    @classmethod
+    def from_pyexsi(
+        cls, data: ArrayLike, *, fs: float, unit: str, **kwargs: Any
+    ) -> CycleCount:
+        """Rainflow-count a stress signal generated with pyExSi.
+
+        Parameters
+        ----------
+        data : array-like
+            One-dimensional stress samples. When the generator represents
+            acceleration or force, convert it to stress before calling.
+        fs : float
+            Sampling frequency in Hz used to generate the signal.
+        unit : str
+            Stress unit of the samples (Pa, kPa, MPa or GPa).
+        **kwargs
+            Options passed to `from_timeseries`, such as `name` or bin widths.
+
+        Returns
+        -------
+        CycleCount
+            Rainflow counts with stress ranges and means in MPa.
+
+        Examples
+        --------
+        >>> CycleCount.from_pyexsi([0, 2, 0, 4, 0], fs=20, unit="MPa").unit
+        'MPa'
+        """
+        samples = np.asarray(data)
+        if samples.ndim != 1 or not unit:
+            raise ValueError("Supply one stress signal and its stress unit.")
+        return cast(
+            CycleCount,
+            cls.from_sep005(
+                {"data": samples, "fs": fs, "unit_str": unit}, **kwargs
+            ),
+        )
 
     # ! Instance managed attributes
     @property

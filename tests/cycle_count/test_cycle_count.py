@@ -81,6 +81,134 @@ CC_TS_4 = CycleCount.from_timeseries(
     name="Test_CC",
 )
 
+
+def test_from_sep005_multiple_channels_and_records() -> None:
+    stress = np.array([0, 20, 3, 40, 0], dtype=float)
+    time = np.array([0, 0.01, 0.03, 0.04, 0.06])
+    records = [
+        {
+            "name": "Tower",
+            "data": np.stack((stress * 1e6, stress)),
+            "time": time,
+            "quantity": "s",
+            "channel_name": ["North", "South"],
+            "unit_str": ["Pa", "MPa"],
+            "start_timestamp": "2019-01-01T00:00:00Z",
+        },
+        {
+            "name": "Brace",
+            "data": stress * 1e6,
+            "fs": 50,
+            "start_timestamp": "2019/01/01 00:00:00 +0000",
+            "start_timestamp_format": "%Y/%m/%d %H:%M:%S %z",
+        },
+        {
+            "name": "Flange",
+            "data": stress * 1e6,
+            "fs": 50,
+            "start_timestamp": TIMESTAMP_1,
+        },
+    ]
+    expected = CycleCount.from_timeseries(stress, range_bin_width=0.5)
+    counts = CycleCount.from_sep005(records, range_bin_width=0.5)
+    assert [count.name for count in counts] == [
+        "North",
+        "South",
+        "Brace",
+        "Flange",
+    ]
+    for count in counts:
+        assert count.unit == "MPa"
+        assert count.timestamp == TIMESTAMP_1
+        assert count.range_bin_width == expected.range_bin_width
+        np.testing.assert_array_equal(count.count_cycle, expected.count_cycle)
+        np.testing.assert_allclose(count.stress_range, expected.stress_range)
+        np.testing.assert_allclose(count.mean_stress, expected.mean_stress)
+        np.testing.assert_allclose(
+            count.residuals_sequence, expected.residuals_sequence
+        )
+
+
+@pytest.mark.parametrize(
+    ("metadata", "message"),
+    [
+        ({"quantity": "e"}, "quantity must be stress"),
+        ({"unit_str": "m/s²"}, "stress units must be"),
+        ({"unit_str": ["Pa", "MPa"]}, "one unit and name"),
+        ({"fs": 0}, "positive fs"),
+        ({"time": [0, 1]}, "one increasing time"),
+        ({"time": [0, 1, 2, 2, 3]}, "one increasing time"),
+        ({"data": [0, 20, 3j, 40, 0]}, "real stress samples"),
+        ({"data": [0, 20, np.inf, 40, 0]}, "samples must be finite"),
+        ({"data": [0, 0, 0, 0, 0]}, "contains no rainflow cycles"),
+    ],
+)
+def test_from_sep005_rejects_invalid_stress_history(
+    metadata: dict, message: str
+) -> None:
+    record = {"data": [0, 20, 3, 40, 0], "fs": 20, **metadata}
+    with pytest.raises(ValueError, match=message):
+        CycleCount.from_sep005(record)
+
+
+@pytest.mark.parametrize(
+    ("metadata", "message"),
+    [
+        ({"start_timestamp": 123456}, "start_timestamp must be a date-time"),
+        ({"channel_name": [1]}, "channel names must be strings"),
+    ],
+)
+def test_from_sep005_rejects_invalid_channel_metadata(
+    metadata: dict, message: str
+) -> None:
+    record = {"data": SIGNAL_1, "fs": 20, **metadata}
+    with pytest.raises(TypeError, match=message):
+        CycleCount.from_sep005(record)
+
+
+def test_from_sep005_rejects_non_mapping_records() -> None:
+    with pytest.raises(TypeError, match="Each SEP005 signal must be a mapping"):
+        CycleCount.from_sep005([{"data": SIGNAL_1, "fs": 20}, SIGNAL_2])
+
+
+@pytest.mark.parametrize("override", [{"unit": "MPa"}, {"time": [0]}])
+def test_from_sep005_requires_units_and_sampling_in_record(
+    override: dict,
+) -> None:
+    record = {"data": SIGNAL_1, "fs": 20, "unit_str": "Pa"}
+    with pytest.raises(TypeError, match="Specify units and sample times"):
+        CycleCount.from_sep005(record, **override)
+
+
+def test_from_pyexsi_and_sep005_feed_paris_growth() -> None:
+    from py_fatigue import ParisCurve
+    from py_fatigue.crack_growth import InfiniteSurface, get_crack_growth
+
+    stress = np.tile([0.0, 20.0, 3.0, 40.0], 5)
+    expected = CycleCount.from_timeseries(stress)
+    material = ParisCurve(3.0, 1e-10, unit_string="MPa √mm")
+    geometry = InfiniteSurface(initial_depth=1.0)
+    reference = get_crack_growth(expected, material, geometry)
+    assert reference.crack_depth[-1] > geometry.initial_depth
+    for count in (
+        CycleCount.from_sep005({"data": stress / 1e3, "fs": 20, "unit_str": "GPa"}),
+        CycleCount.from_pyexsi(stress * 1e3, fs=20, unit="kPa"),
+    ):
+        assert count.unit == "MPa"
+        result = get_crack_growth(count, material, geometry)
+        np.testing.assert_allclose(result.crack_depth, reference.crack_depth)
+        assert result.final_cycles == reference.final_cycles
+
+
+@pytest.mark.parametrize(
+    ("data", "unit"),
+    [([[0, 20, 3, 40, 0]], "MPa"), ([0, 20, 3, 40, 0], "")],
+)
+def test_from_pyexsi_requires_one_signal_and_unit(data: list, unit: str) -> None:
+    with pytest.raises(ValueError, match="one stress signal and its stress unit"):
+        CycleCount.from_pyexsi(data, fs=20, unit=unit)
+
+
 # fmt: off
 AS_DICT_1 = {"nr_small_cycles": 0, "range_bin_lower_bound": 0.5,
              "range_bin_width": 1, "mean_bin_lower_bound": -0.75,

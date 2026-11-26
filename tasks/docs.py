@@ -16,8 +16,13 @@ def clean(context):
 def build(context):
     """Build the documentation and export the example notebooks."""
     context.run("zensical build")
-    for notebook in sorted(Path("notebooks").glob("*.py")):
-        destination = Path(DOCS_BUILD_DIR) / notebook.with_suffix(".html").name
+    notebook_root = Path("notebooks")
+    notebooks = sorted(notebook_root.glob("*.py"))
+    notebooks.extend(sorted(notebook_root.glob("tutorials/[0-9][0-9]-*.py")))
+    for notebook in notebooks:
+        relative_html = notebook.relative_to(notebook_root).with_suffix(".html")
+        destination = Path(DOCS_BUILD_DIR) / relative_html
+        destination.parent.mkdir(parents=True, exist_ok=True)
         context.run(
             f'marimo export html "{notebook}" -o "{destination}" --force'
         )

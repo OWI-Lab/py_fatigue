@@ -3,7 +3,7 @@ line-length = 80 # Code length, not docstrings
 
 [project]
 name = "py_fatigue"
-version = "3.0.0-rc.1"
+version = "3.0.0-rc.2"
 description = "Py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
 authors = [
     {name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be"},
@@ -13,21 +13,20 @@ classifiers=["Development Status :: 5 - Production/Stable",
              "Environment :: Console",
              "Intended Audience :: Science/Research",
              "Intended Audience :: Information Technology",
-             "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
              "Natural Language :: English",
              "Operating System :: POSIX :: Linux",
              "Programming Language :: Python :: 3",
-             "Programming Language :: Python :: 3.8",
-             "Programming Language :: Python :: 3.9",
              "Programming Language :: Python :: 3.10",
              "Programming Language :: Python :: 3.11",
              "Programming Language :: Python :: 3.12",
              "Programming Language :: Python :: 3.13",
              "Programming Language :: Python :: 3.14",
+             "Programming Language :: Python :: 3.15",
              "Topic :: Database"]
 readme = "README.md"
-license = {file = "LICENSE"}
-requires-python = ">=3.10,<3.15"
+license = "GPL-3.0-only"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES"]
+requires-python = ">=3.10,<3.16"
 
 dependencies = [
     "numpy>=1.24",
@@ -78,7 +77,7 @@ testpaths = [
 ]
 
 [build-system]
-requires = ["maturin>=1.8,<2"]
+requires = ["maturin>=1.10,<2"]
 build-backend = "maturin"
 
 [tool.maturin]
@@ -98,7 +97,7 @@ cache-keys = [
 default-groups = ["dev", "docs"]
 
 [tool.cibuildwheel]
-build = "cp3{10,11,12,13,14}-*"
+build = "cp3{10,11,12,13,14,15}-*"
 skip = "*-musllinux_* *t-*"
 test-command = 'python "{project}/scripts/smoke_wheel.py"'
 

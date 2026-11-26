@@ -126,9 +126,9 @@ def longeron(mo, np, plt, to_echarts):
                 The final sample is at 1.235 in. Hold its β through 1.25 in.
                 Follow the handbook's 10% increases at β ≥ 3 and β ≤ 1,
                 with linear transitions between those values. Calculate
-                each local rate with `ParisCurve.get_growth_rate` and
-                integrate its reciprocal over crack length by the
-                trapezoidal rule.
+                each local rate from the published Paris equation and
+                integrate its reciprocal over crack length. Tutorial 40
+                compares this calculation with `get_crack_growth`.
 
                 Compare the resulting lives with Figure MERC-3.5. The
                 small-β correction has a larger effect because the crack

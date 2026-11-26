@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 from py_fatigue import CycleCount, ParisCurve
 from py_fatigue.damage import get_crack_growth
 from py_fatigue.damage.crack_growth import CalcCrackGrowth
-from py_fatigue.geometry import InfiniteSurface
+from py_fatigue.geometry import InfiniteSurface, TabulatedGeometryFactor
 
 # Figure MERC-3.1, 7075-T6 Al at R = 0, with lengths in inches.
 MERC3_COEFFICIENT = 2.5e-9
@@ -80,27 +80,81 @@ def merc3_constant_beta(
     return float(exact_cycles), result
 
 
-def merc3_beta_histories(
+def merc3_geometry_factors(
     length: NDArray[np.float64],
-) -> dict[str, tuple[NDArray[np.float64], NDArray[np.float64]]]:
-    """Return beta and cumulative cycles on the supplied crack-length grid."""
+) -> dict[str, NDArray[np.float64]]:
+    """Interpolate the reference and perturbed MERC-3 geometry factors."""
     source_length, source_beta = MERC3_DIGITIZED.T
     # Hold the last digitized beta to the published end length of 1.25 in.
     beta = np.interp(length, source_length, source_beta)
-    factors = {
+    return {
         "Reference": beta,
         "Increase large β": beta * np.interp(beta, [1, 3], [1, 1.1]),
         "Increase small β": beta * np.interp(beta, [1, 3], [1.1, 1]),
     }
-    curve = ParisCurve(MERC3_EXPONENT, MERC3_COEFFICIENT, unit_string="ksi √in")
+
+
+def paris_reference_cycles(
+    length: NDArray[np.float64],
+    delta_k: NDArray[np.float64],
+    coefficient: float,
+    exponent: float,
+) -> NDArray[np.float64]:
+    """Integrate 1 / (C ΔKⁿ) independently of the package solver."""
+    rate = coefficient * delta_k**exponent
+    if np.any(~np.isfinite(rate)) or np.any(rate <= 0):
+        raise ValueError("The reference history needs finite positive rates.")
+    inverse = 1 / rate
+    increments = np.diff(length) * (inverse[:-1] + inverse[1:]) / 2
+    return np.r_[0.0, np.cumsum(increments)]
+
+
+def native_paris_growth(
+    geometry: TabulatedGeometryFactor,
+    curve: ParisCurve,
+    stress_ranges: NDArray[np.float64],
+) -> CalcCrackGrowth:
+    """Run Py-Fatigue on the handbook inputs, one R = 0 cycle per step."""
+    cycles = CycleCount(
+        stress_range=stress_ranges,
+        mean_stress=stress_ranges / 2,
+        count_cycle=np.ones_like(stress_ranges),
+        unit="ksi",
+    )
+    return get_crack_growth(cycles, curve, geometry)
+
+
+def crack_history(
+    length: NDArray[np.float64],
+    reference_cycles: NDArray[np.float64],
+    load_fraction: NDArray[np.float64],
+    exponent: float,
+) -> tuple[NDArray[np.float64], bool]:
+    """Invert a reference Paris history for proportionally scaled loads.
+
+    This applies to a single-slope Paris law with no threshold, toughness
+    limit, or load interaction. Return the history through the first
+    cycle that reaches the final grid length, or through the whole
+    spectrum if it ends first.
+    """
+    equivalent = np.r_[0.0, np.cumsum(load_fraction**exponent)]
+    first_crossing = np.searchsorted(equivalent, reference_cycles[-1])
+    return (
+        np.interp(equivalent[: first_crossing + 1], reference_cycles, length),
+        first_crossing < equivalent.size,
+    )
+
+
+def merc3_beta_histories(
+    length: NDArray[np.float64],
+) -> dict[str, tuple[NDArray[np.float64], NDArray[np.float64]]]:
+    """Return beta and cumulative cycles on the supplied crack-length grid."""
     histories = {}
-    for case, factor in factors.items():
+    for case, factor in merc3_geometry_factors(length).items():
         delta_k = MERC3_STRESS_RANGE * factor * np.sqrt(np.pi * length)
-        cycles_per_inch = 1 / curve.get_growth_rate(delta_k)
-        increments = (
-            np.diff(length) * (cycles_per_inch[:-1] + cycles_per_inch[1:]) / 2
+        histories[case] = factor, paris_reference_cycles(
+            length, delta_k, MERC3_COEFFICIENT, MERC3_EXPONENT
         )
-        histories[case] = factor, np.r_[0.0, np.cumsum(increments)]
     return histories
 
 
