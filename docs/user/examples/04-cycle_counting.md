@@ -238,3 +238,51 @@ plt.show()
 ```
 
 ![Comparison of histograms built from signal and from its cycle-count matrix](../../_static/_img/hist_from_weib_signal_comparisons.png){alt="Comparison of histograms from weibull signal"}
+
+## Import measured or generated stress histories
+
+Use `CycleCount.from_sep005()` with records from an SDyPy reader. One
+record with one-dimensional data returns a count. A list of records or
+a record with multiple channel rows returns a flat list in input order.
+The connector accepts stress in Pa, kPa, MPa, or GPa and returns MPa.
+An omitted quantity means stress and an omitted unit means Pa.
+
+```python
+from py_fatigue import CycleCount
+
+record = {
+    "name": "Axial stress",
+    "data": [0, 20e6, 3e6, 40e6, 0],
+    "fs": 50,
+    "quantity": "s",
+    "unit_str": "Pa",
+}
+measured = CycleCount.from_sep005(record)
+```
+
+For a synthetic stress history, install `pyExSi` separately. Its sine
+sweep returns a unitless waveform. Here the factor of 20 defines a
+synthetic stress amplitude in MPa.
+
+```python
+import numpy as np
+import pyExSi
+
+fs = 200
+time = np.arange(fs * 20) / fs
+stress = 20 * pyExSi.sine_sweep(time, freq_start=2, freq_stop=10)
+generated = CycleCount.from_pyexsi(stress, fs=fs, unit="MPa")
+```
+
+[SignalForge](https://github.com/GiulioCurti/SignalForge) can also
+generate nonstationary stress histories. If the generator's `signal.x`
+samples already represent stress in MPa, use
+`CycleCount.from_timeseries(signal.x, unit="MPa")`. Convert measured or
+generated acceleration or force into stress using your own model before
+cycle counting.
+
+Supply either count directly to `get_crack_growth(count, paris_curve,
+geometry)` for Paris crack growth with a curve in MPa √mm and dimensions
+in mm. For [ordered NASGRO propagation](08-ordered-crack-growth.md),
+supply the tensile extrema and cycle counts as explicit `LoadBlock`
+instances.

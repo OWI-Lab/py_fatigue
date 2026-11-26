@@ -1,5 +1,8 @@
 ## 3.0.0rc2
 
+- Add CPython 3.15 support and stress-history connectors for SEP005 and pyExSi.
+- Use imported stress histories for cycle counting and Paris crack growth.
+
 - Replace the inherited ASTM rainflow routines with Rust and verify exact
   agreement with Py-Fatigue 2.1.1 on the rainflow regression checks.
 - Include Rust dependency license notices in the wheels and source archive.

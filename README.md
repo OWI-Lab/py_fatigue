@@ -44,8 +44,13 @@ Install release candidate 2 with:
 pip install py-fatigue==3.0.0rc2
 ```
 
-Py-Fatigue 3 supports 64-bit CPython 3.10–3.14. Platform wheels include the
+Py-Fatigue 3 supports 64-bit CPython 3.10–3.15. Platform wheels include the
 Rust extension. Source builds require Rust.
+
+> [!NOTE]
+> The `main` branch is dedicated to Py-Fatigue 1, which has its own
+> development lifecycle and supports Python 3.8–3.10. Py-Fatigue 2 and 3
+> are maintained on `develop`. Py-Fatigue 2 supports Python 3.10–3.14.
 
 ## Example notebooks
 

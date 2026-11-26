@@ -16,18 +16,17 @@ classifiers=["Development Status :: 5 - Production/Stable",
              "Natural Language :: English",
              "Operating System :: POSIX :: Linux",
              "Programming Language :: Python :: 3",
-             "Programming Language :: Python :: 3.8",
-             "Programming Language :: Python :: 3.9",
              "Programming Language :: Python :: 3.10",
              "Programming Language :: Python :: 3.11",
              "Programming Language :: Python :: 3.12",
              "Programming Language :: Python :: 3.13",
              "Programming Language :: Python :: 3.14",
+             "Programming Language :: Python :: 3.15",
              "Topic :: Database"]
 readme = "README.md"
 license = "GPL-3.0-only"
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES"]
-requires-python = ">=3.10,<3.15"
+requires-python = ">=3.10,<3.16"
 
 dependencies = [
     "numpy>=1.24",
@@ -98,7 +97,7 @@ cache-keys = [
 default-groups = ["dev", "docs"]
 
 [tool.cibuildwheel]
-build = "cp3{10,11,12,13,14}-*"
+build = "cp3{10,11,12,13,14,15}-*"
 skip = "*-musllinux_* *t-*"
 test-command = 'python "{project}/scripts/smoke_wheel.py"'
 

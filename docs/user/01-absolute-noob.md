@@ -16,7 +16,7 @@ The package bundles the main functionality for performing cyclic stress (fatigue
 
 ## Installing py-fatigue
 
-py-fatigue is freely available on GitHub and gets maintained through CI/CD phylosophy. Py-Fatigue 3 targets 64-bit CPython 3.10–3.14. A source build requires Rust.
+py-fatigue is freely available on GitHub and gets maintained through CI/CD phylosophy. Py-Fatigue 3 targets 64-bit CPython 3.10–3.15. A source build requires Rust.
 
 To install the toolbox from PyPI, simply run:
 
