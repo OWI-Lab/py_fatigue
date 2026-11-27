@@ -1,0 +1,89 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Serif:wght@400&display=swap");
+
+:root {
+  --marimo-text-font: "IBM Plex Sans", system-ui, sans-serif;
+  --marimo-heading-font: "IBM Plex Serif", Georgia, serif;
+  --marimo-monospace-font: "IBM Plex Mono", monospace;
+}
+
+:root, .marimo {
+  --background: light-dark(#f5f5f3, #17202b);
+  --foreground: light-dark(#18376a, #e2eaf3);
+  --border: light-dark(#ccd4de, #425165);
+  --primary: light-dark(#205b92, #a3cefa);
+  --card: light-dark(#fcfcfb, #202a36);
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --muted: light-dark(#eceff1, #202a36);
+  --muted-foreground: light-dark(#465468, #a9b9ca);
+  --accent: light-dark(#e5edf5, #2b3d51);
+  --accent-foreground: var(--foreground);
+  --link: var(--primary);
+  --cm-background: var(--muted);
+  --cm-comment: var(--muted-foreground);
+}
+
+.markdown :is(h1, h2, h3, h4) {
+  font-family: var(--marimo-heading-font);
+  font-weight: 400;
+  color: var(--foreground);
+}
+
+#App :is(.cm-editor, .cm-gutters) {
+  background-color: var(--cm-background);
+  color: var(--foreground);
+}
+
+/* marimo's editor may still highlight code for the system light theme. */
+[data-docs-theme="dark"] body.light .cm-line > span {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+body { background: transparent; }
+
+.docs-embedded-notebook body { color-scheme: inherit; }
+
+.docs-embedded-notebook #root > .contents > .absolute {
+  position: static;
+  overflow: visible;
+}
+
+.docs-embedded-notebook #App {
+  height: auto;
+  background: transparent;
+  overflow: visible;
+}
+
+.docs-embedded-notebook #App > div { padding: 0; }
+.docs-embedded-notebook #App > div > .m-auto { padding-block-end: 0; }
+
+.docs-embedded-notebook :is(
+  [class*="bg-(--sky-2)"]:has(+ .fixed + #App),
+  #App + .fixed,
+  [role="region"][aria-label^="Notifications"]
+) { display: none; }
+
+.docs-embedded-notebook .marimo-cell:first-child:not(:has(.output)) {
+  display: none;
+}
+
+html:has(marimo-server-token[data-token="static"])
+  .marimo-cell:has(.output-area > .output:only-child > .markdown:only-child)
+  > .tray {
+  display: none;
+}
+
+.docs-embedded-notebook .output-area {
+  overflow-x: auto;
+  padding: 0;
+}
+
+.docs-embedded-notebook .markdown h1 { font-size: 1.65rem; }
+
+[data-docs-theme="light"] { --notebook-color-scheme: light; }
+
+:is([data-docs-theme="dark"], html:not([data-docs-theme]) body.dark) {
+  --notebook-color-scheme: dark;
+  --notebook-plot-filter: invert(1) hue-rotate(180deg);
+}

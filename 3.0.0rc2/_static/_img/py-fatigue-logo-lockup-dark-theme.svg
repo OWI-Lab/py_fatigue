@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 823 153" role="img" aria-labelledby="title desc">
+  <title id="title">py_fatigue — dark theme logo</title>
+  <desc id="desc">Slate-grey fracture monogram and custom, regular-weight monospaced vector lettering inspired by the supplied reference. The outer border is 90% of the letter weight, with a pronounced transparent clearance and three distinct grey fills, and the visible logo-to-text gap is one nominal character cell.</desc>
+  <!-- Monogram: matched f-height, 90% of the letter stem weight, pronounced transparent clearance and three slate-grey fragments; its top aligns with the p. -->
+  <g transform="translate(13.271071 39.703857) scale(0.194535714)">
+<defs>
+    <path id="monogram" fill-rule="evenodd" d="
+      M178 32 H301
+      C396 32 470 93 470 178
+      C470 261 399 324 310 324
+      V346 Q310 372 285 372
+      H194 V456 Q194 480 170 480
+      H111 Q87 480 87 456
+      V372 H50 Q26 372 26 348
+      V320 Q26 296 50 296
+      H87 V128 C87 72 123 32 178 32 Z
+      M194 144 Q194 132 206 132
+      H300 C338 132 366 151 366 178
+      C366 205 338 226 300 226
+      H194 Z"/>
+    <path id="fractures" d="
+      M309 13 L290 32 L245 78 L259 94 L229 132 L215 148
+      M215 211 V289 L239 305 L270 289 L310 324 L323 336
+      M349 170 L394 151 L414 168 L490 132"/>
+    <clipPath id="inside">
+      <path clip-rule="evenodd" d="
+        M178 32 H301
+        C396 32 470 93 470 178
+        C470 261 399 324 310 324
+        V346 Q310 372 285 372
+        H194 V456 Q194 480 170 480
+        H111 Q87 480 87 456
+        V372 H50 Q26 372 26 348
+        V320 Q26 296 50 296
+        H87 V128 C87 72 123 32 178 32 Z
+        M194 144 Q194 132 206 132
+        H300 C338 132 366 151 366 178
+        C366 205 338 226 300 226
+        H194 Z"/>
+    </clipPath>
+    <mask id="exclude-bowl" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect width="512" height="512" fill="#FFF"/>
+      <path fill="#000" d="M309 13 L290 32 L245 78 L259 94 L229 132
+L215 148 V289 L239 305 L270 289 L310 324
+L323 336 H512 V0 H309 Z"/>
+    </mask>
+    <!-- Remove a clearance around the outline and both sides of each fracture. -->
+    <mask id="fill-inset" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect width="512" height="512" fill="#FFF"/>
+      <use href="#monogram" fill="none" stroke="#000" stroke-width="65.067744" stroke-linejoin="round"/>
+      <use href="#fractures" fill="none" stroke="#000" stroke-width="69.614283" stroke-linejoin="round" stroke-linecap="round"/>
+    </mask>
+    <!-- A true transparent cut through the outlines. -->
+    <mask id="open-fractures" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect width="512" height="512" fill="#FFF"/>
+      <use href="#fractures" fill="none" stroke="#000" stroke-width="9.889618" stroke-linejoin="round" stroke-linecap="round"/>
+    </mask>
+  <clipPath id="bowl-region"><path d="
+      M309 13 L290 32 L245 78 L259 94 L229 132
+      L215 148 V289 L239 305 L270 289 L310 324
+      L323 336 H512 V0 H309 Z"/></clipPath>
+  </defs>
+  <g clip-path="url(#inside)" mask="url(#fill-inset)">
+    <rect width="512" height="512" fill="#FFFFFF" fill-opacity="0.48" mask="url(#exclude-bowl)"/>
+    <g clip-path="url(#bowl-region)">
+      <path fill="#FFFFFF" fill-opacity="0.72" d="M0 0 H512 V121 L490 132 L414 168 L394 151 L349 170 H0 Z"/>
+      <path fill="#FFFFFF" fill-opacity="0.28" d="M0 170 H349 L394 151 L414 168 L490 132 L512 121 V512 H0 Z"/>
+    </g>
+  </g>
+  <g fill="none" stroke="#FFFFFF" stroke-linejoin="round" stroke-linecap="round" mask="url(#open-fractures)">
+    <use href="#monogram" stroke-width="44.505967"/>
+    <g clip-path="url(#inside)">
+      <use href="#fractures" stroke-width="49.052506"/>
+    </g>
+  </g>
+  </g>
+  <!-- Custom SVG-only character shapes, with 25% tighter measured inter-letter gaps and a half-width underscore. -->
+  <g transform="translate(169.741857 108.810000) scale(0.13000000 -0.13000000)" fill="none" stroke="#FFFFFF" stroke-width="74" stroke-linecap="butt" stroke-linejoin="round">
+      <g transform="translate(0.000000 0)"><path d="M110 -205 V500 M110 404 C151 459 209 480 281 480 C408 480 489 383 489 250 C489 117 408 20 281 20 C209 20 151 42 110 96"/></g>
+      <g transform="translate(523.273077 0)"><path d="M86 500 L321 30 M510 500 L208 -212"/></g>
+      <g transform="translate(933.289038 0)"><path d="M188 -114 H412"/></g>
+      <g transform="translate(1335.039038 0)"><path d="M234 0 V553 C234 657 283 700 375 700 C399 700 426 695 449 687 M89 470 H466"/></g>
+      <g transform="translate(1840.289038 0)"><path d="M111 409 C154 458 221 480 296 480 C417 480 474 421 474 321 V0 M474 260 H296 C175 260 102 217 102 138 C102 57 169 20 255 20 C342 20 418 64 474 125"/></g>
+      <g transform="translate(2351.539038 0)"><path d="M212 645 V141 C212 60 251 20 334 20 H438 M86 470 H465"/></g>
+      <g transform="translate(2840.289038 0)"><path d="M161 470 H300 V32 M130 32 H470"/><circle cx="300" cy="665" r="36" fill="#FFFFFF" stroke="none"/></g>
+      <g transform="translate(3346.289038 0)"><path d="M286 480 C190 480 133 423 133 344 C133 265 190 208 286 208 C382 208 439 265 439 344 C439 423 382 480 286 480 Z M407 451 C436 479 461 487 499 487 M164 238 C124 215 113 175 138 141 C157 115 187 103 242 103 H323 C425 103 479 48 479 -34 C479 -118 411 -189 291 -189 C174 -189 103 -138 103 -62 C103 12 157 59 230 103"/></g>
+      <g transform="translate(3861.789038 0)"><path d="M111 500 V183 C111 73 170 20 270 20 C365 20 440 70 489 149 M489 500 V0"/></g>
+      <g transform="translate(4382.289038 0)"><path d="M102 265 H491 C491 397 413 480 301 480 C180 480 101 384 101 250 C101 113 183 20 310 20 C383 20 444 47 488 94"/></g>
+  </g>
+</svg>

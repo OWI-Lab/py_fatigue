@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">py_fatigue — dark theme logomark</title>
+  <desc id="desc">A p–f fracture monogram with translucent slate-grey fills and a white outline.</desc>
+<defs>
+    <path id="monogram" fill-rule="evenodd" d="
+      M178 32 H301
+      C396 32 470 93 470 178
+      C470 261 399 324 310 324
+      V346 Q310 372 285 372
+      H194 V456 Q194 480 170 480
+      H111 Q87 480 87 456
+      V372 H50 Q26 372 26 348
+      V320 Q26 296 50 296
+      H87 V128 C87 72 123 32 178 32 Z
+      M194 144 Q194 132 206 132
+      H300 C338 132 366 151 366 178
+      C366 205 338 226 300 226
+      H194 Z"/>
+    <path id="fractures" d="
+      M309 13 L290 32 L245 78 L259 94 L229 132 L215 148
+      M215 211 V289 L239 305 L270 289 L310 324 L323 336
+      M349 170 L394 151 L414 168 L490 132"/>
+    <clipPath id="inside">
+      <path clip-rule="evenodd" d="
+        M178 32 H301
+        C396 32 470 93 470 178
+        C470 261 399 324 310 324
+        V346 Q310 372 285 372
+        H194 V456 Q194 480 170 480
+        H111 Q87 480 87 456
+        V372 H50 Q26 372 26 348
+        V320 Q26 296 50 296
+        H87 V128 C87 72 123 32 178 32 Z
+        M194 144 Q194 132 206 132
+        H300 C338 132 366 151 366 178
+        C366 205 338 226 300 226
+        H194 Z"/>
+    </clipPath>
+    <mask id="exclude-bowl" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect width="512" height="512" fill="#FFF"/>
+      <path fill="#000" d="M309 13 L290 32 L245 78 L259 94 L229 132
+L215 148 V289 L239 305 L270 289 L310 324
+L323 336 H512 V0 H309 Z"/>
+    </mask>
+    <!-- Remove a clearance around the outline and both sides of each fracture. -->
+    <mask id="fill-inset" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect width="512" height="512" fill="#FFF"/>
+      <use href="#monogram" fill="none" stroke="#000" stroke-width="16" stroke-linejoin="round"/>
+      <use href="#fractures" fill="none" stroke="#000" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"/>
+    </mask>
+    <!-- A true transparent cut through the outlines. -->
+    <mask id="open-fractures" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect width="512" height="512" fill="#FFF"/>
+      <use href="#fractures" fill="none" stroke="#000" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <g clip-path="url(#inside)" mask="url(#fill-inset)">
+    <rect width="512" height="512" fill="#FFFFFF" fill-opacity="0.48" mask="url(#exclude-bowl)"/>
+    <path fill="#FFFFFF" fill-opacity="0.39" d="
+      M309 13 L290 32 L245 78 L259 94 L229 132
+      L215 148 V289 L239 305 L270 289 L310 324
+      L323 336 H512 V0 H309 Z"/>
+  </g>
+  <g fill="none" stroke="#FFFFFF" stroke-linejoin="round" stroke-linecap="round" mask="url(#open-fractures)">
+    <use href="#monogram" stroke-width="8"/>
+    <g clip-path="url(#inside)">
+      <use href="#fractures" stroke-width="24"/>
+    </g>
+  </g>
+</svg>
