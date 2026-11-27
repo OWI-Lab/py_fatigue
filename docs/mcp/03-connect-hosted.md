@@ -1,8 +1,15 @@
 # 3. Connect to hosted MCP
 
 Use an MCP client with Streamable HTTP and bearer-token support.
-Get a bearer token from the Py-Fatigue MCP operator. You can also
-[run the MCP locally](02-run-locally.md).
+You can also [run MCP locally without a token](02-run-locally.md).
+
+## Request a token
+
+Email [pietro.dantuono@vub.be](mailto:pietro.dantuono@vub.be) to request
+hosted access. Include your name, your organization if applicable, and
+how you plan to use the service. The operator will share the token
+privately if access is approved. Use the value you receive as
+`PY_FATIGUE_MCP_TOKEN` in your client.
 
 | Connection field | Value |
 | --- | --- |
@@ -75,3 +82,87 @@ If your server lists `lffd_recovery`, you can also
 [recover cycles across stress windows](06-recover-lffd.md).
 
 Continue with the [inline stress history example](04-analyze-stress-history.md).
+
+## Operator instructions
+
+### Grant access
+
+The HTTP server accepts one shared token from `PY_FATIGUE_MCP_BEARER_TOKEN`.
+Retrieve the current value from the deployment's secret configuration and
+share it through a private channel, such as a password manager's sharing
+feature. Send the recipient this guide so they can set
+`PY_FATIGUE_MCP_TOKEN` and verify their connection. Sharing the current
+token requires no restart.
+
+### Rotate the token
+
+Replacing the token invalidates the old value for every existing client.
+Generate a replacement in a private terminal with `openssl rand -hex 32`.
+Set the replacement as `PY_FATIGUE_MCP_BEARER_TOKEN` in the deployment's
+existing secret configuration. Keep the value out of Git and shell command
+arguments. The server reads it at startup, so recreate the container to
+apply the updated environment.
+
+On the Docker host, list the running containers and set `container` to
+the MCP container name. Check the Compose labels to identify how it was
+started.
+
+```bash
+sudo docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}'
+container='your-mcp-container-name'
+sudo docker inspect --format \
+  'project={{index .Config.Labels "com.docker.compose.project"}} service={{index .Config.Labels "com.docker.compose.service"}}' \
+  "$container"
+```
+
+**Docker Compose.** If the Compose labels are populated, run the command
+from the deployment directory. Use the existing Compose file, project
+and environment options, and replace `your-mcp-service` with the service
+from the label.
+
+```bash
+sudo docker compose up -d --no-deps --force-recreate your-mcp-service
+```
+
+**Standalone Docker.** Have the original launch command ready before
+stopping the container. Keep the stopped container available for rollback.
+
+```bash
+sudo docker stop "$container"
+sudo docker rename "$container" "${container}-before-rotation"
+```
+
+Rerun the original `docker run` command with the same image, container
+name, ports, mounts, and other options, using the updated secret
+configuration. If verification fails and restoring the old token is
+appropriate, remove the replacement container if it exists, then restore
+and start the original.
+
+```bash
+sudo docker rm -f "$container"
+sudo docker rename "${container}-before-rotation" "$container"
+sudo docker start "$container"
+```
+
+### Verify the rotation
+
+Load the replacement token in a fresh client session and confirm that it
+can list the hosted tools. Check that the old token receives HTTP `401`.
+In Bash, enter the old token at the hidden prompt.
+
+```bash
+read -rsp 'Previous Py-Fatigue MCP token: ' previous_token
+printf '\n'
+printf 'Authorization: Bearer %s\n' "$previous_token" |
+  curl --silent --show-error --output /dev/null --write-out '%{http_code}\n' \
+    --header @- https://mcp.py-fatigue.dev/mcp
+unset previous_token
+```
+
+Send the replacement privately to authorized users so they can update
+`PY_FATIGUE_MCP_TOKEN`. Once the standalone container is verified and
+rollback is no longer needed, remove the stopped container.
+
+```bash
+sudo docker rm "${container}-before-rotation"
+```
