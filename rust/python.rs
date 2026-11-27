@@ -422,7 +422,7 @@ fn nasgro_rate(parameters: [f64; 9], length: f64, k_min: f64, k_max: f64) -> PyR
 #[pyfunction]
 fn nasgro_long_crack_rate(parameters: [f64; 9], k_min: f64, k_max: f64) -> PyResult<f64> {
     nasgro(parameters)
-        .rate_for_length(None, k_min, k_max)
+        .rate_for_length(None, k_min, k_max, 1.0)
         .map_err(growth_error)
 }
 

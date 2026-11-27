@@ -134,7 +134,7 @@ impl Plate {
                 && positive(thickness)
                 && positive(a)
                 && positive(c)
-                && a <= c
+                && a / c <= 1.2
                 && a / thickness <= 0.8
                 && c / half_width < 0.5 =>
             {
@@ -317,18 +317,34 @@ fn surface_net_section_factor(depth: f64, half_span: f64) -> f64 {
     1.0 / (1.0 - removed) + removed * offset * fiber / inertia
 }
 
-// Newman and Raju, NASA TP-1578, equations 2–10, tension component only.
+// Newman and Raju, NASA TM-83200, equations 16–25, tension component only.
 fn surface_factors(a: f64, c: f64, t: f64, b: f64) -> [f64; 2] {
     let shape = a / c;
-    let depth = a / t;
-    let q = 1.0 + 1.464 * shape.powf(1.65);
-    let m1 = 1.13 - 0.09 * shape;
-    let m2 = -0.54 + 0.89 / (0.2 + shape);
-    let m3 = 0.5 - 1.0 / (0.65 + shape) + 14.0 * (1.0 - shape).powi(24);
-    let width = (PI * c / (2.0 * b) * depth.sqrt()).cos().sqrt().recip();
-    let common = (PI * a / q).sqrt() * (m1 + m2 * depth.powi(2) + m3 * depth.powi(4)) * width;
-    let surface = common * (1.1 + 0.35 * depth.powi(2)) * shape.sqrt();
-    [common, surface]
+    let depth_ratio = a / t;
+    let depth_squared = depth_ratio.powi(2);
+    let width = (PI * c / (2.0 * b) * depth_ratio.sqrt())
+        .cos()
+        .sqrt()
+        .recip();
+    if shape <= 1.0 {
+        let q = 1.0 + 1.464 * shape.powf(1.65);
+        let m1 = 1.13 - 0.09 * shape;
+        let m2 = -0.54 + 0.89 / (0.2 + shape);
+        let m3 = 0.5 - 1.0 / (0.65 + shape) + 14.0 * (1.0 - shape).powi(24);
+        let common =
+            (PI * a / q).sqrt() * (m1 + m2 * depth_squared + m3 * depth_ratio.powi(4)) * width;
+        return [common, common * (1.1 + 0.35 * depth_squared) * shape.sqrt()];
+    }
+    let inverse_shape = c / a;
+    let q = 1.0 + 1.464 * inverse_shape.powf(1.65);
+    let m1 = inverse_shape.sqrt() * (1.0 + 0.04 * inverse_shape);
+    let m2 = 0.2 * inverse_shape.powi(4);
+    let m3 = -0.11 * inverse_shape.powi(4);
+    let common = (PI * a / q).sqrt() * (m1 + m2 * depth_squared + m3 * depth_ratio.powi(4)) * width;
+    [
+        common * inverse_shape.sqrt(),
+        common * (1.1 + 0.35 * inverse_shape * depth_squared),
+    ]
 }
 
 impl Nasgro {
@@ -356,7 +372,7 @@ impl Nasgro {
     }
 
     pub fn growth_rate(self, length: f64, k_min: f64, k_max: f64) -> Result<f64, GrowthError> {
-        self.rate_for_length(Some(length), k_min, k_max)
+        self.rate_for_length(Some(length), k_min, k_max, 1.0)
     }
 
     pub(crate) fn rate_for_length(
@@ -364,6 +380,7 @@ impl Nasgro {
         length: Option<f64>,
         k_min: f64,
         k_max: f64,
+        range_factor: f64,
     ) -> Result<f64, GrowthError> {
         if !self.valid() {
             return Err(GrowthError::Material);
@@ -382,7 +399,7 @@ impl Nasgro {
             Some(_) => return Err(GrowthError::Load),
             None => 1.0,
         };
-        let delta = k_max - k_min;
+        let delta = range_factor * (k_max - k_min);
         let ratio = k_min / k_max;
         let (a0, opening) = self.opening(ratio);
         let closure = (1.0 - opening) / (1.0 - ratio);
@@ -396,9 +413,9 @@ impl Nasgro {
         } else {
             (1.0 - threshold / delta).powf(self.p)
         };
-        let rate =
-            self.coefficient * ((1.0 - opening) * k_max).powf(self.exponent) * threshold_term
-                / (1.0 - k_max / self.toughness).powf(self.q);
+        let effective_delta = range_factor * (1.0 - opening) * k_max;
+        let rate = self.coefficient * effective_delta.powf(self.exponent) * threshold_term
+            / (1.0 - k_max / self.toughness).powf(self.q);
         if !rate.is_finite() || rate < 0.0 {
             return Err(GrowthError::NonFinite);
         }
@@ -440,7 +457,19 @@ fn evaluate(
     let mut rate = [0.0; 2];
     for index in 0..2 {
         if k_max[index] > k_min[index] {
-            rate[index] = material.growth_rate(sizes[index], k_min[index], k_max[index])?;
+            // NASFLA Eq. (2.10) corrects the growth range at the SC01 c-tip.
+            let range_factor = if index == 1 && matches!(plate, Plate::Surface { .. }) {
+                let r_squared = (load.minimum / load.maximum).powi(2);
+                0.9 + r_squared * (0.2 - 0.1 * r_squared)
+            } else {
+                1.0
+            };
+            rate[index] = material.rate_for_length(
+                Some(sizes[index]),
+                k_min[index],
+                k_max[index],
+                range_factor,
+            )?;
         }
     }
     Ok(State::Active(Evaluation { k_min, k_max, rate }))
