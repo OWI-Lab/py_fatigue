@@ -52,6 +52,9 @@
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/api/utils.html</loc>
       </url>
       <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/architecture-proposal.html</loc>
+      </url>
+      <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/architecture.html</loc>
       </url>
       <url>
@@ -65,6 +68,30 @@
       </url>
       <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/index.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/mcp/01-overview.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/mcp/02-run-locally.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/mcp/03-connect-hosted.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/mcp/04-analyze-stress-history.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/mcp/05-analyze-local-csv.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/mcp/06-recover-lffd.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/mcp/07-propagate-sc07.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/mcp/08-tool-reference.html</loc>
       </url>
       <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/py-modindex.html</loc>
@@ -82,43 +109,40 @@
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/additional/01-index.html</loc>
       </url>
       <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/additional/02-rainflow-and-residuals.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/additional/03-understand-ordered-crack-growth.html</loc>
+      </url>
+      <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/additional/glossary.html</loc>
       </url>
       <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/additional/relevant_guidelines.html</loc>
       </url>
       <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/01-notebook_setup.html</loc>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/01-sn-curves.html</loc>
       </url>
       <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/02-sn_curve.html</loc>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/02-crack-growth-curves.html</loc>
       </url>
       <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/03-cg_curve.html</loc>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/03-count-stress-cycles.html</loc>
       </url>
       <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/04-cycle_counting.html</loc>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/04-combine-cycle-counts.html</loc>
       </url>
       <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/05-cycle_count_sum.html</loc>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/05-correct-for-mean-stress.html</loc>
       </url>
       <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/06-mean_stress.html</loc>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/06-stress-life-damage.html</loc>
       </url>
       <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/07-damage.html</loc>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/07-ordered-crack-growth.html</loc>
       </url>
       <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/08-ordered-crack-growth.html</loc>
-      </url>
-      <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/mcp-fatigue.html</loc>
-      </url>
-      <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/mcp-hosted.html</loc>
-      </url>
-      <url>
-        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/mcp.html</loc>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/08-example-notebooks.html</loc>
       </url>
       <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/migrate-v3.html</loc>
