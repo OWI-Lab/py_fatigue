@@ -1,4 +1,4 @@
-# Run the example notebooks
+# 8. Run the example notebooks { #run-the-example-notebooks }
 
 From the repository root, use Python 3.11 or newer and have Rust's `cargo` on
 your PATH.
@@ -15,9 +15,28 @@ separate environment. If a notebook reports
 in an editor launched with the command above. Use **Run all cells** if
 marimo restores the previous error from saved output.
 
-The plots have **Static** and **ECharts** tabs. Choose Static for
-Matplotlib, or ECharts for hover values, zooming and image export. The
-ECharts tab loads JavaScript from the pyecharts CDN.
+## Edit the Getting Started notebook
+
+The [Getting Started guide](../01-absolute-noob.md#runnable-notebook) is a
+notebook with saved outputs. The documentation build generates it from
+`notebooks/guides/getting-started.md`. Each worked guide also embeds
+the notebook for its analysis, with outputs ready to inspect.
+
+Generate and open the source in marimo to edit or rerun its cells.
+
+```bash
+uv run --no-sync invoke docs.getting-started
+uv run --no-sync marimo edit _build/docs/user/getting-started-notebook.py
+```
+
+The embedded copy displays the saved outputs. The local editor runs
+Python with the project's installed Rust extension.
+
+## Example catalogue
+
+The plots have **ECharts** and **Static** tabs. Choose ECharts for hover
+values, zooming and image export, or Static for Matplotlib. The
+ECharts tab loads Apache ECharts from jsDelivr.
 
 The first digit groups the topic. The second gives the lesson order within
 that topic. Start at `00` for a tour, then work through cycle counting

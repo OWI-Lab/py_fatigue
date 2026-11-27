@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App(width="medium")
+app = marimo.App(width="medium", css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -12,7 +12,7 @@ def introduction():
     import matplotlib.pyplot as plt
     import numpy as np
 
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
     from _examples.synthetic import display_indices
 
     mo.md("""
@@ -28,11 +28,11 @@ def introduction():
         The crack grows from 0.05 to 1.25 in.
         [Handbook problem MERC-3](https://www.afgrow.net/applications/DTDHandbook/Examples/page2_2.aspx)
         """)
-    return display_indices, mo, np, plt, to_echarts
+    return display_indices, mo, np, plt, plot_views
 
 
 @app.cell
-def constant_factor(display_indices, mo, plt, to_echarts):
+def constant_factor(display_indices, mo, plt, plot_views):
     from _examples.afgrow import merc3_constant_beta
 
     _fig, _ax = plt.subplots(figsize=(7, 4), layout="constrained")
@@ -70,20 +70,13 @@ def constant_factor(display_indices, mo, plt, to_echarts):
                 "the first-order estimate of a 36% reduction."
             ),
             mo.ui.table(_rows),
-            mo.ui.tabs(
-                {
-                    "Static": _fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(_fig).render_embed(), height="460px"
-                    ),
-                }
-            ),
+            plot_views(_fig, height="460px"),
         ]
     )
 
 
 @app.cell
-def longeron(mo, np, plt, to_echarts):
+def longeron(mo, np, plt, plot_views):
     from _examples.afgrow import (
         MERC3_DIGITIZED,
         MERC3_FINAL_LENGTH,
@@ -137,14 +130,7 @@ def longeron(mo, np, plt, to_echarts):
                 · [Published crack-growth lives](https://www.afgrow.net/applications/DTDHandbook/Examples/images/page2_3/image057.gif)
                 """),
             mo.ui.table(_rows),
-            mo.ui.tabs(
-                {
-                    "Static": _fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(_fig).render_embed(), height="860px"
-                    ),
-                }
-            ),
+            plot_views(_fig, height="860px"),
         ]
     )
     return histories, length

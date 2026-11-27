@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-The :mod:`py_fatigue.utils` module collects all the utility functions
+The [`py_fatigue.utils`][] module collects all the utility functions
 and classes.
 """
 
@@ -491,8 +491,8 @@ def bin_upper_bound(
 
 def split_full_cycles_and_residuals(count_cycle: np.ndarray) -> tuple:
     """
-    Returns the :term:`stress ranges<Stress Ranges>` or
-    :term:`mean stresses<Mean stress>` from only the full cycles.
+    Returns the stress ranges or
+    mean stresses from only the full cycles.
     """
 
     splt = np.asarray(np.modf(count_cycle)).T
@@ -508,8 +508,8 @@ def calc_full_cycles(
     stress: np.ndarray, count_cycle: np.ndarray, debug_mode: bool = False
 ) -> np.ndarray:
     """
-    Returns the :term:`stress ranges<Stress Ranges>` or
-    :term:`mean stresses<Mean stress>` from only the full cycles.
+    Returns the stress ranges or
+    mean stresses from only the full cycles.
     """
     full_idx, _ = split_full_cycles_and_residuals(count_cycle)
     # integer_count = np.delete(count_cycle, half_idx).astype(int)
@@ -528,8 +528,8 @@ def calc_half_cycles(
     stress: np.ndarray, count_cycle: np.ndarray, debug_mode: bool = False
 ) -> np.ndarray:
     """
-    Returns the :term:`stress ranges<Stress Ranges>` or
-    :term:`mean stresses<Mean stress>` from only the half cycles.
+    Returns the stress ranges or
+    mean stresses from only the half cycles.
     """
     _, half_idx = split_full_cycles_and_residuals(count_cycle)
 
@@ -575,11 +575,6 @@ def compare(a: Any, b: Any) -> bool:
 def split(what: int, by: int):
     """Split an integer into a list of integers.
 
-    >>> split(5, 2)
-    [2, 3]
-    >>> split(20, 7)
-    [3, 3, 3, 3, 3, 3, 2]
-
     Parameters
     ----------
     what : int
@@ -591,6 +586,13 @@ def split(what: int, by: int):
     -------
     list
         The list of integers
+
+    Examples
+    --------
+    >>> split(5, 2)
+    [3, 2]
+    >>> split(20, 7)
+    [3, 3, 3, 3, 3, 3, 2]
     """
     return [what // by + 1] * (what % by) + [what // by] * (by - what % by)
 
@@ -648,16 +650,16 @@ def calc_slope_intercept(
 
     Equation of the line:
 
-    .. math::
-
-        y = mx + c
+    $$
+    y = mx + c
+    $$
 
     where:
 
-    * :math:`m` is the slope of the line, calculated as
-      :math:`\\frac{y_2 - y_1}{x_2 - x_1}`
-    * :math:`c` is the intercept of the line, calculated as
-      :math:`\\exp(y_2 - m \\times x_2)`
+    * $m$ is the slope of the line, calculated as
+      $\\frac{y_2 - y_1}{x_2 - x_1}$
+    * $c$ is the intercept of the line, calculated as
+      $\\exp(y_2 - m \\times x_2)$
 
     Parameters
     ----------

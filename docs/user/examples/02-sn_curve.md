@@ -1,4 +1,6 @@
-# 2. SN curve {#2. SN curve}
+# 1. SN curve { #2. }
+
+[Jump to the worked notebook](#worked-notebook)
 
 The first reference to the fatigue of metals dates to 1829 when Poncelet, a French military engineer, used the adjective "tired" to describe steels under stress and assumed that steel components experience a decrease of durability when they undergo repeated variable loads. In 1837, the first document in history relating to a fatigue test was published. The test was recorded by Albert a German mining administrator, and it was aimed to understand the causes of the failure of the conveyor chains in the Clausthal mines in 1829. In 1843, Rankine and York focused their attention on railway axles, thanks to the establishment of the Her Majesty's Railway Inspectorate instituted because of the increasing number of accidents, amongst which the so-called Versailles disaster, where almost 60 people lost their lives because of the failure of the axle tree of the first engine on 5 October 1842. Anyway, the term fatigue was coined only in 1854 by the Englishman Braithwite, who discussed the fatigue failures of multiple components as water pumps, brewery equipment, and of course, railway axles. Many other English and German studies on the deterioration of railway axles were made in those years, but the work of Wöhler, Royal \"Obermaschinenmeister\" of the \"Niederschlesisch-Mährische\" Railways in Frankfurt an der Oder, was the milestone paving the way for the modern conception of fatigue testing and interpretation of results. In 1858 and 1860, August Wöhler measured, for 22 000 km, the service loads of railway axles with deflection gages personally developed and from his studies concluded that "If we estimate the durability of the axles to be 200,000 miles with respect to wear of the journal bearings, it is therefore only necessary that it withstands 200,000 bending cycles of the magnitude measured without failure." Such statement represents the first suggestion for a safe life design philosophy with retirement time (or distance travelled). Wöhler then calculated the stresses deriving from service loads and concluded that the higher the stress amplitude is, the more detrimental influence on the axle will be, plus a tensile mean stress anticipates the rupture. Furthermore, he even stated that a replacement of the axle would have been necessary if radial flaws propagated up to 20 mm into the material, and this procedure could be interpreted as an ancestor of the flaw tolerant safe life methodology. Anyway, test results of Wöhler were tabulated and not plotted until 1875, when Spangenberg adopted unusual linear axes to present these data. Furthermore, stress versus number of cycles (S/N) curves were addressed as Wöhler curves only in 1936 by Kloth and Stroppel. The idea to plot many fatigue test data, including the 60-year-old experiments of Wöhler, in logarithmic axes and interpolate them with a power law is from 1910 by Basquin. The equation relating maximum or alternate stress with the number of cycles is
 
@@ -122,7 +124,7 @@ w3_c.plot(fig=fig, ax=ax)
 plt.legend()
 ```
 
-![image](../../_static/_img/sn_curve_1.png)
+![Comparison of four S–N curves and a stress-range spectrum](../../_static/_img/sn_curve_1.png){ .docs-plot }
 
 ### Interactive ECharts view
 
@@ -267,4 +269,11 @@ curve_fkp.plot()
 
 Output:
 
-![image](../../_static/_img/sn_curve_3.png)
+![Interpolated S–N curve and measurement points](../../_static/_img/sn_curve_3.png){ .docs-plot }
+
+## Worked notebook
+
+[Open notebook](../../20-sn_curves_and_miner_damage.html) ·
+[Edit the notebook locally](01-notebook_setup.md)
+
+<iframe class="docs-notebook" src="../../20-sn_curves_and_miner_damage.html" title="S–N curves and Miner damage" loading="lazy"></iframe>

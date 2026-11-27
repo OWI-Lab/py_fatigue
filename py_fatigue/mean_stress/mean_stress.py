@@ -1,4 +1,4 @@
-"""The module :mod:`py_fatigue.mean_stress.mean_stress` contains
+"""The module [`py_fatigue.mean_stress.mean_stress.MeanStress`][] contains
 the main mean stress-related utilities.
 """
 

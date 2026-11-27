@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App()
+app = marimo.App(css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -33,7 +33,7 @@ def compare(mo):
     import numpy as np
     from py_fatigue import CycleCount, SNCurve
     from py_fatigue.damage import get_dem, get_des, get_pm
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     stress = (
         10
@@ -115,14 +115,7 @@ def compare(mo):
     damage.legend()
     mo.vstack(
         [
-            mo.ui.tabs(
-                {
-                    "Static": fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(fig).render_embed(), height="830px"
-                    ),
-                }
-            ),
+            plot_views(fig, height="830px"),
             mo.md(
                 f"DES and DEM use **{reference_cycles:g} reference cycles**."
             ),

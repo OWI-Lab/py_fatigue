@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App(width="medium")
+app = marimo.App(width="medium", css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -67,7 +67,7 @@ def propagate():
 @app.cell
 def ordered_profiles(geometries, loads, mo, results):
     import matplotlib.pyplot as plt
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     fig, axes = plt.subplots(3, 1, figsize=(7, 8), layout="constrained")
     summaries = []
@@ -84,14 +84,7 @@ def ordered_profiles(geometries, loads, mo, results):
     mo.vstack(
         [
             mo.md("\n".join(summaries)),
-            mo.ui.tabs(
-                {
-                    "Static": fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(fig).render_embed(), height="1240px"
-                    ),
-                }
-            ),
+            plot_views(fig, height="1240px"),
         ]
     )
 
@@ -105,7 +98,7 @@ def shell_cases(curve, loads, mo, simulate_crack_growth):
         CircumferentialCylinderThroughCrack,
         SphereThroughCrack,
     )
-    from py_fatigue.plotting import to_echarts as _to_echarts
+    from _examples.charts import plot_views as _plot_views
 
     shells = (
         SphereThroughCrack(mean_radius=100.0, thickness=1.0, half_length=4.0),
@@ -153,14 +146,7 @@ def shell_cases(curve, loads, mo, simulate_crack_growth):
                 "stress for TC07 and axial stress for TC08.\n\n"
                 + "\n".join(shell_summaries)
             ),
-            mo.ui.tabs(
-                {
-                    "Static": shell_fig,
-                    "ECharts": mo.iframe(
-                        _to_echarts(shell_fig).render_embed(), height="1640px"
-                    ),
-                }
-            ),
+            _plot_views(shell_fig, height="1640px"),
         ]
     )
 

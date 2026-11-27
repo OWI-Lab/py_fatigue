@@ -1,4 +1,6 @@
-# Ordered plate crack propagation
+# 7. Ordered plate crack propagation { #ordered-plate-crack-propagation }
+
+[Jump to the worked notebook](#worked-notebook)
 
 The [plate crack tutorial](../../tutorials/30-ordered_plate_crack_growth.html)
 follows a through crack and a surface crack from their initial profiles to
@@ -226,4 +228,12 @@ NASFLA application requires further case-specific verification.
 - [NASGRO 3.0 rate and threshold equations](https://ntrs.nasa.gov/citations/19990028759)
 - [Newman opening law](https://ntrs.nasa.gov/citations/19840050000)
 
-::: py_fatigue.crack_growth
+See the [ordered crack-growth API reference](../../api/damage/ordered_crack_growth.md)
+for signatures and source code.
+
+## Worked notebook
+
+[Open notebook](../../33-ordered_crack_growth.html) ·
+[Edit the notebook locally](01-notebook_setup.md)
+
+<iframe class="docs-notebook" src="../../33-ordered_crack_growth.html" title="Ordered crack-growth analysis" loading="lazy"></iframe>

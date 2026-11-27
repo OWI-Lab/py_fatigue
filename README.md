@@ -8,10 +8,7 @@
 [![CI/CD](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml/badge.svg)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml)
 [![documentation](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment/badge.svg?label=docs)](https://owi-lab.github.io/py_fatigue/)
 
-<!-- Insert the py-fatigue logo here -->
-<p align="center">
-  <img src="https://owi-lab.github.io/py_fatigue/_static/_img/py-fatigue-logo-with-name.png" alt="py-fatigue logo" width="height"/>
-</p>
+![Py-Fatigue](https://raw.githubusercontent.com/OWI-Lab/py_fatigue/develop/docs/_static/_img/py-fatigue-readme-logo.svg)
 
 Py-Fatigue is a Python package for cycle-counting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel.
 
@@ -75,6 +72,27 @@ uv run --no-sync invoke docs.build
 
 Open `_build/docs/index.html` for the architecture guide, API reference,
 and rendered examples.
+
+### Publish a documentation version
+
+Run the **Documentation** workflow from `develop` and pass the existing
+release tag. Each tag is built from its own source and published to its
+versioned URL. For example, `v3.0.0-rc.2` uses `/3.0.0rc2/`.
+
+```bash
+gh workflow run pages.yml --ref develop -f publish=true -f release_tag=v2.1.1 -f stable=true
+gh workflow run pages.yml --ref develop -f publish=true -f release_tag=v3.0.0-rc.2
+```
+
+For a documentation refresh, merge the updates into `develop` and set
+`refresh=true`. The tag must match the version declared on `develop`.
+
+```bash
+gh workflow run pages.yml --ref develop -f publish=true -f release_tag=v3.0.0-rc.2 -f refresh=true
+```
+
+Use `stable=true` only when a final release should also be served at the
+site root. A documentation publication keeps the other versioned sites.
 
 ## Upgrading from 2.x
 

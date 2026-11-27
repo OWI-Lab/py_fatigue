@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-r"""The :mod:`py_fatigue.py_fatigue` module collects all functions related to
-:term:`cycle-counting(s)<Cycle-counting>` definition.
+r"""The [`py_fatigue.cycle_count.cycle_count`] [] module collects all functions
+related to
+cycle-counting(s) definition.
 The main class is CycleCount.
 """
 
@@ -283,16 +284,20 @@ def _build_input_data_from_json(  # noqa: C901
 class CycleCount(PlotMixin):
     """Cycle-counting class.
 
-    The class heavily relies on the :mod:`py_fatigue.rainflow` and
-    :mod:`py_fatigue.histogram` modules.
+    The class heavily relies on the [`py_fatigue.cycle_count.rainflow`][] and
+    [`py_fatigue.cycle_count.histogram`][] modules.
 
     Create a count from existing rainflow cycles, a stress history, or
     a timeseries from an external source:
 
-        - :func:`~CycleCount.from_rainflow`
-        - :func:`~CycleCount.from_timeseries`
-        - :func:`~CycleCount.from_sep005`
-        - :func:`~CycleCount.from_pyexsi`
+    - [`from_rainflow`]
+      [py_fatigue.cycle_count.cycle_count.CycleCount.from_rainflow]
+    - [`from_timeseries`]
+      [py_fatigue.cycle_count.cycle_count.CycleCount.from_timeseries]
+    - [`from_sep005`]
+      [py_fatigue.cycle_count.cycle_count.CycleCount.from_sep005]
+    - [`from_pyexsi`]
+      [py_fatigue.cycle_count.cycle_count.CycleCount.from_pyexsi]
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -582,7 +587,7 @@ class CycleCount(PlotMixin):
 
     @property
     def min_max_sequence(self) -> np.ndarray:
-        """The minimum and maximum of the :term:`residuals<Residuals>`
+        """The minimum and maximum of the residuals
         (half-cycles) sequence.
 
         Returns
@@ -606,7 +611,7 @@ class CycleCount(PlotMixin):
 
     @property
     def residuals(self) -> np.ndarray:
-        """Extracts the :term:`residuals<Residuals>`, also known as half
+        """Extracts the residuals, also known as half
         cycles, from mean-range couples of the cycle-counting object.
 
         Returns
@@ -641,7 +646,7 @@ class CycleCount(PlotMixin):
 
         See also
         --------
-        :func:`py_fatigue.cycle_count.CycleCount.residuals`
+        [`residuals`][py_fatigue.cycle_count.cycle_count.CycleCount.residuals]
         """
         return self.residuals
 
@@ -828,7 +833,7 @@ class CycleCount(PlotMixin):
 
         See also
         --------
-        :func:`py_fatigue.cycle_count.rainflow_binner`
+        [`rainflow_binner`][py_fatigue.cycle_count.histogram.rainflow_binner]
         """
         stress_ranges = StressRange(
             _counts=self.count_cycle,
@@ -941,12 +946,13 @@ class CycleCount(PlotMixin):
 
     def to_df(self) -> pd.DataFrame:  # pragma: no cover
         """
-        Represent the :class:`CycleCount` instance as a pandas
+        Represent the [`CycleCount`]
+        [py_fatigue.cycle_count.cycle_count.CycleCount] instance as a pandas
         dataframe.
 
         Returns
         -------
-        :class:`pd.DataFrame`
+        pandas.DataFrame
             dataframe containing relevant fatigue information
         """
 
@@ -973,7 +979,8 @@ class CycleCount(PlotMixin):
 
     # ! Operators
     def __eq__(self, other: object) -> bool:
-        """Equality operation for :class:`CycleCount` instances.
+        """Equality operation for [`CycleCount`]
+        [py_fatigue.cycle_count.cycle_count.CycleCount] instances.
 
         Parameters
         ----------
@@ -993,7 +1000,8 @@ class CycleCount(PlotMixin):
     def __add__(  # fgh - noqa: _C901_
         self, other: "CycleCount"
     ) -> "CycleCount":
-        """Sum operation for :class:`CycleCount` instances.
+        """Sum operation for [`CycleCount`]
+        [py_fatigue.cycle_count.cycle_count.CycleCount] instances.
 
         Parameters
         ----------
@@ -1164,7 +1172,8 @@ class CycleCount(PlotMixin):
         return self.__add__(other)
 
     def __mul__(self, other: Union[float, int]):
-        """Left multiplication of :class:`CycleCount` \
+        """Left multiplication of [`CycleCount`]
+        [py_fatigue.cycle_count.cycle_count.CycleCount] \
         instance by a scalar stress multiplication factor .
 
         Parameters
@@ -1179,14 +1188,16 @@ class CycleCount(PlotMixin):
 
         Returns
         -------
-        :class:`CycleCount`
-            :class:`CycleCount` instance with \
+        [`CycleCount`][py_fatigue.cycle_count.cycle_count.CycleCount]
+            [`CycleCount`] [py_fatigue.cycle_count.cycle_count.CycleCount]
+            instance with \
         "raised" stresses and stress concentration factor != 1
         """
         return _multiplication_by_scalar(self, other)
 
     def __rmul__(self, other):
-        """Left multiplication of :class:`CycleCount` \
+        """Left multiplication of [`CycleCount`]
+        [py_fatigue.cycle_count.cycle_count.CycleCount] \
         instance by a scalar stress multiplication factor.
 
         Parameters
@@ -1201,8 +1212,9 @@ class CycleCount(PlotMixin):
 
         Returns
         -------
-        :class:`CycleCount`
-            :class:`CycleCount` instance with \
+        [`CycleCount`][py_fatigue.cycle_count.cycle_count.CycleCount]
+            [`CycleCount`] [py_fatigue.cycle_count.cycle_count.CycleCount]
+            instance with \
         "raised" stresses and stress concentration factor != 1
         """
         return _multiplication_by_scalar(self, other)
@@ -1220,13 +1232,14 @@ class CycleCount(PlotMixin):
             Solve mode. Options are: "Residuals" and "Min-Max".
         rainflow_method : str, optional
             Rainflow counting algorithm to propagate to
-            :func:`py_fatigue.cycle_count.rainflow.rainflow`, by default
+            [`rainflow`][py_fatigue.cycle_count.rainflow.rainflow], by default
             "astm".
 
         Returns
         -------
-        :class:`CycleCount`
-            :class:`CycleCount` instance with :term:`LFFD` resolved.
+        [`CycleCount`][py_fatigue.cycle_count.cycle_count.CycleCount]
+            [`CycleCount`] [py_fatigue.cycle_count.cycle_count.CycleCount]
+            instance with LFFD resolved.
         """
         return _solve_lffd(
             self,
@@ -1235,16 +1248,18 @@ class CycleCount(PlotMixin):
         )
 
     def resolve_residuals(self, rainflow_method: str = "astm") -> "CycleCount":
-        """Resolve the residuals. It is a symlink to :meth:`solve_lffd`.
+        """Resolve the residuals. It is a symlink to [`solve_lffd`]
+        [py_fatigue.cycle_count.cycle_count.CycleCount.solve_lffd].
 
         Returns
         -------
-        :class:`CycleCount`
-            :class:`CycleCount` instance with :term:`LFFD` resolved.
+        [`CycleCount`][py_fatigue.cycle_count.cycle_count.CycleCount]
+            [`CycleCount`] [py_fatigue.cycle_count.cycle_count.CycleCount]
+            instance with LFFD resolved.
 
         See also
         --------
-        :meth:`solve_lffd`
+        [`solve_lffd`][py_fatigue.cycle_count.cycle_count.CycleCount.solve_lffd]
         """
         return self.solve_lffd(rainflow_method=rainflow_method)
 
@@ -1256,8 +1271,9 @@ class CycleCount(PlotMixin):
         **kwargs,
     ) -> "CycleCount":
         """Calculates the mean stress correction returning a new
-        :class:`CycleCount` instance with corrected stress ranges
-        at constant load ratio (:math:`R=\\sigma_{min}/\\sigma_{max}`).
+        [`CycleCount`] [py_fatigue.cycle_count.cycle_count.CycleCount] instance
+        with corrected stress ranges
+        at constant load ratio ($R=\\sigma_{min}/\\sigma_{max}$).
 
         Parameters
         ----------
@@ -1301,7 +1317,8 @@ class CycleCount(PlotMixin):
         Returns
         -------
         CycleCount
-            :class:`CycleCount` instance with corrected stress ranges
+            [`CycleCount`] [py_fatigue.cycle_count.cycle_count.CycleCount]
+            instance with corrected stress ranges
 
         Raises
         ------
@@ -1329,10 +1346,10 @@ class CycleCount(PlotMixin):
 
         See also
         --------
-        :func:`py_fatigue.mean_stress.corrections.dnvgl_mean_stress_correction`
-        :func:`py_fatigue.mean_stress.corrections.walker_mean_stress_correction`
-        :func:`py_fatigue.mean_stress.corrections.swt_mean_stress_correction`
-        :func:`py_fatigue.mean_stress.corrections.goodman_haigh_mean_stress_correction`
+        [`dnvgl_mean_stress_correction`][py_fatigue.mean_stress.corrections.dnvgl_mean_stress_correction]
+        [`walker_mean_stress_correction`][py_fatigue.mean_stress.corrections.walker_mean_stress_correction]
+        [`swt_mean_stress_correction`][py_fatigue.mean_stress.corrections.swt_mean_stress_correction]
+        [`goodman_haigh_mean_stress_correction`][py_fatigue.mean_stress.corrections.goodman_haigh_mean_stress_correction]
         """
         correction_types = [
             "dnvgl-rp-c203",
@@ -1547,7 +1564,7 @@ class CycleCount(PlotMixin):
         dens_func: Optional[Callable] = None,
         **kwargs: dict,
     ) -> tuple:  # pragma: no cover
-        """Plot the rainflow histogram of the :term:`Cycle-counting` instance
+        """Plot the rainflow histogram of the Cycle-counting instance
         with min and max stress on the x-y axes.
 
         Parameters
@@ -1778,7 +1795,8 @@ class CycleCount(PlotMixin):
 def _multiplication_by_scalar(
     self_: "CycleCount", other_: Union[float, int]
 ) -> "CycleCount":
-    """Multiplication of :class:`CycleCount` by a scalar factor
+    """Multiplication of [`CycleCount`]
+    [py_fatigue.cycle_count.cycle_count.CycleCount] by a scalar factor
 
     Parameters
     ----------
@@ -2039,7 +2057,7 @@ def _solve_lffd(
         Solve mode. Default is "Residuals".
     rainflow_method : str, optional
         Rainflow counting algorithm passed down to
-        :func:`py_fatigue.cycle_count.rainflow.rainflow`.
+        [`rainflow`][py_fatigue.cycle_count.rainflow.rainflow].
 
     Returns
     -------
@@ -2108,7 +2126,7 @@ def _solve_lffd(
 
 
 def _lffd_checks(self_: CycleCount, solve_mode: str) -> tuple:
-    """Run checks on the :term:`LFFD` (Low-Frequency Fatigue Dynamics)
+    """Run checks on the LFFD (Low-Frequency Fatigue Dynamics)
     retrieve method and sets the residuals sequence either to residuals
     or to min-max (approximated).
 

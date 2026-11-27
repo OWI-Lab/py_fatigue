@@ -1,4 +1,4 @@
-"""The module :mod:`py_fatigue.stress_range.stress_range` contains
+"""The module [`py_fatigue.stress_range.StressRange`][] contains
 the main stress_range-related utilities.
 """
 

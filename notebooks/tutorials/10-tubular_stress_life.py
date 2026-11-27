@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App()
+app = marimo.App(css_file="../../docs/stylesheets/custom.css")
 
 
 @app.cell

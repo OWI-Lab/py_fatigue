@@ -8,7 +8,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from py_fatigue import CycleCount
-from py_fatigue.plotting import to_echarts
+from .charts import plot_views as plot_views
 from py_fatigue.testing import get_random_data, get_sampled_time
 
 MINIMUM_STRESS = 10.0
@@ -52,17 +52,4 @@ def long_case_view(
             mo.md(f"## Long synthetic signal\n\n{description}"),
             plot_views(fig, height=height),
         ]
-    )
-
-
-def plot_views(figure: Figure, *, height: str | None = None) -> mo.Html:
-    """Display a figure as Matplotlib and as an interactive ECharts plot."""
-    return mo.ui.tabs(
-        {
-            "Static": figure,
-            "ECharts": mo.iframe(
-                to_echarts(figure).render_embed(),
-                height=height or f"{400 * len(figure.axes) + 40}px",
-            ),
-        }
     )

@@ -1,6 +1,8 @@
 # stress_range
 
-The stress_range module contains the StressRange class, which in turn inherits from `py_fatigue.utils.FatigueStress`.
+!!! abstract "Overview"
+
+    Represent the difference between the maximum and minimum stress in each counted cycle.
 
 ## The StressRange class
 

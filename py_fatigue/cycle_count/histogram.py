@@ -529,7 +529,7 @@ def binned_rainflow(  # pylint: disable=R0917,R0913
 ):
     """
     Returns the cycle-count of the input data calculated through the
-    :term:`rainflow<Rainflow>` method.
+    rainflow method.
 
     Parameters
     ----------
@@ -561,7 +561,8 @@ def binned_rainflow(  # pylint: disable=R0917,R0913
         if True, print debug messages, by default False
     rainflow_method : str, optional
         Rainflow counting algorithm passed to
-        :func:`py_fatigue.cycle_count.rainflow.rainflow`, by default "astm".
+        [`rainflow`] [py_fatigue.cycle_count.rainflow.rainflow], by default
+        "astm".
     Returns
     -------
     Union[np.ndarray, tuple]

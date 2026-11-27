@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App()
+app = marimo.App(css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -13,9 +13,9 @@ def imports():
     import numpy as np
     from py_fatigue import SNCurve, __version__
     from py_fatigue.cycle_count.rainflow import rainflow
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
-    return SNCurve, __version__, mo, np, plt, rainflow, to_echarts
+    return SNCurve, __version__, mo, np, plt, rainflow, plot_views
 
 
 @app.cell
@@ -36,7 +36,7 @@ def introduction(__version__, mo):
 
 
 @app.cell
-def compare_rainflow(mo, np, plt, rainflow, to_echarts):
+def compare_rainflow(mo, np, plt, rainflow, plot_views):
     signal = np.array(
         [
             4,
@@ -88,20 +88,13 @@ def compare_rainflow(mo, np, plt, rainflow, to_echarts):
                 "The markers identify which turning points each algorithm "
                 "leaves in the residual sequence."
             ),
-            mo.ui.tabs(
-                {
-                    "Static": fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(fig).render_embed(), height="420px"
-                    ),
-                }
-            ),
+            plot_views(fig, height="420px"),
         ]
     )
 
 
 @app.cell
-def sn_curves(SNCurve, mo, plt, to_echarts):
+def sn_curves(SNCurve, mo, plt, plot_views):
     curves = [
         SNCurve(
             slope=slope,
@@ -125,14 +118,7 @@ def sn_curves(SNCurve, mo, plt, to_echarts):
     mo.vstack(
         [
             mo.md("## S–N curves in free corrosion"),
-            mo.ui.tabs(
-                {
-                    "Static": sn_fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(sn_fig).render_embed(), height="420px"
-                    ),
-                }
-            ),
+            plot_views(sn_fig, height="420px"),
         ]
     )
     return (curves,)

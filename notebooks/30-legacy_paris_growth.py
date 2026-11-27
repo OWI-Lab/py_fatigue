@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App()
+app = marimo.App(css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -31,7 +31,7 @@ def calculate(mo):
     from py_fatigue import CycleCount, ParisCurve, WalkerCurve
     from py_fatigue.damage import get_crack_growth
     from py_fatigue.geometry import HollowCylinder, InfiniteSurface
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     material = dict(slope=3.0, intercept=1e-10, threshold=20.0, critical=2000.0)
     paris = ParisCurve(**material)
@@ -87,14 +87,7 @@ def calculate(mo):
 
     mo.vstack(
         [
-            mo.ui.tabs(
-                {
-                    "Static": fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(fig).render_embed(), height="1240px"
-                    ),
-                }
-            ),
+            plot_views(fig, height="1240px"),
             mo.ui.table(summary),
         ]
     )
