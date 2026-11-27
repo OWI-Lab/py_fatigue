@@ -1,9 +1,14 @@
-MathJax.Hub.Config({
-    "HTML-CSS": {
-      availableFonts: [],
-      preferredFonts: "'Neo euler', TeX",
-      webFont:"",
-      imageFont:"",
-      undefinedFamily:"'Roboto Slab', 'Neo Euler', serif"
-    }
-  });
+window.MathJax = {
+  output: {
+    font: "mathjax-pagella",
+    fontExtensions: ["mathjax-euler"],
+  },
+  tex: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+  },
+  options: {
+    ignoreHtmlClass: ".*",
+    processHtmlClass: "arithmatex",
+  },
+};
