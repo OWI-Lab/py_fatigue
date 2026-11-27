@@ -20,4 +20,4 @@ class and function reference, including parameters and return values.
 - [Synthetic signals](testing.md), [utilities](utils.md), and [plot styling](styling.md)
 
 For a complete calculation, use the [beginner’s guide](../user/01-absolute-noob.md)
-or an [interactive tutorial](../user/examples/01-notebook_setup.md).
+or an [interactive tutorial](../user/examples/08-example-notebooks.md).

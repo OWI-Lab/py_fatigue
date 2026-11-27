@@ -1,4 +1,4 @@
-# 1. SN curve { #2. }
+# 1. S–N curves { #2. }
 
 [Jump to the worked notebook](#worked-notebook)
 
@@ -274,6 +274,6 @@ Output:
 ## Worked notebook
 
 [Open notebook](../../20-sn_curves_and_miner_damage.html) ·
-[Edit the notebook locally](01-notebook_setup.md)
+[Edit the notebook locally](08-example-notebooks.md)
 
 <iframe class="docs-notebook" src="../../20-sn_curves_and_miner_damage.html" title="S–N curves and Miner damage" loading="lazy"></iframe>

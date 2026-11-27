@@ -1,4 +1,4 @@
-# 7. Ordered plate crack propagation { #ordered-plate-crack-propagation }
+# 7. Simulate ordered crack growth { #ordered-plate-crack-propagation }
 
 [Jump to the worked notebook](#worked-notebook)
 
@@ -248,6 +248,6 @@ for signatures and source code.
 ## Worked notebook
 
 [Open notebook](../../33-ordered_crack_growth.html) ·
-[Edit the notebook locally](01-notebook_setup.md)
+[Edit the notebook locally](08-example-notebooks.md)
 
 <iframe class="docs-notebook" src="../../33-ordered_crack_growth.html" title="Ordered crack-growth analysis" loading="lazy"></iframe>

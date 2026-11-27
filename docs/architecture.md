@@ -24,7 +24,7 @@ The independently installable `py-fatigue-mcp` package translates tool
 arguments and local CSV data into calls to the public Python API. The
 core library owns the numerical algorithms. The MCP package owns tool
 schemas, local file handling, and the stdio entry point. See the
-[MCP guide](user/mcp.md) for local setup and examples.
+[MCP guide](mcp/01-overview.md) for local setup and examples.
 
 ## Proposed architecture
 
@@ -78,7 +78,7 @@ installation and release workflow.
    next. A streaming rainflow API would first need tests for agreement across
    chunk boundaries.
 
-See the [notebook index](user/examples/01-notebook_setup.md) for short examples
+See the [notebook index](user/examples/08-example-notebooks.md) for short examples
 of the current API and the
-[ordered crack-growth guide](user/examples/08-ordered-crack-growth.md)
+[ordered crack-growth guide](user/examples/07-ordered-crack-growth.md)
 for supported geometries and load cases in Py-Fatigue 3.

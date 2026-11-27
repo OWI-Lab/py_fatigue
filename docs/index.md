@@ -17,25 +17,25 @@ Count stress cycles, estimate fatigue damage, and predict crack growth with Pyth
 
 <div class="home-links" markdown="1">
 
-- **[Cycle counting](user/examples/04-cycle_counting.md)**
+- **[Cycle counting](user/examples/03-count-stress-cycles.md)**
 
     Cycle-count time series and combine counting windows.
 
-- **[Stress–life analysis](user/examples/07-damage.md)**
+- **[Stress–life analysis](user/examples/06-stress-life-damage.md)**
 
     Perform (non)linear damage accumulation analysis.
 
-- **[Crack growth](user/examples/08-ordered-crack-growth.md)**
+- **[Crack growth](user/examples/07-ordered-crack-growth.md)**
 
     Perform complex crack propagation analysis.
 
-- **[Interactive notebooks](user/examples/01-notebook_setup.md)**
+- **[Interactive notebooks](user/examples/08-example-notebooks.md)**
 
     Run complete analyses and compare results with AFGROW examples.
 
-- **[MCP for Codex and other clients](user/mcp.md){ .home-wide-link }**
+- **[MCP for fatigue analysis](mcp/01-overview.md){ .home-wide-link }**
 
-    Run fatigue calculations through a local MCP client using inline data or CSV files.
+    Run fatigue calculations through an MCP client using inline data or local CSV files.
 
 </div>
 
@@ -76,7 +76,7 @@ print(cycles.count_cycle)
 
 Count cycles in a stress history and use an illustrative S–N curve to sum the Palmgren–Miner damage.
 
-[Explore stress-life analysis](user/examples/07-damage.md)
+[Explore stress-life analysis](user/examples/06-stress-life-damage.md)
 
 </div>
 
@@ -104,7 +104,7 @@ print(f"Total Miner damage: {damage.sum():.3g}")
 
 Grow a through crack in a plate under repeated tensile loading. This example uses an illustrative NASGRO fit and returns the final crack half-length in mm.
 
-[Explore ordered crack growth](user/examples/08-ordered-crack-growth.md)
+[Explore ordered crack growth](user/examples/07-ordered-crack-growth.md)
 
 </div>
 
@@ -146,7 +146,7 @@ print(f"Final crack half-length: {result.history[-1].sizes[0]:.3f} mm")
 
 Use the companion package to count cycles, calculate Miner damage, or run ordered NASGRO crack growth. Export full results as local CSV files when you need them.
 
-[Try the hosted MCP in Codex or Claude Code](user/examples/mcp-hosted.md)
+[Analyze a stress history with MCP](mcp/04-analyze-stress-history.md)
 
 </div>
 

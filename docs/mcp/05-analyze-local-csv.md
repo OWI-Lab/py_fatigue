@@ -1,4 +1,4 @@
-# Count cycles and calculate Miner damage with MCP
+# 5. Analyze and export a CSV
 
 In this example, use a short stress history to check your MCP connection,
 then save the individual damage contributions as a CSV. The example S–N
@@ -6,7 +6,7 @@ curve is illustrative.
 
 ## Prepare the input
 
-Follow the [MCP setup guide](../mcp.md#connect-codex) and configure both
+Follow the [local setup guide](02-run-locally.md#configure-csv-directories) and configure both
 CSV directories. Save this file as `stress.csv` inside the input directory.
 Its values are stress samples in MPa, in the order they were measured.
 
@@ -21,10 +21,10 @@ stress
 
 ## Count the cycles
 
-In Codex or another connected client, enter this prompt.
+In a connected client that accepts prompts, enter this request.
 
 ```text
-Use the py-fatigue rainflow_count tool with the configured input file
+Use the Py-Fatigue MCP tool rainflow_count with the configured input file
 stress.csv. Report the number of cycle rows, total cycle weight, and
 stress range of each row.
 ```
@@ -63,5 +63,5 @@ stress range, cycle weight, and damage contribution.
 
 For larger inputs, the preview shows up to five rows and the total uses
 the entire history. See the
-[ordered crack-growth example](../mcp.md#simulate-ordered-crack-growth) for
+[ordered crack-growth reference](06-tool-reference.md#simulate-ordered-crack-growth) for
 a separate workflow based on load blocks in their applied order.

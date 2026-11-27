@@ -53,8 +53,8 @@ residuals, plus the damage or final crack size you use downstream.
   a supported measured or generated stress history directly.
 - Continue to use Matplotlib through `.plot()`. Where available,
   `.echarts()` provides an interactive view of the same analysis.
-- Use [ordered crack growth](examples/08-ordered-crack-growth.md) when
+- Use [ordered crack growth](examples/07-ordered-crack-growth.md) when
   the inputs are an explicit sequence of load blocks, a NASGRO material
   fit, and a supported geometry.
-- Open the [marimo notebook catalogue](examples/01-notebook_setup.md) for
+- Open the [marimo notebook catalogue](examples/08-example-notebooks.md) for
   current examples and tutorials.

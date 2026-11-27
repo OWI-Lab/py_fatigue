@@ -1,4 +1,4 @@
-# 2. Crack growth curve { #3. }
+# 2. Crack growth curves { #3. }
 
 [Jump to the worked notebook](#worked-notebook)
 
@@ -235,6 +235,6 @@ Output:
 ## Worked notebook
 
 [Open notebook](../../30-legacy_paris_growth.html) ·
-[Edit the notebook locally](01-notebook_setup.md)
+[Edit the notebook locally](08-example-notebooks.md)
 
 <iframe class="docs-notebook" src="../../30-legacy_paris_growth.html" title="Paris and Walker crack-growth curves" loading="lazy"></iframe>

@@ -1,4 +1,4 @@
-# 3. CycleCount definition { #4. }
+# 3. Count stress cycles { #4. }
 
 [Jump to the worked notebook](#worked-notebook)
 
@@ -295,13 +295,13 @@ cycle counting.
 
 Supply either count directly to `get_crack_growth(count, paris_curve,
 geometry)` for Paris crack growth with a curve in MPa √mm and dimensions
-in mm. For [ordered NASGRO propagation](08-ordered-crack-growth.md),
+in mm. For [ordered NASGRO propagation](07-ordered-crack-growth.md),
 supply the tensile extrema and cycle counts as explicit `LoadBlock`
 instances.
 
 ## Worked notebook
 
 [Open notebook](../../10-rainflow_counting.html) ·
-[Edit the notebook locally](01-notebook_setup.md)
+[Edit the notebook locally](08-example-notebooks.md)
 
 <iframe class="docs-notebook" src="../../10-rainflow_counting.html" title="Rainflow counting and spectrum export" loading="lazy"></iframe>

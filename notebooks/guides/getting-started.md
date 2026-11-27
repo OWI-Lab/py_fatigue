@@ -95,12 +95,12 @@ corrected = cycle_count.mean_stress_correction(plot=save_interactive)
 2. Choose the material curve for the calculation.
     - An [S–N curve](additional/glossary.md#sn-curve) gives the life at a
       given stress range.
-    - A [Paris, Walker, or NASGRO curve](examples/03-cg_curve.md) gives the
+    - A [Paris, Walker, or NASGRO curve](examples/02-crack-growth-curves.md) gives the
       growth rate of an existing crack.
 3. Choose an analysis.
-    - For [stress–life damage](examples/07-damage.md), combine cycle
+    - For [stress–life damage](examples/06-stress-life-damage.md), combine cycle
       counts with the S–N curve.
-    - For [crack growth](examples/08-ordered-crack-growth.md), choose a
+    - For [crack growth](examples/07-ordered-crack-growth.md), choose a
       geometry and combine its stress-intensity solution with a growth curve.
 4. Use [`get_sampled_time` and `get_random_data`](../api/testing.md) to
    generate a sample history for the example below.

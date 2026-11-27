@@ -1,4 +1,4 @@
-# 5. Mean stress effect { #6. }
+# 5. Correct for mean stress { #6. }
 
 [Jump to the worked notebook](#worked-notebook)
 
@@ -266,6 +266,6 @@ cc_corr_walk
 ## Worked notebook
 
 [Open notebook](../../21-mean_stress_and_equivalent_loads.html) ·
-[Edit the notebook locally](01-notebook_setup.md)
+[Edit the notebook locally](08-example-notebooks.md)
 
 <iframe class="docs-notebook" src="../../21-mean_stress_and_equivalent_loads.html" title="Mean stress and equivalent loads" loading="lazy"></iframe>
