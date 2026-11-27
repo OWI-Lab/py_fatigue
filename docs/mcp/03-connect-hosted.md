@@ -7,7 +7,7 @@ You can also [run MCP locally without a token](02-run-locally.md).
 
 Email [pietro.dantuono@vub.be](mailto:pietro.dantuono@vub.be) to request
 hosted access. Include your name, your organization if applicable, and
-how you plan to use the service. The operator will share the token
+how you plan to use the service. The package maintainer will share the token
 privately if access is approved. Use the value you receive as
 `PY_FATIGUE_MCP_TOKEN` in your client.
 
