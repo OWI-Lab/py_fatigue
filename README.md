@@ -2,11 +2,10 @@
 [![python versions](https://img.shields.io/pypi/pyversions/py_fatigue)](https://pypi.org/project/py-fatigue/)
 [![license](https://img.shields.io/github/license/owi-lab/py_fatigue)](https://github.com/OWI-Lab/py_fatigue/blob/main/LICENSE)
 [![codecov](https://codecov.io/gh/OWI-Lab/py_fatigue/branch/develop/graph/badge.svg?token=CM4H0C3LVY)](https://codecov.io/gh/OWI-Lab/py_fatigue)
-[![pytest](https://img.shields.io/github/actions/workflow/status/owi-lab/py_fatigue/ci.yml?label=pytest)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/ci.yml)
-[![lint](https://img.shields.io/github/actions/workflow/status/owi-lab/py_fatigue/ci.yml?label=lint)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/badge/GitHub-CI-blue)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/ci.yml)
 [![issues](https://img.shields.io/github/issues/owi-lab/py_fatigue)](https://github.com/OWI-Lab/py_fatigue/issues)
-[![CI/CD](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml/badge.svg)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml)
-[![documentation](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment/badge.svg?label=docs)](https://py-fatigue.dev/)
+[![Builds](https://img.shields.io/badge/GitHub-builds-blue)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml)
+[![Documentation](https://img.shields.io/badge/docs-py--fatigue.dev-blue)](https://py-fatigue.dev/)
 
 ![Py-Fatigue](https://raw.githubusercontent.com/OWI-Lab/py_fatigue/develop/docs/_static/_img/py-fatigue-readme-logo.svg)
 
