@@ -1,6 +1,7 @@
 """Exercise the local MCP through the same subprocess a host launches."""
 
 from dataclasses import asdict
+from datetime import datetime, timezone
 import csv
 import json
 from pathlib import Path
@@ -83,12 +84,47 @@ def exported_rows(tmp_path: Path, result: dict) -> list[dict[str, str]]:
     return rows
 
 
+async def test_lffd_recovery(client: mcp.Client) -> None:
+    """Compare ordered-window recovery with the public CycleCount API."""
+    windows = [
+        [20, 26, 18, 35, 30, 43, 34, 45],
+        [48, 43, 53, 45, 54, 40, 45, 27],
+        [23, 30, 17, 23, 14, 21, 10, 23],
+    ]
+    timestamp = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    first, second, third = [
+        CycleCount.from_timeseries(window, timestamp=timestamp)
+        for window in windows
+    ]
+    combined = first + second + third
+    recovered = combined.solve_lffd()
+
+    result = await call(client, "lffd_recovery", windows=windows)
+    assert result["window_count"] == 3
+    assert result["windowed_total_cycles"] == combined.count_cycle.sum()
+    assert result["windowed_max_stress_range"] == combined.stress_range.max()
+    assert result["total_cycles"] == recovered.count_cycle.sum()
+    assert result["max_stress_range"] == recovered.stress_range.max() == 44
+    assert result["remaining_turning_points"] == len(
+        recovered.residuals_sequence
+    )
+    assert result["row_count"] == len(recovered.count_cycle)
+    assert len(result["preview"]) == 5
+    await assert_tool_error(
+        client, "lffd_recovery", "window 2", windows=[windows[0], [5, 5]]
+    )
+    await assert_tool_error(
+        client, "lffd_recovery", "100,000 samples", windows=[[0] * 50_001] * 2
+    )
+
+
 async def test_rainflow_and_miner(client, tmp_path: Path) -> None:
     """Match direct cycle counting and use every row in Miner damage."""
     listed = await client.list_tools()
     assert {tool.name for tool in listed.tools} == {
         "rainflow_count",
         "miner_damage",
+        "lffd_recovery",
         "ordered_crack_growth",
     }
     assert all(tool.output_schema for tool in listed.tools)

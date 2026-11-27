@@ -3,7 +3,9 @@
 Run ASTM rainflow counting, Palmgren–Miner damage, and ordered NASGRO crack
 growth through a local stdio MCP client. The `py-fatigue-mcp` command starts
 the server. See the [quickstart](https://github.com/OWI-Lab/py_fatigue/blob/develop/docs/mcp/01-overview.md)
-for setup, tool inputs, and CSV examples.
+for setup, tool inputs, and CSV examples. A development checkout also
+provides `lffd_recovery` for recounting residual cycles across ordered
+stress windows.
 
 ## HTTP pilot
 

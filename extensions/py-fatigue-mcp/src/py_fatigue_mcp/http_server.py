@@ -20,6 +20,7 @@ from .crack_growth import (
     TensileLoad,
     ordered_crack_growth,
 )
+from .lffd import lffd_recovery
 from .models import InputModel, Number
 from .stress_life import (
     CountedCycle,
@@ -107,6 +108,7 @@ def create_app() -> Starlette:
         raise RuntimeError(f"Set {TOKEN_ENV} to a nonempty ASCII bearer token.")
 
     server = MCPServer("py-fatigue")
+    server.add_tool(lffd_recovery)
 
     @server.tool(name="rainflow_count")
     def count(stress: InlineStress) -> RainflowSummary:

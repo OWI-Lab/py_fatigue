@@ -13,7 +13,7 @@
 1. **Match the crack and load to the published solution.** Confirm what the
    dimensions mean, which stress opens the crack, which front points advance,
    and the allowed ratios throughout the analysis. The
-   [geometry guide](../examples/07-ordered-crack-growth.md) records the source
+   [geometry reference](../../api/damage/ordered_crack_growth.md#what-each-new-name-does) records the source
    and domain for the plate, shell, round-bar, thread, and hole cases.
 2. **Preserve loading order and units.** Supply the observed or prescribed
    minimum and maximum tensile stress for each block, along with its cycle
@@ -47,7 +47,7 @@ assessment.
 ## Crack-growth and stress-intensity references
 
 The sources below define the equations and tables used in the documented
-models. The [geometry and load guide](../examples/07-ordered-crack-growth.md)
+models. The [geometry and load reference](../../api/damage/ordered_crack_growth.md)
 gives the implementation’s dimensions, stress components and validity
 limits. A NASFLA case code identifies the geometry and loading family.
 

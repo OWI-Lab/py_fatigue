@@ -1,14 +1,17 @@
 # 1. Choose a setup
 
-Run rainflow counting, Palmgren–Miner damage, and ordered NASGRO crack
-growth through an MCP client.
+Run Py-Fatigue calculations through an MCP client.
 
 | Setup | Use it when | Start here |
 | --- | --- | --- |
 | Local stdio | You want to run calculations on your machine, read CSV inputs, or export result files. | [Install and run locally](02-run-locally.md) |
 | Hosted HTTPS | You have a bearer token and want to send inline data from a remote MCP client. | [Connect to hosted MCP](03-connect-hosted.md) |
 
-After connecting, [analyze an inline stress history](04-analyze-stress-history.md)
-with either setup. If you installed the local MCP, you can also
-[analyze and export a CSV](05-analyze-local-csv.md). The
-[tool reference](06-tool-reference.md) lists inputs, units, and limits.
+## Examples
+
+- [4. Analyze a stress history](04-analyze-stress-history.md)
+- [5. Analyze and export a CSV](05-analyze-local-csv.md) (local stdio)
+- [6. Recover cycles across windows](06-recover-lffd.md)
+- [7. Propagate an SC07 round-bar crack](07-propagate-sc07.md)
+
+See the [tool reference](08-tool-reference.md) for inputs, units, and limits.

@@ -62,7 +62,7 @@ History plots sample points for display after the full calculation.
 | [33 Ordered crack growth](../../33-ordered_crack_growth.html) | Inspect applied stresses, crack dimensions, and peak stress intensities on a shared cycle range. |
 | [34 Synthetic signal to failure](../../34-synthetic_signal_to_failure.html) | Generate a long waveform and follow its ordered cycles to the Miner and crack-growth limits. |
 | [35 Through-crack growth](../../35-through_crack_growth.html) | Propagate center and edge plate cracks under the same loads and compare their initial and final profiles. |
-| [36 Surface-crack growth](../../36-surface_crack_growth.html) | Propagate a semi-elliptical surface crack and compare its depth, surface half-length, and crack-front profiles. |
+| [36 Surface-crack growth](../../36-surface_crack_growth.html) | Compare a semi-elliptical plate crack with an SC07 round-bar crack under the same tensile blocks. Plot their depth histories and crack-front profiles. |
 | [37 AFGROW MERC-3 crack-growth sensitivity](../../37-afgrow_merc3_growth_sensitivity.html) | Compare the native Paris solver with a closed-form life and reconstruct the handbook longeron life from digitized geometry factors. |
 | [38 AFGROW FAC-1 stress-intensity history](../../38-afgrow_fac1_sif_history.html) | Reconstruct the combined stress intensity for bypass tension and pin bearing and compare published finite-element and NASGRO results. |
 

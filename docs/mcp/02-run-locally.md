@@ -26,6 +26,20 @@ Check tool discovery in your client. In a new Codex session, use `/mcp`.
 The server exposes `rainflow_count`, `miner_damage`, and
 `ordered_crack_growth`.
 
+## Run from a checkout
+
+Use this setup to try tools that are still in development, including
+`lffd_recovery`. Clone the repository and use its absolute path in the
+command below. Building the Python library from the checkout requires Rust.
+
+```sh
+uv run --project /absolute/path/to/py_fatigue/extensions/py-fatigue-mcp py-fatigue-mcp
+```
+
+For a stdio client, set the executable to `uv` and pass the command after
+`uv` as its arguments. Use the absolute path to `uv` if the client uses
+a different `PATH` than your shell.
+
 ## Configure CSV directories
 
 To enable CSV access when registering the server, create the input and output
