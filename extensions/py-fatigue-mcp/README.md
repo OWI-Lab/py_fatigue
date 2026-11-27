@@ -5,6 +5,20 @@ growth through a local stdio MCP client. The `py-fatigue-mcp` command starts
 the server. See the [quickstart](https://github.com/OWI-Lab/py_fatigue/blob/develop/docs/user/mcp.md)
 for setup, tool inputs, and CSV examples.
 
+## HTTP pilot
+
+From a development checkout, supply a strong secret as
+`PY_FATIGUE_MCP_BEARER_TOKEN` and run the HTTP adapter on loopback.
+
+```sh
+cd extensions/py-fatigue-mcp
+uv run uvicorn py_fatigue_mcp.http_server:create_app --factory --host 127.0.0.1 --port 18732
+```
+
+The `/mcp` endpoint accepts inline inputs and requires an
+`Authorization: Bearer` header. Use HTTPS at the reverse proxy when the
+endpoint is reachable outside the host.
+
 ## Release
 
 The Py-Fatigue MCP workflow uploads through the repository's
