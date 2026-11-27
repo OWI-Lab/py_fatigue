@@ -11,14 +11,14 @@
 - Add ordered NASGRO crack growth for supported plate, shell, bar, thread,
   and plate-hole geometries. Verify TC01 life and SC01 crack shape and depth
   history against published membrane-tension benchmarks. The
-  [crack-growth guide](user/examples/08-ordered-crack-growth.md) gives the
+  [crack-growth guide](user/examples/07-ordered-crack-growth.md) gives the
   supported load and geometry limits.
 - Add SEP005 and pyExSi stress-history connectors for cycle counting and
   fatigue analysis.
 - Preserve the input unit when summing cycle counts or recovering residual
   cycles. [Discussion #27](https://github.com/OWI-Lab/py_fatigue/discussions/27)
 - Move the documentation to Zensical and the examples to marimo. The
-  [notebooks](user/examples/01-notebook_setup.md) include Matplotlib and
+  [notebooks](user/examples/08-example-notebooks.md) include Matplotlib and
   ECharts views, synthetic histories, and AFGROW handbook comparisons.
 - Update the Rust bindings to PyO3 0.30.1 and Rust NumPy 0.30.0.
 
@@ -32,7 +32,7 @@
 - Include Rust dependency license notices in the wheels and source archive.
 - Run Paris crack growth with tabulated geometry factors and report a
   geometry-limit stop at the final tabulated crack dimension.
-- Add [end-to-end marimo tutorials](user/examples/01-notebook_setup.md)
+- Add [end-to-end marimo tutorials](user/examples/08-example-notebooks.md)
   for stress-life and crack-growth analysis. Compare Py-Fatigue with the
   AFGROW handbook's MERC-3, FAC-1, and blend-out repair examples.
 
@@ -42,10 +42,10 @@ Install this candidate explicitly with `pip install py-fatigue==3.0.0rc2`.
 
 This release candidate moves numerical kernels to Rust and adds ordered
 NASGRO crack growth for plate, shell, bar, thread, and plate-hole geometries.
-See the [crack-growth guide](user/examples/08-ordered-crack-growth.md) for
+See the [crack-growth guide](user/examples/07-ordered-crack-growth.md) for
 the supported loads and limits of each solution.
 
-The documentation uses Zensical. The [marimo examples](user/examples/01-notebook_setup.md)
+The documentation uses Zensical. The [marimo examples](user/examples/08-example-notebooks.md)
 provide Matplotlib and ECharts views, synthetic histories, and comparisons
 with the AFGROW handbook.
 

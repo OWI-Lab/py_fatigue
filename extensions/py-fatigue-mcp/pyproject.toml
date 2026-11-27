@@ -15,7 +15,7 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/OWI-Lab/py_fatigue"
-Documentation = "https://github.com/OWI-Lab/py_fatigue/blob/develop/docs/user/mcp.md"
+Documentation = "https://github.com/OWI-Lab/py_fatigue/blob/develop/docs/mcp/01-overview.md"
 
 [project.scripts]
 py-fatigue-mcp = "py_fatigue_mcp.server:main"

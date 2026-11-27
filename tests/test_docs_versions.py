@@ -49,3 +49,33 @@ def test_publish_stable_and_candidate(tmp_path: Path) -> None:
         assemble_site(
             site, build, tmp_path / "invalid", "3.0.0rc2", stable=True
         )
+
+
+def test_publish_documentation_redirects(tmp_path: Path) -> None:
+    published = tmp_path / "published"
+    old_release = published / "3.0.0rc1" / "user"
+    old_release.mkdir(parents=True)
+    (old_release / "mcp.html").write_text("Historical MCP page")
+    (old_release.parent / "index.html").write_text("Historical homepage")
+
+    build = tmp_path / "build"
+    (build / "mcp").mkdir(parents=True)
+    (build / "user/examples").mkdir(parents=True)
+    (build / "index.html").write_text("Current homepage")
+    (build / "mcp/01-overview.html").write_text("MCP overview")
+    (build / "user/examples/01-sn-curves.html").write_text("S–N curves")
+    site = tmp_path / "site"
+    assemble_site(published, build, site, "3.0.0", stable=True)
+
+    for root in (site, site / "3.0.0"):
+        mcp = (root / "user/mcp.html").read_text()
+        assert 'href="../mcp/01-overview.html"' in mcp
+        assert '"#connect-codex": ["../mcp/02-run-locally.html", ' in mcp
+        assert '"#connect-a-stdio-client"' in mcp
+        assert "location.search + anchor" in mcp
+        example = (root / "user/examples/02-sn_curve.html").read_text()
+        assert 'href="01-sn-curves.html"' in example
+        assert not (root / "user/examples/mcp-hosted.html").exists()
+    assert (
+        site / "3.0.0rc1/user/mcp.html"
+    ).read_text() == "Historical MCP page"

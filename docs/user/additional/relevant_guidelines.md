@@ -13,7 +13,7 @@
 1. **Match the crack and load to the published solution.** Confirm what the
    dimensions mean, which stress opens the crack, which front points advance,
    and the allowed ratios throughout the analysis. The
-   [geometry guide](../examples/08-ordered-crack-growth.md) records the source
+   [geometry guide](../examples/07-ordered-crack-growth.md) records the source
    and domain for the plate, shell, round-bar, thread, and hole cases.
 2. **Preserve loading order and units.** Supply the observed or prescribed
    minimum and maximum tensile stress for each block, along with its cycle
@@ -31,7 +31,7 @@
    end of the supplied loading. A toughness stop marks the intensity limit.
 5. **Compare against a source case.** Check stress intensity at the initial
    flaw and along the growth path before comparing life. The
-   [AFGROW tutorials](../examples/01-notebook_setup.md) separate the
+   [AFGROW tutorials](../examples/08-example-notebooks.md) separate the
    published geometry, loads, and benchmark results from illustrative
    extensions. The ordered solver supports the documented tension cases.
    Overload retardation, bending, through-wall transitions, and full
@@ -47,7 +47,7 @@ assessment.
 ## Crack-growth and stress-intensity references
 
 The sources below define the equations and tables used in the documented
-models. The [geometry and load guide](../examples/08-ordered-crack-growth.md)
+models. The [geometry and load guide](../examples/07-ordered-crack-growth.md)
 gives the implementation’s dimensions, stress components and validity
 limits. A NASFLA case code identifies the geometry and loading family.
 
@@ -67,7 +67,7 @@ limits. A NASFLA case code identifies the geometry and loading family.
 
 ### Comparison cases
 
-Use the [notebook catalogue](../examples/01-notebook_setup.md) to run the
+Use the [notebook catalogue](../examples/08-example-notebooks.md) to run the
 Py-Fatigue comparisons. MERC-3 includes a crack-growth calculation.
 FAC-1 compares stress-intensity factors for bypass and pin loading. The
 blend-out example checks the stress-intensity and growth procedure used

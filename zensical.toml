@@ -15,6 +15,7 @@ extra_javascript = [
 ]
 exclude_docs = """
 _static/css/
+user/mcp.md
 *.xcf
 """
 
@@ -23,24 +24,31 @@ nav = [
   { "Getting started" = "user/01-absolute-noob.md" },
   { Development = ["architecture.md", "development.md"] },
   { "User guide" = [
-    { "Overview" = ["user/02-user-guide.md", "user/migrate-v3.md", "user/mcp.md"] },
+    { "Overview" = ["user/02-user-guide.md", "user/migrate-v3.md"] },
     { "Examples" = [
-      "user/examples/02-sn_curve.md",
-      "user/examples/03-cg_curve.md",
-      "user/examples/04-cycle_counting.md",
-      "user/examples/05-cycle_count_sum.md",
-      "user/examples/06-mean_stress.md",
-      "user/examples/07-damage.md",
-      "user/examples/08-ordered-crack-growth.md",
-      "user/examples/mcp-fatigue.md",
-      "user/examples/mcp-hosted.md",
-      "user/examples/01-notebook_setup.md",
+      "user/examples/01-sn-curves.md",
+      "user/examples/02-crack-growth-curves.md",
+      "user/examples/03-count-stress-cycles.md",
+      "user/examples/04-combine-cycle-counts.md",
+      "user/examples/05-correct-for-mean-stress.md",
+      "user/examples/06-stress-life-damage.md",
+      "user/examples/07-ordered-crack-growth.md",
+      "user/examples/08-example-notebooks.md",
     ] },
     { "Background" = [
       "user/additional/01-index.md",
       "user/additional/glossary.md",
       "user/additional/relevant_guidelines.md",
     ] },
+  ] },
+  { MCP = [
+    "mcp/01-overview.md",
+    { Setup = ["mcp/02-run-locally.md", "mcp/03-connect-hosted.md"] },
+    { Examples = [
+      "mcp/04-analyze-stress-history.md",
+      "mcp/05-analyze-local-csv.md",
+    ] },
+    "mcp/06-tool-reference.md",
   ] },
   { "API reference" = [
     "api/01-index.md",

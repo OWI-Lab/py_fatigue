@@ -1,4 +1,4 @@
-# 4. CycleCount sum { #5. }
+# 4. Combine cycle counts { #5. }
 
 [Jump to the worked notebook](#worked-notebook)
 
@@ -135,6 +135,6 @@ plt.show()
 ## Worked notebook
 
 [Open notebook](../../11-cycle_count_aggregation.html) ·
-[Edit the notebook locally](01-notebook_setup.md)
+[Edit the notebook locally](08-example-notebooks.md)
 
 <iframe class="docs-notebook" src="../../11-cycle_count_aggregation.html" title="Cycle count aggregation" loading="lazy"></iframe>

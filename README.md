@@ -21,15 +21,15 @@ and cycle counting. It is developed at Vrije Universiteit Brussel by
 - **Stress–life fatigue** with S–N curves, mean-stress corrections, and
   linear or nonlinear damage accumulation. Estimate fatigue life and
   calculate damage-equivalent stresses and moments.
-  [Stress–life example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/07-damage.html)
+  [Stress–life example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/06-stress-life-damage.html)
 - **Crack growth** with Paris and Walker curves or ordered NASGRO load
   blocks. Evaluate stress intensity for supported geometries and plot the
   initial and final crack profiles.
-  [Crack-growth example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/08-ordered-crack-growth.html)
+  [Crack-growth example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/07-ordered-crack-growth.html)
 - **Cycle counting** with ASTM E1049-85 rainflow counting and `CycleCount`.
   Import SEP005 or pyExSi histories, store sparse rainflow histograms, and
   recover low-frequency cycles when combining counting windows.
-  [Cycle-counting example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/04-cycle_counting.html)
+  [Cycle-counting example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/03-count-stress-cycles.html)
 
 Py-Fatigue 3 uses Rust numerical kernels with NumPy and pandas. Plot material
 curves, geometries, and analysis results with Matplotlib or ECharts.
@@ -56,7 +56,7 @@ Rust extension. Source builds require Rust.
 
 Use Py-Fatigue from Codex or another MCP client for rainflow counting,
 Palmgren–Miner damage, and ordered crack growth. The
-[MCP quickstart](docs/user/mcp.md) covers setup, local CSV inputs, and full
+[MCP quickstart](docs/mcp/01-overview.md) covers setup, local CSV inputs, and full
 result exports.
 
 ## Example notebooks
@@ -70,7 +70,7 @@ uv run marimo edit notebooks
 ```
 
 Start with `00-development_guide.py` or pick a lesson from the
-[numbered notebook index](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/01-notebook_setup.html).
+[numbered notebook index](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/08-example-notebooks.html).
 The end-to-end tutorials are in [notebooks/tutorials](https://github.com/OWI-Lab/py_fatigue/tree/develop/notebooks/tutorials).
 
 ## Build the documentation locally

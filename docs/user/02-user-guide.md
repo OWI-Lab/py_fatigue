@@ -1,12 +1,16 @@
 # User guide
 
-The scope of this user guide is guiding the user towards a comprehensive understanding of py-fatigue through as many usage examples as possible.
+Learn how to count stress cycles, calculate fatigue damage, and model
+crack growth with the Python API. The chapters below follow the same
+order as the Examples sidebar.
 
-- [1. SN curve](examples/02-sn_curve.md)
-- [2. Crack growth curve](examples/03-cg_curve.md)
-- [3. CycleCount definition](examples/04-cycle_counting.md)
-- [4. CycleCount sum](examples/05-cycle_count_sum.md)
-- [5. Mean stress effect](examples/06-mean_stress.md)
-- [6. Stress-Life damage calculation](examples/07-damage.md)
-- [7. Ordered plate crack propagation](examples/08-ordered-crack-growth.md)
-- [8. Run the example notebooks](examples/01-notebook_setup.md)
+- [1. S–N curves](examples/01-sn-curves.md)
+- [2. Crack growth curves](examples/02-crack-growth-curves.md)
+- [3. Count stress cycles](examples/03-count-stress-cycles.md)
+- [4. Combine cycle counts](examples/04-combine-cycle-counts.md)
+- [5. Correct for mean stress](examples/05-correct-for-mean-stress.md)
+- [6. Calculate stress–life damage](examples/06-stress-life-damage.md)
+- [7. Simulate ordered crack growth](examples/07-ordered-crack-growth.md)
+- [8. Run the example notebooks](examples/08-example-notebooks.md)
+
+To run fatigue calculations through an MCP client, see the [MCP guide](../mcp/01-overview.md).

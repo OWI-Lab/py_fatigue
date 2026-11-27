@@ -74,7 +74,7 @@ $$\frac{da}{dN} = C(\Delta K)^m$$
 
 The exponent $m$ is the slope in log–log coordinates. $C$ is the coefficient
 in the chosen unit system. A Walker model adjusts the growth rate for the
-load ratio. See the [crack-growth curve guide](../examples/03-cg_curve.md).
+load ratio. See the [crack-growth curve guide](../examples/02-crack-growth-curves.md).
 
 ## NASGRO growth law
 
@@ -83,7 +83,7 @@ crack-front point from the crack length and the two mode-I stress intensity
 extrema. The user supplies the material coefficient and exponent, crack-opening
 parameters, threshold parameters, and toughness. The threshold in the rate
 law can depend on load ratio and finite crack size. See the
-[material inputs](../examples/08-ordered-crack-growth.md#material-inputs).
+[material inputs](../examples/07-ordered-crack-growth.md#material-inputs).
 
 ### NASGRO equation
 
@@ -249,7 +249,7 @@ flowchart TD
 ```
 
 See the [geometry and material sources](relevant_guidelines.md#crack-growth-and-stress-intensity-references)
-and [ordered-growth example](../examples/08-ordered-crack-growth.md).
+and [ordered-growth example](../examples/07-ordered-crack-growth.md).
 
 ## Crack geometry and front
 
@@ -257,7 +257,7 @@ A **through crack** spans the thickness. A **surface crack** opens onto a
 free surface and has a front inside the material. Several solutions advance
 two front points independently. The geometry defines depth, half-length,
 and the order of the reported intensities. See the
-[geometry families and validity limits](../examples/08-ordered-crack-growth.md).
+[geometry families and validity limits](../examples/07-ordered-crack-growth.md).
 
 For a semi-elliptical plate crack, a point with angle $\phi$ along the
 front has position $x=c\cos\phi$ across the surface and depth
@@ -313,7 +313,7 @@ Residual half-cycles carry unresolved excursions at the ends of the record.
 Keep those residuals when combining windows. For measured input,
 `CycleCount.from_sep005` converts supported stress units to MPa. For a
 pyExSi signal, supply the sampling frequency and stress unit explicitly.
-See [cycle counting and signal input](../examples/04-cycle_counting.md).
+See [cycle counting and signal input](../examples/03-count-stress-cycles.md).
 
 Initially, rainflow turns the load history into a sequence of time (t) ordered reversals. Reversals are the local minima and maxima where the load first derivative changes sign. The function counts cycles by considering a moving reference point of the sequence, Z, and a moving ordered three-point subset - t(subset) ≥ t(Z) - with these characteristics:
 
@@ -538,7 +538,7 @@ $$
 $$
 
 For a multi-branch curve, use the slope and intercept of the branch
-containing the stress range. See the [S–N curve guide](../examples/02-sn_curve.md).
+containing the stress range. See the [S–N curve guide](../examples/01-sn-curves.md).
 
 ## Damage Equivalent Moment
 
