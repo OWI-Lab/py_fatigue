@@ -52,6 +52,13 @@ Rust extension. Source builds require Rust.
 > development lifecycle and supports Python 3.8–3.10. Py-Fatigue 2 and 3
 > are maintained on `develop`. Py-Fatigue 2 supports Python 3.10–3.14.
 
+## Local MCP server
+
+Use Py-Fatigue from Codex or another MCP client for rainflow counting,
+Palmgren–Miner damage, and ordered crack growth. The
+[MCP quickstart](docs/user/mcp.md) covers setup, local CSV inputs, and full
+result exports.
+
 ## Example notebooks
 
 Use Python 3.11 or newer for marimo and the documentation. Install Rust and
