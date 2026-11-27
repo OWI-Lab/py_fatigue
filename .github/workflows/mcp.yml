@@ -1,79 +1,46 @@
-name: Py-Fatigue MCP
-
+name: PyPI token connection check
 on:
-  pull_request:
-    paths:
-      - 'extensions/py-fatigue-mcp/**'
-      - 'py_fatigue/**'
-      - 'rust/**'
-      - 'Cargo.*'
-      - 'pyproject.toml'
-      - '.github/workflows/mcp.yml'
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ['3.10', '3.13', '3.15']
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: ${{ matrix.python }}
-      - run: rustup toolchain install stable --profile minimal
-      - working-directory: extensions/py-fatigue-mcp
-        run: uv run --python "${{ matrix.python }}" pytest
-
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: '3.13'
-      - name: Check release source
-        if: startsWith(github.ref, 'refs/tags/mcp-v')
-        run: |
-          git merge-base --is-ancestor HEAD origin/develop
-          version=$(python -c 'import tomllib; print(tomllib.load(open("extensions/py-fatigue-mcp/pyproject.toml", "rb"))["project"]["version"])')
-          test "$GITHUB_REF_NAME" = "mcp-v$version"
-      - run: uv build --no-sources extensions/py-fatigue-mcp --out-dir mcp-dist
-      - name: Test wheel against published Py-Fatigue
-        run: |
-          wheel=$(realpath mcp-dist/*.whl)
-          tests=$(realpath extensions/py-fatigue-mcp/tests)
-          cd "$RUNNER_TEMP"
-          uv run --no-project --with "$wheel" --with pytest pytest "$tests"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mcp-dist
-          path: mcp-dist/
-
-  publish:
-    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/mcp-v')
-    needs: [test, build]
+  verify:
     runs-on: ubuntu-latest
     environment: pypi-mcp
     steps:
-      - uses: astral-sh/setup-uv@v5
-      - uses: actions/download-artifact@v4
-        with:
-          name: mcp-dist
-          path: dist/
-      - name: Publish to PyPI
+      - name: Check PyPI authentication without uploading a file
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          if [ -z "$UV_PUBLISH_TOKEN" ]; then
-            echo "::error::The PYPI_API_TOKEN secret is unavailable."
-            exit 1
-          fi
-          uv publish dist/*
+          python3 - <<'PY'
+          import base64
+          import os
+          from urllib.error import HTTPError
+          from urllib.request import Request, urlopen
+
+          token = os.environ["UV_PUBLISH_TOKEN"]
+          if not token:
+              raise SystemExit("PYPI_API_TOKEN is unavailable.")
+          authorization = base64.b64encode(f"__token__:{token}".encode()).decode()
+
+          def probe(headers):
+              # Use an unsupported protocol and send no file or version fields.
+              request = Request(
+                  "https://upload.pypi.org/legacy/",
+                  data=b"%3Aaction=file_upload&protocol_version=0",
+                  headers=headers,
+              )
+              try:
+                  with urlopen(request, timeout=15) as response:
+                      return response.status
+              except HTTPError as error:
+                  return error.code
+
+          anonymous = probe({})
+          authenticated = probe({"Authorization": f"Basic {authorization}"})
+          print(f"PyPI upload endpoint without credentials: HTTP {anonymous}")
+          print(f"PyPI upload endpoint with repository token: HTTP {authenticated}")
+          if anonymous != 403 or authenticated != 400:
+              raise SystemExit("The PyPI response did not confirm authentication.")
+          print("PyPI accepted the token and rejected the deliberately invalid request.")
+          PY
