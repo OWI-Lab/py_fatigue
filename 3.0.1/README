@@ -1,0 +1,1 @@
+Build this documentation from the repository root with uv run invoke docs.build.
