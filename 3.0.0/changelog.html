@@ -239,14 +239,20 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="./architecture.html" class="md-tabs__link">
-        
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="./architecture.html" class="md-tabs__link">
+          
   
-  Architecture
+  Development
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -433,6 +439,57 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="./architecture.html" class="md-nav__link">
         
@@ -449,6 +506,42 @@
   
 
       </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development guidelines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
     </li>
   
 
@@ -597,6 +690,33 @@
     
   
   Migrate from v2 to v3
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/mcp.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Run Py-Fatigue from an MCP client
 
     
   </span>
@@ -846,6 +966,33 @@
     
   
   7. Ordered plate crack propagation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/mcp-fatigue.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Count cycles and calculate Miner damage with MCP
 
     
   </span>
@@ -1960,6 +2107,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#historical-unreleased-notes-from-2x" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Historical unreleased notes from 2.x
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#204" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2382,6 +2540,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#historical-unreleased-notes-from-2x" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Historical unreleased notes from 2.x
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#204" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2792,6 +2961,17 @@ the supported loads and limits of each solution.</p>
 provide Matplotlib and ECharts views, synthetic histories, and comparisons
 with the AFGROW handbook.</p>
 <p>Install this candidate explicitly with <code>pip install py-fatigue==3.0.0rc1</code>.</p>
+<h2 id="historical-unreleased-notes-from-2x">Historical unreleased notes from 2.x<a class="headerlink" href="#historical-unreleased-notes-from-2x" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Cache generic Numba root-finder specializations, add opt-in
+  <code>warmup_numba()</code>, and enable disk caching for direct Numba kernels.</li>
+<li>Support Numba 0.61 through 0.65 on Python versions below 3.14 and
+  Numba 0.65 on Python 3.14.</li>
+<li>Fix pandas 3.x compatibility in cycle-count aggregation and notebook
+  examples.</li>
+<li>Update the Numba performance report, repair docs links, and run the
+  tutorial notebooks on Python 3.13 and 3.14.</li>
+</ul>
 <h2 id="204">2.0.4<a class="headerlink" href="#204" title="Permanent link">&para;</a></h2>
 <ul>
 <li>bump(patch): Bump version to 2.0.4 [skip ci]</li>

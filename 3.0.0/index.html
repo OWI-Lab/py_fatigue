@@ -241,14 +241,20 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="./architecture.html" class="md-tabs__link">
-        
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="./architecture.html" class="md-tabs__link">
+          
   
-  Architecture
+  Development
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -485,6 +491,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#run-fatigue-tools-from-an-mcp-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Run fatigue tools from an MCP client
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reference-and-background" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -535,6 +552,57 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="./architecture.html" class="md-nav__link">
         
@@ -551,6 +619,42 @@
   
 
       </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development guidelines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
     </li>
   
 
@@ -699,6 +803,33 @@
     
   
   Migrate from v2 to v3
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/mcp.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Run Py-Fatigue from an MCP client
 
     
   </span>
@@ -948,6 +1079,33 @@
     
   
   7. Ordered plate crack propagation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/mcp-fatigue.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Count cycles and calculate Miner damage with MCP
 
     
   </span>
@@ -2074,6 +2232,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#run-fatigue-tools-from-an-mcp-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Run fatigue tools from an MCP client
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reference-and-background" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2131,6 +2300,10 @@
 <li>
 <p><strong><a href="user/examples/01-notebook_setup.html">Interactive notebooks</a></strong></p>
 <p>Run complete analyses and compare results with AFGROW examples.</p>
+</li>
+<li>
+<p><strong><a class="home-wide-link" href="user/mcp.html">MCP for Codex and other clients</a></strong></p>
+<p>Run fatigue calculations through a local MCP client using inline data or CSV files.</p>
 </li>
 </ul>
 </div>
@@ -2205,6 +2378,19 @@
 </section>
 <div class="home-divider" aria-hidden="true"></div>
 
+<section aria-labelledby="run-fatigue-tools-from-an-mcp-client" class="home-section home-example">
+<div>
+<h2 id="run-fatigue-tools-from-an-mcp-client">Run fatigue tools from an MCP client<a class="headerlink" href="#run-fatigue-tools-from-an-mcp-client" title="Permanent link">&para;</a></h2>
+<p>Use the companion package to count cycles, calculate Miner damage, or run ordered NASGRO crack growth. Export full results as local CSV files when you need them.</p>
+<p><a href="user/examples/mcp-fatigue.html">Follow the MCP worked example</a></p>
+</div>
+<div class="highlight"><pre><span></span><code>Use rainflow_count to count ASTM cycles in
+[0, 75, -15, 50, 0] MPa. Report the total cycle
+weight and the stress range of each counted row.
+</code></pre></div>
+</section>
+<div class="home-divider home-divider--line" aria-hidden="true"></div>
+
 <section aria-labelledby="reference-and-background" class="home-section home-resources">
 <h2 id="reference-and-background">Reference and background<a class="headerlink" href="#reference-and-background" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2212,6 +2398,7 @@
 <li><a href="user/additional/glossary.html">Glossary</a></li>
 <li><a href="user/additional/relevant_guidelines.html">Engineering guidelines</a></li>
 <li><a href="architecture.html">Architecture</a></li>
+<li><a href="development.html">Development guidelines</a></li>
 </ul>
 </section>
 

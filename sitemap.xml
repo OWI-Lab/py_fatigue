@@ -58,6 +58,9 @@
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/changelog.html</loc>
       </url>
       <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/development.html</loc>
+      </url>
+      <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/genindex.html</loc>
       </url>
       <url>
@@ -107,6 +110,12 @@
       </url>
       <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/08-ordered-crack-growth.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/mcp-fatigue.html</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/mcp.html</loc>
       </url>
       <url>
         <loc>https://owi-lab.github.io/py_fatigue/3.0.0/user/migrate-v3.html</loc>

@@ -18,7 +18,7 @@
         <link rel="prev" href="./user/01-absolute-noob.html">
       
       
-        <link rel="next" href="./user/02-user-guide.html">
+        <link rel="next" href="./development.html">
       
       
         
@@ -243,14 +243,20 @@
     
   
   
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="architecture.html" class="md-tabs__link">
-        
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="architecture.html" class="md-tabs__link">
+          
   
-  Architecture
+  Development
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -437,6 +443,62 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       
@@ -506,6 +568,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#mcp-companion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        MCP companion
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#proposed-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -530,6 +603,42 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development guidelines
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
       
     </li>
   
@@ -679,6 +788,33 @@
     
   
   Migrate from v2 to v3
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/mcp.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Run Py-Fatigue from an MCP client
 
     
   </span>
@@ -928,6 +1064,33 @@
     
   
   7. Ordered plate crack propagation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./user/examples/mcp-fatigue.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Count cycles and calculate Miner damage with MCP
 
     
   </span>
@@ -2021,6 +2184,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#mcp-companion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        MCP companion
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#proposed-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2064,8 +2238,8 @@
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
 <h2 id="current-boundaries">Current boundaries<a class="headerlink" href="#current-boundaries" title="Permanent link">&para;</a></h2>
-<p>Py-Fatigue 3 ships as one Python distribution. Its public classes still
-live at their original import paths. Python owns the user interface, binning,
+<p>The Py-Fatigue 3 numerical core ships as one Python distribution. Its
+public classes live at their original import paths. Python owns the interface, binning,
 serialization and plots. Maturin builds the private <code>py_fatigue._rust</code>
 extension. PyO3 translates arrays and errors at the boundary. Cargo can test
 the numerical core independently of Python.</p>
@@ -2074,8 +2248,15 @@ show. Their Python plot methods draw the same data for a static
 Matplotlib figure and an interactive ECharts view.</p>
 <p>Moving a kernel to Rust does not change its responsibilities. The current
 <code>CycleCount</code> still owns several kinds of operations, and the ordered
-crack-growth solver currently couples one material law to two plate geometries.
+crack-growth solver uses NASGRO with supported plate, shell, bar, thread,
+and plate-hole geometries.
 The design below is a proposal for splitting those responsibilities.</p>
+<h2 id="mcp-companion">MCP companion<a class="headerlink" href="#mcp-companion" title="Permanent link">&para;</a></h2>
+<p>The independently installable <code>py-fatigue-mcp</code> package translates tool
+arguments and local CSV data into calls to the public Python API. The
+core library owns the numerical algorithms. The MCP package owns tool
+schemas, local file handling, and the stdio entry point. See the
+<a href="user/mcp.html">MCP guide</a> for local setup and examples.</p>
 <h2 id="proposed-architecture">Proposed architecture<a class="headerlink" href="#proposed-architecture" title="Permanent link">&para;</a></h2>
 <p>Organize the domain around the data each calculation actually needs.</p>
 <div class="highlight"><pre><span></span><code>Stress samples ── rainflow ──► Counted spectrum ──► S–N and equivalent loads
@@ -2133,8 +2314,8 @@ remain the entry points for existing workflows.</p>
 <p>Keep the Rust or NumPy choice private to each algorithm. Plain array reductions
 can stay in NumPy. Stateful kernels can use Rust where the port improves
 maintenance or measured performance. Start with one distribution and small
-internal modules. Independent installation and release needs would justify
-revisiting a split into separately distributed packages.</p>
+internal modules for the numerical core. The MCP companion has its own
+installation and release workflow.</p>
 <h2 id="migration-order">Migration order<a class="headerlink" href="#migration-order" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Characterize <code>CycleCount</code> addition across mismatched bins, timestamp order,
@@ -2152,8 +2333,8 @@ revisiting a split into separately distributed packages.</p>
 </ol>
 <p>See the <a href="user/examples/01-notebook_setup.html">notebook index</a> for short examples
 of the current API and the
-<a href="user/examples/08-ordered-crack-growth.html">experimental plate API guide</a>
-for the implementation that is available in this release candidate.</p>
+<a href="user/examples/08-ordered-crack-growth.html">ordered crack-growth guide</a>
+for supported geometries and load cases in Py-Fatigue 3.</p>
 
 
 
@@ -2208,13 +2389,13 @@ for the implementation that is available in this release candidate.</p>
         
         
           
-          <a href="./user/02-user-guide.html" class="md-footer__link md-footer__link--next" aria-label="Next: User guide">
+          <a href="./development.html" class="md-footer__link md-footer__link--next" aria-label="Next: Development guidelines">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                User guide
+                Development guidelines
               </div>
             </div>
             <div class="md-footer__button md-icon">
