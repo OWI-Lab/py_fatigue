@@ -52,12 +52,12 @@ Rust extension. Source builds require Rust.
 > development lifecycle and supports Python 3.8–3.10. Py-Fatigue 2 and 3
 > are maintained on `develop`. Py-Fatigue 2 supports Python 3.10–3.14.
 
-## Local MCP server
+## MCP server
 
-Use Py-Fatigue from Codex or another MCP client for rainflow counting,
-Palmgren–Miner damage, and ordered crack growth. The
-[MCP quickstart](docs/mcp/01-overview.md) covers setup, local CSV inputs, and full
-result exports.
+Use Py-Fatigue from an MCP client to count, combine, and scale cycles,
+calculate Miner damage, model crack growth, and plot results. The
+[MCP guide](https://py-fatigue.dev/mcp/01-overview.html) covers local and
+hosted setup, including Zed, and provides examples.
 
 ## Example notebooks
 
@@ -122,7 +122,7 @@ If you use Py-Fatigue in your research, please use the following citation:
 
 ```
 D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software].
-In Github (3.0.0). https://www.owi-lab.be/. https://py-fatigue.dev
+In Github (3.0.1). https://www.owi-lab.be/. https://py-fatigue.dev
 ```
 
 ### BibTeX-style
@@ -148,7 +148,7 @@ In Github (3.0.0). https://www.owi-lab.be/. https://py-fatigue.dev
 	title = {Py-Fatigue},
 	type = {software},
 	url = {https://py-fatigue.dev},
-	version = {3.0.0},
+	version = {3.0.1},
 }
 ```
 
