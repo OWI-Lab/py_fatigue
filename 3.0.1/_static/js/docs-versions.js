@@ -6,7 +6,7 @@
   const root = new URL(".", document.currentScript.src);
   const directory = location.pathname.slice(root.pathname.length).split("/")[0];
 
-  fetch(new URL("versions.json", root))
+  fetch(new URL("versions.json", root), { cache: "no-cache" })
     .then((response) => response.ok ? response.json() : null)
     .then((catalog) => {
       if (!catalog?.versions.length) return;

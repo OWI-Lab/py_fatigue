@@ -272,7 +272,6 @@
 
 .docs-sidebar-utility {
   block-size: var(--docs-utility-height);
-  padding-inline: 0.45rem;
   background: var(--color-base-200);
   z-index: 2;
 }
@@ -533,6 +532,7 @@
 
   .md-main:not(:has(.home-intro)) .md-main__inner {
     flex: 1;
+    block-size: auto;
     margin-block-start: 0;
   }
 
@@ -624,6 +624,7 @@
     margin-block-start: auto;
   }
   .docs-sidebar-utility .docs-theme-segments {
+    border-inline-end: 0;
     border-block-end: 0;
   }
   .md-sidebar__scrollwrap:has(.docs-page-index) > .md-nav--primary { display: none; }
