@@ -4,17 +4,18 @@ from dataclasses import asdict
 import csv
 import json
 from pathlib import Path
+import shutil
 import sys
 from typing import Iterator
 
 import numpy as np
+import mcp
 import pytest
 
 from py_fatigue import CycleCount, SNCurve
 from py_fatigue import crack_growth as cg
 from py_fatigue.damage.stress_life import calc_pm
 
-mcp = pytest.importorskip("mcp")
 pytestmark = pytest.mark.anyio
 
 STRESS = [0, 75, -15, 50, 0, 60, -20, 90, 0, -30, 70, 0]
@@ -38,9 +39,12 @@ async def client(tmp_path: Path):
     outputs = tmp_path / "output"
     inputs.mkdir()
     outputs.mkdir()
+    command = shutil.which(
+        "py-fatigue-mcp", path=str(Path(sys.executable).parent)
+    )
+    assert command is not None
     parameters = mcp.StdioServerParameters(
-        command=sys.executable,
-        args=["-m", "py_fatigue.mcp_server"],
+        command=command,
         cwd=tmp_path,
         env={
             "PY_FATIGUE_MCP_INPUT_DIR": str(inputs),
@@ -201,16 +205,16 @@ def test_csv_limits_and_failed_export(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Remove partial output after failure and enforce the CSV row limit."""
-    from py_fatigue import mcp_server
+    from py_fatigue_mcp import csv_io
 
-    monkeypatch.setenv(mcp_server.INPUT_DIR, str(tmp_path))
-    monkeypatch.setenv(mcp_server.OUTPUT_DIR, str(tmp_path))
+    monkeypatch.setenv(csv_io.INPUT_DIR, str(tmp_path))
+    monkeypatch.setenv(csv_io.OUTPUT_DIR, str(tmp_path))
     source = tmp_path / "stress.csv"
     source.write_text("stress\n0\n1\n", encoding="utf-8")
-    with pytest.raises(mcp_server.ToolError, match="1-row limit"):
+    with pytest.raises(csv_io.ToolError, match="1-row limit"):
         list(
-            mcp_server.read_csv_rows(
-                mcp_server.CsvFile(csv_path=source.name), ("stress",), 1
+            csv_io.read_csv_rows(
+                csv_io.CsvFile(csv_path=source.name), ("stress",), 1
             )
         )
 
@@ -218,8 +222,8 @@ def test_csv_limits_and_failed_export(
         yield (1.0,)
         raise OSError("interrupted export")
 
-    with pytest.raises(mcp_server.ToolError, match="Could not write"):
-        mcp_server.write_csv_rows("test", ("stress",), broken_rows(), 2)
+    with pytest.raises(csv_io.ToolError, match="Could not write"):
+        csv_io.write_csv_rows("test", ("stress",), broken_rows(), 2)
     assert list(tmp_path.iterdir()) == [source]
 
 

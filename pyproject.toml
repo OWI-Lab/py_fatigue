@@ -36,9 +36,6 @@ dependencies = [
     "pydantic<3.0.0",
 ]
 
-[project.optional-dependencies]
-mcp = ["mcp>=2.3,<3"]
-
 [dependency-groups]
 dev = [
     "gitchangelog~=3.0.4",

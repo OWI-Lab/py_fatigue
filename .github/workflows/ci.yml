@@ -27,16 +27,16 @@ jobs:
     - name: Install Rust
       run: rustup toolchain install stable --profile minimal
     - name: Install the project
-      run: uv sync --no-default-groups --group dev --extra mcp
+      run: uv sync --no-default-groups --group dev
     # Run tests
     - name: Run Pytest
-      run: echo "Running Pytest" && uv run --no-sync pytest --cov=./py_fatigue --cov-report=xml:./coverage/reports/coverage.xml --cov-report=term-missing
+      run: echo "Running Pytest" && uv run pytest --cov=./py_fatigue --cov-report=xml:./coverage/reports/coverage.xml --cov-report=term-missing
     - name: Run Black
-      run: echo "Running Black" && uv run --no-sync black py_fatigue
+      run: echo "Running Black" && uv run black py_fatigue
     - name: Run Flake8
-      run: echo "Running Flake8" && uv run --no-sync flake8 py_fatigue
+      run: echo "Running Flake8" && uv run flake8 py_fatigue
     - name: Run Pylint
-      run: echo "Running Pylint" && uv run --no-sync pylint py_fatigue
+      run: echo "Running Pylint" && uv run pylint py_fatigue
     # - name: Run Mypy
     #   run: echo "Running Mypy" && mypy py_fatigue
 
