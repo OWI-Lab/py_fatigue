@@ -136,24 +136,27 @@ print(f"Final crack half-length: {result.history[-1].sizes[0]:.3f} mm")
 
 </section>
 
-<div class="home-divider" aria-hidden="true"></div>
+<div class="home-divider home-divider--line" aria-hidden="true"></div>
 
-<section class="home-section home-example" aria-labelledby="run-fatigue-tools-from-an-mcp-client" markdown="1">
+<section class="home-section home-example home-example--reversed" aria-labelledby="run-py-fatigue-via-mcp-client" markdown="1">
 
 <div markdown="1">
 
-## Run fatigue tools from an MCP client
+<span id="run-fatigue-tools-from-an-mcp-client"></span>
 
-Use the companion package to count cycles, calculate Miner damage, or run ordered NASGRO crack growth. Export full results as local CSV files when you need them.
+## Run py-fatigue via MCP client
 
-[Analyze a stress history with MCP](mcp/04-analyze-stress-history.md)
+Use the companion package to count cycles, calculate Miner damage, recover cycles across windows, or simulate ordered crack growth.
+
+[Set up MCP and try an example](mcp/01-overview.md)
 
 </div>
 
 ```text
-Use rainflow_count to count ASTM cycles in
-[0, 75, -15, 50, 0] MPa. Report the total cycle
-weight and the stress range of each counted row.
+Use rainflow_count on these samples in MPa:
+[27, 43, 54, 54, 27, 15, 30, 46, 70, 83, 57,
+27, 15, 9, 28, 53]. Report the number of cycle
+rows and the total cycle weight.
 ```
 
 </section>

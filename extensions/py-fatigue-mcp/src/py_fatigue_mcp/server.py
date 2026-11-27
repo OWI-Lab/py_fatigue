@@ -3,6 +3,7 @@
 from mcp.server import MCPServer
 
 from .crack_growth import ordered_crack_growth
+from .lffd import lffd_recovery
 from .stress_life import miner_damage, rainflow_count
 
 mcp = MCPServer(
@@ -18,6 +19,7 @@ mcp = MCPServer(
 
 mcp.add_tool(rainflow_count)
 mcp.add_tool(miner_damage)
+mcp.add_tool(lffd_recovery)
 mcp.add_tool(ordered_crack_growth)
 
 

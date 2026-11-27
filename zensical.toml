@@ -22,9 +22,8 @@ user/mcp.md
 nav = [
   { Home = "index.md" },
   { "Getting started" = "user/01-absolute-noob.md" },
-  { Development = ["architecture.md", "development.md"] },
-  { "User guide" = [
-    { "Overview" = ["user/02-user-guide.md", "user/migrate-v3.md"] },
+  { "Python guide" = [
+    "user/02-user-guide.md",
     { "Examples" = [
       "user/examples/01-sn-curves.md",
       "user/examples/02-crack-growth-curves.md",
@@ -35,9 +34,12 @@ nav = [
       "user/examples/07-ordered-crack-growth.md",
       "user/examples/08-example-notebooks.md",
     ] },
+    { "Upgrading" = ["user/migrate-v3.md"] },
     { "Background" = [
       "user/additional/01-index.md",
       "user/additional/glossary.md",
+      "user/additional/02-rainflow-and-residuals.md",
+      "user/additional/03-understand-ordered-crack-growth.md",
       "user/additional/relevant_guidelines.md",
     ] },
   ] },
@@ -47,8 +49,10 @@ nav = [
     { Examples = [
       "mcp/04-analyze-stress-history.md",
       "mcp/05-analyze-local-csv.md",
+      "mcp/06-recover-lffd.md",
+      "mcp/07-propagate-sc07.md",
     ] },
-    "mcp/06-tool-reference.md",
+    "mcp/08-tool-reference.md",
   ] },
   { "API reference" = [
     "api/01-index.md",
@@ -79,6 +83,7 @@ nav = [
     { "Synthetic signals" = "api/testing.md" },
     { Utilities = "api/utils.md" },
   ] },
+  { Development = ["development.md", "architecture.md", "architecture-proposal.md"] },
   { Changelog = "changelog.md" },
 ]
 

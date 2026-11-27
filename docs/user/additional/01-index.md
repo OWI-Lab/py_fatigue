@@ -1,6 +1,9 @@
 # Glossary and guidelines
 
-This section of the documentation defines core terminology and concepts common to all the modules of py-fatigue. The definitions and jargon used in this section apply to all py-fatigue modules.
+Find definitions, explanations of the numerical methods, and sources
+for engineering application.
 
 - [Glossary](glossary.md)
-- [Relevant guidelines](relevant_guidelines.md)
+- [Rainflow and residuals](02-rainflow-and-residuals.md)
+- [How ordered crack growth works](03-understand-ordered-crack-growth.md)
+- [Engineering workflow and published sources](relevant_guidelines.md)

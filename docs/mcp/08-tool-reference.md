@@ -1,6 +1,8 @@
-# 6. MCP tool reference
+# 8. MCP tool reference
 
-Look up the inputs, units, and output fields for the three fatigue tools.
+<span id="6-mcp-tool-reference"></span>
+
+Look up the inputs, units, and output fields for the fatigue tools.
 
 ## Count cycles
 
@@ -41,33 +43,16 @@ data when you need total damage for a large dataset.
 
 Call `ordered_crack_growth` with a geometry, calibrated curve, load blocks
 in applied order, and solver controls. Use MPa for tensile membrane stresses,
-mm for lengths, and MPa·√mm for stress intensity. This example uses the
-synthetic parameters from the repository tests.
+mm for lengths, and MPa·√mm for stress intensity.
 
-```json
-{
-  "geometry": {"case": "TC01", "half_width": 50, "half_length": 5},
-  "curve": {
-    "coefficient": 1e-10, "exponent": 2, "p": 0.5, "q": 1,
-    "threshold_zero": 25, "threshold_fanning": 0, "toughness": 500,
-    "constraint": 2, "peak_to_flow": 0.3
-  },
-  "loads": [
-    {"minimum": 0, "maximum": 40, "cycles": 8.5},
-    {"minimum": 10, "maximum": 50, "cycles": 10}
-  ],
-  "controls": {
-    "max_cycle_step": 1, "length_tolerance": 1e-6,
-    "cycle_tolerance": 1e-4, "max_trials": 40
-  }
-}
-```
+| Argument | Contents |
+| --- | --- |
+| `geometry` | A `case` code and that geometry's constructor inputs. See the [case list and validity limits](../api/damage/ordered_crack_growth.md#what-each-new-name-does). |
+| `curve` | The calibrated [NASGRO parameters](../api/damage/ordered_crack_growth.md#material-inputs). |
+| `loads` | Blocks in application order, each with `minimum`, `maximum`, and `cycles`. |
+| `controls` | `max_cycle_step`, `length_tolerance`, `cycle_tolerance`, and `max_trials`. See the [solver controls](../api/damage/ordered_crack_growth.md#solver-controls-and-result). |
 
-The ten geometry case codes and their constructor inputs are listed in the
-[ordered crack-growth guide](../user/examples/07-ordered-crack-growth.md). Use those
-field names inside `geometry`. The guide also describes the supported load
-directions and geometry limits. The applied order must come from the load
-history. Rainflow counts alone cannot establish that order.
+See the [SC07 worked example](07-propagate-sc07.md) for a complete request.
 
 `termination` reports `spectrum_exhausted`, `toughness`, or
 `geometry_limit`. The final state is the last accepted point. It may be
@@ -75,6 +60,24 @@ null if the solver stops at the initial condition. The history uses
 zero-based load-block indices and geometry-specific crack dimensions and
 tip order. At a geometry or toughness limit, the final state is on the
 admissible side of the terminal cycle bracket.
+
+## Recover cycles across windows
+
+`lffd_recovery` takes `windows`, an inline array of 2 to 64 consecutive,
+non-overlapping sample arrays in acquisition order. Use MPa and at most
+100,000 samples across all windows. Each window must contain enough
+reversals for ASTM rainflow counting to return cycle rows.
+
+| Result field | Meaning |
+| --- | --- |
+| `window_count` | Number of input windows. |
+| `windowed_total_cycles`, `windowed_max_stress_range` | Cycle weight and largest range in MPa before recounting residuals. |
+| `total_cycles`, `max_stress_range` | Cycle weight and largest range in MPa after recovery. |
+| `remaining_turning_points` | Number of points left in the recounted residual sequence. |
+| `row_count`, `preview` | Recovered row count and up to five rows with range, mean stress, and weight. |
+
+See the [four-window example](06-recover-lffd.md). Run from a checkout
+or use a hosted instance where the tool is available.
 
 ## Use local CSV files
 
@@ -91,8 +94,8 @@ header row. Extra columns are allowed.
 | Ordered tensile loads | `minimum`, `maximum` in MPa, `cycles` | `loads` in ordered crack growth |
 
 Each response previews at most five data rows. Larger results show the
-first three and last two. Add `"export_csv": true` at the top level of a
-tool call to save every result row. The server returns the generated
+first three and last two. For the tools listed in the table, add
+`"export_csv": true` to save every result row. The server returns the generated
 filename relative to the configured output directory and the data row
 count. Crack-growth exports number the dimension and intensity columns
 starting at 1, following the dimension and tip order in the tool result.

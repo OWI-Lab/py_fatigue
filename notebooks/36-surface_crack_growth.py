@@ -119,6 +119,7 @@ def round_bar_case(
         cycle_tolerance=1e-4,
         max_trials=2 * sum(ceil(block.cycles / bar_step) for block in loads),
     )
+    final_depth = bar_result.history[-1].sizes[0]
     bar_fig, (bar_profile, bar_history) = plt.subplots(
         2, 1, figsize=(7, 8), layout="constrained"
     )
@@ -128,8 +129,10 @@ def round_bar_case(
         [
             mo.md(
                 f"## SC07 under the same ordered loads\n\n"
-                f"Last accepted profile at **{bar_result.final_cycles:,.0f} "
-                f"cycles**. Stop: {bar_result.termination.replace('_', ' ')}."
+                f"The 100 mm diameter bar starts with a 4 mm deep crack. "
+                f"Under the three axial tensile blocks above, the depth reaches "
+                f"**{final_depth:.6f} mm** at **{bar_result.final_cycles:,.0f} "
+                f"cycles**. Termination is `{bar_result.termination}`."
             ),
             plot_views(bar_fig, height="840px"),
         ]

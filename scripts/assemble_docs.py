@@ -21,6 +21,7 @@ EXAMPLE_MOVES = {
     "01-notebook_setup": "08-example-notebooks",
 }
 MCP_MOVES = {
+    "mcp/06-tool-reference.html": "mcp/08-tool-reference.html",
     "user/mcp.html": "mcp/01-overview.html",
     "user/examples/mcp-hosted.html": "mcp/04-analyze-stress-history.html",
     "user/examples/mcp-fatigue.html": "mcp/05-analyze-local-csv.html",
@@ -29,7 +30,7 @@ MCP_MOVED_FRAGMENTS = {
     "user/mcp.html": {
         "connect-codex": ("02-run-locally", "connect-a-stdio-client"),
         **{
-            anchor: ("06-tool-reference", anchor)
+            anchor: ("08-tool-reference", anchor)
             for anchor in (
                 "count-cycles",
                 "calculate-miner-damage",

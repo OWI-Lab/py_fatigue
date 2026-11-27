@@ -71,4 +71,7 @@ List the server’s tools in your client. You should see
 `rainflow_count`, `miner_damage`, and `ordered_crack_growth`. If you
 get HTTP `401`, check your token and how the client loads it.
 
+If your server lists `lffd_recovery`, you can also
+[recover cycles across stress windows](06-recover-lffd.md).
+
 Continue with the [inline stress history example](04-analyze-stress-history.md).

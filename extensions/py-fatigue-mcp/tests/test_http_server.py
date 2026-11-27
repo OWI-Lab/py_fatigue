@@ -48,6 +48,7 @@ def test_http_authentication_and_inline_tools(
         assert {tool["name"] for tool in discovered} == {
             "rainflow_count",
             "miner_damage",
+            "lffd_recovery",
             "ordered_crack_growth",
         }
         schemas = json.dumps([tool["inputSchema"] for tool in discovered])
@@ -64,6 +65,23 @@ def test_http_authentication_and_inline_tools(
         ).json()["result"]
         assert not result.get("isError", False)
         assert result["structuredContent"]["total_cycles"] == 2
+
+        recovery = request(
+            "tools/call",
+            authorized,
+            {
+                "name": "lffd_recovery",
+                "arguments": {
+                    "windows": [
+                        [20, 26, 18, 35, 30, 43, 34, 45],
+                        [48, 43, 53, 45, 54, 40, 45, 27],
+                        [23, 30, 17, 23, 14, 21, 10, 23],
+                    ]
+                },
+            },
+        ).json()["result"]
+        assert not recovery.get("isError", False)
+        assert recovery["structuredContent"]["max_stress_range"] == 44
 
         foreign = request(
             "tools/list", {**authorized, "Host": "unrelated.example"}
