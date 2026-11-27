@@ -3,7 +3,7 @@ line-length = 80 # Code length, not docstrings
 
 [project]
 name = "py_fatigue"
-version = "3.0.0-rc.2"
+version = "3.0.0"
 description = "Py-fatigue bundles the main functionality for performing cyclic stress (fatigue) analysis and cycle-counting."
 authors = [
     {name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be"},
@@ -63,7 +63,7 @@ docs = [
 [project.urls]
 homepage = "https://github.com/owi-lab/py_fatigue"
 documentation = "https://owi-lab.github.io/py_fatigue"
-"Change Log" = "https://github.com/owi-lab/py_fatigue/blob/main/CHANGELOG.md"
+"Change Log" = "https://owi-lab.github.io/py_fatigue/changelog.html"
 "Bug Tracker" = "https://github.com/owi-lab/py_fatigue/issues"
 "Organisation Homepage" = "https://www.owi-lab.be/"
 

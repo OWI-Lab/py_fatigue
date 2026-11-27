@@ -1157,6 +1157,7 @@ class CycleCount(PlotMixin):
             stress_concentration_factor=float(added_scf),
             timestamp=min(self.timestamp, other.timestamp),
             name=self.name,
+            unit=self.unit,
             _time_sequence=np.unique(
                 np.hstack([self.time_sequence, other.time_sequence])
             ),
@@ -2096,6 +2097,7 @@ def _solve_lffd(
         lffd_solved=True,
         mean_stress_corrected=self_.mean_stress_corrected,
         name=self_.name,
+        unit=self_.unit,
         _time_sequence=self_.time_sequence,
         stress_concentration_factor=self_.stress_concentration_factor,
     )
@@ -2117,6 +2119,7 @@ def _solve_lffd(
         lffd_solved=True,
         mean_stress_corrected=self_.mean_stress_corrected,
         name=self_.name,
+        unit=self_.unit,
         _time_sequence=np.array(np.max(self_.time_sequence)),
         stress_concentration_factor=self_.stress_concentration_factor,
     )

@@ -7,7 +7,7 @@ from shutil import copytree
 
 logger = logging.getLogger(__name__)
 
-VERSION: str = "3.0.0-rc.2"
+VERSION: str = "3.0.0"
 
 # Keep plotting enabled by default unless tests/tasks explicitly disable it.
 os.environ.setdefault("PY_FATIGUE_TEST_NO_PLOTS", "0")
