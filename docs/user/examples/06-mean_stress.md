@@ -1,4 +1,6 @@
-# 6. Mean stress effect {#6. Mean stress effect}
+# 5. Mean stress effect { #6. }
+
+[Jump to the worked notebook](#worked-notebook)
 
 Fatigue is cyclic loading fracture. Cyclic loading contain load variation from minimum to maximum and this cycle repeats fornumber of times. When minimum and maximum load is same in magnitude but opposite in direction like tension and compressionor heating and cooling, then mean stress is zero. But when min and maxi load are not identical in magnitude then it contain someamount of residual stress which is called as mean stress. Mean stress affect the fatigue life of component. Generally positive ormean stress in tension has bad effect on component. Its life get reduced as mean stress get increased. But if mean stress is incompression then it increases the life of component
 
@@ -76,7 +78,7 @@ plt.ylabel("stress, MPa")
 plt.show()
 ```
 
-![image](../../_static/_img/sine_wave.png)
+![Sinusoidal stress history with a nonzero mean](../../_static/_img/sine_wave.png){ .docs-plot }
 
 Define the CycleCount instance
 
@@ -115,9 +117,9 @@ cc_corr_8 = cc.mean_stress_correction(
 cc_corr_6
 ```
 
-![image](../../_static/_img/msc6_from_sine_wave.png)
+![Sinusoidal cycles with DNV base-material mean stress correction](../../_static/_img/msc6_from_sine_wave.png){ .docs-plot }
 
-![image](../../_static/_img/msc8_from_sine_wave.png)
+![Sinusoidal cycles with DNV welded-connection mean stress correction](../../_static/_img/msc8_from_sine_wave.png){ .docs-plot }
 
 |                                 | Example                                 |
 |------------------------------------|------------------------------------|
@@ -167,7 +169,7 @@ plt.ylabel("Signal, MPa")
 plt.show()
 ```
 
-![image](../../_static/_img/norm_signal.png)
+![Synthetic stress history with normally distributed samples](../../_static/_img/norm_signal.png){ .docs-plot }
 
 Define the CycleCount instance
 
@@ -228,9 +230,9 @@ cc_corr_6
 
 : DNVGL Mean stress-corrected CycleCount from normally-distributed time series
 
-![image](../../_static/_img/msc6_from_norm_signal.png)
+![Normally distributed cycles with DNV base-material mean stress correction](../../_static/_img/msc6_from_norm_signal.png){ .docs-plot }
 
-![image](../../_static/_img/msc8_from_norm_signal.png)
+![Normally distributed cycles with DNV welded-connection mean stress correction](../../_static/_img/msc8_from_norm_signal.png){ .docs-plot }
 
 ### Walker mean stress effect correction
 
@@ -259,4 +261,11 @@ cc_corr_walk
 
 : Walker Mean stress-corrected CycleCount from normally-distributed time series
 
-![image](../../_static/_img/mscwalker_from_norm_signal.png)
+![Normally distributed cycles with Walker mean stress correction](../../_static/_img/mscwalker_from_norm_signal.png){ .docs-plot }
+
+## Worked notebook
+
+[Open notebook](../../21-mean_stress_and_equivalent_loads.html) ·
+[Edit the notebook locally](01-notebook_setup.md)
+
+<iframe class="docs-notebook" src="../../21-mean_stress_and_equivalent_loads.html" title="Mean stress and equivalent loads" loading="lazy"></iframe>

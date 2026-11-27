@@ -32,7 +32,8 @@ def solve_lffd(
     Parameters
     ----------
     x : Any
-        The object to evaluate. If it is a :class:`~py_fatigue.CycleCount`
+        The object to evaluate. If it is a [`CycleCount`]
+        [py_fatigue.cycle_count.cycle_count.CycleCount]
         instance, the low-frequency fatigue dynamics is solved.
         Otherwise, the object is returned as is.
 
@@ -57,38 +58,21 @@ def aggregate_cc(  # pragma: no cover
 ]:
     """Aggregate a pandas dataframe by time window.
     The pandas dataframe must have a DatetimeIndex and at least one column
-    whose name starts with 'CC\\_' containing :class:`~py_fatigue.CycleCount`
+    whose name starts with 'CC\\_' containing [`CycleCount`]
+    [py_fatigue.cycle_count.cycle_count.CycleCount]
     instances, e.g.,
 
-    .. list-table:: Example dataframe to be aggregated
-        :widths: 30 30 30 30 30
-        :header-rows: 1
+    **Example dataframe to be aggregated**
 
-        * - DateTimeIndex
-          - CC_CycleCount-name-1
-          - CC_CycleCount-name-2
-          - CC_CycleCount-name-3
-          - CC\\_...
-        * - 2018-01-01 00:00:00
-          - CycleCount-name-1 (01 Jan 2018, 00:00)
-          - CycleCount-name-2 (01 Jan 2018, 00:00)
-          - CycleCount-name-3 (01 Jan 2018, 00:00)
-          - ...
-        * - 2018-01-01 01:00:00
-          - CycleCount-name-1 (01 Jan 2018, 01:00)
-          - CycleCount-name-2 (01 Jan 2018, 01:00)
-          - CycleCount-name-3 (01 Jan 2018, 01:00)
-          - ...
-        * - 2018-01-01 02:00:00
-          - CycleCount-name-1 (01 Jan 2018, 02:00)
-          - CycleCount-name-2 (01 Jan 2018, 02:00)
-          - CycleCount-name-3 (01 Jan 2018, 02:00)
-          - ...
-        * - ⋮
-          - ⋮
-          - ⋮
-          - ⋮
-          - ⋱
+    | DateTimeIndex | CC_1 | CC_2 | CC_3 | Other |
+    | --- | --- | --- | --- | --- |
+    | 2018-01-01 00:00:00 | Count 1 (00:00) | Count 2 (00:00) | Count 3 (00:00)
+    | ... |
+    | 2018-01-01 01:00:00 | Count 1 (01:00) | Count 2 (01:00) | Count 3 (01:00)
+    | ... |
+    | 2018-01-01 02:00:00 | Count 1 (02:00) | Count 2 (02:00) | Count 3 (02:00)
+    | ... |
+    | ⋮ | ⋮ | ⋮ | ⋮ | ⋱ |
 
     The function performs the following workflow:
 
@@ -105,15 +89,14 @@ def aggregate_cc(  # pragma: no cover
     aggr_by : str
         The time window to cluster the dataframe by. It must be a valid pandas
         date offset frequency string or 'all'.
-        For all the frequency string aliases offered by pandas, see:
-        `pandas timeseries offsets
-        <https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#dateoffset-objects>`_.
+        See the pandas time series documentation for frequency aliases.
     save_residuals : bool, optional
         If True, the residuals sequences of each aggregated CycleCount are
         saved
     rainflow_method : str, optional
         Rainflow counting algorithm forwarded to
-        :func:`py_fatigue.cycle_count.rainflow.rainflow`, by default "astm".
+        [`rainflow`] [py_fatigue.cycle_count.rainflow.rainflow], by default
+        "astm".
 
     Returns
     -------
@@ -216,7 +199,7 @@ def plot_aggregated_residuals(  # pragma: no cover
     ----------
     res_dct : dict[str, DefaultDict[str, DefaultDict[str, list[float]]]]
         The residuals sequences of each aggregated CycleCount as returned by
-        :func:`aggregate_cc`.
+        [`aggregate_cc`][py_fatigue.cycle_count.utils.aggregate_cc].
     plt_prmtr : str
         The parameter to plot.
     labels : Collection[str]
@@ -265,12 +248,13 @@ def calc_aggregated_damage(  # pragma: no cover
     ],
 ) -> pd.DataFrame:
     """Calculate the damage of each aggregated CycleCount. This function needs
-    the output of :func:`aggregate_cc`.
+    the output of [`aggregate_cc`][py_fatigue.cycle_count.utils.aggregate_cc].
 
     Parameters
     ----------
     df : pd.DataFrame
-        The aggregated CycleCount as returned by :func:`aggregate_cc`.
+        The aggregated CycleCount as returned by [`aggregate_cc`]
+        [py_fatigue.cycle_count.utils.aggregate_cc].
     sn : DefaultDict[str, SNCurve]
         The S-N curves of each aggregated CycleCount.
 

@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App()
+app = marimo.App(css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -35,7 +35,7 @@ def compare(mo):
         calc_pm,
         calc_theil_sn_damage,
     )
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     ranges = np.array([50.0, 100.0, 150.0])
     counts = np.array([1000.0, 2000.0, 3000.0])
@@ -91,14 +91,7 @@ def compare(mo):
 
     mo.vstack(
         [
-            mo.ui.tabs(
-                {
-                    "Static": fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(fig).render_embed(), height="830px"
-                    ),
-                }
-            ),
+            plot_views(fig, height="830px"),
             mo.ui.table(end_damage),
         ]
     )

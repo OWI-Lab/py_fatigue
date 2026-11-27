@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""The :mod:`py_fatigue.material.paris_curve` module collects all
-functions related to :term:`Paris' law` definition.
+"""The [`py_fatigue.ParisCurve`][] module collects all
+functions related to Paris' law definition.
 The main class is ParisCurve.
 """
 
@@ -288,33 +288,33 @@ class AbstractCrackGrowthCurve(metaclass=abc.ABCMeta):
         Parameters
         ---------
         sif_range: int or float or list or 1darray
-           :term:`SIF range(s)<SIF range>` to find the corresponding
-           :term:`crack growth rate(s)<Crack growth rate>` for.
+           SIF range(s) to find the corresponding
+           crack growth rate(s) for.
 
         Returns
         -------
         float or 1darray
-            :term:`crack growth rate(s)<Crack growth rate>` for the
-            :term:`SIF range(s)<SIF range>` indicating `sif_range`.
+            crack growth rate(s) for the
+            SIF range(s) indicating `sif_range`.
         """
 
     @abc.abstractmethod
     def get_sif(
         self, growth_rate: Union[int, float, list, np.ndarray]
     ) -> Union[float, np.ndarray]:
-        """Return :term:`SIF range(s)<SIF range>` for the endurance(s) N.
+        """Return SIF range(s) for the endurance(s) N.
 
         Parameters
         ---------
         cycles : int or float or list or 1darray
-            :term:`crack growth rate(s)<Crack growth rate>` to find the
-            corresponding :term:`SIF range(s)<SIF range>` for.
+            crack growth rate(s) to find the
+            corresponding SIF range(s) for.
 
         Returns
         -------
         float or 1darray
-            :term:`SIF range(s)<SIF range>` for corresponding
-            :term:`crack growth rate(s)<Crack growth rate>`.
+            SIF range(s) for corresponding
+            crack growth rate(s).
         """
 
 
@@ -350,7 +350,8 @@ class ParisCurve(AbstractCrackGrowthCurve, PlotMixin):
     endurance value `(Ne)` are the parameters necessary to fully describe this
     trilinear Paris' law. If the endurance is not set, it defaults to Inf.
 
-    .. note::
+    !!! note
+
         The curve can account for mean stress effect according to Walker's
         model. The walker_exponent is set to 0 by default, meaning no
         correction is applied, i.e. the base curve is valid for R=0.
@@ -622,8 +623,9 @@ class ParisCurve(AbstractCrackGrowthCurve, PlotMixin):
     def walker_intercept(self) -> np.ndarray:
         """Walker-corrected intercept.
 
-        .. math::
-            a_w = \\frac{a}{(1 - R)^{\\frac{m}{1 - \\gamma}}}
+        $$
+        a_w = \\frac{a}{(1 - R)^{\\frac{m}{1 - \\gamma}}}
+        $$
 
         Preventing attribute modification outside of constructor
 
@@ -836,7 +838,7 @@ class ParisCurve(AbstractCrackGrowthCurve, PlotMixin):
             SIF value(s) in the dataset,
             by default None
         growth_rate : list, optional
-            :term:`Crack growth rate(s)<Crack growth rate>` in the dataset,
+            Crack growth rate(s) in the dataset,
             by default None
         dataset_name : str, optional
             history dataset name, by default None
@@ -924,7 +926,8 @@ class WalkerCurve(ParisCurve):
     endurance value `(Ne)` are the parameters necessary to fully describe this
     trilinear Paris' law. If the endurance is not set, it defaults to Inf.
 
-    .. note::
+    !!! note
+
         The curve can account for mean stress effect according to Walker's
         model. The walker_exponent is set to 0 by default, meaning no
         correction is applied, i.e. the base curve is valid for R=0.
@@ -1051,8 +1054,9 @@ class WalkerCurve(ParisCurve):
     def walker_intercept(self) -> np.ndarray:
         """Walker-corrected intercept.
 
-        .. math::
-            a_w = \\frac{a}{(1 - R)^{\\frac{m}{1 - \\gamma}}}
+        $$
+        a_w = \\frac{a}{(1 - R)^{\\frac{m}{1 - \\gamma}}}
+        $$
 
         Preventing attribute modification outside of constructor
 
@@ -1111,7 +1115,7 @@ def _paris_curve_data_points(pc: ParisCurve) -> tuple:
     Parameters
     ----------
     pc : ParisCurve
-        Instance of :class:`py_fatigue.ParisCurve`
+        Instance of [`ParisCurve`][py_fatigue.ParisCurve]
 
     Returns
     -------

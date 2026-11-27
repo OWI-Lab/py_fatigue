@@ -1,4 +1,4 @@
-"""The module :mod:`py_fatigue.damage.crack_growth` contains all the
+"""The module [`py_fatigue.damage.crack_growth`][] contains all the
 damage models related to the crack growth approach.
 """
 
@@ -37,39 +37,37 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
     curve. In this example we will consider the Paris' law, but the
     function can be used with any other crack growth curve.
 
-    .. math::
-
-        \\begin{align}
-        \\begin{cases}
-            \\frac{da}{dN} & = C \\left( \\Delta K \\right)^{m} \\\\
-            \\Delta K & = Y(a) \\cdot \\Delta \\sigma \\sqrt{\\pi a} \\\\
-        \\end{cases}
-        \\end{align}
+    $$
+    \\begin{cases}
+        \\frac{da}{dN} & = C \\left( \\Delta K \\right)^{m} \\\\
+        \\Delta K & = Y(a) \\cdot \\Delta \\sigma \\sqrt{\\pi a} \\\\
+    \\end{cases}
+    $$
 
     From the equations above, the crack growths rate can be expressed as a
     function of the stress range. Considering the Paris' law, as in this
     example, gives:
 
-    .. math::
-
-        \\frac{da}{dN} = C \\left( Y(a) \\cdot \\Delta \\sigma \\sqrt{\\pi a}
-            \\right)^{m}
+    $$
+    \\frac{da}{dN} = C \\left( Y(a) \\cdot \\Delta \\sigma \\sqrt{\\pi a}
+        \\right)^{m}
+    $$
 
     se this crack growth rate together with the cycle step size to
     determine the incremental growth of the crack for this iteration:
 
-    .. math::
-
-        \\Delta a = \\frac{da}{dN} \\cdot \\Delta N
+    $$
+    \\Delta a = \\frac{da}{dN} \\cdot \\Delta N
+    $$
 
     The new crack size is then calculated by adding the incremental growth
     to the previous crack size:
 
-    .. math::
+    $$
+    a_{j+1} = a_{j} + \\Delta a
+    $$
 
-        a_{j+1} = a_{j} + \\Delta a
-
-    where :math:`a_{j}` is the crack size at the :math:`j`-th cycle.
+    where $a_{j}$ is the crack size at the $j$-th cycle.
 
     The crack is grown iteratively either until the failure condition
     is met or until the stress history is over.
@@ -167,17 +165,15 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
 
     @property
     def get_knees_sif(self) -> np.ndarray:
-        """Get the SIF values at the knees of the Paris curve.
+        r"""Get the SIF values at the knees of the Paris curve.
 
-        If the Paris curve hs more than one (slope, intercept) couple,
-        the SIF values at the knees are calculated using the following
-        equation:
+        For adjacent Paris branches with coefficients $C_i$ and exponents
+        $m_i$, the stress intensity factor range at their intersection is
 
-        .. math::
-
-            \\text{knee}_{i} = \\left(\\frac{\\text{intercept}_{i}}
-                {\\text{intercept}_{i+1}}\\right)^{\\frac{1}{
-                \\text{slope}_{i+1} - \\text{slope_{i}}}}
+        $$
+        \Delta K_i =
+        \left(\frac{C_i}{C_{i+1}}\right)^{\frac{1}{m_{i+1} - m_i}}.
+        $$
         """
         cg_crv_size = self.intercept.size
         knees_sif = np.empty(
@@ -209,9 +205,9 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
         """Calculate the crack growth rate given the stress and the
         crack size using the Paris' law:
 
-        .. math::
-
-            \\frac{da}{dN} = \\text{intercept} \\, {\\Delta K)^{\\text{slope}}
+        $$
+        \\frac{da}{dN} = \\text{intercept} \\, {\\Delta K)^{\\text{slope}}
+        $$
 
         Parameters
         ----------
@@ -249,27 +245,26 @@ class CalcCrackGrowth(PlotMixin):  # pragma: no cover
         crack size is calculated. The method iterates over the stress ranges
         and count-cycles arrays and updates the crack size at each step.
 
-        .. code-block:: python
-            :caption: Pseudocode
+        ```python
+        crack_depth = [crack_geometry["initial_depth"]]
 
-            crack_depth = [crack_geometry["initial_depth"]]
-
-            sifs = []
-            factors = []
-            for stress, count_cycle in zip(stress_range, count_cycle):
-                for i in range(count_cycle):
-                    sifs.append(get_sif(stress,
-                                        crack_depth, self.crack_geometry))
-                    factors.append(get_geometry_factor(crack_depth,
-                                                       crack_type,
-                                                       crack_geometry))
-                    if sifs[-1] >= critical:
-                        return crack_depth, sifs, factors, True
-                    if sifs[-1] < threshold:
-                        continue
-                    crack_depth.append(crack_depth[-1] +
-                                       calc_growth_rate(stress, crack_depth))
-            return crack_depth, sifs, factors, False
+        sifs = []
+        factors = []
+        for stress, count_cycle in zip(stress_range, count_cycle):
+            for i in range(count_cycle):
+                sifs.append(get_sif(stress,
+                                    crack_depth, self.crack_geometry))
+                factors.append(get_geometry_factor(crack_depth,
+                                                   crack_type,
+                                                   crack_geometry))
+                if sifs[-1] >= critical:
+                    return crack_depth, sifs, factors, True
+                if sifs[-1] < threshold:
+                    continue
+                crack_depth.append(crack_depth[-1] +
+                                   calc_growth_rate(stress, crack_depth))
+        return crack_depth, sifs, factors, False
+        ```
 
         Returns
         -------
@@ -355,9 +350,9 @@ def get_sif(  # pragma: no cover
     method calculates the SIF value according to the following
     equation:
 
-    .. math::
-
-        SIF = Y(a) \\cdot \\Delta \\sigma \\cdot \\sqrt{\\pi a}
+    $$
+    SIF = Y(a) \\cdot \\Delta \\sigma \\cdot \\sqrt{\\pi a}
+    $$
 
     Parameters
     ----------
@@ -407,39 +402,37 @@ def get_crack_growth(  # pragma: no cover
     curve. In this example we will consider the Paris' law, but the function
     can be used with any other crack growth curve.
 
-    .. math::
-
-        \\begin{align}
-        \\begin{cases}
-            \\frac{da}{dN} & = C \\left( \\Delta K \\right)^{m} \\\\
-            \\Delta K & = Y(a) \\cdot \\Delta \\sigma \\sqrt{\\pi a} \\\\
-        \\end{cases}
-        \\end{align}
+    $$
+    \\begin{cases}
+        \\frac{da}{dN} & = C \\left( \\Delta K \\right)^{m} \\\\
+        \\Delta K & = Y(a) \\cdot \\Delta \\sigma \\sqrt{\\pi a} \\\\
+    \\end{cases}
+    $$
 
     From the equations above, the crack growths rate can be expressed as a
     function of the stress range. Considering the Paris' law, as in this
     example, gives:
 
-    .. math::
-
-        \\frac{da}{dN} = C \\left( Y(a) \\cdot \\Delta \\sigma \\sqrt{\\pi a}
-            \\right)^{m}
+    $$
+    \\frac{da}{dN} = C \\left( Y(a) \\cdot \\Delta \\sigma \\sqrt{\\pi a}
+        \\right)^{m}
+    $$
 
     se this crack growth rate together with the cycle step size to determine
     the incremental growth of the crack for this iteration:
 
-    .. math::
-
-        \\Delta a = \\frac{da}{dN} \\cdot \\Delta N
+    $$
+    \\Delta a = \\frac{da}{dN} \\cdot \\Delta N
+    $$
 
     The new crack size is then calculated by adding the incremental growth to
     the previous crack size:
 
-    .. math::
+    $$
+    a_{j+1} = a_{j} + \\Delta a
+    $$
 
-        a_{j+1} = a_{j} + \\Delta a
-
-    where :math:`a_{j}` is the crack size at the :math:`j`-th cycle.
+    where $a_{j}$ is the crack size at the $j$-th cycle.
 
     The crack is grown iteratively either until the failure condition is met
     or until the stress history is over.

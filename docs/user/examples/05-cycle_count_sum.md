@@ -1,4 +1,6 @@
-# 5. CycleCount sum {#5. CycleCount sum}
+# 4. CycleCount sum { #5. }
+
+[Jump to the worked notebook](#worked-notebook)
 
 ## a. List of signals (timeseries)
 
@@ -63,7 +65,7 @@ plt.ylabel("Signal, MPa")
 plt.show()
 ```
 
-![image](../../_static/_img/weib_signal_sum.png)
+![Adjacent Weibull stress histories joined in time order](../../_static/_img/weib_signal_sum.png){ .docs-plot }
 
 Define the CycleCount instances
 
@@ -121,11 +123,18 @@ cc_sum.plot_histogram(fig=fig, ax=axs[2], plot_type="mean-range")
 plt.show()
 ```
 
-![image](../../_static/_img/hist_from_weib_signal_sum_comparisons.png)
+![Rainflow histograms for the summed counts and joined signal](../../_static/_img/hist_from_weib_signal_sum_comparisons.png){ .docs-plot }
 
 ``` {.python linenos=""}
 cc_sum.plot_half_cycles_sequence(lw=1)
 plt.show()
 ```
 
-![image](../../_static/_img/re_sequence_weib_signal_sum.png)
+![Residual stack after joining the cycle counts](../../_static/_img/re_sequence_weib_signal_sum.png){ .docs-plot }
+
+## Worked notebook
+
+[Open notebook](../../11-cycle_count_aggregation.html) ·
+[Edit the notebook locally](01-notebook_setup.md)
+
+<iframe class="docs-notebook" src="../../11-cycle_count_aggregation.html" title="Cycle count aggregation" loading="lazy"></iframe>

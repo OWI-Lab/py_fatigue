@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App()
+app = marimo.App(css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -71,8 +71,9 @@ def propagate(minimum, peaks):
     )
 
     geometry = CenterThroughCrack(half_width=50.0, half_length=5.0)
-    geometry = SemiEllipticalSurfaceCrack(half_length=10, half_width=100,
-                                          thickness=10, depth=2)
+    geometry = SemiEllipticalSurfaceCrack(
+        half_length=10, half_width=100, thickness=10, depth=2
+    )
     curve = NasgroCurve(
         coefficient=1e-10,
         exponent=2.0,
@@ -111,7 +112,7 @@ def show_results(
     import matplotlib.pyplot as plt
     from _examples.synthetic import display_indices
     from py_fatigue.crack_growth import GrowthResult
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     fig, (signal, miner, growth) = plt.subplots(
         3, 1, figsize=(7, 9), layout="constrained"
@@ -174,21 +175,16 @@ def show_results(
             **Crack growth** · {termination}. The last accepted state was
             at **{result.final_cycles:,.2f} cycles**.
             """),
-            mo.ui.tabs(
-                {
-                    "Static": fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(fig).render_embed(), height="1240px"
-                    ),
-                }
-            ),
+            plot_views(fig, height="1240px"),
         ]
     )
 
 
 @app.cell
 def _(curve):
-    curve.echarts()
+    from _examples.charts import plot_views as _plot_views
+
+    _plot_views(curve.plot()[0])
 
 
 if __name__ == "__main__":

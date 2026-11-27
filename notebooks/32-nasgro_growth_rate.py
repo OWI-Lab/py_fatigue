@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App()
+app = marimo.App(css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -30,7 +30,7 @@ def calculate(mo):
     import matplotlib.pyplot as plt
     import numpy as np
     from py_fatigue.crack_growth import NasgroCurve
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     curve = NasgroCurve(
         coefficient=1e-10,
@@ -63,14 +63,7 @@ def calculate(mo):
     ratios.set_title("Compare fixed stress ratios")
     ratios.legend()
 
-    mo.ui.tabs(
-        {
-            "Static": fig,
-            "ECharts": mo.iframe(
-                to_echarts(fig).render_embed(), height="1240px"
-            ),
-        }
-    )
+    plot_views(fig, height="1240px")
     return curve, length
 
 

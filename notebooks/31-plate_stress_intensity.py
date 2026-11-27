@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App()
+app = marimo.App(css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -33,7 +33,7 @@ def calculate(mo):
         CenterThroughCrack,
         SemiEllipticalSurfaceCrack,
     )
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     center = CenterThroughCrack(half_width=50.0, half_length=4.0)
     surface = SemiEllipticalSurfaceCrack(
@@ -74,30 +74,21 @@ def calculate(mo):
     )
     sweep.legend()
 
-    mo.ui.tabs(
-        {
-            "Static": fig,
-            "ECharts": mo.iframe(
-                to_echarts(fig).render_embed(), height="830px"
-            ),
-        }
-    )
+    plot_views(fig, height="830px")
     return center, surface
 
 
 @app.cell
-def geometry_views(center, mo, surface):
-    mo.ui.tabs(
-        {
-            "Static": mo.vstack([center.plot()[0], surface.plot()[0]]),
-            "ECharts": mo.vstack(
-                [
-                    mo.iframe(geometry.echarts().render_embed(), height="420px")
-                    for geometry in (center, surface)
-                ]
-            ),
-        }
+def geometry_views(center, surface):
+    import matplotlib.pyplot as _plt
+    from _examples.charts import plot_views as _plot_views
+
+    profiles, (center_ax, surface_ax) = _plt.subplots(
+        2, 1, figsize=(7, 7), layout="constrained"
     )
+    center.plot(fig=profiles, ax=center_ax)
+    surface.plot(fig=profiles, ax=surface_ax)
+    _plot_views(profiles, height="830px")
     return
 
 

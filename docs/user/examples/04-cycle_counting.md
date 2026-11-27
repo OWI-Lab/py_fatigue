@@ -1,4 +1,6 @@
-# 4. CycleCount definition {#4. CycleCount definition}
+# 3. CycleCount definition { #4. }
+
+[Jump to the worked notebook](#worked-notebook)
 
 The CycleCount class incorporates the main information about a processed signal for fatigue analysis.
 
@@ -8,11 +10,15 @@ The CycleCount class incorporates the main information about a processed signal 
 
     In this example we define a fatigue stress signal in the form of a sinusoidal function.
 
-    We then feed our signal to the `~CycleCount` class.
+    We then feed our signal to the `CycleCount` class.
 
 Define the time and stress arrays
 
 ``` python
+import matplotlib.pyplot as plt
+import numpy as np
+from py_fatigue import CycleCount
+
 t = np.arange(0, 10.1, 0.1)  # (in seconds)
 s = 200 * np.sin(np.pi*t) + 100   # (in MPa)
 plt.plot(t, s)
@@ -21,19 +27,19 @@ plt.ylabel("stress, MPa")
 plt.show()
 ```
 
-![image](../../_static/_img/sine_wave.png)
+![Sinusoidal stress history with a nonzero mean](../../_static/_img/sine_wave.png){ .docs-plot }
 
 Define the CycleCount instance
 
 ``` python
-cc = pf.CycleCount.from_timeseries(s, t, name="Example")
-cc
+cc = CycleCount.from_timeseries(s, t, name="Example")
+cc.summary()
 ```
 
 |                                 | Example |
 |---------------------------------|---------|
 | Cycle counting object           |         |
-| largest full stress range, MPa, | None    |
+| largest full stress range, MPa  | None    |
 | largest stress range, MPa       | 400.0   |
 | number of full cycles           | 0       |
 | number of residuals             | 11      |
@@ -45,16 +51,15 @@ cc
 : CycleCount from constant time series
 
 ``` python
-fig, ax = plt.subplots(1,1, figsize=(4.5, 4))
-cc.plot_histogram(fig=fig)
+fig, ax = cc.plot_histogram()
 ```
 
-![image](../../_static/_img/hist_from_sine_wave.png)
+![Rainflow histogram of the sinusoidal stress history](../../_static/_img/hist_from_sine_wave.png){ .docs-plot }
 
 Showing the exported dictionary
 
 ``` python
-cc.as_dict(legacy_expoprt=True)
+cc.as_dict(legacy_export=True)
 ```
 
 Gives:
@@ -77,9 +82,7 @@ Gives:
 
 !!! note "Note"
 
-    In this example we define a Weibull-distributed fatigue stress signal.
-
-    `~CycleCount` class.
+    Generate a Weibull-distributed stress history and count its cycles.
 
 Define the time and stress arrays
 
@@ -98,35 +101,35 @@ plt.ylabel("Signal, MPa")
 plt.show()
 ```
 
-![image](../../_static/_img/weib_signal.png)
+![Synthetic stress history with Weibull-distributed samples](../../_static/_img/weib_signal.png){ .docs-plot }
 
 Define the CycleCount instance
 
 ``` python
 # CycleCount definition
-cycle_count = pf.CycleCount.from_timeseries(
-time=t, data=s, mean_bin_width=3., range_bin_width=3.,
+cycle_count = CycleCount.from_timeseries(
+    time=t, data=s, mean_bin_width=3., range_bin_width=3.,
+    name="Random signal",
 )
-cycle_count
+cycle_count.summary()
 ```
 
-| Cycle counting object          | Random signal |     |     |     |     |     |     |     |     |
-|--------------------------------|---------------|-----|-----|-----|-----|-----|-----|-----|-----|
-| largest full stress range, MPa | 179.026964    |     |     |     |     |     |     |     |     |
-| largest stress range, MPa      | 180.0         |     |     |     |     |     |     |     |     |
-| number of full cycles          | 33317         |     |     |     |     |     |     |     |     |
-| number of residuals            | 23            |     |     |     |     |     |     |     |     |
-| number of small cycles         | 0             |     |     |     |     |     |     |     |     |
-| stress concentration factor    | N/A           |     |     |     |     |     |     |     |     |
-| residuals resolved             | False         |     |     |     |     |     |     |     |     |
-| mean stress-corrected          | No            |     |     |     |     |     |     |     |     |
+| Cycle counting object          | Random signal |
+|--------------------------------|---------------|
+| largest full stress range, MPa | 179.026964    |
+| largest stress range, MPa      | 180.0         |
+| number of full cycles          | 33317         |
+| number of residuals            | 23            |
+| number of small cycles         | 0             |
+| stress concentration factor    | N/A           |
+| residuals resolved             | False         |
+| mean stress-corrected          | No            |
 
 ``` python
-fig, ax = plt.subplots(1,1, figsize=(4.5, 4))
-cc.plot_histogram(fig=fig)
+fig, ax = cycle_count.plot_histogram()
 ```
 
-![image](../../_static/_img/hist_from_weib_signal.png)
+![Rainflow histogram of the Weibull stress history](../../_static/_img/hist_from_weib_signal.png){ .docs-plot }
 
 Exporting the rainflow counted signal as a json dictionary, both in legacy (no mean stress) and new format.
 
@@ -135,7 +138,7 @@ Exporting the rainflow counted signal as a json dictionary, both in legacy (no m
 # accounting for mean stresses. This function has been kept for
 # backwards compatibility.
 exp_dict_legacy = cycle_count.as_dict(
-    max_consecutive_zeros=20, damage_tolerance_for_binning=0.2, legacy=True
+    max_consecutive_zeros=20, damage_tolerance_for_binning=0.2, legacy_export=True
 )
 print(exp_dict_legacy)
 ```
@@ -207,29 +210,33 @@ It is also possible defining the CycleCount instance from the exported CycleCoun
 
 ``` python
 # Reconstructing the CycleCount instance from the exported matrix
-cycle_count_d = pf.CycleCount.from_rainflow(exp_dict, name="Random Signal")
-cycle_count_d
+cycle_count_d = CycleCount.from_rainflow(exp_dict, name="Random Signal")
+cycle_count_d.summary()
 ```
 
-| Cycle counting object          | Random Signal |     |     |     |     |     |     |     |     |
-|--------------------------------|---------------|-----|-----|-----|-----|-----|-----|-----|-----|
-| largest full stress range, MPa | 179.027       |     |     |     |     |     |     |     |     |
-| largest stress range, MPa      | 180.0         |     |     |     |     |     |     |     |     |
-| number of full cycles          | 33219         |     |     |     |     |     |     |     |     |
-| number of residuals            | 22            |     |     |     |     |     |     |     |     |
-| number of small cycles         | 99            |     |     |     |     |     |     |     |     |
-| stress concentration factor    | N/A           |     |     |     |     |     |     |     |     |
-| residuals resolved             | False         |     |     |     |     |     |     |     |     |
-| mean stress-corrected          | No            |     |     |     |     |     |     |     |     |
+| Cycle counting object          | Random Signal |
+|--------------------------------|---------------|
+| largest full stress range, MPa | 179.027       |
+| largest stress range, MPa      | 180.0         |
+| number of full cycles          | 33219         |
+| number of residuals            | 22            |
+| number of small cycles         | 99            |
+| stress concentration factor    | N/A           |
+| residuals resolved             | False         |
+| mean stress-corrected          | No            |
 
-A slightly more complicated plot to show the Markov matrix as well as the cumulative (or non-cumulative) rainflow matric both for [cc]{.title-ref} and \`cc_dct\`:
+Compare the original and reconstructed mean–range histograms. The bottom
+panels show cumulative cycle counts for the signal and cycle counts per
+stress range for the reconstructed matrix.
 
 ``` python
 fig, axs = plt.subplots(2,2, figsize=(13, 10))
-cc.plot_histogram(fig=fig, ax=axs[0][0], plot_type="mean-range")
-cc_dct.plot_histogram(fig=fig, ax=axs[0][1], plot_type="mean-range")
-cc.plot_histogram(fig=fig, ax=axs[1][0], plot_type="counts-range-cumsum", s=30)
-cc_dct.plot_histogram(fig=fig, ax=axs[1][1], plot_type="counts-range",
+cycle_count.plot_histogram(fig=fig, ax=axs[0, 0], plot_type="mean-range")
+cycle_count_d.plot_histogram(fig=fig, ax=axs[0, 1], plot_type="mean-range")
+cycle_count.plot_histogram(
+    fig=fig, ax=axs[1, 0], plot_type="counts-range-cumsum", s=30
+)
+cycle_count_d.plot_histogram(fig=fig, ax=axs[1, 1], plot_type="counts-range",
                       marker='s', s=20,
                       cmap=plt.get_cmap("gnuplot2"))  # chg cmap
 axs[1][1].set_xscale("log")
@@ -237,42 +244,47 @@ axs[1][0].set_xscale("log")
 plt.show()
 ```
 
-![Comparison of histograms built from signal and from its cycle-count matrix](../../_static/_img/hist_from_weib_signal_comparisons.png){alt="Comparison of histograms from weibull signal"}
+![Comparison of histograms built from signal and from its cycle-count matrix](../../_static/_img/hist_from_weib_signal_comparisons.png){ .docs-plot }
 
 ## Import measured or generated stress histories
 
-Use `CycleCount.from_sep005()` with records from an SDyPy reader. One
-record with one-dimensional data returns a count. A list of records or
-a record with multiple channel rows returns a flat list in input order.
-The connector accepts stress in Pa, kPa, MPa, or GPa and returns MPa.
-An omitted quantity means stress and an omitted unit means Pa.
+=== "SEP005"
 
-```python
-from py_fatigue import CycleCount
+    Use `CycleCount.from_sep005()` with records from an SDyPy reader. One
+    record with one-dimensional data returns a count. A list of records or
+    a record with multiple channel rows returns a flat list in input order.
+    The connector accepts stress in Pa, kPa, MPa, or GPa and returns MPa.
+    An omitted quantity means stress and an omitted unit means Pa.
 
-record = {
-    "name": "Axial stress",
-    "data": [0, 20e6, 3e6, 40e6, 0],
-    "fs": 50,
-    "quantity": "s",
-    "unit_str": "Pa",
-}
-measured = CycleCount.from_sep005(record)
-```
+    ```python
+    from py_fatigue import CycleCount
 
-For a synthetic stress history, install `pyExSi` separately. Its sine
-sweep returns a unitless waveform. Here the factor of 20 defines a
-synthetic stress amplitude in MPa.
+    record = {
+        "name": "Axial stress",
+        "data": [0, 20e6, 3e6, 40e6, 0],
+        "fs": 50,
+        "quantity": "s",
+        "unit_str": "Pa",
+    }
+    measured = CycleCount.from_sep005(record)
+    ```
 
-```python
-import numpy as np
-import pyExSi
+=== "pyExSi"
 
-fs = 200
-time = np.arange(fs * 20) / fs
-stress = 20 * pyExSi.sine_sweep(time, freq_start=2, freq_stop=10)
-generated = CycleCount.from_pyexsi(stress, fs=fs, unit="MPa")
-```
+    For a synthetic stress history, install `pyExSi` separately. Its sine
+    sweep returns a unitless waveform. Here the factor of 20 defines a
+    synthetic stress amplitude in MPa.
+
+    ```python
+    import numpy as np
+    import pyExSi
+    from py_fatigue import CycleCount
+
+    fs = 200
+    time = np.arange(fs * 20) / fs
+    stress = 20 * pyExSi.sine_sweep(time, freq_start=2, freq_stop=10)
+    generated = CycleCount.from_pyexsi(stress, fs=fs, unit="MPa")
+    ```
 
 [SignalForge](https://github.com/GiulioCurti/SignalForge) can also
 generate nonstationary stress histories. If the generator's `signal.x`
@@ -286,3 +298,10 @@ geometry)` for Paris crack growth with a curve in MPa √mm and dimensions
 in mm. For [ordered NASGRO propagation](08-ordered-crack-growth.md),
 supply the tensile extrema and cycle counts as explicit `LoadBlock`
 instances.
+
+## Worked notebook
+
+[Open notebook](../../10-rainflow_counting.html) ·
+[Edit the notebook locally](01-notebook_setup.md)
+
+<iframe class="docs-notebook" src="../../10-rainflow_counting.html" title="Rainflow counting and spectrum export" loading="lazy"></iframe>

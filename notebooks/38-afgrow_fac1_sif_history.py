@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App(width="medium")
+app = marimo.App(width="medium", css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -13,7 +13,7 @@ def introduction():
     import numpy as np
 
     from _examples.afgrow import FAC1_CRACK_RATIOS, FAC1_SIF, fac1_totals
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     mo.md("""
         # FAC-1 · Stress intensity at a loaded hole
@@ -30,11 +30,11 @@ def introduction():
         TC03 geometry that supports both load components.
         [Handbook problem FAC-1](https://www.afgrow.net/applications/DTDHandbook/Examples/page1_0.aspx)
         """)
-    return FAC1_CRACK_RATIOS, FAC1_SIF, fac1_totals, mo, np, plt, to_echarts
+    return FAC1_CRACK_RATIOS, FAC1_SIF, fac1_totals, mo, np, plt, plot_views
 
 
 @app.cell
-def compare(FAC1_CRACK_RATIOS, FAC1_SIF, fac1_totals, mo, np, plt, to_echarts):
+def compare(FAC1_CRACK_RATIOS, FAC1_SIF, fac1_totals, mo, np, plt, plot_views):
     _fig, (_components, _totals, _errors) = plt.subplots(
         3, 1, figsize=(7, 9), layout="constrained"
     )
@@ -95,14 +95,7 @@ def compare(FAC1_CRACK_RATIOS, FAC1_SIF, fac1_totals, mo, np, plt, to_echarts):
                 · [Refined-mesh table](https://www.afgrow.net/applications/DTDHandbook/Examples/images/page1_1/image016.gif)
                 """),
             mo.ui.table(_rows),
-            mo.ui.tabs(
-                {
-                    "Static": _fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(_fig).render_embed(), height="1150px"
-                    ),
-                }
-            ),
+            plot_views(_fig, height="1150px"),
         ]
     )
 

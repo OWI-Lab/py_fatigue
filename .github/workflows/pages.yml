@@ -5,7 +5,18 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish a final release from develop or a release candidate from its tag
+        description: Publish the documentation for a release tag
+        type: boolean
+        default: false
+      release_tag:
+        description: Release tag to build when running from develop, such as v2.1.1
+        type: string
+      refresh:
+        description: Build updated documentation for the current version from develop
+        type: boolean
+        default: false
+      stable:
+        description: Also serve this final release at the site root
         type: boolean
         default: false
 
@@ -16,40 +27,80 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     outputs:
-      directory: ${{ steps.publication.outputs.directory }}
+      version: ${{ steps.publication.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Check the publication ref and choose its Pages path
+          persist-credentials: false
+      - name: Select the documentation source and release version
         id: publication
         if: github.event_name == 'workflow_dispatch' && inputs.publish
         shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          STABLE: ${{ inputs.stable }}
+          REFRESH: ${{ inputs.refresh }}
         run: |
-          version=$(cat VERSION)
-          if [[ "$GITHUB_REF" == refs/heads/develop && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "directory=" >> "$GITHUB_OUTPUT"
-          elif [[ "$GITHUB_REF" == "refs/tags/v$version" && "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-rc\.([0-9]+)$ ]]; then
-            git merge-base --is-ancestor HEAD origin/develop
-            directory="${BASH_REMATCH[1]}rc${BASH_REMATCH[2]}"
-            echo "directory=$directory" >> "$GITHUB_OUTPUT"
-            sed -i "/^site_url = /s|\"$|$directory/\"|" zensical.toml
-          else
-            echo "Select develop for a final release or the matching vVERSION tag for a release candidate."
+          if [[ "$GITHUB_REF" == refs/tags/* && -z "$RELEASE_TAG" ]]; then
+            RELEASE_TAG="$GITHUB_REF_NAME"
+          elif [[ "$GITHUB_REF" != refs/heads/develop ]]; then
+            echo "Run from develop with a release tag, or dispatch on the tag itself."
             exit 1
+          fi
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$ ]]; then
+            echo "Enter a release tag such as v2.1.1 or v3.0.0-rc.2."
+            exit 1
+          fi
+          if [[ "$REFRESH" == true ]]; then
+            if [[ "$GITHUB_REF" != refs/heads/develop ]]; then
+              echo "Refresh documentation from develop."
+              exit 1
+            fi
+            git merge-base --is-ancestor "refs/tags/$RELEASE_TAG" HEAD
+          else
+            git checkout --detach "refs/tags/$RELEASE_TAG"
+          fi
+          git merge-base --is-ancestor HEAD origin/develop
+          version=$(cat VERSION)
+          test "$RELEASE_TAG" = "v$version"
+          if [[ "$STABLE" == true && "$version" == *-rc.* ]]; then
+            echo "Select a final release for the stable site."
+            exit 1
+          fi
+          directory="${version/-rc./rc}"
+          url="https://owi-lab.github.io/py_fatigue/$directory/"
+          echo "version=$directory" >> "$GITHUB_OUTPUT"
+          echo "DOCS_URL=$url" >> "$GITHUB_ENV"
+          if [[ -f zensical.toml ]]; then
+            sed -i "s|^site_url = .*|site_url = \"$url\"|" zensical.toml
           fi
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.14"
           enable-cache: true
       - name: Install Rust
+        if: hashFiles('zensical.toml') != ''
         run: rustup toolchain install stable --profile minimal
       - name: Install the project
-        run: uv sync --group dev --group docs
+        run: |
+          if [[ -f zensical.toml ]]; then
+            uv sync --group dev --group docs
+          else
+            uv sync --no-default-groups --group docs
+          fi
       - name: Build Zensical from docs and export the example notebooks
+        if: hashFiles('zensical.toml') != ''
         env:
           MPLBACKEND: Agg
-        run: uv run invoke docs.build
+        run: uv run --no-sync invoke docs.build
+      - name: Build historical Sphinx documentation
+        if: hashFiles('zensical.toml') == ''
+        env:
+          MPLBACKEND: Agg
+        run: |
+          uv run --no-sync sphinx-build -b html -d _build/doctrees \
+            -D "html_baseurl=$DOCS_URL" rst_docs _build/docs
       - uses: actions/upload-artifact@v4
         with:
           name: documentation
@@ -60,13 +111,31 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.publish
     needs: docs
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages-publication
+      cancel-in-progress: false
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           name: documentation
-          path: site
+          path: release-docs
+      - name: Assemble the versioned site
+        env:
+          DOCS_VERSION: ${{ needs.docs.outputs.version }}
+          STABLE: ${{ inputs.stable }}
+        run: |
+          args=()
+          if [[ "$STABLE" == true ]]; then args+=(--stable); fi
+          python3 scripts/assemble_docs.py published release-docs site "$DOCS_VERSION" "${args[@]}"
       - uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.DEPLOY_KEY }}
           publish_dir: site
-          destination_dir: ${{ needs.docs.outputs.directory }}

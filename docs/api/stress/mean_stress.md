@@ -1,6 +1,8 @@
 # mean_stress
 
-The mean_stress module contains all the functions and classes related to the mean stress, such as mean stress correction.
+!!! abstract "Overview"
+
+    Represent cycle mean stresses and apply the DNVGL-RP-C203, Walker, SWT, or Goodman–Haigh correction.
 
 ## MeanStress
 

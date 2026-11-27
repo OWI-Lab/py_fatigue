@@ -1,5 +1,5 @@
 """
-The :mod:`py_fatigue.styling` module collects all the functions and
+The [`py_fatigue.styling`][] module collects all the functions and
 classes related with better displaying i/o operations.
 """
 

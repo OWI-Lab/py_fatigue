@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""The :mod:`py_fatigue.material.sn_curve` module collects all functions
-related to :term:`SN Curve` definition.
+"""The [`py_fatigue.material.sn_curve`][] module collects all functions
+related to SN Curve definition.
 The main and only class is SNCurve.
 """
 
@@ -402,14 +402,14 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
         Arguments
         ---------
         stress_range: int or float or list or 1darray
-           :term:`stress range(s)<Stress ranges>` to find the corresponding
+           stress range(s) to find the corresponding
            number of cycles value(s) for.
 
         Returns
         -------
         float or 1darray
             number of cycles value(s) for the
-            :term:`stress range(s)<Stress ranges>` `stress_range`.
+            stress range(s) `stress_range`.
         """
 
     @abc.abstractmethod
@@ -422,12 +422,12 @@ class AbstractSNCurve(metaclass=abc.ABCMeta):
         ---------
         cycles : int or float or list or 1darray
             number of cycles value(s) to find the corresponding
-            :term:`stress range(s)<Stress ranges>` for.
+            stress range(s) for.
 
         Returns
         -------
         float or 1darray
-            :term:`Stress range(s)<Stress ranges>` for
+            Stress range(s) for
             number of cycles value(s) `cycles`.
         """
 
@@ -690,6 +690,7 @@ class SNCurve(AbstractSNCurve):
     def get_cycles(
         self, stress_range: int | float | list | np.ndarray
     ) -> float | np.ndarray:
+        """Return cycles to failure at the given stress ranges."""
         return _calc_cycles(
             stress_range, self.slope, self.intercept, self.endurance
         )
@@ -698,25 +699,27 @@ class SNCurve(AbstractSNCurve):
     def get_stress(
         self, cycles: int | float | list | np.ndarray
     ) -> float | np.ndarray:
+        """Return the stress ranges corresponding to the given cycle lives."""
         return _calc_stress(cycles, self.slope, self.intercept, self.endurance)
 
     def n(  # pylint: disable=invalid-name
         self, sigma: int | float | list | np.ndarray
     ) -> float | np.ndarray:
-        """Equivalent of :func:`~SNCurve.get_cycles()`. Added for backwards
+        """Equivalent of [`get_cycles()`] [py_fatigue.SNCurve.get_cycles]. Added
+        for backwards
         compatibility. It will be removed in a future release.
 
         Parameters
         ---------
         sigma: int or float or list or 1darray
-           :term:`stress range(s)<Stress ranges>` to find the corresponding
+           stress range(s) to find the corresponding
            number of cycles value(s) for.
 
         Returns
         -------
         float or 1darray
             number of cycles value(s) for the
-            :term:`stress range(s)<Stress ranges>` `sigma`.
+            stress range(s) `sigma`.
         """
 
         warnings.warn(
@@ -732,19 +735,20 @@ class SNCurve(AbstractSNCurve):
         self,
         n: int | float | list | np.ndarray,  # pylint: disable=invalid-name
     ) -> float | np.ndarray:
-        """Equivalent of :func:`SNCurve.get_stress()`. Added for backwards
+        """Equivalent of [`get_stress()`] [py_fatigue.SNCurve.get_stress]. Added
+        for backwards
         compatibility. It will be removed in a future release
 
         Arguments
         ---------
         n: int or float or list or 1darray
            number of cycles value(s) to find the corresponding
-           :term:`stress range(s)<Stress ranges>` for.
+           stress range(s) for.
 
         Returns
         -------
         float or 1darray
-            :term:`stress range(s)<Stress ranges>` for the
+            stress range(s) for the
             number of cycles value(s) `n`.
         """
         warnings.warn(
@@ -824,7 +828,7 @@ class SNCurve(AbstractSNCurve):
             number of cycles value(s) in the dataset,
             by default None
         stress_range : list, optional
-            :term:`Stress range(s)<Stress ranges>` in the dataset,
+            Stress range(s) in the dataset,
             by default None
         dataset_name : str, optional
             history dataset name, by default None
@@ -927,7 +931,7 @@ def _sn_curve_data_points(sn: SNCurve) -> tuple:
     Parameters
     ----------
     sn : SNCurve
-        Instance of :class:`py_fatigue.SNCurve`
+        Instance of [`SNCurve`][py_fatigue.SNCurve]
 
     Returns
     -------

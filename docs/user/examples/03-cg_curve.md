@@ -1,4 +1,6 @@
-# 3. Crack growth curve {#3. Crack growth curve}
+# 2. Crack growth curve { #3. }
+
+[Jump to the worked notebook](#worked-notebook)
 
 The [external pipe crack tutorial](../../tutorials/20-pipe_paris_growth.html)
 uses a Paris curve to propagate a flaw in a hollow cylinder under a
@@ -22,12 +24,8 @@ $$\frac{da}{dN} = \phi \left( \Delta \sigma, \sigma_{Y} , \sigma'_{f} \right)
 Where $N$ is the number of cycles, $\phi(\sigma)$ is (asymptotically) a linear function of the stress, yielding, and strength, $a$ is the half crack size, and $t_p$ is the thickness of the plastic zone ahead of the crack tip. Frost and Dugdale argued that $t_p$ is not a constant independent of crack length and derived the exponential model for crack propagation, seldom used up to nowadays
 
 $$\begin{aligned}
-\begin{align}
-\begin{cases}
-\frac{da}{dN} &= k_{FD} \left( (\Delta \sigma)^3 \right) \cdot a \\
-\ln\left(\frac{a}{a_i}\right) &= k_{FD} \left( (\Delta \sigma)^3 \right) \cdot N \\
-\end{cases}
-\end{align}
+\frac{da}{dN} &= k_{FD} (\Delta \sigma)^3 a \\
+\ln\left(\frac{a}{a_i}\right) &= k_{FD} (\Delta \sigma)^3 N
 \end{aligned}$$
 
 In which ai is the initial size of the crack and kFD is an experimental quantity depending on the cubic power of the remote stress range $\Delta \sigma$. During WWII, a group of researchers of the U.S. Naval Research Labs headed by George Rankine Irwin realized that plasticity plays an important role in in fracture mechanics. On this purpose, Griffith's energy formulation was modified in order to make it account for plasticity, too, i.e. the energy release was redefined by adding a plastic dissipation term. Another major achievement of Irwin's work is certainly the relation between the energy release rate $\hat{G}$ and the stress intensity factor in opening mode $K_I$:
@@ -36,7 +34,7 @@ $$\hat{G} = K_I^2 / E^{\star}$$
 
 where $E^{\star}=E$ for plain stress or $E/(1-\nu^2)$ for plane strain. The critical stress intensity factor is the value of $K$ beyond which a crack starts to propagate and is addressed as fracture toughness $K_C$. Namely, the toughness is the resistance to fracture of a material, it is a material property and is defined as the stress intensity factor required for a crack to advance from length a to a C. The fracture toughness values have been grouped by material family by Ashby and are shown here below.
 
-![image](../../_static/_img/toughness-yielding.png)
+![Fracture toughness versus yield strength by material family](../../_static/_img/toughness-yielding.png){ .docs-plot }
 
 Few years later, in 1963, Paris and Erdogan published a work substantiated by many experimental tests where they postulated, differently from Head or Frost and Dugdale, that the crack growth is described by a power law of the stress intensity factor, viz.
 
@@ -44,7 +42,7 @@ $$\frac{da}{dN} = C \left( \Delta K \right)^m$$
 
 At the time of publication, the authors were uncertain on the value of the exponent m, in fact there is a famous statement in their paper saying: *"The authors are hesitant but cannot resist the temptation to draw the straight line slope 1/4 through the data\..."*. Therefore, the so-called Paris' law, or Paris-Erdogan law, has been formulated in principle with fixed m=4. Indeed, as evident from the figure here below (from Ashby's book), the majority of engineering alloys is concentrated in the neighborhood of m=4, and this may have tricked the authors.
 
-![image](../../_static/_img/paris-slope-ashby.png)
+![Distribution of Paris exponents for engineering alloys](../../_static/_img/paris-slope-ashby.png){ .docs-plot }
 
 Paris' law is considered valid within the range $\Delta K_{th} < \Delta K < \Delta K_{cr}$, where $\Delta K_{cr}$ is the critical stress intensity factor range which depends on the toughness as $\Delta K_{cr} = (1-R)K_{Ic}$, with R load ratio, and $\Delta K_{th}$ is the threshold value below which the crack should not propagate.
 
@@ -89,7 +87,7 @@ axs[1].legend()
 plt.show()
 ```
 
-![Paris curves for free corrosion](../../_static/_img/paris-curves.png)
+![Paris curves for free corrosion](../../_static/_img/paris-curves.png){ .docs-plot }
 
 To explore both panels interactively, render the figure in ECharts.
 
@@ -124,7 +122,7 @@ CRITICAL = 2000. * (1 - np.array(LOAD_RATIOS)) ** (1 - WALKER_EXPONENT)
 
 # Walker's curve definition
 
-walker_curves = [pf.ParisCurve(slope=SLOPE, intercept=INTERCEPT,
+walker_curves = [pf.WalkerCurve(slope=SLOPE, intercept=INTERCEPT,
                                walker_exponent=WALKER_EXPONENT,
                                threshold=t, critical=c, load_ratio=l,
                                norm="The norm", environment="Environment",
@@ -139,11 +137,12 @@ ax.legend()
 plt.show()
 ```
 
-corr_inter = intercept / (1 - load_ratio) \*\* (slope / (1 - walker_exponent))
+The effective Paris coefficient at load ratio $R$ is
+$C(R) = C_0 / (1-R)^{m(1-\gamma)}$.
 
 Output:
 
-![image](../../_static/_img/paris-curves_2.png)
+![Paris curves with Walker correction for four load ratios](../../_static/_img/paris-curves_2.png){ .docs-plot }
 
 ## c. Paris' law curve interpolation
 
@@ -196,7 +195,7 @@ plt.show()
 
 Output:
 
-![image](../../_static/_img/paris-curves_3.png)
+![Paris curve fitted to tabulated crack-growth rates](../../_static/_img/paris-curves_3.png){ .docs-plot }
 
 Applying the Walker correction to the interpolated curve:
 
@@ -214,7 +213,7 @@ CRITICALS = CRITICAL * (1 - np.array(LOAD_RATIOS)) ** (1 - WALKER_EXPONENT)
 
 # Walker's curve definition
 
-walker_curves = [pf.ParisCurve(slope=SLOPES, intercept=INTERCEPTS,
+walker_curves = [pf.WalkerCurve(slope=SLOPES, intercept=INTERCEPTS,
                                 walker_exponent=WALKER_EXPONENT,
                                 threshold=t, critical=c, load_ratio=l,
                                 norm="The norm", environment="Environment",
@@ -231,4 +230,11 @@ plt.show()
 
 Output:
 
-![image](../../_static/_img/paris-curves_4.png)
+![Interpolated Paris law with Walker correction for four load ratios](../../_static/_img/paris-curves_4.png){ .docs-plot }
+
+## Worked notebook
+
+[Open notebook](../../30-legacy_paris_growth.html) ·
+[Edit the notebook locally](01-notebook_setup.md)
+
+<iframe class="docs-notebook" src="../../30-legacy_paris_growth.html" title="Paris and Walker crack-growth curves" loading="lazy"></iframe>

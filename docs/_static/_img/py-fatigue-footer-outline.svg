@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <filter id="outline">
+    <feMorphology in="SourceAlpha" operator="erode" radius="0.8" result="interior"/>
+    <feComposite in="SourceGraphic" in2="interior" operator="out"/>
+  </filter>
+</svg>

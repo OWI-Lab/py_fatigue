@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.26.0"
-app = marimo.App(width="medium")
+app = marimo.App(width="medium", css_file="../docs/stylesheets/custom.css")
 
 
 @app.cell
@@ -12,7 +12,7 @@ def introduction():
 
     import marimo as mo
     import matplotlib.pyplot as plt
-    from py_fatigue.plotting import to_echarts
+    from _examples.charts import plot_views
 
     mo.md("""
         # Surface-crack growth
@@ -33,7 +33,7 @@ def introduction():
         rolled bolt thread (SC08), and symmetric cracks at a plate hole
         (SC11). In each case, use the stress specified by its geometry.
         """)
-    return ceil, mo, plt, to_echarts
+    return ceil, mo, plt, plot_views
 
 
 @app.cell
@@ -77,7 +77,7 @@ def propagate(ceil):
 
 
 @app.cell
-def ordered_profile(geometry, loads, mo, plt, result, to_echarts):
+def ordered_profile(geometry, loads, mo, plt, result, plot_views):
     fig, (profile, history) = plt.subplots(
         2, 1, figsize=(7, 6), layout="constrained"
     )
@@ -91,14 +91,7 @@ def ordered_profile(geometry, loads, mo, plt, result, to_echarts):
                 f"Stop: {result.termination.replace('_', ' ')}. "
                 f"Initial net-section stress at the first peak is {net_stress:.1f} MPa."
             ),
-            mo.ui.tabs(
-                {
-                    "Static": fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(fig).render_embed(), height="840px"
-                    ),
-                }
-            ),
+            plot_views(fig, height="840px"),
         ]
     )
 
@@ -111,7 +104,7 @@ def round_bar_case(
     mo,
     plt,
     simulate_crack_growth,
-    to_echarts,
+    plot_views,
 ):
     from py_fatigue.crack_growth import RoundBarSurfaceCrack
 
@@ -138,14 +131,7 @@ def round_bar_case(
                 f"Last accepted profile at **{bar_result.final_cycles:,.0f} "
                 f"cycles**. Stop: {bar_result.termination.replace('_', ' ')}."
             ),
-            mo.ui.tabs(
-                {
-                    "Static": bar_fig,
-                    "ECharts": mo.iframe(
-                        to_echarts(bar_fig).render_embed(), height="840px"
-                    ),
-                }
-            ),
+            plot_views(bar_fig, height="840px"),
         ]
     )
 
@@ -187,7 +173,7 @@ def additional_growth(
     simulate_crack_growth,
     step,
     surface_cases,
-    to_echarts,
+    plot_views,
 ):
     _cases = {}
     for _name, _geometry in surface_cases.items():
@@ -211,14 +197,7 @@ def additional_growth(
                     f"Accepted **{_result.final_cycles:,.0f} cycles** · "
                     f"{_result.termination.replace('_', ' ')}."
                 ),
-                mo.ui.tabs(
-                    {
-                        "Static": _fig,
-                        "ECharts": mo.iframe(
-                            to_echarts(_fig).render_embed(), height="840px"
-                        ),
-                    }
-                ),
+                plot_views(_fig, height="840px"),
             ]
         )
     mo.vstack(

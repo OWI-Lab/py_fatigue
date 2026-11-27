@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""The module :mod:`py_fatigue.damage.stress_life` contains all the
+"""The module [`py_fatigue.damage.stress_life`][] contains all the
 damage models related to the stress-life approach.
 """
 
@@ -260,7 +260,7 @@ class Gassner(PlotMixin):
 
         The shift factor is a spectrum-dependent factor that allows
         to shift a Wohler curve and avoids having to calculate the
-        damage using the :class:`~PalmgrenMiner` ruleevery time.
+        damage using the Palmgren–Miner ruleevery time.
 
         Once the shift factor has been calculated, it can be applied
         to the Wohler SN curve. Then, accssing the curve through the
@@ -269,17 +269,17 @@ class Gassner(PlotMixin):
 
         The shift factor for each cycle  in the spectrum is:
 
-        .. math::
-
-            G_j = \\frac{n_j}{N_S} \\,
-            \\left({\\frac{\\sigma_{{max}_j} \\, \\sigma_{{alt}_j}}
-            {\\max{\\sigma_{alt}} ^ {2}}}\\right)^{2}
+        $$
+        G_j = \\frac{n_j}{N_S} \\,
+        \\left({\\frac{\\sigma_{{max}_j} \\, \\sigma_{{alt}_j}}
+        {\\max{\\sigma_{alt}} ^ {2}}}\\right)^{2}
+        $$
 
         The shift factor then is:
 
-        .. math::
-
-            G = \\sum_{j=1}^{N_B} G_j
+        $$
+        G = \\sum_{j=1}^{N_B} G_j
+        $$
 
         Parameters
         ----------
@@ -326,9 +326,9 @@ def calc_pm(
     """Calculates the damage using the Palmgren-Miner rule, i.e. the
     linear damage accumulation rule:
 
-    .. math::
-
-        D = \\sum_{j=1}^{N_{\\text{blocks}}} \\frac{n_j}{N_j} \\leq 1
+    $$
+    D = \\sum_{j=1}^{N_{\\text{blocks}}} \\frac{n_j}{N_j} \\leq 1
+    $$
 
     Parameters
     ----------
@@ -400,14 +400,14 @@ def calc_dem(
 ) -> float:
     """Calculate the damage equivalent moment (DEM) in Nm.
 
-    .. math::
+    $$
+    DEM = DES * I_c / r_o = DES * S
+    $$
 
-        DEM = DES * I_c / r_o = DES * S
-
-    with :math:`I_c` the area moment of inertia and :math:`r_i` the
-    inner radius, or :math:`S` the Section modulus. The Damage
+    with $I_c$ the area moment of inertia and $r_i$ the
+    inner radius, or $S$ the Section modulus. The Damage
     Equivalent Stress Range (DES) is calculated using
-    :func:`calc_des`
+    [`calc_des`][py_fatigue.damage.stress_life.calc_des]
 
     Parameters
     ----------
@@ -504,14 +504,14 @@ def get_dem(
 ) -> float:
     """Calculate the damage equivalent moment (DEM) in Nm.
 
-    .. math::
+    $$
+    DEM = DES * I_c / r_o = DES * S
+    $$
 
-        DEM = DES * I_c / r_o = DES * S
-
-    with :math:`I_c` the area moment of inertia and :math:`r_i` the
-    inner radius, or :math:`S` the Section modulus. The Damage
+    with $I_c$ the area moment of inertia and $r_i$ the
+    inner radius, or $S$ the Section modulus. The Damage
     Equivalent Stress Range (DES) is calculated using
-    :func:`calc_des`
+    [`calc_des`][py_fatigue.damage.stress_life.calc_des]
 
     Parameters
     ----------
@@ -546,11 +546,11 @@ def get_dem(
 def calc_manson_halford_exponents(
     cycles_to_failure: np.ndarray, exponent: float = 0.4
 ) -> np.ndarray:
-    """Calculate the Mannson-Halford exponents :math:`e_{j, j+1}`.
+    """Calculate the Mannson-Halford exponents $e_{j, j+1}$.
 
-    .. math::
-
-        e{j, j+1} = \\left(\\frac{N_{j}}{N_{j+1}}\\right)^{exponent}
+    $$
+    e{j, j+1} = \\left(\\frac{N_{j}}{N_{j+1}}\\right)^{exponent}
+    $$
 
     Parameters
     ----------
@@ -576,16 +576,16 @@ def calc_pavlou_exponents(
     exponent: float = -0.75,
     use_dca: bool = False,
 ) -> np.ndarray:
-    """Calculate the Pavlou exponents :math:`q(\\sigma_j)=e_{j, j+1}`.
+    """Calculate the Pavlou exponents $q(\\sigma_j)=e_{j, j+1}$.
 
-    .. math::
+    $$
+    e_{j, j+1} = \\left(\\frac{\\Delta \\sigma_j / 2}{\\sigma_U}\\right)
+    ^{exponent}
+    $$
 
-        e_{j, j+1} = \\left(\\frac{\\Delta \\sigma_j / 2}{\\sigma_U}\\right)
-        ^{exponent}
-
-    where :math:`\\Delta \\sigma_j` is the stress amplitude, :math:`\\sigma_U`
-    is the ultimate stress, :math:`\\Delta \\sigma` is the stress range and
-    :math:`exponent` is the exponent.
+    where $\\Delta \\sigma_j$ is the stress amplitude, $\\sigma_U$
+    is the ultimate stress, $\\Delta \\sigma$ is the stress range and
+    $exponent$ is the exponent.
 
 
     Parameters
@@ -613,12 +613,12 @@ def calc_si_jian_exponents(
 ) -> np.ndarray:
     """Calculate the Si-Jian et al. exponents as
 
-    .. math::
+    $$
+    e_{j, j+1} = \\sigma_{j+1} / \\sigma_{j}
+    $$
 
-        e_{j, j+1} = \\sigma_{j+1} / \\sigma_{j}
-
-    where :math:`\\sigma_{j+1}` is the stress amplitude for the
-    :math:`j`-th cycle.
+    where $\\sigma_{j+1}$ is the stress amplitude for the
+    $j$-th cycle.
 
     Parameters
     ----------
@@ -640,9 +640,9 @@ def calc_theil_weights(
     """Calculate the Theil weights for the Damage Curve Approach
     (DCA).
 
-    .. math::
-
-        w_j = \\frac{\\Delta\\sigma_j}{N_{f,j}}
+    $$
+    w_j = \\frac{\\Delta\\sigma_j}{N_{f,j}}
+    $$
 
     Parameters
     ----------
@@ -791,45 +791,47 @@ def calc_nonlinear_damage(
     - 'Si-Jian': Si-Jian et al damage rule
     - 'Leve': Leve damage rule
 
-    .. warning::
+    !!! warning
+
         This function is not suited for variable amplitude loading.
         For variable amplitude loading, use
-        :func:`calc_nonlinear_damage_with_dca`, as the fluctiations of the
+        [`calc_nonlinear_damage_with_dca`]
+        [py_fatigue.damage.stress_life.calc_nonlinear_damage_with_dca], as the
+        fluctiations of the
         nonlinear damage exponent are controlled by the Damage Curve.
 
     The generic form of a nonlinear damage rule is:
 
-    .. math::
-
-        D = \\left(
-            \\left( \\dots
+    $$
+    D = \\left(
+        \\left( \\dots
+            \\left(
                 \\left(
-                    \\left(
-                        \\left(\\frac{n_1}{N_1}\\right)^{e_{1, 2}} +
-                        \\frac{n_2}{N_2}
-                    \\right)^{e_{2, 3}} +
-                    \\frac{n_3}{N_3}
-                \\right)^{e_{3, 4}} + \\dots + \\frac{n_{M-1}}{N_{M-1}}
-            \\right)^{e_{M-1, M}} + \\dots + \\frac{n_M}{N_M}
-        \\right)^{e_M}
+                    \\left(\\frac{n_1}{N_1}\\right)^{e_{1, 2}} +
+                    \\frac{n_2}{N_2}
+                \\right)^{e_{2, 3}} +
+                \\frac{n_3}{N_3}
+            \\right)^{e_{3, 4}} + \\dots + \\frac{n_{M-1}}{N_{M-1}}
+        \\right)^{e_{M-1, M}} + \\dots + \\frac{n_M}{N_M}
+    \\right)^{e_M}
+    $$
 
-    where :math:`n_j` is the number of cycles in the fatigue histogram
-    at the :math:`j`-th cycle, :math:`N_j` is the number of cycles to
-    failure at the :math:`j`-th cycle, :math:`e_{j, j+1}` is the exponent
-    for the :math:`j`-th and :math:`j+1`-th cycles, :math:`M` is the
+    where $n_j$ is the number of cycles in the fatigue histogram
+    at the $j$-th cycle, $N_j$ is the number of cycles to
+    failure at the $j$-th cycle, $e_{j, j+1}$ is the exponent
+    for the $j$-th and $j+1$-th cycles, $M$ is the
     number of load blocks in the fatigue spectrum.
 
     The formula is conveniently rewritten as pseudocode:
 
-    .. code-block:: python
-        :caption: pseudocode for the nonlinear damage rule
-
-        # retrieve N_j using the fatigue histogram and SN curve
-        # retrieve the exponents e_{j, j+1}
-        #  calculate the damage
-        D = 0
-        for j in range(1, M+1):
-            D = (D + n_j / N_j) ^ e_{j, j+1}
+    ```python
+    # retrieve N_j using the fatigue histogram and SN curve
+    # retrieve the exponents e_{j, j+1}
+    #  calculate the damage
+    D = 0
+    for j in range(1, M+1):
+        D = (D + n_j / N_j) ^ e_{j, j+1}
+    ```
 
     Parameters
     ----------
@@ -900,81 +902,83 @@ def calc_nonlinear_damage_with_dca(
     - 'Theil': Theil damage rule
 
     The DCA discreties the damage curve in multiple Damage bands
-    :math:`\\Delta D_j` and calculates the damage for each band, depending
+    $\\Delta D_j$ and calculates the damage for each band, depending
     on the damage value at the previous cycle. The damage is calculated
     as:
 
-    .. math::
+    $$
+    D = \\sum_{j=1}^{n_b} \\Delta D_j
+    $$
 
-        D = \\sum_{j=1}^{n_b} \\Delta D_j
-
-    where :math:`n_b` is the number of damage bands. In each damage band,
+    where $n_b$ is the number of damage bands. In each damage band,
     the damage follows a weighted Palmgren-Miner sum, i.e.:
 
-    .. math::
+    $$
+    \\Delta D_j = \\sum_{i=1}^{n_j} w_{i, j} \\frac{n_i}{N_i}
+    $$
 
-        \\Delta D_j = \\sum_{i=1}^{n_j} w_{i, j} \\frac{n_i}{N_i}
-
-    where :math:`n_j` is the number of cycles in the fatigue histogram
-    at the :math:`j`-th cycle, :math:`N_j` is the number of cycles to
-    failure at the :math:`j`-th cycle, :math:`w_{i, j}` is the weight
-    for the :math:`i`-th cycle in the :math:`j`-th damage band.
+    where $n_j$ is the number of cycles in the fatigue histogram
+    at the $j$-th cycle, $N_j$ is the number of cycles to
+    failure at the $j$-th cycle, $w_{i, j}$ is the weight
+    for the $i$-th cycle in the $j$-th damage band.
 
     Using the generic nonlinear damage accumulation formula:
 
-    .. math::
-
-        D(\\sigma) = \\left(\\frac{n}{N(\\sigma)}\\right)^{e(\\sigma)}
+    $$
+    D(\\sigma) = \\left(\\frac{n}{N(\\sigma)}\\right)^{e(\\sigma)}
+    $$
 
     and substituting it inside the weighted Palmgren-Miner sum, the
     equation of the weights can be extracted as:
 
-    .. math::
-
-        w_{i, j} = \\frac{D_j - D_{j-1}}{
-            D_{j}^{1/e_{i, i}} - D_{j-1}^{1/e_{i, i}}
-        }
+    $$
+    w_{i, j} = \\frac{D_j - D_{j-1}}{
+        D_{j}^{1/e_{i, i}} - D_{j-1}^{1/e_{i, i}}
+    }
+    $$
 
     In the case of Pavlou's model, the exponents are:
 
-    .. math::
-
-        e_{j, j} = \\left(\\frac{\\Delta \\sigma_j / 2}
-                                {\\sigma_U}\\right)^{exponent}
+    $$
+    e_{j, j} = \\left(\\frac{\\Delta \\sigma_j / 2}
+                            {\\sigma_U}\\right)^{exponent}
+    $$
 
     While for Theil's method, the weights can be directly
     approximated as:
 
-    .. math::
+    $$
+    w_j = 1 + \\frac{\\Delta\\sigma_j}{N_{f,j}}
+    $$
 
-        w_j = 1 + \\frac{\\Delta\\sigma_j}{N_{f,j}}
+    !!! warning
 
-    .. warning::
         If you want to use Theil's method in a production
         environment, it is recommended to use the
-        :func:`calc_theil_cycles_to_failure` function, as it adheres
+        [`calc_theil_cycles_to_failure`]
+        [py_fatigue.damage.stress_life.calc_theil_cycles_to_failure] function,
+        as it adheres
         to the original SN Cuve-based method.
 
     The formula is conveniently rewritten as pseudocode:
 
-    .. code-block:: python
-        :caption: pseudocode for the nonlinear damage rule
-
-        # retrieve n_i, N_i using the fatigue histogram and SN curve
-        # retrieve the exponents e_{j, j+1}
-        # define the damage bands DB
-        # calculate the damage
-        D = 0
-        for j in range(1, M+1):
-            DB_j = np.digitize(D, DB, right=False)
-            for i in range(1, n_j+1):
-                if damage_rule == 'Pavlou':
-                    w_ij = (DB[DB_j] - DB[DB_j - 1]) / \
-                           ((DB[DB_j] ** (1 / e_i)) -
-                            (DB[DB_j - 1] ** (1 / e_i)))
-                elif damage_rule == 'Theil':
-                    w_ij = stress_range_i / N_i + 1
-                D += w_ij * n_i / N_i
+    ```python
+    # retrieve n_i, N_i using the fatigue histogram and SN curve
+    # retrieve the exponents e_{j, j+1}
+    # define the damage bands DB
+    # calculate the damage
+    D = 0
+    for j in range(1, M+1):
+        DB_j = np.digitize(D, DB, right=False)
+        for i in range(1, n_j+1):
+            if damage_rule == 'Pavlou':
+                w_ij = (DB[DB_j] - DB[DB_j - 1]) / \
+                       ((DB[DB_j] ** (1 / e_i)) -
+                        (DB[DB_j - 1] ** (1 / e_i)))
+            elif damage_rule == 'Theil':
+                w_ij = stress_range_i / N_i + 1
+            D += w_ij * n_i / N_i
+    ```
 
     Parameters
     ----------
@@ -1155,7 +1159,8 @@ def get_nonlinear_damage_with_dca(
     - 'Pavlou': Pavlou damage rule
     - 'Theil': Theil damage rule
 
-    Refer to :func:`calc_nonlinear_damage_with_dca` for the
+    Refer to [`calc_nonlinear_damage_with_dca`]
+    [py_fatigue.damage.stress_life.calc_nonlinear_damage_with_dca] for the
     complete documentation with mathematical details.
 
     Parameters
@@ -1215,9 +1220,9 @@ def find_sn_curve_intersection(
     """
     Solve the following nonlinear equation:
 
-    .. math::
-
-        \\left(\\frac{a}{N}\\right)^{\\frac{1}{m}} = w \\cdot N + b
+    $$
+    \\left(\\frac{a}{N}\\right)^{\\frac{1}{m}} = w \\cdot N + b
+    $$
 
     where:
 
@@ -1227,7 +1232,7 @@ def find_sn_curve_intersection(
     - b is the residual stress range,
     - N is the number of cycles to failure,
 
-    for N in the range [:math:`n_{min}`, :math:`n_{max}`].
+    for N in the range [$n_{min}$, $n_{max}$].
     The equation is linked to the S-N curve definition, therefore it can be
     as complex as the S-N curve itself, i.e. log-linear, log-bilinear, etc.
 
@@ -1299,27 +1304,29 @@ def _calc_theil_sn_damage(stress_range, count_cycle, cycles_to_failure):
     damage, and an S-N curve to predict the number of cycles to failure.
 
     Mathematically, the method can be described as follows. Provided a sequence
-    of stress range blocks :math:`\\Delta\\sigma_i` and the corresponding
-    number of cycles :math:`n_i`, after initializing all the cumulative
+    of stress range blocks $\\Delta\\sigma_i$ and the corresponding
+    number of cycles $n_i$, after initializing all the cumulative
     variables to zero, the effective stress range is calculated as:
 
-    .. math::
-
-        N_i & = \\text{SN Curve}\\left(\\Delta\\sigma_i \\right) \\\\
-        w_i & = \\frac{\\Delta\\sigma_i}{N_i} \\\\
-        \\Delta\\sigma_{eff,i} & = \\Delta\\sigma_{cumsum,i-1}
-                                 - w_i \\cdot n_{cumsum, i-1} \\\\
-        n_{cumsum,i} & = n_{cumsum,i-1} + n_i \\\\
-        \\Delta\\sigma_{cumsum,i} & = w_i \\cdot n_{cumsum,i}
-                                    + \\Delta\\sigma_{eff,i}
+    $$
+    \\begin{aligned}
+    N_i & = \\text{SN Curve}\\left(\\Delta\\sigma_i \\right) \\\\
+    w_i & = \\frac{\\Delta\\sigma_i}{N_i} \\\\
+    \\Delta\\sigma_{eff,i} & = \\Delta\\sigma_{cumsum,i-1}
+                             - w_i \\cdot n_{cumsum, i-1} \\\\
+    n_{cumsum,i} & = n_{cumsum,i-1} + n_i \\\\
+    \\Delta\\sigma_{cumsum,i} & = w_i \\cdot n_{cumsum,i}
+                                + \\Delta\\sigma_{eff,i}
+    \\end{aligned}
+    $$
 
     where:
 
-    - :math:`\\Delta\\sigma_{eff}` is the effective stress range,
-    - :math:`\\Delta\\sigma_{cumsum}` is the cumulative stress range,
-    - :math:`w` is the damage weight for the current cycle,
-    - :math:`n_{cumsum}` is the cumulative number of cycles,
-    - :math:`n` is the number of cycles for the current block.
+    - $\\Delta\\sigma_{eff}$ is the effective stress range,
+    - $\\Delta\\sigma_{cumsum}$ is the cumulative stress range,
+    - $w$ is the damage weight for the current cycle,
+    - $n_{cumsum}$ is the cumulative number of cycles,
+    - $n$ is the number of cycles for the current block.
 
     The method is applied to each block in the sequence, and the cumulative
     number of cycles is updated at the end of each block. The process continues
@@ -1399,27 +1406,29 @@ def calc_theil_sn_damage(
     damage, and an S-N curve to predict the number of cycles to failure.
 
     Mathematically, the method can be described as follows. Provided a sequence
-    of stress range blocks :math:`\\Delta\\sigma_i` and the corresponding
-    number of cycles :math:`n_i`, after initializing all the cumulative
+    of stress range blocks $\\Delta\\sigma_i$ and the corresponding
+    number of cycles $n_i$, after initializing all the cumulative
     variables to zero, the effective stress range is calculated as:
 
-    .. math::
-
-        N_i & = \\text{SN Curve}\\left(\\Delta\\sigma_i \\right) \\\\
-        w_i & = \\frac{\\Delta\\sigma_i}{N_i} \\\\
-        \\Delta\\sigma_{eff,i} & = \\Delta\\sigma_{cumsum,i-1}
-                                 - w_i \\cdot n_{cumsum, i-1} \\\\
-        n_{cumsum,i} & = n_{cumsum,i-1} + n_i \\\\
-        \\Delta\\sigma_{cumsum,i} & = w_i \\cdot n_{cumsum,i}
-                                    + \\Delta\\sigma_{eff,i}
+    $$
+    \\begin{aligned}
+    N_i & = \\text{SN Curve}\\left(\\Delta\\sigma_i \\right) \\\\
+    w_i & = \\frac{\\Delta\\sigma_i}{N_i} \\\\
+    \\Delta\\sigma_{eff,i} & = \\Delta\\sigma_{cumsum,i-1}
+                             - w_i \\cdot n_{cumsum, i-1} \\\\
+    n_{cumsum,i} & = n_{cumsum,i-1} + n_i \\\\
+    \\Delta\\sigma_{cumsum,i} & = w_i \\cdot n_{cumsum,i}
+                                + \\Delta\\sigma_{eff,i}
+    \\end{aligned}
+    $$
 
     where:
 
-    - :math:`\\Delta\\sigma_{eff}` is the effective stress range,
-    - :math:`\\Delta\\sigma_{cumsum}` is the cumulative stress range,
-    - :math:`w` is the damage weight for the current cycle,
-    - :math:`n_{cumsum}` is the cumulative number of cycles,
-    - :math:`n` is the number of cycles for the current block.
+    - $\\Delta\\sigma_{eff}$ is the effective stress range,
+    - $\\Delta\\sigma_{cumsum}$ is the cumulative stress range,
+    - $w$ is the damage weight for the current cycle,
+    - $n_{cumsum}$ is the cumulative number of cycles,
+    - $n$ is the number of cycles for the current block.
 
     The method is applied to each block in the sequence, and the cumulative
     number of cycles is updated at the end of each block. The process continues

@@ -1,4 +1,6 @@
-# 7. Stress-Life damage calculation {#7. Stress-Life damage calculation}
+# 6. Stress-Life damage calculation { #7. }
+
+[Jump to the worked notebook](#worked-notebook)
 
 This section contains some examples of damage calculations using the stress-life approach.
 
@@ -74,7 +76,7 @@ plt.ylabel("stress, MPa")
 plt.show()
 ```
 
-![image](../../_static/_img/sine_wave.png)
+![Sinusoidal stress history with a nonzero mean](../../_static/_img/sine_wave.png){ .docs-plot }
 
 Define the CycleCount instance
 
@@ -137,3 +139,10 @@ Which outputs:
 Damage from pandas df: 0.0031716971435032985
 Damage from  function: 0.0031716971435032985
 ```
+
+## Worked notebook
+
+[Open notebook](../../22-nonlinear_damage.html) ·
+[Edit the notebook locally](01-notebook_setup.md)
+
+<iframe class="docs-notebook" src="../../22-nonlinear_damage.html" title="Linear and nonlinear fatigue damage" loading="lazy"></iframe>

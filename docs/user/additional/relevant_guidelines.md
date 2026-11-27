@@ -1,4 +1,81 @@
-# Relevant guidelines {#Relevant guidelines}
+# Relevant guidelines
+
+## Choose the v3 analysis workflow
+
+| Available inputs and analysis goal | Entry point |
+| --- | --- |
+| Stress history and an S–N curve for fatigue usage or equivalent loads | Use `CycleCount.from_timeseries()` or a stress-history connector, then the [stress–life API](../../api/damage/stress_life.md). |
+| Existing cycle counts, a Paris or Walker material curve, and a known initial flaw | Use [`get_crack_growth()`](../../api/damage/crack_growth.md). Use `TabulatedGeometryFactor` for a supplied $Y(a)$ table on one growing dimension. |
+| Ordered tensile loading, a supported geometry, and material inputs for a NASGRO model | Use [`simulate_crack_growth()`](../../api/damage/ordered_crack_growth.md) with `NasgroCurve` and a sequence of `LoadBlock` instances. |
+
+## Set up and check ordered crack growth
+
+1. **Match the crack and load to the published solution.** Confirm what the
+   dimensions mean, which stress opens the crack, which front points advance,
+   and the allowed ratios throughout the analysis. The
+   [geometry guide](../examples/08-ordered-crack-growth.md) records the source
+   and domain for the plate, shell, round-bar, thread, and hole cases.
+2. **Preserve loading order and units.** Supply the observed or prescribed
+   minimum and maximum tensile stress for each block, along with its cycle
+   count. Use mm for geometry, MPa for these loads, and MPa √mm for
+   intensity, threshold, and toughness. Treat fracture toughness and yield
+   or flow strength as different material inputs.
+3. **Document the fit.** Record the source, stress ratio, test environment,
+   units, and any calibration used for the material inputs. NASGRO closure,
+   threshold dependence, and the near-toughness rate term affect different
+   portions of the growth curve.
+4. **Check numerical convergence and the stop reason.** Repeat with smaller
+   cycle steps and tighter tolerances, compare terminal cycles and
+   dimensions, and plot the initial and final profiles. A geometry limit
+   marks the end of the supported solution. Spectrum exhaustion marks the
+   end of the supplied loading. A toughness stop marks the intensity limit.
+5. **Compare against a source case.** Check stress intensity at the initial
+   flaw and along the growth path before comparing life. The
+   [AFGROW tutorials](../examples/01-notebook_setup.md) separate the
+   published geometry, loads, and benchmark results from illustrative
+   extensions. The ordered solver supports the documented tension cases.
+   Overload retardation, bending, through-wall transitions, and full
+   fracture assessment procedures require additional models.
+
+The [AFGROW Damage Tolerant Design Handbook](https://www.afgrow.net/applications/DTDHandbook/Sections/page11_3.aspx)
+catalogues case-specific stress-intensity solutions. The
+[NASGRO 3.0 report](https://ntrs.nasa.gov/citations/19990028759) documents the
+growth and threshold equations. Use the project-specified assessment
+standard for acceptance criteria and the applicability of an engineering
+assessment.
+
+## Crack-growth and stress-intensity references
+
+The sources below define the equations and tables used in the documented
+models. The [geometry and load guide](../examples/08-ordered-crack-growth.md)
+gives the implementation’s dimensions, stress components and validity
+limits. A NASFLA case code identifies the geometry and loading family.
+
+| Model or case | Source and how it is used |
+| --- | --- |
+| NASGRO growth and threshold | Mettu et al., *NASGRO 3.0 — A Software for Analyzing Aging Aircraft*, §2.1.1. The growth law combines the Newman opening function, a size- and ratio-dependent threshold, and a near-toughness term. [NASA report](https://ntrs.nasa.gov/citations/19990028759) |
+| TC01, central through crack | Finite-width secant correction for uniform tension. [AFGROW Handbook, §11.3, through cracks in plates](https://www.afgrow.net/applications/DTDHandbook/Sections/page11_3.aspx) |
+| TC02, edge through crack | Tada's remote-tension equation and independent elastic strip comparisons. [Tada equation and conventions](https://ntrs.nasa.gov/citations/20240000858) · [NASA strip benchmark, Table 3](https://ntrs.nasa.gov/citations/19860020138) |
+| TC06 and TC07, spherical and axial cylindrical through cracks | Erdogan–Kibler sphere and Newman axial cylinder bulging fits, as reproduced in FLAGRO 2.0. [NASA CR-4706, TC06](https://ntrs.nasa.gov/api/citations/19960016651/downloads/19960016651.pdf#page=150) · [NASA CR-4706, TC07](https://ntrs.nasa.gov/api/citations/19960016651/downloads/19960016651.pdf#page=141) |
+| TC08, circumferential cylindrical through crack | Forman–Sanders axial tension fit for thin shells. [Forman et al., cylinder solutions](https://www.sciencedirect.com/science/article/abs/pii/S0013794485800497) · [Rege, Table 8.2](https://ebooks.uis.no/index.php/USPS/catalog/view/31/29/126) |
+| SC01, semi-elliptical surface crack in a plate | Newman and Raju's finite-width tension solution, with separate factors at the deepest and surface points. [NASA TP-1578](https://ntrs.nasa.gov/citations/19800005257) · [1981 surface-crack equation](https://ntrs.nasa.gov/citations/19820030778) |
+| SC05, external circumferential pipe crack | Raju and Newman's gross-section tension factors, interpolated on the three geometry ratios in Table 1. [NASA TM-87594](https://ntrs.nasa.gov/api/citations/19850027111/downloads/19850027111.pdf#page=18) |
+| SC07, round-bar surface crack | Forman and Shivakumar's tension factor for a circular crack front. [Original study](https://doi.org/10.1520/STP17388S) · [AFGROW Handbook, Table 11.3.13](https://www.afgrow.net/applications/DTDHandbook/Sections/page11_3.aspx) |
+| SC08, rolled-bolt-thread crack | Mettu et al., §5, Fig. 2 and Table 2. Use the minor diameter for the reference stress and interpolate the circular-front tension column. [NLR-TP-99313](https://reports.nlr.nl/server/api/core/bitstreams/e8e307d8-250e-4aa5-a89b-baa9ba94e62d/content#page=9) |
+| SC11, cracks at a centered hole | Newman and Raju's tension factors at the radial and bore tips. [NASA TM-85793, Eqs. 53–64 and Table 1](https://ntrs.nasa.gov/api/citations/19840015857/downloads/19840015857.pdf#page=18) |
+| Geometry definitions and net-section stress | The SwRI case catalogue defines the crack shapes and stresses. Appendix B of the NASGRO 3.0 manual supplies the net-section formulation for TC01, TC02 and SC01. [SwRI NASFLA catalogue](https://www.swri.org/sites/default/files/industries/k-solutions-nasgro-manual.pdf) |
+
+### Comparison cases
+
+Use the [notebook catalogue](../examples/01-notebook_setup.md) to run the
+Py-Fatigue comparisons. MERC-3 includes a crack-growth calculation.
+FAC-1 compares stress-intensity factors for bypass and pin loading. The
+blend-out example checks the stress-intensity and growth procedure used
+for a repaired surface. [MERC-3](https://www.afgrow.net/applications/DTDHandbook/Examples/page2_2.aspx)
+· [FAC-1](https://www.afgrow.net/applications/DTDHandbook/Examples/page1_0.aspx)
+· [Blend-out repair, Example 9.6.1](https://www.afgrow.net/applications/DTDHandbook/pdfs/sec9_6.pdf)
+
+## Standards and background
 
 **DNV**
 
