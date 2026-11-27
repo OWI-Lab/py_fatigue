@@ -272,6 +272,7 @@
 
 .docs-sidebar-utility {
   block-size: var(--docs-utility-height);
+  padding-inline: 0.45rem;
   background: var(--color-base-200);
   z-index: 2;
 }
@@ -623,7 +624,7 @@
     margin-block-start: auto;
   }
   .docs-sidebar-utility .docs-theme-segments {
-    border-inline: 0;
+    border-block-end: 0;
   }
   .md-sidebar__scrollwrap:has(.docs-page-index) > .md-nav--primary { display: none; }
   .docs-index-heading {

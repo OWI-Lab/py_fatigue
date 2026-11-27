@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.1
+
+- Refresh the package README with the documentation domain and MCP guide.
+- Inset the sidebar theme controls and use a single rule at the footer seam.
+
 ## 3.0.0
 
 - Replace Numba with Rust numerical kernels and provide native wheels for
