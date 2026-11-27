@@ -810,7 +810,7 @@ body:has(.home-intro) :is(.md-header__topic:nth-child(2), .md-sidebar-button__wr
   transform: translateX(-50%);
   background: var(--docs-lockup) center / contain no-repeat;
   filter: url("../_static/_img/py-fatigue-footer-outline.svg#outline");
-  opacity: 0.14;
+  opacity: 0.049;
   pointer-events: none;
   content: "";
 }
