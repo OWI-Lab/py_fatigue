@@ -62,11 +62,18 @@ jobs:
     needs: [test, build]
     runs-on: ubuntu-latest
     environment: pypi-mcp
-    permissions:
-      id-token: write
     steps:
+      - uses: astral-sh/setup-uv@v5
       - uses: actions/download-artifact@v4
         with:
           name: mcp-dist
           path: dist/
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to PyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          if [ -z "$UV_PUBLISH_TOKEN" ]; then
+            echo "::error::The PYPI_API_TOKEN secret is unavailable."
+            exit 1
+          fi
+          uv publish dist/*
