@@ -13,17 +13,26 @@ from py_fatigue.cycle_count.rainflow import rainflow
 from py_fatigue.damage.stress_life import calc_pm
 
 from .csv_io import CsvExport, CsvFile, read_csv_rows, write_csv_rows
+from .cycle_count import (
+    MAX_CYCLE_ROWS,
+    MAX_INLINE_ROWS,
+    CycleCountWindows,
+    CycleInput,
+    InlineCycleInput,
+    InlineStress,
+    RAINFLOW_COLUMNS,
+    RainflowRow,
+    RainflowMethod,
+    StressInput,
+    build_cycle_count,
+    stress_samples,
+)
 from .models import InputModel, Nonnegative, Number, Positive, preview_indices
 
-MAX_CYCLE_ROWS = 1_000_000
 CYCLE_COLUMNS = ("stress_range", "count_cycle")
-RAINFLOW_COLUMNS = ("stress_range", "mean_stress", "count_cycle")
-
-
-StressSamples = Annotated[
-    list[Number], Field(min_length=2, max_length=MAX_CYCLE_ROWS)
+EvaluationPoints = Annotated[
+    list[Positive], Field(min_length=1, max_length=1000)
 ]
-StressInput = StressSamples | CsvFile
 
 
 class CountedCycle(InputModel):
@@ -50,9 +59,63 @@ class CountedCycles(InputModel):
     )
 
 
+class NativeCycles(InputModel):
+    """Native CycleCount with optional window addition and stress scaling."""
+
+    kind: Literal["cycle_count"]
+    stress: CycleInput
+    method: RainflowMethod = "astm"
+
+
 MinerSource = Annotated[
-    StressHistory | CountedCycles, Field(discriminator="kind")
+    StressHistory | CountedCycles | NativeCycles, Field(discriminator="kind")
 ]
+
+
+class InlineHistory(InputModel):
+    """Inline stress samples or a synthetic history in MPa."""
+
+    kind: Literal["stress_history"]
+    stress: InlineStress
+
+
+class InlineCycles(InputModel):
+    """Inline stress ranges and cycle weights."""
+
+    kind: Literal["counted_cycles"]
+    cycles: Annotated[list[CountedCycle], Field(max_length=MAX_INLINE_ROWS)]
+
+
+class InlineNativeCycles(InputModel):
+    """Inline or synthetic CycleCount inputs with optional window operations."""
+
+    kind: Literal["cycle_count"]
+    stress: InlineCycleInput
+    method: RainflowMethod = "astm"
+
+
+InlineMinerSource = Annotated[
+    InlineHistory | InlineCycles | InlineNativeCycles,
+    Field(discriminator="kind"),
+]
+
+
+def local_miner_source(
+    source: InlineHistory | InlineCycles | InlineNativeCycles,
+) -> StressHistory | CountedCycles | NativeCycles:
+    """Reuse the same calculation with the inline portion of the stdio schema."""
+    if isinstance(source, InlineHistory):
+        return StressHistory(kind=source.kind, stress=source.stress)
+    if isinstance(source, InlineNativeCycles):
+        payload = source.stress
+        if isinstance(payload, CycleCountWindows):
+            payload = CycleCountWindows[StressInput].model_validate(
+                payload.model_dump()
+            )
+        return NativeCycles(
+            kind=source.kind, stress=payload, method=source.method
+        )
+    return CountedCycles(kind=source.kind, cycles=source.cycles)
 
 
 class SNParameters(InputModel):
@@ -61,14 +124,6 @@ class SNParameters(InputModel):
     slope: Positive | Annotated[list[Positive], Field(min_length=1)]
     intercept: Number | Annotated[list[Number], Field(min_length=1)]
     endurance: Positive | None = None
-
-
-class RainflowRow(BaseModel):
-    """An unbinned rainflow cycle with a stress range and mean in MPa."""
-
-    stress_range: FiniteFloat
-    mean_stress: FiniteFloat
-    count_cycle: FiniteFloat
 
 
 class RainflowSummary(BaseModel):
@@ -99,11 +154,7 @@ class MinerSummary(BaseModel):
 
 def rainflow_table(stress: StressInput) -> NDArray[np.float64]:
     """Count unbinned ASTM cycles in MPa using the existing rainflow kernel."""
-    if isinstance(stress, CsvFile):
-        stress = [
-            sample[0]
-            for sample in read_csv_rows(stress, ("stress",), MAX_CYCLE_ROWS)
-        ]
+    stress = stress_samples(stress)
     if len(stress) < 2:
         raise ToolError(
             "A stress history requires at least two stress samples."
@@ -126,7 +177,7 @@ def rainflow_count(
 ) -> RainflowSummary:
     """Count ASTM rainflow cycles from ordered stress samples in MPa.
 
-    Pass numeric samples or a relative CSV path with a stress column.
+    Pass numeric samples, a synthetic specification, or a relative CSV path.
     Results include full and half-cycle weights. Set export_csv to save
     the complete cycle table.
     """
@@ -147,17 +198,65 @@ def rainflow_count(
     return result
 
 
-def miner_damage(
-    source: MinerSource, curve: SNParameters, export_csv: StrictBool = False
-) -> MinerSummary:
-    """Calculate Palmgren–Miner damage with caller-supplied S–N parameters.
+class SNResult(BaseModel):
+    """S–N queries in input order. Null life denotes infinite life."""
 
-    Use stresses in MPa. Pass an ordered history for ASTM counting or
-    supply counted cycles directly. S–N intercepts are log10 intercepts.
-    Damage is dimensionless. Set export_csv to save every contribution.
+    cycles_to_failure: list[FiniteFloat | None]
+    stress_ranges_mpa: list[FiniteFloat]
+
+
+def build_sn_curve(curve: SNParameters) -> SNCurve:
+    """Construct the same S–N curve used for evaluation and Miner damage."""
+    if np.size(curve.slope) != np.size(curve.intercept):
+        raise ToolError("Supply one S–N intercept per slope.")
+    endurance = np.inf if curve.endurance is None else curve.endurance
+    try:
+        return SNCurve(curve.slope, curve.intercept, endurance)
+    except (ValueError, AssertionError, OverflowError) as error:
+        raise ToolError(f"Invalid S–N curve: {error}") from error
+
+
+def sn_curve(
+    curve: SNParameters,
+    stress_ranges: EvaluationPoints | None = None,
+    cycles: EvaluationPoints | None = None,
+) -> SNResult:
+    """Evaluate cycles to failure at ranges in MPa or ranges at cycle counts.
+
+    Supply slopes and log10 intercepts. Pass either query array or both.
+    An infinite life is returned as null.
     """
+    if stress_ranges is None and cycles is None:
+        raise ToolError("Supply stress ranges or cycle counts to evaluate.")
+    model = build_sn_curve(curve)
+    try:
+        life = (
+            np.asarray(model.get_cycles(stress_ranges)) if stress_ranges else []
+        )
+        ranges = np.asarray(model.get_stress(cycles)) if cycles else []
+    except (ValueError, AssertionError, OverflowError) as error:
+        raise ToolError(f"Cannot evaluate this S–N curve: {error}") from error
+    if any(np.isnan(value) or value <= 0 for value in life):
+        raise ToolError("S–N evaluation produced an invalid life.")
+    if any(not np.isfinite(value) or value < 0 for value in ranges):
+        raise ToolError("S–N evaluation produced an invalid stress range.")
+    return SNResult(
+        cycles_to_failure=[
+            None if np.isinf(value) else float(value) for value in life
+        ],
+        stress_ranges_mpa=list(ranges),
+    )
+
+
+def miner_table(
+    source: MinerSource, curve: SNParameters
+) -> NDArray[np.float64]:
+    """Return unbinned stress ranges, cycle weights and Miner contributions."""
     if isinstance(source, StressHistory):
         cycles = rainflow_table(source.stress)[:, [0, 2]]
+    elif isinstance(source, NativeCycles):
+        count = build_cycle_count(source.stress, source.method)
+        cycles = np.column_stack((count.stress_range, count.count_cycle))
     else:
         rows = source.cycles
         if isinstance(rows, CsvFile):
@@ -168,13 +267,10 @@ def miner_damage(
         if np.any(cycles < 0):
             raise ToolError("stress_range and count_cycle must be nonnegative.")
 
-    if np.size(curve.slope) != np.size(curve.intercept):
-        raise ToolError("Supply one S–N intercept per slope.")
-    endurance = np.inf if curve.endurance is None else curve.endurance
+    sn_model = build_sn_curve(curve)
     try:
-        sn_curve = SNCurve(curve.slope, curve.intercept, endurance)
         damage = (
-            calc_pm(cycles[:, 0], cycles[:, 1], sn_curve)
+            calc_pm(cycles[:, 0], cycles[:, 1], sn_model)
             if len(cycles)
             else np.empty(0)
         )
@@ -183,10 +279,22 @@ def miner_damage(
             f"Invalid S–N curve or stress range: {error}"
         ) from error
 
-    total_damage = float(damage.sum())
-    if not np.isfinite(damage).all() or not math.isfinite(total_damage):
+    if not np.isfinite(damage).all() or not math.isfinite(float(damage.sum())):
         raise ToolError("Miner damage is non-finite for the supplied inputs.")
-    table = np.column_stack((cycles, damage))
+    return np.column_stack((cycles, damage))
+
+
+def miner_damage(
+    source: MinerSource, curve: SNParameters, export_csv: StrictBool = False
+) -> MinerSummary:
+    """Calculate Palmgren–Miner damage with caller-supplied S–N parameters.
+
+    Use stresses in MPa. Pass an ordered history for ASTM counting or
+    supply counted cycles directly. S–N intercepts are log10 intercepts.
+    Damage is dimensionless. Set export_csv to save every contribution.
+    """
+    table = miner_table(source, curve)
+    total_damage = float(table[:, 2].sum())
     row_count = len(table)
     columns = (*CYCLE_COLUMNS, "damage")
     result = MinerSummary(

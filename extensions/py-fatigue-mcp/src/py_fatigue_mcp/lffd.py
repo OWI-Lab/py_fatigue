@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, FiniteFloat
 from py_fatigue import CycleCount
 
 from .models import Number, preview_indices
-from .stress_life import RainflowRow
+from .cycle_count import RainflowRow
 
 MAX_LFFD_SAMPLES = 100_000
 StressWindow = Annotated[

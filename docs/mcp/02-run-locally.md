@@ -9,7 +9,7 @@ Install the companion package from PyPI with uv. If uv asks you to add its
 tool directory to `PATH`, run `uv tool update-shell` and open a new shell.
 
 ```sh
-uv tool install py-fatigue-mcp==0.1.0
+uv tool install py-fatigue-mcp==0.2.0
 ```
 
 ## Connect a stdio client
@@ -23,13 +23,14 @@ codex mcp add py-fatigue -- "$(command -v py-fatigue-mcp)"
 ```
 
 Check tool discovery in your client. In a new Codex session, use `/mcp`.
-The server exposes `rainflow_count`, `miner_damage`, and
-`ordered_crack_growth`.
+Version 0.2.0 adds `cycle_count`, `sn_curve`, `geometry_stress_intensity`,
+`generate_synthetic_data`, and `plot_py_fatigue`. Check the
+[tool reference](08-tool-reference.md) for the full list.
 
 ## Run from a checkout
 
-Use this setup to try tools that are still in development, including
-`lffd_recovery`. Clone the repository and use its absolute path in the
+Use this setup to try tools from a development branch. Clone the
+repository and use its absolute path in the
 command below. Building the Python library from the checkout requires Rust.
 
 ```sh

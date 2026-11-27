@@ -71,7 +71,10 @@ List the server’s tools in your client. You should see
 `rainflow_count`, `miner_damage`, and `ordered_crack_growth`. If you
 get HTTP `401`, check your token and how the client loads it.
 
-If your server lists `lffd_recovery`, you can also
-[recover cycles across stress windows](06-recover-lffd.md).
+Tool availability follows the server version. Use the
+[local 0.2.0 setup](02-run-locally.md) if the hosted instance
+does not advertise the newer tools. Hosted requests use inline samples
+or synthetic specifications. PNG and ECharts results are returned to
+the client without writing files on the host.
 
 Continue with the [inline stress history example](04-analyze-stress-history.md).

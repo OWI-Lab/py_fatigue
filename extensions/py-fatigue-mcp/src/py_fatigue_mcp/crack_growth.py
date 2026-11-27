@@ -12,6 +12,7 @@ from py_fatigue.crack_growth import (
     CircumferentialCylinderThroughCrack,
     EdgeThroughCrack,
     GrowthPoint,
+    GrowthResult,
     HoleBoreSurfaceCrack,
     LoadBlock,
     NasgroCurve,
@@ -24,10 +25,15 @@ from py_fatigue.crack_growth import (
 
 from .csv_io import CsvExport, CsvFile, read_csv_rows, write_csv_rows
 from .models import InputModel, Nonnegative, Number, Positive, preview_indices
+from .synthetic import (
+    LOAD_COLUMNS,
+    MAX_LOAD_BLOCKS,
+    SyntheticLoads,
+    TensileLoad,
+    synthetic_loads,
+)
 
-MAX_LOAD_BLOCKS = 10_000
 MAX_TRIALS = 100_000
-LOAD_COLUMNS = ("minimum", "maximum", "cycles")
 
 
 class TC01(InputModel):
@@ -156,20 +162,13 @@ class NasgroParameters(InputModel):
     peak_to_flow: Annotated[Number, Field(ge=0, lt=1)]
 
 
-class TensileLoad(InputModel):
-    """Ordered tensile stress extrema in MPa and a fractional cycle count."""
-
-    minimum: Nonnegative
-    maximum: Positive
-    cycles: Positive
-
-
-LoadInput = (
+InlineLoads = (
     Annotated[
         list[TensileLoad], Field(min_length=1, max_length=MAX_LOAD_BLOCKS)
     ]
-    | CsvFile
+    | SyntheticLoads
 )
+LoadInput = InlineLoads | CsvFile
 
 
 class SolverControls(InputModel):
@@ -207,19 +206,13 @@ def growth_csv_rows(
         )
 
 
-def ordered_crack_growth(
+def run_ordered_growth(
     geometry: CrackGeometry,
     curve: NasgroParameters,
     loads: LoadInput,
     controls: SolverControls,
-    export_csv: StrictBool = False,
-) -> CrackGrowthSummary:
-    """Simulate ordered tensile crack growth with a calibrated NASGRO law.
-
-    Use MPa, mm, and MPa sqrt(mm). Supply all solver controls and preserve
-    the applied load block order. The final state is the last accepted
-    point on the admissible side of a toughness or geometry limit.
-    """
+) -> GrowthResult:
+    """Resolve the load input and run the library's ordered solver."""
     crack = GEOMETRY_TYPES[geometry.case](
         **geometry.model_dump(exclude={"case"})
     )
@@ -229,7 +222,12 @@ def ordered_crack_growth(
             for row in read_csv_rows(loads, LOAD_COLUMNS, MAX_LOAD_BLOCKS)
         ]
     else:
-        blocks = [LoadBlock(**row.model_dump()) for row in loads]
+        rows = (
+            synthetic_loads(loads)
+            if isinstance(loads, SyntheticLoads)
+            else loads
+        )
+        blocks = [LoadBlock(**row.model_dump()) for row in rows]
     if not blocks:
         raise ToolError("Supply at least one ordered load block.")
     for index, block in enumerate(blocks):
@@ -243,7 +241,7 @@ def ordered_crack_growth(
                 "with positive maximum and cycles."
             )
     try:
-        result = simulate_crack_growth(
+        return simulate_crack_growth(
             crack,
             NasgroCurve(**curve.model_dump()),
             blocks,
@@ -252,6 +250,21 @@ def ordered_crack_growth(
     except (ValueError, RuntimeError) as error:
         raise ToolError(str(error)) from error
 
+
+def ordered_crack_growth(
+    geometry: CrackGeometry,
+    curve: NasgroParameters,
+    loads: LoadInput,
+    controls: SolverControls,
+    export_csv: StrictBool = False,
+) -> CrackGrowthSummary:
+    """Simulate ordered tensile crack growth with a calibrated NASGRO law.
+
+    Supply applied blocks, a local CSV, or a synthetic load specification.
+    Use MPa, mm, and MPa sqrt(mm). A final state at a toughness or geometry
+    limit is the last accepted point on the admissible side.
+    """
+    result = run_ordered_growth(geometry, curve, loads, controls)
     history = result.history
     summary = CrackGrowthSummary(
         termination=result.termination,

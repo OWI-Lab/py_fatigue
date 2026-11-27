@@ -1,11 +1,18 @@
 # Py-Fatigue MCP
 
-Run ASTM rainflow counting, Palmgren–Miner damage, and ordered NASGRO crack
-growth through a local stdio MCP client. The `py-fatigue-mcp` command starts
-the server. See the [quickstart](https://github.com/OWI-Lab/py_fatigue/blob/develop/docs/mcp/01-overview.md)
-for setup, tool inputs, and CSV examples. A development checkout also
-provides `lffd_recovery` for recounting residual cycles across ordered
-stress windows.
+Run Py-Fatigue analysis and native plots through an MCP client. The
+`py-fatigue-mcp` command starts the local stdio server.
+
+- Build, add, or apply a stress concentration factor to native `CycleCount`
+  objects. Work with ASTM or four-point counting and residual recovery.
+- Evaluate S–N curves and Miner damage. Run ordered NASGRO across ten
+  supported crack geometries.
+- Generate reproducible stress histories and ordered tensile blocks with
+  `py_fatigue.testing`, then pass the specification to another tool.
+- Request native plots as PNG or ECharts HTML.
+
+See the [guide](https://py-fatigue.dev/mcp/01-overview.html) for setup,
+examples, and reference.
 
 ## HTTP pilot
 

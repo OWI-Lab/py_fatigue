@@ -2,65 +2,47 @@
 
 import os
 from secrets import compare_digest
-from typing import Annotated, Literal
 
 from mcp.server import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
-from pydantic import Field
 from starlette.applications import Starlette
 from starlette.responses import PlainTextResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from .crack_growth import (
-    MAX_LOAD_BLOCKS,
     CrackGeometry,
     CrackGrowthSummary,
     NasgroParameters,
     SolverControls,
-    TensileLoad,
+    InlineLoads,
     ordered_crack_growth,
 )
+from .cycle_count import (
+    CycleCountSummary,
+    InlineCycleInput,
+    InlineStress,
+    RainflowMethod,
+    cycle_count,
+)
+from .geometry import geometry_stress_intensity
 from .lffd import lffd_recovery
-from .models import InputModel, Number
+from .models import SERVER_INSTRUCTIONS
+from .plot_inputs import InlinePlotRequest, PlotFormat
+from .plotting import PlotContent, plot_py_fatigue, render_native_plot
 from .stress_life import (
-    CountedCycle,
-    CountedCycles,
+    InlineMinerSource,
     MinerSummary,
     RainflowSummary,
     SNParameters,
-    StressHistory,
+    local_miner_source,
     miner_damage,
     rainflow_count,
+    sn_curve,
 )
+from .synthetic import SyntheticInput, SyntheticSummary, generate_synthetic_data
 
-MAX_HTTP_ROWS = 100_000
 MAX_HTTP_BYTES = 1024 * 1024
 TOKEN_ENV = "PY_FATIGUE_MCP_BEARER_TOKEN"
-InlineStress = Annotated[
-    list[Number], Field(min_length=2, max_length=MAX_HTTP_ROWS)
-]
-InlineLoads = Annotated[
-    list[TensileLoad], Field(min_length=1, max_length=MAX_LOAD_BLOCKS)
-]
-
-
-class InlineHistory(InputModel):
-    """Stress samples in applied order, in MPa."""
-
-    kind: Literal["stress_history"]
-    stress: InlineStress
-
-
-class InlineCycles(InputModel):
-    """Stress ranges in MPa and their cycle weights."""
-
-    kind: Literal["counted_cycles"]
-    cycles: Annotated[list[CountedCycle], Field(max_length=MAX_HTTP_ROWS)]
-
-
-InlineMinerSource = Annotated[
-    InlineHistory | InlineCycles, Field(discriminator="kind")
-]
 
 
 class RequireBearerToken:
@@ -107,22 +89,41 @@ def create_app() -> Starlette:
     ):
         raise RuntimeError(f"Set {TOKEN_ENV} to a nonempty ASCII bearer token.")
 
-    server = MCPServer("py-fatigue")
-    server.add_tool(lffd_recovery)
+    server = MCPServer("py-fatigue", instructions=SERVER_INSTRUCTIONS)
+    for tool in (lffd_recovery, sn_curve, geometry_stress_intensity):
+        server.add_tool(tool)
+
+    @server.tool(name="cycle_count")
+    def native_count(
+        stress: InlineCycleInput, method: RainflowMethod = "astm"
+    ) -> CycleCountSummary:
+        """Build native CycleCount from inline or synthetic MPa samples."""
+        return cycle_count(stress, method)
+
+    @server.tool(name="generate_synthetic_data")
+    def generate(specification: SyntheticInput) -> SyntheticSummary:
+        """Generate reusable stress samples or ordered tensile blocks."""
+        return generate_synthetic_data(specification)
+
+    @server.tool(
+        name="plot_py_fatigue",
+        description=plot_py_fatigue.__doc__,
+        structured_output=False,
+    )
+    def plot(
+        request: InlinePlotRequest, format: PlotFormat = "png"
+    ) -> PlotContent:
+        return render_native_plot(request, format)
 
     @server.tool(name="rainflow_count")
     def count(stress: InlineStress) -> RainflowSummary:
-        """Count ASTM rainflow cycles from inline stress samples in MPa."""
+        """Count ASTM rainflow cycles from inline or synthetic stress in MPa."""
         return rainflow_count(stress)
 
     @server.tool(name="miner_damage")
     def damage(source: InlineMinerSource, curve: SNParameters) -> MinerSummary:
         """Calculate Miner damage with caller-supplied S–N parameters in MPa."""
-        if isinstance(source, InlineHistory):
-            local_source = StressHistory(kind=source.kind, stress=source.stress)
-        else:
-            local_source = CountedCycles(kind=source.kind, cycles=source.cycles)
-        return miner_damage(local_source, curve)
+        return miner_damage(local_miner_source(source), curve)
 
     @server.tool(name="ordered_crack_growth")
     def propagate(
