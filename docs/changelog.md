@@ -15,6 +15,8 @@
   supported load and geometry limits.
 - Add SEP005 and pyExSi stress-history connectors for cycle counting and
   fatigue analysis.
+- Preserve the input unit when summing cycle counts or recovering residual
+  cycles. [Discussion #27](https://github.com/OWI-Lab/py_fatigue/discussions/27)
 - Move the documentation to Zensical and the examples to marimo. The
   [notebooks](user/examples/01-notebook_setup.md) include Matplotlib and
   ECharts views, synthetic histories, and AFGROW handbook comparisons.

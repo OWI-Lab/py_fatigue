@@ -24,6 +24,7 @@ import pandas as pd
 from py_fatigue.cycle_count.cycle_count import (
     _build_input_data_from_json,
     _assess_json_keys,
+    pbar_sum,
 )
 from py_fatigue.cycle_count import CycleCount
 from py_fatigue.stress_range import StressRange
@@ -80,6 +81,26 @@ CC_TS_4 = CycleCount.from_timeseries(
     range_bin_width=1,
     name="Test_CC",
 )
+
+
+def test_summing_microstrain_cycle_counts_preserves_unit() -> None:
+    counts = [
+        CycleCount.from_timeseries(
+            SIGNAL_1,
+            timestamp=TIMESTAMP_1 + dt.timedelta(days=day),
+            unit="microstrain",
+        )
+        for day in range(3)
+    ]
+
+    assert (counts[0] + counts[1]).unit == "microstrain"
+    combined = sum(counts)
+    assert combined.unit == "microstrain"
+    assert pbar_sum(counts) == combined
+
+    recovered = combined.solve_lffd()
+    assert recovered.lffd_solved
+    assert recovered.unit == "microstrain"
 
 
 def test_from_sep005_multiple_channels_and_records() -> None:
@@ -1669,11 +1690,13 @@ def test_solve_lffd_only_residuals() -> None:
         stress_range=np.array([1.0, 2.0, 3.0]),
         mean_stress=np.array([0.0, 1.0, 2.0]),
         residuals_sequence=np.array([1, -1, 2, -2, 1]),
+        unit="microstrain",
         name="only_residuals"
     )
 
     result = cc_only_res.solve_lffd()
     assert result.lffd_solved
+    assert result.unit == "microstrain"
     # Should return only the residuals component since max(count_cycle) <= 0.5
 
 def test_build_input_data_no_mean_stress():
