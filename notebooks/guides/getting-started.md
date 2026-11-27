@@ -32,12 +32,6 @@ Choose the command that matches your environment.
     uv pip install py-fatigue
     ```
 
-=== "Release candidate"
-
-    ```bash
-    python -m pip install py-fatigue==3.0.0rc2
-    ```
-
 ## How to import py-fatigue
 
 To access py-fatigue and its functions import it in your Python code like this:

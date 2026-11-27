@@ -10,20 +10,29 @@
 
 ![Py-Fatigue](https://raw.githubusercontent.com/OWI-Lab/py_fatigue/develop/docs/_static/_img/py-fatigue-readme-logo.svg)
 
-Py-Fatigue is a Python package for cycle-counting, fatigue analysis and crack propagation prediction. It is developed by [OWI-Lab](https://www.owi-lab.be/) at Vrije Universiteit Brussel.
+Py-Fatigue is a Python package for stress–life fatigue, crack-growth analysis,
+and cycle counting. It is developed at Vrije Universiteit Brussel by
+[OWI-Lab](https://www.owi-lab.be/).
 
-[Stable documentation](https://owi-lab.github.io/py_fatigue/) · [3.0.0rc2 documentation](https://owi-lab.github.io/py_fatigue/3.0.0rc2/)
+[Stable documentation](https://owi-lab.github.io/py_fatigue/) · [Migrate from 2.x](https://owi-lab.github.io/py_fatigue/3.0.0/user/migrate-v3.html)
 
-The main features of Py-Fatigue are:
-- a powerful cycle-counting implementation based on the ASTM E1049-85 rainflow method that retrieves the main class of the package: ``CycleCount``
-- capability of storing the ``CycleCount`` results in a sparse format for storage and memory efficiency
-- easy applicability of multiple mean stress effect correction models
-- implementation of low-frequency fatigue recovery when "summing" multiple ``CycleCount`` instances
-- fatigue analysis through the combination of SN curves and multiple damage accumulation models
-- crack propagation analysis through the combination of the Paris' law and multiple crack geometries
-- and more...
+## What you can analyze
 
-Py-Fatigue 3 uses a Rust numerical extension with [``numpy``](https://numpy.org/) and [``pandas``](https://pandas.pydata.org/), for the analytical part, and [``matplotlib``](https://matplotlib.org/) as well as [``pyecharts``](https://pyecharts.org/) for the plotting part.
+- **Stress–life fatigue** with S–N curves, mean-stress corrections, and
+  linear or nonlinear damage accumulation. Estimate fatigue life and
+  calculate damage-equivalent stresses and moments.
+  [Stress–life example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/07-damage.html)
+- **Crack growth** with Paris and Walker curves or ordered NASGRO load
+  blocks. Evaluate stress intensity for supported geometries and plot the
+  initial and final crack profiles.
+  [Crack-growth example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/08-ordered-crack-growth.html)
+- **Cycle counting** with ASTM E1049-85 rainflow counting and `CycleCount`.
+  Import SEP005 or pyExSi histories, store sparse rainflow histograms, and
+  recover low-frequency cycles when combining counting windows.
+  [Cycle-counting example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/04-cycle_counting.html)
+
+Py-Fatigue 3 uses Rust numerical kernels with NumPy and pandas. Plot material
+curves, geometries, and analysis results with Matplotlib or ECharts.
 
 Examples in marimo offer **Static** (Matplotlib) and **ECharts** views. Pass a Matplotlib figure to `py_fatigue.plotting.to_echarts(fig)` to get an interactive chart, or call `sn_curve.echarts()` for a single S–N curve.
 
@@ -33,12 +42,6 @@ Install the stable release with:
 
 ```bash
 pip install py-fatigue
-```
-
-Install release candidate 2 with:
-
-```bash
-pip install py-fatigue==3.0.0rc2
 ```
 
 Py-Fatigue 3 supports 64-bit CPython 3.10–3.15. Platform wheels include the
@@ -60,8 +63,8 @@ uv run marimo edit notebooks
 ```
 
 Start with `00-development_guide.py` or pick a lesson from the
-[numbered notebook index](docs/user/examples/01-notebook_setup.md).
-The end-to-end tutorials are in [notebooks/tutorials](notebooks/tutorials/).
+[numbered notebook index](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/01-notebook_setup.html).
+The end-to-end tutorials are in [notebooks/tutorials](https://github.com/OWI-Lab/py_fatigue/tree/develop/notebooks/tutorials).
 
 ## Build the documentation locally
 
@@ -77,18 +80,17 @@ and rendered examples.
 
 Run the **Documentation** workflow from `develop` and pass the existing
 release tag. Each tag is built from its own source and published to its
-versioned URL. For example, `v3.0.0-rc.2` uses `/3.0.0rc2/`.
+versioned URL. For example, `v3.0.0` uses `/3.0.0/`.
 
 ```bash
-gh workflow run pages.yml --ref develop -f publish=true -f release_tag=v2.1.1 -f stable=true
-gh workflow run pages.yml --ref develop -f publish=true -f release_tag=v3.0.0-rc.2
+gh workflow run pages.yml --ref develop -f publish=true -f release_tag=v3.0.0 -f stable=true
 ```
 
 For a documentation refresh, merge the updates into `develop` and set
 `refresh=true`. The tag must match the version declared on `develop`.
 
 ```bash
-gh workflow run pages.yml --ref develop -f publish=true -f release_tag=v3.0.0-rc.2 -f refresh=true
+gh workflow run pages.yml --ref develop -f publish=true -f release_tag=v3.0.0 -f refresh=true -f stable=true
 ```
 
 Use `stable=true` only when a final release should also be served at the
@@ -146,7 +148,8 @@ In Github (2.0.1). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 ## License
 
 The package is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
-The source distribution and wheels include the [Rust dependency notices](THIRD_PARTY_NOTICES).
+The source distribution and wheels include the
+[Rust dependency notices](https://github.com/OWI-Lab/py_fatigue/blob/develop/THIRD_PARTY_NOTICES).
 
 ## Acknowledgements
 

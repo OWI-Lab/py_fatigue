@@ -1,5 +1,25 @@
 # Changelog
 
+## 3.0.0
+
+- Replace Numba with Rust numerical kernels and provide native wheels for
+  64-bit CPython 3.10–3.15. The rainflow regression suite verifies exact
+  agreement with Py-Fatigue 2.1.1.
+- Retain the public fatigue classes and pandas accessors. The
+  [migration guide](user/migrate-v3.md) covers code that used Numba-specific
+  helpers.
+- Add ordered NASGRO crack growth for supported plate, shell, bar, thread,
+  and plate-hole geometries. Verify TC01 life and SC01 crack shape and depth
+  history against published membrane-tension benchmarks. The
+  [crack-growth guide](user/examples/08-ordered-crack-growth.md) gives the
+  supported load and geometry limits.
+- Add SEP005 and pyExSi stress-history connectors for cycle counting and
+  fatigue analysis.
+- Move the documentation to Zensical and the examples to marimo. The
+  [notebooks](user/examples/01-notebook_setup.md) include Matplotlib and
+  ECharts views, synthetic histories, and AFGROW handbook comparisons.
+- Update the Rust bindings to PyO3 0.30.1 and Rust NumPy 0.30.0.
+
 ## 3.0.0rc2
 
 - Add CPython 3.15 support and stress-history connectors for SEP005 and pyExSi.

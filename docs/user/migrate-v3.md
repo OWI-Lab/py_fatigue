@@ -6,12 +6,11 @@ available at package level.
 
 ## Install in a separate environment
 
-For the 3.0.0rc2 release candidate, use a supported 64-bit CPython version
-from 3.10 through 3.15. A compatible wheel includes the Rust extension.
-Install Rust if pip needs to build from source.
+Py-Fatigue 3.0.0 supports 64-bit CPython 3.10–3.15. A compatible wheel
+includes the Rust extension. Install Rust if pip needs to build from source.
 
 ```bash
-python -m pip install "py-fatigue==3.0.0rc2"
+python -m pip install "py-fatigue==3.0.0"
 ```
 
 ## Run an existing v2 analysis
