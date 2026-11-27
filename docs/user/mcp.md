@@ -9,11 +9,17 @@ history, check the Miner damage, and export the damage contributions.
 
 ## Connect Codex
 
-From a checkout of the Py-Fatigue repository, with uv and Rust installed, run:
+Install the companion package from PyPI with uv. If uv asks you to add its
+tool directory to `PATH`, run `uv tool update-shell` and open a new shell.
 
 ```sh
-uv sync --project extensions/py-fatigue-mcp --no-dev
-codex mcp add py-fatigue -- "$PWD/extensions/py-fatigue-mcp/.venv/bin/py-fatigue-mcp"
+uv tool install py-fatigue-mcp==0.1.0
+```
+
+Register the installed executable with Codex.
+
+```sh
+codex mcp add py-fatigue -- "$(command -v py-fatigue-mcp)"
 ```
 
 Start a new Codex session and run `/mcp` to check the connection. In other
@@ -28,7 +34,7 @@ you want the client to be able to read.
 codex mcp add py-fatigue \
   --env "PY_FATIGUE_MCP_INPUT_DIR=/absolute/path/to/input" \
   --env "PY_FATIGUE_MCP_OUTPUT_DIR=/absolute/path/to/output" \
-  -- "$PWD/extensions/py-fatigue-mcp/.venv/bin/py-fatigue-mcp"
+  -- "$(command -v py-fatigue-mcp)"
 ```
 
 Other MCP clients can set the same environment variables when launching the
