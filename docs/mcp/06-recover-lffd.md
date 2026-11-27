@@ -5,8 +5,8 @@ Use `lffd_recovery` to recount the residual turning points in order and
 compare the recovered spectrum with the independent window counts. LFFD
 stands for low-frequency fatigue dynamics.
 
-Use a server that lists `lffd_recovery`. You can
-[run the tool from a checkout](02-run-locally.md#run-from-a-checkout).
+Use a server that lists `lffd_recovery`, such as
+[local MCP 0.2.0](02-run-locally.md).
 The example uses four consecutive windows from one synthetic stress
 record. Each window contains 24 samples in MPa. A slow load variation
 spans the windows while smaller oscillations repeat within them.
@@ -49,3 +49,6 @@ Merge windows that contain too few reversals to count. See
 [how residuals are counted](../user/additional/02-rainflow-and-residuals.md)
 and the [cycle-count aggregation notebook](../11-cycle_count_aggregation.html)
 for the Python workflow.
+
+To recover cycles and apply a stress concentration factor in one workflow,
+use [Count, combine, and scale cycles](09-count-and-combine-cycles.md).

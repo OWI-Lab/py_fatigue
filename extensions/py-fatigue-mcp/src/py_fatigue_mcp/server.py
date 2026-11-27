@@ -3,24 +3,28 @@
 from mcp.server import MCPServer
 
 from .crack_growth import ordered_crack_growth
+from .cycle_count import cycle_count
+from .geometry import geometry_stress_intensity
 from .lffd import lffd_recovery
-from .stress_life import miner_damage, rainflow_count
+from .models import SERVER_INSTRUCTIONS
+from .plotting import plot_py_fatigue
+from .stress_life import miner_damage, rainflow_count, sn_curve
+from .synthetic import generate_synthetic_data
 
-mcp = MCPServer(
-    "py-fatigue",
-    instructions=(
-        "Use MPa for stress and mm for lengths. Supply the analysis inputs "
-        "and calibrated material parameters. Results contain up to five "
-        "preview rows. Offer CSV export for complete results when the preview "
-        "omits rows, and export only at the user's request."
-    ),
-)
+mcp = MCPServer("py-fatigue", instructions=SERVER_INSTRUCTIONS)
 
-
-mcp.add_tool(rainflow_count)
-mcp.add_tool(miner_damage)
-mcp.add_tool(lffd_recovery)
-mcp.add_tool(ordered_crack_growth)
+for tool in (
+    rainflow_count,
+    cycle_count,
+    miner_damage,
+    sn_curve,
+    lffd_recovery,
+    ordered_crack_growth,
+    geometry_stress_intensity,
+    generate_synthetic_data,
+):
+    mcp.add_tool(tool)
+mcp.add_tool(plot_py_fatigue, structured_output=False)
 
 
 def main() -> None:

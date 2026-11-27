@@ -55,3 +55,6 @@ uv run --group docs marimo edit notebooks/36-surface_crack_growth.py
 See [supported geometries and loading limits](../api/damage/ordered_crack_growth.md)
 and the [MCP tool reference](08-tool-reference.md#simulate-ordered-crack-growth)
 for the full input and output conventions.
+
+For a native plot of the output or a sketch of another case, see
+[Plot geometries and crack growth](11-plot-geometries-and-growth.md).

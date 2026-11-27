@@ -76,8 +76,8 @@ reversals for ASTM rainflow counting to return cycle rows.
 | `remaining_turning_points` | Number of points left in the recounted residual sequence. |
 | `row_count`, `preview` | Recovered row count and up to five rows with range, mean stress, and weight. |
 
-See the [four-window example](06-recover-lffd.md). Run from a checkout
-or use a hosted instance where the tool is available.
+See the [four-window example](06-recover-lffd.md). Use MCP 0.2.0
+or a server that lists this tool.
 
 ## Use local CSV files
 
@@ -109,3 +109,84 @@ starting at 1, following the dimension and tip order in the tool result.
 | Crack-growth trials per call | 100,000 | 100,000 |
 
 Use a smaller dataset when a call exceeds an input limit.
+
+## Build, add, and scale native CycleCount
+
+`cycle_count(stress, method)` accepts an ordered MPa sample array,
+`synthetic_history`, a local CSV reference, or a
+`cycle_count_windows` specification. The count reports unbinned rows,
+full-cycle weight, half-cycle rows, maximum range, and residuals. Set
+`method` to `astm` or `fourpoint`.
+
+| Window specification field | Meaning |
+| --- | --- |
+| `windows` | One to 64 windows in acquisition order, with at most 100,000 samples in total. Each window provides `stress` and an optional positive `stress_concentration_factor`. |
+| `resolve_residuals` | Recount the joined residuals after adding the windows. Defaults to false. |
+| `stress_concentration_factor` | Positive multiplier applied to the resulting count after optional recovery. Defaults to 1. |
+
+Per-window factors apply before addition. Each factor scales ranges,
+means, and residuals while keeping cycle weights. Use consecutive,
+non-overlapping windows for residual recovery. Inspect `lffd_solved`
+to confirm recovery ran. For Miner damage from these exact cycles,
+supply a source of `kind: "cycle_count"` with the same `stress` and
+`method`. See [the worked addition](09-count-and-combine-cycles.md).
+
+## Evaluate an S–N curve
+
+`sn_curve` takes a `curve` with `slope`, log10 `intercept`, and
+optional `endurance`. Supply up to 1,000 positive `stress_ranges` in
+MPa, positive `cycles`, or both. Results come back in input order.
+A null element in `cycles_to_failure` represents infinite life.
+
+## Generate reusable data
+
+`generate_synthetic_data` takes a `specification` and returns it with
+a bounded preview. This is the same input used to regenerate the full
+data in another call.
+
+| Specification kind | Bounds and inputs | Analysis input |
+| --- | --- | --- |
+| `synthetic_history` | 2 to 100,000 time samples. Supply `fs` in Hz, `duration` in seconds, optionally `start` in seconds, and `minimum` and `maximum` in MPa. | `stress` of `rainflow_count` or `cycle_count`, a window's `stress`, or `source.stress` with `kind: "stress_history"` for `miner_damage`. |
+| `synthetic_loads` | 2 to 10,000 ordered blocks. Supply `block_count`, `minimum`, `lowest_peak`, and `highest_peak` in MPa as applicable, and `cycles_per_block`. Peaks must exceed the minimum. | `loads` of `ordered_crack_growth` or a corresponding native plot. |
+
+Both take a `seed` in the unsigned 32-bit range, a `random_type`, and
+optional numeric `parameters`. The default distribution is normal
+and the default seed is 2.
+
+| Distribution | Accepted parameters |
+| --- | --- |
+| `normal` | `loc`, `scale` |
+| `uniform` | `low`, `high` |
+| `weibull` | `a` (required) |
+| `rayleigh` | `scale` |
+| `lognormal` | `mean`, `sigma` |
+| `exponential` | `scale` |
+
+Local stdio supports `export_csv: true`. Stress-history files contain
+`time,stress`, and load-block files contain `minimum,maximum,cycles`.
+
+## Evaluate geometry stress intensity
+
+`geometry_stress_intensity` takes any of the ten ordered cases and
+up to 1,000 nonnegative `stress_mpa` values. Output has one row per
+applied stress, with the geometry's stress intensity factors in native
+crack-tip order and in MPa·√mm.
+
+## Plot native results
+
+Call `plot_py_fatigue` with a typed `request`. Its `kind` selects
+a native Py-Fatigue method. PNG returns an MCP image. ECharts returns
+an embedded HTML resource, up to 2 MiB. The content is displayed or
+saved by the client.
+
+| Kind | Native result |
+| --- | --- |
+| `cycle_count` | `histogram`, `residuals`, or `half_cycles`. Histogram inputs include min–max, mean–range, counts–range, cumulative counts–range, or counts–range 2D axes. Set bins, bin range, density mode, and normalization for the two binned views. Accepts the same histories and windows as `cycle_count`. |
+| `sn_curve` | Curve with scale and optional paired cycle counts and measured stress ranges. |
+| `miner_damage` | Contribution scatter or histogram from the same `source` and `curve` accepted by `miner_damage`. |
+| `geometry` | Initial sketch for any ordered case, plus `infinite_surface`, `cylinder`, `hollow_cylinder`, and `tabulated`. |
+| `crack_growth` | Native growth `history` or `profile`. Takes the same geometry, curve, loads, and controls as `ordered_crack_growth`. |
+| `nasgro_curve` | Growth rate versus maximum intensity, with optional length, minimum intensity, and maximum-intensity sweep or query samples. |
+| `paris_curve`, `walker_curve` | Growth curves with optional paired observations. Use coefficients for their intercepts. |
+
+See the [usage prompts](01-overview.md#usage-prompts) for examples.

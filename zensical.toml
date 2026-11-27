@@ -53,6 +53,12 @@ nav = [
       "mcp/07-propagate-sc07.md",
     ] },
     "mcp/08-tool-reference.md",
+    { "Usage prompts" = [
+      "mcp/09-count-and-combine-cycles.md",
+      "mcp/10-evaluate-and-plot-curves.md",
+      "mcp/11-plot-geometries-and-growth.md",
+      "mcp/12-generate-and-analyze-data.md",
+    ] },
   ] },
   { "API reference" = [
     "api/01-index.md",

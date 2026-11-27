@@ -9,6 +9,19 @@ Positive = Annotated[Number, Field(gt=0)]
 Nonnegative = Annotated[Number, Field(ge=0)]
 
 
+SERVER_INSTRUCTIONS = (
+    "Use MPa for stress and mm for lengths. Use caller-supplied material inputs. "
+    "For every plotting request, inspect plot_py_fatigue and use a native "
+    "Py-Fatigue plot when available. Prefer the returned image or ECharts "
+    "resource over rebuilding the chart from a preview. If the native tool "
+    "does not cover the request, explain the gap before proposing custom plotting. "
+    "Previews contain at most five rows. Offer CSV when available and export "
+    "only on request. Reuse a synthetic specification to analyze all generated "
+    "rows without copying samples from a preview. Preserve tensile load order "
+    "for crack growth."
+)
+
+
 class InputModel(BaseModel):
     """Validate the JSON shape and reject unknown input fields."""
 

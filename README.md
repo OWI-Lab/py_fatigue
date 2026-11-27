@@ -6,7 +6,7 @@
 [![lint](https://img.shields.io/github/actions/workflow/status/owi-lab/py_fatigue/ci.yml?label=lint)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/ci.yml)
 [![issues](https://img.shields.io/github/issues/owi-lab/py_fatigue)](https://github.com/OWI-Lab/py_fatigue/issues)
 [![CI/CD](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml/badge.svg)](https://github.com/OWI-Lab/py_fatigue/actions/workflows/cd.yml)
-[![documentation](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment/badge.svg?label=docs)](https://owi-lab.github.io/py_fatigue/)
+[![documentation](https://github.com/OWI-Lab/py_fatigue/actions/workflows/pages/pages-build-deployment/badge.svg?label=docs)](https://py-fatigue.dev/)
 
 ![Py-Fatigue](https://raw.githubusercontent.com/OWI-Lab/py_fatigue/develop/docs/_static/_img/py-fatigue-readme-logo.svg)
 
@@ -14,22 +14,22 @@ Py-Fatigue is a Python package for stress–life fatigue, crack-growth analysis,
 and cycle counting. It is developed at Vrije Universiteit Brussel by
 [OWI-Lab](https://www.owi-lab.be/).
 
-[Stable documentation](https://owi-lab.github.io/py_fatigue/) · [Migrate from 2.x](https://owi-lab.github.io/py_fatigue/3.0.0/user/migrate-v3.html)
+[Stable documentation](https://py-fatigue.dev/) · [Migrate from 2.x](https://py-fatigue.dev/3.0.0/user/migrate-v3.html)
 
 ## What you can analyze
 
 - **Stress–life fatigue** with S–N curves, mean-stress corrections, and
   linear or nonlinear damage accumulation. Estimate fatigue life and
   calculate damage-equivalent stresses and moments.
-  [Stress–life example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/06-stress-life-damage.html)
+  [Stress–life example](https://py-fatigue.dev/3.0.0/user/examples/06-stress-life-damage.html)
 - **Crack growth** with Paris and Walker curves or ordered NASGRO load
   blocks. Evaluate stress intensity for supported geometries and plot the
   initial and final crack profiles.
-  [Crack-growth example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/07-ordered-crack-growth.html)
+  [Crack-growth example](https://py-fatigue.dev/3.0.0/user/examples/07-ordered-crack-growth.html)
 - **Cycle counting** with ASTM E1049-85 rainflow counting and `CycleCount`.
   Import SEP005 or pyExSi histories, store sparse rainflow histograms, and
   recover low-frequency cycles when combining counting windows.
-  [Cycle-counting example](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/03-count-stress-cycles.html)
+  [Cycle-counting example](https://py-fatigue.dev/3.0.0/user/examples/03-count-stress-cycles.html)
 
 Py-Fatigue 3 uses Rust numerical kernels with NumPy and pandas. Plot material
 curves, geometries, and analysis results with Matplotlib or ECharts.
@@ -70,7 +70,7 @@ uv run marimo edit notebooks
 ```
 
 Start with `00-development_guide.py` or pick a lesson from the
-[numbered notebook index](https://owi-lab.github.io/py_fatigue/3.0.0/user/examples/08-example-notebooks.html).
+[numbered notebook index](https://py-fatigue.dev/3.0.0/user/examples/08-example-notebooks.html).
 The end-to-end tutorials are in [notebooks/tutorials](https://github.com/OWI-Lab/py_fatigue/tree/develop/notebooks/tutorials).
 
 ## Build the documentation locally
@@ -122,7 +122,7 @@ If you use Py-Fatigue in your research, please use the following citation:
 
 ```
 D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software].
-In Github (3.0.0). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
+In Github (3.0.0). https://www.owi-lab.be/. https://py-fatigue.dev
 ```
 
 ### BibTeX-style
@@ -133,7 +133,7 @@ In Github (3.0.0). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 	publisher = {https://www.owi-lab.be/},
 	title = {{Py-Fatigue}},
 	year = {2022},
-	url = {https://owi-lab.github.io/py_fatigue},
+	url = {https://py-fatigue.dev},
 }
 ```
 
@@ -147,7 +147,7 @@ In Github (3.0.0). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 	publisher = {https://www.owi-lab.be/},
 	title = {Py-Fatigue},
 	type = {software},
-	url = {https://owi-lab.github.io/py_fatigue},
+	url = {https://py-fatigue.dev},
 	version = {3.0.0},
 }
 ```

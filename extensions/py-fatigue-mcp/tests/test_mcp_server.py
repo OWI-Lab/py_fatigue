@@ -126,8 +126,17 @@ async def test_rainflow_and_miner(client, tmp_path: Path) -> None:
         "miner_damage",
         "lffd_recovery",
         "ordered_crack_growth",
+        "cycle_count",
+        "sn_curve",
+        "geometry_stress_intensity",
+        "generate_synthetic_data",
+        "plot_py_fatigue",
     }
-    assert all(tool.output_schema for tool in listed.tools)
+    assert all(
+        tool.output_schema
+        for tool in listed.tools
+        if tool.name != "plot_py_fatigue"
+    )
 
     direct = CycleCount.from_timeseries(STRESS)
     expected = np.column_stack(
@@ -400,3 +409,327 @@ async def test_crack_growth_stops_and_errors(client) -> None:
             }
         ),
     )
+
+
+async def test_cycle_count_addition_and_scf(
+    client: mcp.Client, tmp_path: Path
+) -> None:
+    """Preserve time order and scale MPa values without scaling cycle counts."""
+    second = [0, 55, -25, 40, 0, 90, -5, 75, -15, 0]
+    timestamp = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    first_native = CycleCount.from_timeseries(STRESS, timestamp=timestamp)
+    second_native = CycleCount.from_timeseries(second, timestamp=timestamp)
+    spec = {
+        "kind": "cycle_count_windows",
+        "windows": [
+            {"stress": STRESS},
+            {"stress": second},
+        ],
+        "resolve_residuals": True,
+        "stress_concentration_factor": 1.25,
+    }
+    direct = (first_native + second_native).solve_lffd() * 1.25
+    result = await call(client, "cycle_count", stress=spec, export_csv=True)
+    assert result["lffd_solved"]
+    assert result["total_cycles"] == pytest.approx(sum(direct.count_cycle))
+    assert result["max_stress_range"] == pytest.approx(max(direct.stress_range))
+    assert result["residual_count"] == len(direct.residuals_sequence)
+    assert [
+        float(row["stress_range"]) for row in exported_rows(tmp_path, result)
+    ] == pytest.approx(direct.stress_range)
+    damage = await call(
+        client,
+        "miner_damage",
+        source={"kind": "cycle_count", "stress": spec},
+        curve={"slope": 3, "intercept": 12},
+    )
+    assert damage["total_damage"] == pytest.approx(
+        calc_pm(direct.stress_range, direct.count_cycle, SNCurve(3, 12)).sum()
+    )
+    window_specs = [
+        {"stress": STRESS, "stress_concentration_factor": 1.5},
+        {"stress": second, "stress_concentration_factor": 1.2},
+    ]
+    scaled_sum = (first_native * 1.5) + (second_native * 1.2)
+    result = await call(
+        client,
+        "cycle_count",
+        stress={"kind": "cycle_count_windows", "windows": window_specs},
+    )
+    assert result["total_cycles"] == sum(scaled_sum.count_cycle)
+    assert result["max_stress_range"] == max(scaled_sum.stress_range)
+    await assert_tool_error(
+        client,
+        "cycle_count",
+        "greater than 0",
+        stress=dict(spec, stress_concentration_factor=0),
+    )
+
+
+async def test_synthetic_analysis_and_material_queries(
+    client: mcp.Client, tmp_path: Path
+) -> None:
+    """Regenerate complete seeded data in cycle count, Miner and crack growth."""
+    history = {
+        "kind": "synthetic_history",
+        "fs": 16,
+        "duration": 32,
+        "seed": 42,
+        "minimum": -40,
+        "maximum": 100,
+        "random_type": "weibull",
+        "parameters": {"a": 2},
+    }
+    generated = await call(
+        client,
+        "generate_synthetic_data",
+        specification=history,
+        export_csv=True,
+    )
+    assert generated["row_count"] == 512
+    assert len(generated["preview"]) == 5
+    records = exported_rows(tmp_path, generated)
+    samples = [float(row["stress"]) for row in records]
+    assert min(samples) == -40
+    assert max(samples) == 100
+    assert float(records[1]["time"]) == 1 / 16
+    curve = {"slope": 3, "intercept": 12, "endurance": 1_000_000}
+    direct = CycleCount.from_timeseries(samples, rainflow_method="fourpoint")
+    counted = await call(
+        client,
+        "cycle_count",
+        stress=generated["specification"],
+        method="fourpoint",
+    )
+    assert counted["total_cycles"] == pytest.approx(sum(direct.count_cycle))
+    native = await call(
+        client,
+        "miner_damage",
+        source={"kind": "stress_history", "stress": generated["specification"]},
+        curve=curve,
+    )
+    via_inline = await call(
+        client,
+        "miner_damage",
+        source={"kind": "stress_history", "stress": samples},
+        curve=curve,
+    )
+    assert native == via_inline
+    evaluated = await call(
+        client, "sn_curve", curve=curve, stress_ranges=[20, 200], cycles=[1000]
+    )
+    assert evaluated["cycles_to_failure"][0] is None
+    assert evaluated["cycles_to_failure"][1] == pytest.approx(125_000)
+    assert evaluated["stress_ranges_mpa"] == pytest.approx([1000])
+    await assert_tool_error(
+        client,
+        "generate_synthetic_data",
+        "100,000 samples",
+        specification=dict(history, duration=100_000),
+    )
+    await assert_tool_error(
+        client,
+        "generate_synthetic_data",
+        "unsupported distribution parameter",
+        specification=dict(history, parameters={"scale": 1}),
+    )
+
+    loads = {
+        "kind": "synthetic_loads",
+        "block_count": 6,
+        "minimum": 10,
+        "lowest_peak": 40,
+        "highest_peak": 65,
+        "cycles_per_block": 10,
+        "seed": 17,
+    }
+    generated = await call(
+        client, "generate_synthetic_data", specification=loads, export_csv=True
+    )
+    ordered = [
+        {name: float(value) for name, value in row.items()}
+        for row in exported_rows(tmp_path, generated)
+    ]
+    bar = {"case": "SC07", "diameter": 100, "depth": 4}
+    request = {
+        "geometry": bar,
+        "curve": asdict(CURVE),
+        "controls": dict(CONTROLS, max_trials=120),
+    }
+    growth = await call(client, "ordered_crack_growth", loads=loads, **request)
+    assert growth == await call(
+        client, "ordered_crack_growth", loads=ordered, **request
+    )
+    assert growth["final_cycles"] == 60
+    intensity = await call(
+        client, "geometry_stress_intensity", geometry=bar, stress_mpa=[50, 65]
+    )
+    assert intensity["intensity_mpa_sqrt_mm"][0] == pytest.approx(
+        [cg.RoundBarSurfaceCrack(100, 4).stress_intensity(50)]
+    )
+
+
+async def test_native_plot_variants(client: mcp.Client, tmp_path: Path) -> None:
+    """Return MCP images for native plot families, plus interactive HTML."""
+    (tmp_path / "inputs" / "wave.csv").write_text(
+        "stress\n" + "\n".join(map(str, STRESS)), encoding="utf-8"
+    )
+    stress = {"csv_path": "wave.csv"}
+    sn = {"slope": 3, "intercept": 12}
+    growth = {
+        "kind": "crack_growth",
+        "geometry": {"case": "SC07", "diameter": 100, "depth": 4},
+        "curve": asdict(CURVE),
+        "loads": [asdict(block) for block in LOADS],
+        "controls": CONTROLS,
+    }
+    geometries = [
+        {"case": "TC01", "half_width": 50, "half_length": 5},
+        {"case": "TC02", "width": 50, "length": 5},
+        {"case": "TC06", "mean_radius": 100, "thickness": 1, "half_length": 10},
+        {"case": "TC07", "mean_radius": 100, "thickness": 1, "half_length": 10},
+        {
+            "case": "TC08",
+            "mean_radius": 100,
+            "thickness": 1,
+            "half_length": 10,
+            "length": 2500,
+            "poisson": 0.3,
+        },
+        {
+            "case": "SC01",
+            "half_width": 50,
+            "thickness": 15,
+            "depth": 6,
+            "half_length": 10,
+        },
+        {
+            "case": "SC05",
+            "inner_radius": 20,
+            "thickness": 10,
+            "depth": 4,
+            "half_length": 5,
+        },
+        growth["geometry"],
+        {
+            "case": "SC08",
+            "major_diameter": 12,
+            "minor_diameter": 10,
+            "depth": 1.5,
+        },
+        {
+            "case": "SC11",
+            "width": 80,
+            "thickness": 12,
+            "hole_diameter": 12,
+            "depth": 2.2,
+            "half_length": 2.5,
+            "crack_count": 2,
+        },
+        {"case": "infinite_surface", "initial_depth": 3},
+        {
+            "case": "cylinder",
+            "initial_depth": 3,
+            "diameter": 100,
+            "height": 150,
+        },
+        {
+            "case": "hollow_cylinder",
+            "initial_depth": 3,
+            "outer_diameter": 100,
+            "thickness": 15,
+            "height": 150,
+            "crack_position": "external",
+        },
+        {
+            "case": "tabulated",
+            "initial_depth": 3,
+            "depths": [2, 4, 7],
+            "factors": [1, 1.1, 1.4],
+        },
+    ]
+    requests = (
+        [
+            {
+                "kind": "cycle_count",
+                "stress": stress,
+                "view": view,
+                "axes": "mean-range",
+            }
+            for view in ("histogram", "residuals", "half_cycles")
+        ]
+        + [
+            {"kind": "cycle_count", "stress": stress, "axes": axes}
+            for axes in (
+                "min-max",
+                "counts-range",
+                "counts-range-cumsum",
+                "counts-range-2D",
+            )
+        ]
+        + [
+            {
+                "kind": "cycle_count",
+                "stress": stress,
+                "axes": "mean-range",
+                "bins": [20, [0, 40, 80, 160]],
+                "bin_range": [[-30, 80], [0, 160]],
+            }
+        ]
+        + [
+            {
+                "kind": "sn_curve",
+                "curve": sn,
+                "cycles": [1000, 2000],
+                "stress_ranges": [800, 700],
+            },
+            {"kind": "nasgro_curve", "curve": asdict(CURVE)},
+            {
+                "kind": "paris_curve",
+                "slope": 3,
+                "intercept": 1e-12,
+                "critical": 500,
+            },
+            {
+                "kind": "walker_curve",
+                "slope": 3,
+                "intercept": 1e-12,
+                "critical": 500,
+                "load_ratio": 0.3,
+                "walker_exponent": 0.5,
+            },
+            {
+                "kind": "miner_damage",
+                "source": {"kind": "stress_history", "stress": stress},
+                "curve": sn,
+            },
+            {
+                "kind": "miner_damage",
+                "source": {"kind": "stress_history", "stress": stress},
+                "curve": sn,
+                "view": "histogram",
+            },
+            growth,
+            dict(growth, view="profile"),
+        ]
+        + [
+            {"kind": "geometry", "geometry": geometry}
+            for geometry in geometries
+        ]
+    )
+    for request in requests:
+        result = await client.call_tool("plot_py_fatigue", {"request": request})
+        assert not result.is_error, (request, result.content)
+        assert len(result.content) == 1
+        assert result.content[0].type == "image"
+        assert result.content[0].mime_type == "image/png"
+        assert result.content[0].data.startswith("iVBORw")
+
+    result = await client.call_tool(
+        "plot_py_fatigue",
+        {"request": {"kind": "sn_curve", "curve": sn}, "format": "echarts"},
+    )
+    assert not result.is_error, result.content
+    assert result.content[0].type == "resource"
+    assert result.content[0].resource.mime_type == "text/html"
+    assert "echarts.init" in result.content[0].resource.text

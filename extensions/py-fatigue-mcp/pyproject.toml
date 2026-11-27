@@ -1,21 +1,23 @@
 [project]
 name = "py-fatigue-mcp"
-version = "0.1.0"
-description = "Local MCP tools for Py-Fatigue v3"
+version = "0.2.0"
+description = "MCP analysis and native plots for Py-Fatigue v3"
 readme = "README.md"
 requires-python = ">=3.10,<3.16"
 license = "GPL-3.0-only"
 license-files = ["LICENSE"]
 dependencies = [
+    "matplotlib>=3.6",
     "mcp>=2.3,<3",
     "numpy>=1.24",
+    "pandas>=2.2.3",
     "py-fatigue>=3.0,<4",
     "pydantic>=2.12,<3",
 ]
 
 [project.urls]
 Repository = "https://github.com/OWI-Lab/py_fatigue"
-Documentation = "https://github.com/OWI-Lab/py_fatigue/blob/develop/docs/mcp/01-overview.md"
+Documentation = "https://py-fatigue.dev/mcp/01-overview.html"
 
 [project.scripts]
 py-fatigue-mcp = "py_fatigue_mcp.server:main"
