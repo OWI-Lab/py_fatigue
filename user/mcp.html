@@ -1131,6 +1131,33 @@
   
   
     <li class="md-nav__item">
+      <a href="./examples/mcp-hosted.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Run a fatigue analysis in Codex or Claude Code
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="./examples/01-notebook_setup.html" class="md-nav__link">
         
   
@@ -2272,11 +2299,14 @@
 
 
 <h1 id="run-py-fatigue-from-an-mcp-client">Run Py-Fatigue from an MCP client<a class="headerlink" href="#run-py-fatigue-from-an-mcp-client" title="Permanent link">&para;</a></h1>
-<p>The local MCP server gives Codex and other stdio clients access to ASTM
-rainflow counting, Palmgren–Miner damage, and ordered NASGRO crack growth.
-The client starts a subprocess on your machine.</p>
-<p>Follow the <a href="examples/mcp-fatigue.html">worked MCP example</a> to count a stress
-history, check the Miner damage, and export the damage contributions.</p>
+<p>The Py-Fatigue MCP gives Codex and other MCP clients access to ASTM
+rainflow counting, Palmgren–Miner damage, and ordered NASGRO crack growth.</p>
+<ul>
+<li><a href="examples/mcp-hosted.html">Try the hosted MCP in Codex or Claude Code</a>
+  with a bearer token and inline data.</li>
+<li><a href="examples/mcp-fatigue.html">Run the local CSV example</a> to analyze a file
+  and export the damage contributions from a subprocess on your machine.</li>
+</ul>
 <h2 id="connect-codex">Connect Codex<a class="headerlink" href="#connect-codex" title="Permanent link">&para;</a></h2>
 <p>Install the companion package from PyPI with uv. If uv asks you to add its
 tool directory to <code>PATH</code>, run <code>uv tool update-shell</code> and open a new shell.</p>
