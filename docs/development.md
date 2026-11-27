@@ -28,14 +28,21 @@ uv run pytest
 
 ## Review native kernels
 
+Use Holzmann’s Power of Ten as a review guide for the Rust kernels.
+
 - Keep control flow simple and avoid recursion. Give each loop a finite
   bound and validate dimensions and solver budgets before execution.
 - Allocate scratch and output buffers before entering the calculation.
-  Keep functions small and use narrow, immutable bindings where possible.
-- Check meaningful invariants and return typed errors on failure,
+  Keep functions short enough to review on one page and use narrow,
+  immutable bindings where possible.
+- Aim for an average of two meaningful invariant checks per function
+  and return typed errors on failure,
   including in release builds. Handle fallible results at the boundary.
 - Use safe borrows and exhaustive dispatch. Keep authored unsafe code,
   foreign callbacks, and binding macros out of the numerical kernels.
+  Justify conditional compilation and keep the numerical logic explicit.
+- Run formatting, warning-free compilation, Clippy, and tests in CI
+  and scheduled checks.
 - Review loop bounds, allocations, call graphs, and error paths manually
   where the automated checks cannot establish them.
 

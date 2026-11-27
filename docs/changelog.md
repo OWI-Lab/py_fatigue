@@ -51,6 +51,17 @@ with the AFGROW handbook.
 
 Install this candidate explicitly with `pip install py-fatigue==3.0.0rc1`.
 
+## Historical unreleased notes from 2.x
+
+- Cache generic Numba root-finder specializations, add opt-in
+  `warmup_numba()`, and enable disk caching for direct Numba kernels.
+- Support Numba 0.61 through 0.65 on Python versions below 3.14 and
+  Numba 0.65 on Python 3.14.
+- Fix pandas 3.x compatibility in cycle-count aggregation and notebook
+  examples.
+- Update the Numba performance report, repair docs links, and run the
+  tutorial notebooks on Python 3.13 and 3.14.
+
 ## 2.0.4
 - bump(patch): Bump version to 2.0.4 [skip ci]
 - ci(pages): Pages compiled only from develop branch.
