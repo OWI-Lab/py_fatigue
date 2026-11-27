@@ -33,6 +33,7 @@ nav = [
       "user/examples/07-damage.md",
       "user/examples/08-ordered-crack-growth.md",
       "user/examples/mcp-fatigue.md",
+      "user/examples/mcp-hosted.md",
       "user/examples/01-notebook_setup.md",
     ] },
     { "Background" = [

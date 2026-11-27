@@ -146,7 +146,7 @@ print(f"Final crack half-length: {result.history[-1].sizes[0]:.3f} mm")
 
 Use the companion package to count cycles, calculate Miner damage, or run ordered NASGRO crack growth. Export full results as local CSV files when you need them.
 
-[Follow the MCP worked example](user/examples/mcp-fatigue.md)
+[Try the hosted MCP in Codex or Claude Code](user/examples/mcp-hosted.md)
 
 </div>
 

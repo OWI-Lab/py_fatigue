@@ -1,11 +1,12 @@
 # Run Py-Fatigue from an MCP client
 
-The local MCP server gives Codex and other stdio clients access to ASTM
+The Py-Fatigue MCP gives Codex and other MCP clients access to ASTM
 rainflow counting, Palmgren–Miner damage, and ordered NASGRO crack growth.
-The client starts a subprocess on your machine.
 
-Follow the [worked MCP example](examples/mcp-fatigue.md) to count a stress
-history, check the Miner damage, and export the damage contributions.
+- [Try the hosted MCP in Codex or Claude Code](examples/mcp-hosted.md)
+  with a bearer token and inline data.
+- [Run the local CSV example](examples/mcp-fatigue.md) to analyze a file
+  and export the damage contributions from a subprocess on your machine.
 
 ## Connect Codex
 
