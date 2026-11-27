@@ -151,7 +151,11 @@ class EdgeThroughCrack(_PlateCrack):
 
 @dataclass(frozen=True)
 class SemiEllipticalSurfaceCrack(_PlateCrack):
-    """SC01 surface crack with plate and crack dimensions in mm."""
+    """SC01 membrane-tension surface crack with dimensions in mm.
+
+    The fit supports depth/half-length through 1.2, depth/thickness
+    through 0.8 and half-length/half-width below 0.5.
+    """
 
     half_width: float
     thickness: float
@@ -908,7 +912,9 @@ def simulate_crack_growth(
     in cycles, absolute step error in mm, terminal bracket width in cycles and
     total number of trial steps. History contains accepted states. At a
     geometry or toughness limit, its last state is on the admissible side
-    of the bracket.
+    of the bracket. For SC01, the NASFLA free-surface correction scales the
+    intensity range for growth at the surface tip. History reports applied
+    intensities.
     """
     section, initial, names = _plate_state(geometry)
     dimensions = len(names)

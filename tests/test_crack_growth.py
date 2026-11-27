@@ -54,6 +54,37 @@ def test_center_crack_finite_width_reference():
     assert geometry.stress_intensity(40.0) == pytest.approx(intensity)
 
 
+def test_tc01_life_against_published_nasgro_run() -> None:
+    """Reproduce the R=0 curve from Živojinović et al. (2011), Figs. 5 and 8."""
+    inch = 25.4
+    ksi = 6.894757293
+    ksi_root_inch = ksi * math.sqrt(inch)
+    curve = NasgroCurve(
+        coefficient=2.09e-8 * inch / ksi_root_inch**2.947,
+        exponent=2.947,
+        p=0.5,
+        q=1.0,
+        threshold_zero=2.0 * ksi_root_inch,
+        threshold_fanning=2.0,
+        toughness=51.5 * ksi_root_inch,
+        constraint=1.9,
+        peak_to_flow=0.3,
+    )
+    result = simulate_crack_growth(
+        CenterThroughCrack(5.5 * inch, 0.1 * inch),
+        curve,
+        [LoadBlock(0.0, 10.0 * ksi, 200_000)],
+        max_cycle_step=25.0,
+        length_tolerance=1e-6,
+        cycle_tolerance=0.01,
+        max_trials=100_000,
+    )
+    assert result.termination == "toughness"
+    # The paper prints the toughness to 0.1 ksi sqrt(in).
+    assert result.final_cycles == pytest.approx(144_341, rel=0.003)
+    assert result.history[-1].sizes[0] / inch == pytest.approx(3.850, rel=0.003)
+
+
 @pytest.mark.parametrize(
     "radius, depth, half_length, reference",
     [
@@ -270,6 +301,102 @@ def test_surface_crack_finite_element_reference():
     assert surface / scale == pytest.approx(1.015, abs=absolute_tolerance)
 
 
+def test_sc01_deep_tension_solution() -> None:
+    """Check the two endpoint factors from NASA TM-83200, Eqs. 16–25."""
+    geometry = SemiEllipticalSurfaceCrack(50.0, 15.0, 6.0, 5.0)
+    assert geometry.stress_intensity(1.0) == pytest.approx(
+        (2.635128314028900, 3.310012076752532)
+    )
+    with pytest.raises(ValueError, match="Geometry"):
+        replace(geometry, depth=6.01).stress_intensity(1.0)
+
+
+def test_sc01_growth_shape_against_newman_raju() -> None:
+    """Compare the 2219-T87 predicted path in NASA TP-1578, Fig. 12."""
+    # In Appendix A both tips share a Paris exponent of 4 and the c-tip
+    # range multiplier is 0.9. Applied stress, C and plate width only scale
+    # the growth time, so use normalized inputs to compare shape at fixed a/t.
+    curve = NasgroCurve(
+        coefficient=1.0,
+        exponent=4.0,
+        p=0.0,
+        q=0.0,
+        threshold_zero=0.0,
+        threshold_fanning=0.0,
+        toughness=100.0,
+        constraint=2.0,
+        peak_to_flow=0.3,
+    )
+    result = simulate_crack_growth(
+        SemiEllipticalSurfaceCrack(10.0, 1.0, 0.08, 0.08),
+        curve,
+        [LoadBlock(0.0, 1.0, 100)],
+        max_cycle_step=0.01,
+        length_tolerance=1e-7,
+        cycle_tolerance=1e-7,
+        max_trials=100_000,
+    )
+    depth, half_length = np.array([point.sizes for point in result.history]).T
+    assert result.termination == "geometry_limit"
+    assert depth[-1] == pytest.approx(0.8, abs=1e-6)
+    assert max(depth / half_length) > 1.0
+    # Predicted line read from Figure 12, which resolves a/c to about 0.01.
+    ratios = np.interp([0.2, 0.4, 0.6, 0.75], depth, depth / half_length)
+    assert ratios == pytest.approx([1.015, 0.98, 0.93, 0.89], abs=0.015)
+
+
+def test_sc01_depth_history_against_nasa_flagro() -> None:
+    """Check NASA TM-100383 case 5576 before plate breakthrough."""
+    inch = 25.4
+    ksi = 6.894757293
+    geometry = SemiEllipticalSurfaceCrack(
+        2 * inch, 0.5 * inch, 0.06 * inch, 0.06 * inch
+    )
+    maximum = 57 * ksi
+    minimum = 0.05 * maximum
+    exponent = 3.54
+    coefficient = 7.63e-11 * inch / (ksi * math.sqrt(inch)) ** exponent
+    curve = NasgroCurve(
+        coefficient=coefficient,
+        exponent=exponent,
+        p=0.0,
+        q=0.0,
+        threshold_zero=0.0,
+        threshold_fanning=0.0,
+        toughness=100 * ksi * math.sqrt(inch),
+        constraint=2.0,
+        peak_to_flow=0.3,
+    )
+    # At fixed R, cancel the constant Newman opening factor to recover
+    # the reported Walker m=1 law. This uses no observed growth to fit C.
+    k_min = geometry.stress_intensity(minimum)[0]
+    k_max = geometry.stress_intensity(maximum)[0]
+    walker_rate = coefficient * (k_max - k_min) ** exponent
+    nasgro_rate = curve.get_growth_rate(geometry.depth, k_min, k_max)
+    curve = replace(curve, coefficient=coefficient * walker_rate / nasgro_rate)
+    result = simulate_crack_growth(
+        geometry,
+        curve,
+        [LoadBlock(minimum, maximum, 40_000)],
+        max_cycle_step=8.0,
+        length_tolerance=1e-7,
+        cycle_tolerance=0.001,
+        max_trials=200_000,
+    )
+    assert result.termination == "spectrum_exhausted"
+    # The published 8 ksi sqrt(in) cutoff is below both effective ranges.
+    for point in result.history:
+        assert min(np.subtract(point.k_max, point.k_min)) > (
+            8 * ksi * math.sqrt(inch) / 0.9
+        )
+    cycles, depth = np.array(
+        [(point.cycles, point.sizes[0] / inch) for point in result.history]
+    ).T
+    # Plot estimates on report p. 17. The depth axis has 0.2 in intervals.
+    sampled = np.interp([10_000, 20_000, 30_000, 40_000], cycles, depth)
+    assert sampled == pytest.approx([0.08, 0.10, 0.15, 0.29], abs=0.01)
+
+
 def test_nasgro_published_curve_and_threshold():
     curve = a357_curve()
     intensity = 6.894757293 * math.sqrt(25.4)
@@ -312,10 +439,10 @@ def test_ordered_loads_and_convergence(geometry, dimensions):
     for initial, final in zip(fine.history[0].sizes, fine.history[-1].sizes):
         assert final > initial
     if dimensions == 2:
-        # Independent RK4 calculation of TP-1578 and NASGRO 3.0,
-        # using 4,000 steps per block and the fixture's A357 fit.
+        # Independent RK4 calculation of TP-1578 and NASGRO 3.0 including
+        # the free-surface range correction, with 4,000 steps per block.
         assert fine.history[-1].sizes == pytest.approx(
-            (6.012803427721083, 10.006956211847994), abs=2e-6
+            (6.012798579563954, 10.004135700773052), abs=2e-6
         )
     assert coarse.history[-1].sizes == pytest.approx(
         fine.history[-1].sizes, abs=2e-6

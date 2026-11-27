@@ -208,23 +208,37 @@ crack and plate half-widths. A surface crack takes depth and half-length and
 returns intensities at the deepest point and the free surface in that order.
 
 The implemented center-crack range is $0 < a/b \le 0.8$, and the surface fit
-uses $0 < a/c \le 1$, $0 < a/t \le 0.8$, and $0 < c/b < 0.5$.
+uses $0 < a/c \le 1.2$, $0 < a/t \le 0.8$, and $0 < c/b < 0.5$.
+For surface cracks deeper than their half-length, SC01 uses the companion
+Newman–Raju fit in NASA TM-83200.
 The solution uses linear-elastic stress intensity in uniform membrane tension.
 The solver stops at a toughness or geometry limit. Its final point is the
 last accepted state on the admissible side of the terminal cycle bracket.
 
 `NasgroCurve` uses the NASGRO 3.0 growth and threshold equations with a fixed,
 user-supplied toughness and the Newman opening law at nonnegative stress ratios.
+For SC01 growth at the free surface, the solver scales $\Delta K$ by
+$\beta_R=0.9+0.2R^2-0.1R^4$. Intensity plots, history and the toughness
+check use the applied intensities. [SwRI release notes, pp. 5–6](https://member-nasgro.swri.org/system/tdf/nasgro_v8.0_release_notes.pdf?file=1&force=0&id=29658&type=node)
+
 Supply calibrated material inputs in the stated unit system. Bending,
 retardation, geometry transitions, and the NASGRO material database are outside
 this implementation.
 
-The geometry equations and growth law are based on published sources. Numerical
-checks against those sources cover the supported subset. Reproducing the full
-NASFLA application requires further case-specific verification.
+The TC01 regression reproduces the published 7075-T6 constant-amplitude life
+within 0.3% using the rounded inputs in Figures 5 and 8. The SC01 regression
+checks the crack shape at several depths against the published 2219-T87
+tension prediction. It also reproduces the NASA/FLAGRO specimen 5576
+pre-breakthrough depth history within 0.01 in at four cycle counts through
+40,000 cycles. That comparison uses the reported Walker law at fixed stress
+ratio. Exact version-specific NASFLA agreement requires a matching input deck
+and output history.
 
 - [Center crack finite-width solution](https://ntrs.nasa.gov/citations/19750019342)
-- [Newman–Raju surface crack fit](https://ntrs.nasa.gov/citations/19800005257)
+- [TC01 life reference](https://hrcak.srce.hr/file/111988)
+- [Newman–Raju surface crack fit and growth shape, Figure 12](https://ntrs.nasa.gov/citations/19800005257)
+- [Deep surface crack fit, equations 16–25](https://ntrs.nasa.gov/citations/19810023035)
+- [SC01 depth history, NASA TM-100383, pp. 15–17](https://ntrs.nasa.gov/citations/19900016044)
 - [NASGRO 3.0 rate and threshold equations](https://ntrs.nasa.gov/citations/19990028759)
 - [Newman opening law](https://ntrs.nasa.gov/citations/19840050000)
 
