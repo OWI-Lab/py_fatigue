@@ -1320,6 +1320,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#request-a-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Request a token
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#load-your-token" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1358,6 +1369,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Claude Code
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Zed
       </span>
     </span>
   </a>
@@ -1591,6 +1613,177 @@
   
 
       </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Usage prompts
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Usage prompts
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./09-count-and-combine-cycles.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  9. Count, combine, and scale cycles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./10-evaluate-and-plot-curves.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  10. Evaluate and plot material curves
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./11-plot-geometries-and-growth.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  11. Plot geometries and crack growth
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./12-generate-and-analyze-data.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  12. Generate and analyze synthetic data
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
     </li>
   
 
@@ -2629,6 +2822,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#request-a-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Request a token
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#load-your-token" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2673,6 +2877,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#zed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Zed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2711,8 +2926,13 @@
 
 <h1 id="3-connect-to-hosted-mcp">3. Connect to hosted MCP<a class="headerlink" href="#3-connect-to-hosted-mcp" title="Permanent link">&para;</a></h1>
 <p>Use an MCP client with Streamable HTTP and bearer-token support.
-Get a bearer token from the Py-Fatigue MCP operator. You can also
-<a href="02-run-locally.html">run the MCP locally</a>.</p>
+You can also <a href="02-run-locally.html">run MCP locally without a token</a>.</p>
+<h2 id="request-a-token">Request a token<a class="headerlink" href="#request-a-token" title="Permanent link">&para;</a></h2>
+<p>Email <a href="mailto:pietro.dantuono@vub.be">pietro.dantuono@vub.be</a> to request
+hosted access. Include your name, your organization if applicable, and
+how you plan to use the service. The package maintainer will share the token
+privately if access is approved. Use the value you receive as
+<code>PY_FATIGUE_MCP_TOKEN</code> in your client.</p>
 <table>
 <thead>
 <tr>
@@ -2736,7 +2956,7 @@ Get a bearer token from the Py-Fatigue MCP operator. You can also
 </tbody>
 </table>
 <p>Enter the token using your client’s credential settings if available.
-The two CLI configurations below read it from an environment variable.</p>
+The CLI examples below read it from an environment variable.</p>
 <h2 id="load-your-token">Load your token<a class="headerlink" href="#load-your-token" title="Permanent link">&para;</a></h2>
 <p>In Bash, enter the token at the hidden prompt. Launch your client from
 this shell so it can read the exported variable.</p>
@@ -2774,12 +2994,39 @@ add the <code>py-fatigue-hosted</code> entry to its <code>mcpServers</code> obje
 <p>Start <code>claude</code> from that directory. Approve the project MCP configuration
 if prompted, then run <code>/mcp</code> and look for <code>py-fatigue-hosted</code>.
 <a href="https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcpjson">Claude Code MCP configuration</a></p>
+<h3 id="zed">Zed<a class="headerlink" href="#zed" title="Permanent link">&para;</a></h3>
+<p>Open <strong>Settings → AI → MCP Servers</strong> and choose
+<strong>Add Server → Add Remote Server</strong>. Name it <code>py-fatigue-hosted</code> and use
+<code>https://mcp.py-fatigue.dev/mcp</code> as the URL.</p>
+<p>To configure the header in JSON, run <code>zed: open settings file</code> from the
+Command Palette and merge the entry into your personal <code>context_servers</code>
+settings. Replace <code>&lt;your token&gt;</code> with the privately supplied value and
+keep the token out of shared project settings and Git.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"context_servers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"py-fatigue-hosted"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://mcp.py-fatigue.dev/mcp"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"Authorization"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer &lt;your token&gt;"</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Check for the active indicator beside <code>py-fatigue-hosted</code> in
+<strong>Settings → AI → MCP Servers</strong>. Open the Agent Panel and mention the
+server by name when you try the
+<a href="04-analyze-stress-history.html">inline stress-history example</a>.
+<a href="https://zed.dev/docs/ai/mcp#as-custom-servers">Zed MCP setup</a></p>
 <h2 id="verify-the-connection">Verify the connection<a class="headerlink" href="#verify-the-connection" title="Permanent link">&para;</a></h2>
 <p>List the server’s tools in your client. You should see
 <code>rainflow_count</code>, <code>miner_damage</code>, and <code>ordered_crack_growth</code>. If you
 get HTTP <code>401</code>, check your token and how the client loads it.</p>
-<p>If your server lists <code>lffd_recovery</code>, you can also
-<a href="06-recover-lffd.html">recover cycles across stress windows</a>.</p>
+<p>Tool availability follows the server version. Use the
+<a href="02-run-locally.html">local 0.2.0 setup</a> if the hosted instance
+does not advertise the newer tools. Hosted requests use inline samples
+or synthetic specifications. PNG and ECharts results are returned to
+the client without writing files on the host.</p>
 <p>Continue with the <a href="04-analyze-stress-history.html">inline stress history example</a>.</p>
 
 

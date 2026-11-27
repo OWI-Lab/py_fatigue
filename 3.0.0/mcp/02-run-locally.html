@@ -1312,6 +1312,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Connect a stdio client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Zed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1574,6 +1591,177 @@
   
 
       </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Usage prompts
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Usage prompts
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./09-count-and-combine-cycles.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  9. Count, combine, and scale cycles
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./10-evaluate-and-plot-curves.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  10. Evaluate and plot material curves
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./11-plot-geometries-and-growth.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  11. Plot geometries and crack growth
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./12-generate-and-analyze-data.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  12. Generate and analyze synthetic data
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
     </li>
   
 
@@ -2631,6 +2819,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Connect a stdio client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Zed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2681,7 +2886,7 @@ can read CSV inputs and export full results on your machine.</p>
 <h2 id="install-from-pypi">Install from PyPI<a class="headerlink" href="#install-from-pypi" title="Permanent link">&para;</a></h2>
 <p>Install the companion package from PyPI with uv. If uv asks you to add its
 tool directory to <code>PATH</code>, run <code>uv tool update-shell</code> and open a new shell.</p>
-<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>py-fatigue-mcp<span class="o">==</span><span class="m">0</span>.1.0
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>py-fatigue-mcp<span class="o">==</span><span class="m">0</span>.2.0
 </code></pre></div>
 <h2 id="connect-a-stdio-client">Connect a stdio client<a class="headerlink" href="#connect-a-stdio-client" title="Permanent link">&para;</a></h2>
 <p>Set the transport to stdio and use the absolute path returned by
@@ -2690,11 +2895,36 @@ the executable like this.</p>
 <div class="highlight"><pre><span></span><code>codex<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>py-fatigue<span class="w"> </span>--<span class="w"> </span><span class="s2">"</span><span class="k">$(</span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>py-fatigue-mcp<span class="k">)</span><span class="s2">"</span>
 </code></pre></div>
 <p>Check tool discovery in your client. In a new Codex session, use <code>/mcp</code>.
-The server exposes <code>rainflow_count</code>, <code>miner_damage</code>, and
-<code>ordered_crack_growth</code>.</p>
+Version 0.2.0 adds <code>cycle_count</code>, <code>sn_curve</code>, <code>geometry_stress_intensity</code>,
+<code>generate_synthetic_data</code>, and <code>plot_py_fatigue</code>. Check the
+<a href="08-tool-reference.html">tool reference</a> for the full list.</p>
+<h3 id="zed">Zed<a class="headerlink" href="#zed" title="Permanent link">&para;</a></h3>
+<p>After installing the package, run <code>command -v py-fatigue-mcp</code> to get
+the executable's absolute path. In Zed, open <strong>Settings → AI → MCP Servers</strong>
+and choose <strong>Add Server → Add Local Server</strong>. Name it <code>py-fatigue</code> and
+enter that path as the command.</p>
+<p>You can also run <code>zed: open settings file</code> from the Command Palette and
+merge this entry into your existing <code>context_servers</code> settings.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"context_servers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"py-fatigue"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/absolute/path/to/py-fatigue-mcp"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">      </span><span class="nt">"env"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>To enable local CSV access, add <code>PY_FATIGUE_MCP_INPUT_DIR</code> and
+<code>PY_FATIGUE_MCP_OUTPUT_DIR</code> under <code>env</code>, with the absolute paths to your
+existing directories. Check for the active indicator beside the server
+in <strong>Settings → AI → MCP Servers</strong>, then open the Agent Panel and try
+the <a href="04-analyze-stress-history.html">stress-history example</a>. Mention
+<code>py-fatigue</code> by name in the prompt.
+<a href="https://zed.dev/docs/ai/mcp#as-custom-servers">Zed MCP setup</a></p>
 <h2 id="run-from-a-checkout">Run from a checkout<a class="headerlink" href="#run-from-a-checkout" title="Permanent link">&para;</a></h2>
-<p>Use this setup to try tools that are still in development, including
-<code>lffd_recovery</code>. Clone the repository and use its absolute path in the
+<p>Use this setup to try tools from a development branch. Clone the
+repository and use its absolute path in the
 command below. Building the Python library from the checkout requires Rust.</p>
 <div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>--project<span class="w"> </span>/absolute/path/to/py_fatigue/extensions/py-fatigue-mcp<span class="w"> </span>py-fatigue-mcp
 </code></pre></div>
