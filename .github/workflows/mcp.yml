@@ -3,7 +3,7 @@ name: Py-Fatigue MCP
 on:
   pull_request:
     paths:
-      - 'packages/py-fatigue-mcp/**'
+      - 'extensions/py-fatigue-mcp/**'
       - 'py_fatigue/**'
       - 'rust/**'
       - 'Cargo.*'
@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: rustup toolchain install stable --profile minimal
-      - working-directory: packages/py-fatigue-mcp
+      - working-directory: extensions/py-fatigue-mcp
         run: uv run --python "${{ matrix.python }}" pytest
 
   build:
@@ -43,13 +43,13 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/mcp-v')
         run: |
           git merge-base --is-ancestor HEAD origin/develop
-          version=$(python -c 'import tomllib; print(tomllib.load(open("packages/py-fatigue-mcp/pyproject.toml", "rb"))["project"]["version"])')
+          version=$(python -c 'import tomllib; print(tomllib.load(open("extensions/py-fatigue-mcp/pyproject.toml", "rb"))["project"]["version"])')
           test "$GITHUB_REF_NAME" = "mcp-v$version"
-      - run: uv build --no-sources packages/py-fatigue-mcp --out-dir mcp-dist
+      - run: uv build --no-sources extensions/py-fatigue-mcp --out-dir mcp-dist
       - name: Test wheel against published Py-Fatigue
         run: |
           wheel=$(realpath mcp-dist/*.whl)
-          tests=$(realpath packages/py-fatigue-mcp/tests)
+          tests=$(realpath extensions/py-fatigue-mcp/tests)
           cd "$RUNNER_TEMP"
           uv run --no-project --with "$wheel" --with pytest pytest "$tests"
       - uses: actions/upload-artifact@v4

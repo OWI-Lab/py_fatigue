@@ -9,8 +9,8 @@ The client starts a subprocess on your machine.
 From a checkout of the Py-Fatigue repository, with uv and Rust installed, run:
 
 ```sh
-uv sync --project packages/py-fatigue-mcp --no-dev
-codex mcp add py-fatigue -- "$PWD/packages/py-fatigue-mcp/.venv/bin/py-fatigue-mcp"
+uv sync --project extensions/py-fatigue-mcp --no-dev
+codex mcp add py-fatigue -- "$PWD/extensions/py-fatigue-mcp/.venv/bin/py-fatigue-mcp"
 ```
 
 Start a new Codex session and run `/mcp` to check the connection. In other
@@ -25,7 +25,7 @@ you want the client to be able to read.
 codex mcp add py-fatigue \
   --env "PY_FATIGUE_MCP_INPUT_DIR=/absolute/path/to/input" \
   --env "PY_FATIGUE_MCP_OUTPUT_DIR=/absolute/path/to/output" \
-  -- "$PWD/packages/py-fatigue-mcp/.venv/bin/py-fatigue-mcp"
+  -- "$PWD/extensions/py-fatigue-mcp/.venv/bin/py-fatigue-mcp"
 ```
 
 Other MCP clients can set the same environment variables when launching the
