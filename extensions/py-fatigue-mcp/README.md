@@ -7,7 +7,9 @@ for setup, tool inputs, and CSV examples.
 
 ## Release
 
-Configure the PyPI Trusted Publisher with owner `OWI-Lab`, repository
-`py_fatigue`, workflow `mcp.yml`, and environment `pypi-mcp`.
+The Py-Fatigue MCP workflow uploads through the repository's
+`PYPI_API_TOKEN` secret in the `pypi-mcp` environment. The token needs
+permission to publish `py-fatigue-mcp`.
+
 Tag the merged revision with `mcp-v` followed by the package version,
 then dispatch the Py-Fatigue MCP workflow at that tag.
