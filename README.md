@@ -115,7 +115,7 @@ If you use Py-Fatigue in your research, please use the following citation:
 
 ```
 D’Antuono, P. D., Weijtjens, W. W., & Devriendt, C. D. (2022). Py-Fatigue [Software].
-In Github (2.0.1). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
+In Github (3.0.0). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 ```
 
 ### BibTeX-style
@@ -141,7 +141,7 @@ In Github (2.0.1). https://www.owi-lab.be/. https://owi-lab.github.io/py_fatigue
 	title = {Py-Fatigue},
 	type = {software},
 	url = {https://owi-lab.github.io/py_fatigue},
-	version = {2.0.1},
+	version = {3.0.0},
 }
 ```
 
