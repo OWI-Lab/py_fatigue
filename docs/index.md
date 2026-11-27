@@ -33,6 +33,10 @@ Count stress cycles, estimate fatigue damage, and predict crack growth with Pyth
 
     Run complete analyses and compare results with AFGROW examples.
 
+- **[MCP for Codex and other clients](user/mcp.md){ .home-wide-link }**
+
+    Run fatigue calculations through a local MCP client using inline data or CSV files.
+
 </div>
 
 </section>
@@ -134,6 +138,28 @@ print(f"Final crack half-length: {result.history[-1].sizes[0]:.3f} mm")
 
 <div class="home-divider" aria-hidden="true"></div>
 
+<section class="home-section home-example" aria-labelledby="run-fatigue-tools-from-an-mcp-client" markdown="1">
+
+<div markdown="1">
+
+## Run fatigue tools from an MCP client
+
+Use the companion package to count cycles, calculate Miner damage, or run ordered NASGRO crack growth. Export full results as local CSV files when you need them.
+
+[Follow the MCP worked example](user/examples/mcp-fatigue.md)
+
+</div>
+
+```text
+Use rainflow_count to count ASTM cycles in
+[0, 75, -15, 50, 0] MPa. Report the total cycle
+weight and the stress range of each counted row.
+```
+
+</section>
+
+<div class="home-divider home-divider--line" aria-hidden="true"></div>
+
 <section class="home-section home-resources" aria-labelledby="reference-and-background" markdown="1">
 
 ## Reference and background
@@ -142,5 +168,6 @@ print(f"Final crack half-length: {result.history[-1].sizes[0]:.3f} mm")
 - [Glossary](user/additional/glossary.md)
 - [Engineering guidelines](user/additional/relevant_guidelines.md)
 - [Architecture](architecture.md)
+- [Development guidelines](development.md)
 
 </section>

@@ -21,9 +21,9 @@ _static/css/
 nav = [
   { Home = "index.md" },
   { "Getting started" = "user/01-absolute-noob.md" },
-  { Architecture = "architecture.md" },
+  { Development = ["architecture.md", "development.md"] },
   { "User guide" = [
-    { "Overview" = ["user/02-user-guide.md", "user/migrate-v3.md"] },
+    { "Overview" = ["user/02-user-guide.md", "user/migrate-v3.md", "user/mcp.md"] },
     { "Examples" = [
       "user/examples/02-sn_curve.md",
       "user/examples/03-cg_curve.md",
@@ -32,6 +32,7 @@ nav = [
       "user/examples/06-mean_stress.md",
       "user/examples/07-damage.md",
       "user/examples/08-ordered-crack-growth.md",
+      "user/examples/mcp-fatigue.md",
       "user/examples/01-notebook_setup.md",
     ] },
     { "Background" = [

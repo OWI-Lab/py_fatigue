@@ -1,0 +1,72 @@
+name: Py-Fatigue MCP
+
+on:
+  pull_request:
+    paths:
+      - 'extensions/py-fatigue-mcp/**'
+      - 'py_fatigue/**'
+      - 'rust/**'
+      - 'Cargo.*'
+      - 'pyproject.toml'
+      - '.github/workflows/mcp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.10', '3.13', '3.15']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: rustup toolchain install stable --profile minimal
+      - working-directory: extensions/py-fatigue-mcp
+        run: uv run --python "${{ matrix.python }}" pytest
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.13'
+      - name: Check release source
+        if: startsWith(github.ref, 'refs/tags/mcp-v')
+        run: |
+          git merge-base --is-ancestor HEAD origin/develop
+          version=$(python -c 'import tomllib; print(tomllib.load(open("extensions/py-fatigue-mcp/pyproject.toml", "rb"))["project"]["version"])')
+          test "$GITHUB_REF_NAME" = "mcp-v$version"
+      - run: uv build --no-sources extensions/py-fatigue-mcp --out-dir mcp-dist
+      - name: Test wheel against published Py-Fatigue
+        run: |
+          wheel=$(realpath mcp-dist/*.whl)
+          tests=$(realpath extensions/py-fatigue-mcp/tests)
+          cd "$RUNNER_TEMP"
+          uv run --no-project --with "$wheel" --with pytest pytest "$tests"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mcp-dist
+          path: mcp-dist/
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/mcp-v')
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    environment: pypi-mcp
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: mcp-dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

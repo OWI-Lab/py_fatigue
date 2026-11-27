@@ -101,3 +101,6 @@ uv.lock
 pkg_graph.*
 
 /notebooks/tutorials-repository/
+
+# Local action plans
+/action-plan/
