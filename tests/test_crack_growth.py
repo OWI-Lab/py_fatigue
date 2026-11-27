@@ -345,6 +345,58 @@ def test_sc01_growth_shape_against_newman_raju() -> None:
     assert ratios == pytest.approx([1.015, 0.98, 0.93, 0.89], abs=0.015)
 
 
+def test_sc01_depth_history_against_nasa_flagro() -> None:
+    """Check NASA TM-100383 case 5576 before plate breakthrough."""
+    inch = 25.4
+    ksi = 6.894757293
+    geometry = SemiEllipticalSurfaceCrack(
+        2 * inch, 0.5 * inch, 0.06 * inch, 0.06 * inch
+    )
+    maximum = 57 * ksi
+    minimum = 0.05 * maximum
+    exponent = 3.54
+    coefficient = 7.63e-11 * inch / (ksi * math.sqrt(inch)) ** exponent
+    curve = NasgroCurve(
+        coefficient=coefficient,
+        exponent=exponent,
+        p=0.0,
+        q=0.0,
+        threshold_zero=0.0,
+        threshold_fanning=0.0,
+        toughness=100 * ksi * math.sqrt(inch),
+        constraint=2.0,
+        peak_to_flow=0.3,
+    )
+    # At fixed R, cancel the constant Newman opening factor to recover
+    # the reported Walker m=1 law. This uses no observed growth to fit C.
+    k_min = geometry.stress_intensity(minimum)[0]
+    k_max = geometry.stress_intensity(maximum)[0]
+    walker_rate = coefficient * (k_max - k_min) ** exponent
+    nasgro_rate = curve.get_growth_rate(geometry.depth, k_min, k_max)
+    curve = replace(curve, coefficient=coefficient * walker_rate / nasgro_rate)
+    result = simulate_crack_growth(
+        geometry,
+        curve,
+        [LoadBlock(minimum, maximum, 40_000)],
+        max_cycle_step=8.0,
+        length_tolerance=1e-7,
+        cycle_tolerance=0.001,
+        max_trials=200_000,
+    )
+    assert result.termination == "spectrum_exhausted"
+    # The published 8 ksi sqrt(in) cutoff is below both effective ranges.
+    for point in result.history:
+        assert min(np.subtract(point.k_max, point.k_min)) > (
+            8 * ksi * math.sqrt(inch) / 0.9
+        )
+    cycles, depth = np.array(
+        [(point.cycles, point.sizes[0] / inch) for point in result.history]
+    ).T
+    # Plot estimates on report p. 17. The depth axis has 0.2 in intervals.
+    sampled = np.interp([10_000, 20_000, 30_000, 40_000], cycles, depth)
+    assert sampled == pytest.approx([0.08, 0.10, 0.15, 0.29], abs=0.01)
+
+
 def test_nasgro_published_curve_and_threshold():
     curve = a357_curve()
     intensity = 6.894757293 * math.sqrt(25.4)

@@ -228,13 +228,17 @@ this implementation.
 The TC01 regression reproduces the published 7075-T6 constant-amplitude life
 within 0.3% using the rounded inputs in Figures 5 and 8. The SC01 regression
 checks the crack shape at several depths against the published 2219-T87
-tension prediction. Exact version-specific NASFLA agreement requires a
-matching input deck and output history.
+tension prediction. It also reproduces the NASA/FLAGRO specimen 5576
+pre-breakthrough depth history within 0.01 in at four cycle counts through
+40,000 cycles. That comparison uses the reported Walker law at fixed stress
+ratio. Exact version-specific NASFLA agreement requires a matching input deck
+and output history.
 
 - [Center crack finite-width solution](https://ntrs.nasa.gov/citations/19750019342)
 - [TC01 life reference](https://hrcak.srce.hr/file/111988)
 - [Newman–Raju surface crack fit and growth shape, Figure 12](https://ntrs.nasa.gov/citations/19800005257)
 - [Deep surface crack fit, equations 16–25](https://ntrs.nasa.gov/citations/19810023035)
+- [SC01 depth history, NASA TM-100383, pp. 15–17](https://ntrs.nasa.gov/citations/19900016044)
 - [NASGRO 3.0 rate and threshold equations](https://ntrs.nasa.gov/citations/19990028759)
 - [Newman opening law](https://ntrs.nasa.gov/citations/19840050000)
 
