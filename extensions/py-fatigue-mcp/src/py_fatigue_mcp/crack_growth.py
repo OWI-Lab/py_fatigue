@@ -120,7 +120,7 @@ class SC11(InputModel):
     hole_diameter: Positive
     depth: Positive
     half_length: Positive
-    crack_count: Literal[1, 2]
+    crack_count: Annotated[int, Field(ge=1, le=2)]
 
 
 CrackGeometry = Annotated[

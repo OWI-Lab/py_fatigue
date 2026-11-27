@@ -109,6 +109,11 @@ def rainflow_table(stress: StressInput) -> NDArray[np.float64]:
             "A stress history requires at least two stress samples."
         )
     cycles = rainflow(stress, extended_output=False)
+    if not len(cycles) and min(stress) != max(stress):
+        raise ToolError(
+            "Rainflow returned no cycles for a varying stress history. "
+            "Supply a complete history or pass counted cycles to miner_damage."
+        )
     table = cycles[:, :3].copy()
     table[:, 0] *= 2
     if not np.isfinite(table).all():

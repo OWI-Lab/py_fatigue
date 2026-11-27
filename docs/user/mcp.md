@@ -4,6 +4,9 @@ The local MCP server gives Codex and other stdio clients access to ASTM
 rainflow counting, Palmgren–Miner damage, and ordered NASGRO crack growth.
 The client starts a subprocess on your machine.
 
+Follow the [worked MCP example](examples/mcp-fatigue.md) to count a stress
+history, check the Miner damage, and export the damage contributions.
+
 ## Connect Codex
 
 From a checkout of the Py-Fatigue repository, with uv and Rust installed, run:
@@ -43,6 +46,8 @@ The result gives the number of cycle rows, the sum of their weights
 (`total_cycles`), and a preview with stress range, mean stress, and cycle
 weight. A half cycle contributes 0.5 to the sum. The preview shows unbinned
 cycles, including any counted half cycles.
+If the core counter returns no rows for a varying history, the tool reports
+an error. A constant history gives zero counted cycles.
 
 ## Calculate Miner damage
 

@@ -188,6 +188,16 @@ async def test_csv_and_validation_errors(client, tmp_path: Path) -> None:
 
     empty = await call(client, "rainflow_count", stress=[0, 0])
     assert empty == dict(row_count=0, total_cycles=0, preview=[], export=None)
+    await assert_tool_error(
+        client, "rainflow_count", "varying stress history", stress=[0, 1]
+    )
+    await assert_tool_error(
+        client,
+        "miner_damage",
+        "varying stress history",
+        source={"kind": "stress_history", "stress": [0, 1, 0]},
+        curve={"slope": 3, "intercept": 12},
+    )
     damage = await call(
         client,
         "miner_damage",
@@ -337,5 +347,20 @@ async def test_crack_growth_stops_and_errors(client) -> None:
         **(
             arguments
             | {"geometry": arguments["geometry"] | {"half_length": 45}}
+        ),
+    )
+    await assert_tool_error(
+        client,
+        name,
+        "crack_count",
+        **(
+            arguments
+            | {
+                "geometry": {
+                    "case": "SC11",
+                    **asdict(cg.HoleBoreSurfaceCrack(80, 12, 12, 2.2, 2.5, 1)),
+                    "crack_count": True,
+                }
+            }
         ),
     )

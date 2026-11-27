@@ -2,8 +2,8 @@
 
 ## Current boundaries
 
-Py-Fatigue 3 ships as one Python distribution. Its public classes still
-live at their original import paths. Python owns the user interface, binning,
+The Py-Fatigue 3 numerical core ships as one Python distribution. Its
+public classes live at their original import paths. Python owns the interface, binning,
 serialization and plots. Maturin builds the private `py_fatigue._rust`
 extension. PyO3 translates arrays and errors at the boundary. Cargo can test
 the numerical core independently of Python.
@@ -14,8 +14,17 @@ Matplotlib figure and an interactive ECharts view.
 
 Moving a kernel to Rust does not change its responsibilities. The current
 `CycleCount` still owns several kinds of operations, and the ordered
-crack-growth solver currently couples one material law to two plate geometries.
+crack-growth solver uses NASGRO with supported plate, shell, bar, thread,
+and plate-hole geometries.
 The design below is a proposal for splitting those responsibilities.
+
+## MCP companion
+
+The independently installable `py-fatigue-mcp` package translates tool
+arguments and local CSV data into calls to the public Python API. The
+core library owns the numerical algorithms. The MCP package owns tool
+schemas, local file handling, and the stdio entry point. See the
+[MCP guide](user/mcp.md) for local setup and examples.
 
 ## Proposed architecture
 
@@ -51,8 +60,8 @@ remain the entry points for existing workflows.
 Keep the Rust or NumPy choice private to each algorithm. Plain array reductions
 can stay in NumPy. Stateful kernels can use Rust where the port improves
 maintenance or measured performance. Start with one distribution and small
-internal modules. Independent installation and release needs would justify
-revisiting a split into separately distributed packages.
+internal modules for the numerical core. The MCP companion has its own
+installation and release workflow.
 
 ## Migration order
 
@@ -71,5 +80,5 @@ revisiting a split into separately distributed packages.
 
 See the [notebook index](user/examples/01-notebook_setup.md) for short examples
 of the current API and the
-[experimental plate API guide](user/examples/08-ordered-crack-growth.md)
-for the implementation that is available in this release candidate.
+[ordered crack-growth guide](user/examples/08-ordered-crack-growth.md)
+for supported geometries and load cases in Py-Fatigue 3.
